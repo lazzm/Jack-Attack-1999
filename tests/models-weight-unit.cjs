@@ -1,4 +1,5 @@
 'use strict';
+const round=process.env.MODELS_ROUND||'r3';if(!/^r[0-9]+$/.test(round))throw Error('Invalid model round');
 // Original mechanics checks on the actual vendored r128 skin, no renderer.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{execFileSync}=require('node:child_process'),T=require('../app/public/vendor/three.min.js');
 const baseline=process.argv.includes('--baseline'),gradient={addColorStop(){}},paint=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient},{get:(o,k)=>k in o?o[k]:()=>{}});
@@ -14,9 +15,9 @@ for(const id of ['mom','dad','sister']){
  const r=c.NPCRig.create(id,{tier:'low'});r.floor=()=>0;r.teleport(0,0,57,0);step(r,120);
  const seat={x:0,z:0,face:0,h:45,back:true,hipForward:id==='sister'?0:10,footForward:id==='sister'?32:54,support:{side:'L',x:34,y:-63.3,z:25}};
  r.set({seat,action:null});const sit=[];
- for(let i=0;i<100;i++){const t=(i+1)/60,k=Math.min(1,t/(baseline?1.1:.7)),e=k*k*(3-2*k);r.root(0,0,57*(1-e),0,0);step(r,1);if([5,23,47,83].includes(i))sit.push({time:t,chestLean:lean(r,'chest'),hips:point(r,'hips').toArray(),brace:r.st.seatBraceK||0,leftPalm:point(r,'handL',new T.Vector3(0,-r.S.handLen*.35,r.S.handLen*.1)).toArray()});}
+ for(let i=0;i<100;i++){const t=(i+1)/60,k=Math.min(1,t/(baseline&&round==='r3'?1.1:.7)),e=k*k*(3-2*k);r.root(0,0,57*(1-e),0,0);step(r,1);if([5,23,47,83].includes(i))sit.push({time:t,chestLean:lean(r,'chest'),hips:point(r,'hips').toArray(),brace:r.st.seatBraceK||0,leftPalm:point(r,'handL',new T.Vector3(0,-r.S.handLen*.35,r.S.handLen*.1)).toArray()});}
  step(r,120);r.set({seat:null});const stand=[];
- for(let i=0;i<80;i++){const t=(i+1)/60,k=Math.max(0,Math.min(1,baseline?t/.95:(t-.12)/.83)),e=k*k*(3-2*k);r.root(0,0,57*e,0,0);step(r,1);if([5,23,47].includes(i))stand.push({time:t,chestLean:lean(r,'chest'),hips:point(r,'hips').toArray()});}
+ for(let i=0;i<80;i++){const t=(i+1)/60,k=Math.max(0,Math.min(1,baseline&&round==='r3'?t/.95:(t-.12)/.83)),e=k*k*(3-2*k);r.root(0,0,57*e,0,0);step(r,1);if([5,23,47].includes(i))stand.push({time:t,chestLean:lean(r,'chest'),hips:point(r,'hips').toArray()});}
  r.set({seat:null,action:null,look:null});r.st.sitK=0;r.teleport(0,0,0,0);r.st.glanceAt=Infinity;r.st.glance=null;step(r,120);const walking=[];
  for(let i=0;i<240;i++){r.root(0,0,(i+1)*r.S.speed/60,0,r.S.speed);step(r,1);walking.push({hips:point(r,'hips').toArray(),headLean:lean(r,'head'),chestLean:lean(r,'chest')});}
  const range=(a,k)=>Math.max(...a.map(k))-Math.min(...a.map(k));
@@ -26,9 +27,9 @@ for(const id of ['mom','dad','sister']){
  out.idle={nearPelvisRange:range(idle,a=>a.hips[0]),nearBreathRange:range(idle,a=>a.chestLean),farPelvisRange:range(far,a=>a.hips[0]),farBreathRange:range(far,a=>a.chestLean)};
  if(id==='dad'){
   r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'paper',engage:false});step(r,240);r.group.updateMatrixWorld(true);r.mesh.skeleton.update();
-  const g=r.mesh.geometry,indices=g.index.array,paperIndex=c.NPCRig.BONES.indexOf('p_paper'),paperTriangles=[],vertices=new Map(),closest=new T.Vector3();
+  const g=r.mesh.geometry,indices=g.index.array,paperIndex=c.NPCRig.BONES.indexOf('p_paper'),leafIndex=c.NPCRig.BONES.indexOf('jaw'),paperTriangles=[],vertices=new Map(),closest=new T.Vector3();
   const skinned=n=>{if(!vertices.has(n)){const v=new T.Vector3().fromBufferAttribute(g.attributes.position,n);r.mesh.boneTransform(n,v);r.mesh.localToWorld(v);vertices.set(n,v);}return vertices.get(n)};
-  for(let n=0;n<indices.length;n+=3)if(g.attributes.skinIndex.getX(indices[n])===paperIndex)paperTriangles.push(new T.Triangle(skinned(indices[n]),skinned(indices[n+1]),skinned(indices[n+2])));
+  for(let n=0;n<indices.length;n+=3)if(g.attributes.skinIndex.getX(indices[n])===paperIndex||g.attributes.skinIndex.getX(indices[n])===leafIndex)paperTriangles.push(new T.Triangle(skinned(indices[n]),skinned(indices[n+1]),skinned(indices[n+2])));
   out.paperFingers={};
   for(const side of ['L','R']){
    const halfWidth=Math.max(...paperTriangles.flatMap(tri=>[tri.a,tri.b,tri.c]).map(v=>Math.abs(r.bones.p_paper.worldToLocal(v.clone()).x)));
@@ -47,7 +48,7 @@ for(const id of ['mom','dad','sister']){
  out.voice={silent,audible,ended,browPeak};if(!baseline){assert.equal(silent,0,id+' silent voice opens mouth');assert.notEqual(audible,0,id+' audible voice stays closed');assert.equal(ended,0,id+' ended voice keeps mouth open');assert(browPeak>.002,id+' audible phrase has no readable brow accent');}
  report.people[id]=out;r.dispose();
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r3-weight-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));
+fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/'+round+'-weight-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 console.log(baseline?'BASELINE weight recorded':'PASS weight measurements finite');
 for(const p of Object.values(report.people))assert(JSON.stringify(p).indexOf('null')<0,'non-finite mechanics measurement');

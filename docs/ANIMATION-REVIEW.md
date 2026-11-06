@@ -1,6 +1,6 @@
 # Family model and animation pass — review log
 
-Current: [round 3 results](#round-3--5-november-2026) and [the rewritten next ten](#next-ten--remaining-after-round-3). Earlier round findings and validation remain as dated history.
+Current: round 4 implementation and the completed/unfinished verification record are below. Round 3 results and its dated carry-over list remain as history. Earlier round findings and validation remain as dated history.
 
 ## Round 1 baseline — historical
 
@@ -357,7 +357,7 @@ Earlier failures are retained honestly: the first baseline runner hit its captur
 No identity browser or separate mobile-perf script ran this round. Physical phones, arbitrary chair moves and actual mid-stand page reloads are unverified. The required browser commands run serially. The initial serial runner exits 1 because its first voice oracle failed; all other requested browser children exit 0. The corrected complete voice rerun passes 2/2 and exits 0. Both voice results remain separate rows; no failed exit is silently replaced.
 <!-- ROUND3_TESTS_END -->
 
-### Next ten — remaining after round 3
+### Round 3 carry-over list — historical
 
 1. Calibrate armless-seat lip reaches further: when an arm cannot reach the surface safely, the current rig deliberately uses the relaxed fallback. Give that transfer a convincing thigh/seat push without arm stretch.
 2. Replace the cupped resting lap hands with better thigh/armrest support and check finger-pad/self contact from several close angles.
@@ -369,3 +369,208 @@ No identity browser or separate mobile-perf script ran this round. Physical phon
 8. Author more dialogue intent in the brow/eye/body accents. The current signal supplies loudness/progress, not phoneme timings or emotional labels.
 9. Preserve the newspaper object frame during its fade/put-down and add a restrained original page-turn action.
 10. Calibrate explicit magazine, drawing-pad/crayon, watering-can and briefcase grips against their full solid geometry and finger volumes.
+
+
+## Round 4 — 6 November 2026
+
+Base: `dbe892526f82b1d10f90ea0cd5976b31070695c1`, merged 2.72.1. Research starts 04:00 UTC; production remains unchanged during the fifteen-minute research/baseline window. Speech selection and the new no-repeat memory are outside this pass.
+
+### Starting review, ranked before production edits
+
+1. The forward arm extreme folds the forearm upward; Mom reads as carrying an invisible parcel. Dad and the sister share the same elbow formula.
+2. The exposed neck remains a narrow vertical tube; the shoulder/collar join needs a larger, inclined base rather than another small width increase.
+3. Both resting hands cup together above the lap instead of lying on separate supported thighs.
+4. Armless and unreachable-armrest transfers lack a visible thigh push.
+5. When paper is hidden for conversation, its frame switches to the moving hands and head, causing a pop during the fade.
+6. The newspaper is static: no small leaf/page action supports the reading performance.
+7. Stair acceptance lacks interruptions and tight first/last-tread turns; established straight flights alone are insufficient.
+8. Actual page reload coverage remains one mid-sit, while the wider seat matrix only exercises save/restore APIs. The first restored bone pose also needs inspection.
+9. Questions and sentence endings still share largely generic accents, despite the existing loudness/progress signal and player look target.
+10. Magazine/pad/crayon/can/case contacts are not all calibrated against their solid geometry. Physical-phone GPU cost remains unmeasured.
+
+### Implementation and acceptance record
+
+Research findings for this round: preserve readable negative space around free arms, build neck mass into the shoulder silhouette, author support palms separately from handle hooks and edge pinches, and preserve an object's own frame when a hand releases. The source notes and limitations are in `ANIMATION-RESEARCH.md`. No downloaded code, models or textures are used.
+
+All production work is in `app/public/js/np-rig.js`; family routes, speech selection/no-repeat memory, audio, furniture placement and save formats are unchanged. Existing neck/torso vertices are redistributed; a reserved, previously unweighted jaw joint now articulates an existing solid newspaper leaf. No bone, mesh, triangle or draw is added. Cached thigh, magazine and drawing poses replace avoidable allocations.
+
+| Ranked finding | Change and acceptance |
+|---|---|
+| 1 — carrying-like free arm | Shoulder-driven swing, soft elbow and quiet wrist on all three. Actual skin measurements and first recaptures pass. |
+| 2 — tube neck | Wider inclined neck, broad base, reshaped trapezius/collar rings and a matching Dad collar. Geometry/LOD/outfit checks pass; matched final house review pending. |
+| 3 — cupped lap | Separate palm-down contacts follow the real solved upper thighs. Original rest-palm checks pass. |
+| 4 — armless transfers | Those same thigh supports remain available through sit/stand; reachable existing armrests still take precedence. Real-seat recapture coverage is recorded below, not assumed. |
+| 5 — paper release pop | Retain the last world-space paper frame while hands disengage; also retain the magazine frame. First release-frame translation is zero, including a separately moving root. |
+| 6 — static paper | An original 8° hinged leaf movement uses existing geometry/joint capacity. This is a restrained leaf adjustment, not a complete page flip. The grip accompanies it. |
+| 7 — interrupted stairs | Plan adjustment-step landing/clearance from the whole sole, lift before translating/rotating and lower after clearance. Actual skinned soles pass first/middle/last stops and turns in both directions at three speeds. |
+| 8 — reload coverage | Initialise the first restored bone target correctly even at zero elapsed time. New real reload matrix exercises natural lounge routines; actual results below. |
+| 9 — dialogue intent | Cache sentence boundaries/question intent at line start; consume existing audio loudness/progress for question brows and small terminal nods, and suppress addressed gaze breaks. Silent/ended mouth behaviour remains covered. |
+| 10 — prop grips | Authored magazine edge frames, pad support underneath its edge, a crayon pinch/tip on the solid pad, closed can/case handle hooks. Actual solid-surface tests include thumb and finger volumes. |
+
+Final measurements, browser exits, art review and the rewritten next ten follow after the serial gates.
+
+### Before/after mechanics and geometry
+
+| Person | Peak free-walk elbow bend | Highest wrist above hips | Low neck middle-ring width | Low near / far triangles, including shadow |
+|---|---:|---:|---:|---:|
+| mom | 58.2° → 18.1° | 14.8 → 3.7 cm | 9.3 → 11.4 cm | 2762 / 1726, unchanged |
+| dad | 53.1° → 16.7° | 13.7 → 2.7 cm | 9.8 → 12.0 cm | 2942 / 1890, unchanged |
+| sister | 57.5° → 15.9° | 14.1 → 4.3 cm | 9.6 → 11.2 cm | 2938 / 1830, unchanged |
+
+Two skinned draws per person before and after: one body/props mesh and its existing contact shadow. Triangle change: **0%** on every checked outfit/LOD. High near remains Mom 5,214, Dad 5,502, sister 5,522. Low/Potato near remains within 3,000.
+
+Dad’s first paper release changes from 14.62 cm / 10.03° to 0.00 cm / 0.00000°. A separately translated/turned root gives 3.55e-15 cm paper-frame drift. The solid leaf reaches 8.0°; the moving palm-anchor error peaks at 1.36 cm, so this remains a useful refinement target.
+
+Resting-palm normal changes from upward-facing (about −0.83 against house-down) to **+1.00** on the thigh. A newly restored, zero-time seated blend retains its phase and clock while acquiring about **13° forward chest lean**, instead of the old upright bind pose.
+
+Interrupted-stair acceptance: **216 scenarios** (three people × three speeds × two directions × four stop positions × three turn choices), checking actual skinned shoe-sole vertices through 150 stopped/turning frames each. Peak tread/riser penetration changes from **19.85 cm to 0 cm**. No two adjustment feet swing together; support-point drift is floating-point noise. This does not establish arbitrary 180° turns or route reversal/restart through the banister. A later settled-contact audit caught a regression in the conservative rectangular footprint: imaginary shoe corners could hold a foot 20.15 cm above the tread. The final planner samples the actual rounded outsole ring instead. The strengthened same 216-scenario test now checks hovering too: settled minimum sole clearance is 0.15 cm on every family rig, with zero penetration. The rejected intermediate measurement is retained in `r4-stair-interrupt-batch-rectangle.json`.
+
+| Solid contact sample | Before | After |
+|---|---:|---:|
+| Magazine right finger gap | 3.40 cm | 0.06 cm |
+| Crayon thumb gap | 1.52 cm | 0.05 cm |
+| Can finger gap | 0.52 cm | 0.02 cm |
+| Briefcase finger gap | 0.12 cm | 0.03 cm |
+| Pad supporting finger gap | 3.37 cm | 0.07 cm |
+| Crayon tip above pad top | 11.90 cm | 0.04 cm |
+
+These are nearest actual solid-surface/skin-vertex gaps, not proof of an anatomical, collision-free hand. Can/case thumb gaps remain about **1.3 cm**; the magazine, pad and crayon measured thumb gaps are below 0.1 cm. The pad palm supports the underside of its edge. The crayon’s former roughly 12 cm hover is removed.
+
+Original expression acceptance compares equal-length questions/statements against the same loudness/progress trace. Question brow peak is about **0.032 versus 0.020** for the statement, the terminal nod target reaches **4.3°**, addressed saccade offsets stay small, and the mouth closes when the recording ends. No voice selection, audio or hearing-memory code changes.
+
+
+### Final rig CPU budget
+
+Paired AB/BA on vendored r128: 16 alternating 2,000-frame batches after 3,000 warm-up frames. Final complete run used the final rounded-outline source, with the browser closed. Values are **ms/frame for all three rigs together**, excluding rendering; they are not physical-phone GPU measurements.
+
+| Mode | HEAD median ms | Final median ms | Change |
+|---|---:|---:|---:|
+| idle | 0.05597 | 0.04024 | -28.1% |
+| walk | 0.05812 | 0.04789 | -17.6% |
+| turns | 0.04663 | 0.06436 | +38.0% |
+| jobs | 0.05160 | 0.05783 | +12.1% |
+| seated | 0.05961 | 0.05229 | -12.3% |
+| far | 0.04235 | 0.04411 | +4.2% |
+| stairs | 0.06320 | 0.04885 | -22.7% |
+| house-stairs | 0.06829 | 0.04660 | -31.8% |
+
+Largest median increase: **0.01772 ms for all three rigs**. Two skinned draws and every checked triangle count are unchanged. Earlier paired samples are retained in `r4-paired-cpu-batch1.json`; absolute times from different shared-host load windows are not directly comparable.
+
+### Evidence and final validation
+
+Native family evidence was captured without a forced test raster cap. All generated frame sheets were opened for review, including every final 2 m/4 m probe sequence and the matched house comparisons.
+
+- `tests/shots/models/r4-comparisons/`: 60 exact-camera/time house comparison sheets; body/action batch frames are labelled R4 BATCH and superseding collar/walk frames are labelled FINAL. The latest desktop stair correction is shown separately in `r4-stair-final/house/`.
+- `tests/shots/models/r4-before/house/` and `r4-after/house/`: 576 native frames each. Five principal actions on desktop, portrait phone, landscape phone and 1024×768 tablet; interrupted/turning entry-tread cases on desktop/phone. Near/far house ranges are recorded, rather than asserted to be exactly 2/4 m.
+- `tests/shots/models/r4-neck-final/house/`: 48 final-collar walk frames on desktop/phone and a correctly rendered real mid-sit reload pair (`sheet-refresh.jpg`).
+- `tests/shots/models/r4-stair-final/house/`: final rounded-outline stair-stop/turn recapture on desktop, same near/far cameras as HEAD. The earlier phone interruption batch predates the late footprint correction.
+- `tests/shots/models/r4-probe/`: 576 Low frames at exactly 2 m / 4 m, desktop/portrait phone; all outfits/LOD geometry budgets also checked.
+- `r4-props-before/`, `r4-props-after/`, `r4-paper-before/`, `r4-paper-final/`: separate original grip/question/armless and final crease/release sequences. Release includes the first 0/1/3/6 frames.
+
+Six unique actual page reload cases passed exactly: Mom/sofa L, Dad/armchair and sister/sofa R, each during sit and stand. Saved x/z, transition blend, phase and goal were unchanged. The first run was interrupted with terminal exit 143 after three checks; the resumed append/fill run exited 0 with all six complete. Its paused-bedroom pictures were rejected and moved under `r4-reloads/house/rejected/`. The corrected additional visible sister reload and nine legacy/API lounge-seat checks exited 0 in the final collar capture. Head/gaze cosmetics are not saved poses.
+
+The native capture-enabled Bonfire attempt was deliberately interrupted to limit extra outdoor capture cost. The no-extra-shots functional attempt then stalled waiting for `House.held() === "bf.tray"`. A real E retry on that same disposable page did not clear it; a direct read-only pick found the tray at about 119 cm. That fixture page was closed deliberately to end the stalled test; its recorded exit is **1**, not a pass. Root cause and a baseline comparison are unverified; no outdoor/Bonfire product code was changed.
+
+Functional browser gates used the existing `FIXTURE_RASTER_RATIO=0.5` fixture diagnostic and `BONFIRE_NO_SHOTS=1`; this does not modify shipped graphics. Native family evidence and rig CPU measurements remain separate. The runner explicitly removes the raster cap from model and mobile children. The full voices entry ran all nine cases and passed 9/9. The queue was stopped at the time reserve; inspect the table for completed children.
+
+| Actual command | Exit | Seconds |
+|---|---:|---:|
+| `node tests/models-perf.cjs` | 0 | 37.999 |
+| `node tests/models-animation.mjs --label=r4-props-before --baseline --only=question,magazine,draw,water,briefcase,page,release,armless --skip-perf` | 0 | 25.905 |
+| `node tests/models-animation.mjs --label=r4-props-after --only=question,magazine,draw,water,briefcase,page,release,armless --skip-perf` | 0 | 27.740 |
+| `node tests/models-house-r3.mjs --label=r4-before --baseline --only=stairs-turn-up,stairs-turn-down --devices=desktop,phone --append` | 0 | 142.211 |
+| `node tests/models-house-r3.mjs --label=r4-after --only=walk,sit,stand,job,talk,stairs-turn-up,stairs-turn-down --devices=desktop,phone,landscape,tablet --stair-devices=desktop,phone` | 0 | 646.198 |
+| `node tests/models-animation.mjs --label=r4-probe --only=idle,walk,stop,turn,rear,stairs,stairs-down,sit,stand,job,carry,talk --skip-perf --stairs-rise=20` | 0 | 55.466 |
+| `node tests/models-animation.mjs --label=r4-paper-before --baseline --only=page,release --skip-perf` | 0 | 4.221 |
+| `node tests/models-animation.mjs --label=r4-paper-final --only=page,release --skip-perf` | 0 | 4.271 |
+| `node tests/models-house-r3.mjs --label=r4-neck-final --only=walk --devices=desktop,phone --verify-seats` | 0 | 94.786 |
+| `node tests/models-house-r3.mjs --label=r4-stair-final --only=stairs-turn-up,stairs-turn-down --devices=desktop` | 0 | 91.729 |
+| `node tests/models-perf.cjs` | 0 | 31.307 |
+| `node tests/models-perf.cjs` | 0 | 22.433 |
+| `node tests/events-bonfire.mjs http://127.0.0.1:18080` | 1 | 603.024 |
+| `node tests/voices.mjs http://127.0.0.1:18080` | 0 | 619.414 |
+| `node tests/door-walk.mjs http://127.0.0.1:18080` | 0 | 84.075 |
+| `for f in app/public/js/np-rig.js tests/models-*.{cjs,mjs}; do node --check "$f" || exit; done` | 0 | — |
+| `node --expose-internals tests/parody-audit.cjs` | 0; 0 authored spans | — |
+| `MODELS_ROUND=r4 python3 tests/models-units.py` | 0; 56/56 | — |
+| `node tests/models-house-r3.mjs --label=r4-reloads --seats-only --reload-matrix --devices=desktop --append --fill` | 0; 6 unique exact reloads | — |
+
+**Not completed at the reserve:** the character day/space/bump gate started and was interrupted before a result; people-pass desktop/skip-perf, mobile gate/perf and smoke did not run. No fresh full ten-surface seat matrix, moved-chair sweep, physical-device GPU/thermal run, or complete page flip was verified. Existing paper release is a stable fade, not a persistent object placed on furniture. The remaining next ten below are deliberately unfinished work.
+
+No deployment, commit, version/CHANGELOG/AGENTS edit, live-data access or new voice asset was performed. Production edits are confined to `np-rig.js`; `np-life.js`, `np-lines.js`, `st-voice.js` and `hs-life.js` have no diff. Pre-existing untracked `app/public/audio/voice` and `tests/tests/` were left alone.
+
+<details><summary>All 56 unit commands — actual exits</summary>
+
+| Command | Exit |
+|---|---:|
+| `node tests/art-gallery-unit.cjs` | 0 |
+| `node tests/art-return-unit.cjs` | 0 |
+| `node tests/audio-routing-unit.cjs` | 0 |
+| `node tests/bedroom-hifi-unit.cjs` | 0 |
+| `node tests/board-art-unit.cjs` | 0 |
+| `node tests/bonfire-geometry-unit.cjs` | 0 |
+| `node tests/bonfire-unit.cjs` | 0 |
+| `node tests/case-eject-unit.cjs` | 0 |
+| `node tests/cat-pose-unit.cjs` | 0 |
+| `node tests/console-surface-unit.cjs` | 0 |
+| `node tests/cupboard-geometry-unit.cjs` | 0 |
+| `node tests/family-phone-private-unit.cjs` | 0 |
+| `node tests/fix-1102-unit.cjs` | 0 |
+| `node tests/fixes2-1102-unit.cjs` | 0 |
+| `node tests/fixes3-unit.cjs` | 0 |
+| `node tests/fixes4-geometry-unit.cjs` | 0 |
+| `node tests/fixes4-unit.cjs` | 0 |
+| `node tests/fixes5-unit.cjs` | 0 |
+| `node tests/graphics-device-unit.cjs` | 0 |
+| `node tests/grass-state-unit.cjs` | 0 |
+| `node tests/hs-input-unit.cjs` | 0 |
+| `node tests/identity-unit.cjs` | 0 |
+| `node tests/jw-furni-unit.cjs` | 0 |
+| `node tests/magazine-catalogue-unit.cjs` | 0 |
+| `node tests/mobile-frame-unit.cjs` | 0 |
+| `node tests/mobile-phone-unit.cjs` | 0 |
+| `node tests/models-appeal-unit.cjs` | 0 |
+| `node tests/models-grips-unit.cjs` | 0 |
+| `node tests/models-rig-unit.cjs` | 0 |
+| `node tests/models-stair-interrupt-unit.cjs` | 0 |
+| `node tests/models-weight-unit.cjs` | 0 |
+| `node tests/movement-unit.cjs` | 0 |
+| `node tests/norepeat-unit.cjs` | 0 |
+| `node tests/onboard-layout-unit.cjs` | 0 |
+| `node tests/owner-tools-unit.cjs` | 0 |
+| `node tests/pc-game-coordinates-unit.cjs` | 0 |
+| `node tests/people-loop-unit.cjs` | 0 |
+| `node tests/people-pass-unit.cjs` | 0 |
+| `node tests/physics-unit.cjs` | 0 |
+| `node tests/placement-migration-unit.cjs` | 0 |
+| `node tests/print-art-unit.cjs` | 0 |
+| `node tests/props-geometry-unit.cjs` | 0 |
+| `node tests/reading-turn-unit.cjs` | 0 |
+| `node tests/roam-sync-unit.cjs` | 0 |
+| `node tests/season-cat-unit.cjs` | 0 |
+| `node tests/shop-sparse-unit.cjs` | 0 |
+| `node tests/sms-private-unit.cjs` | 0 |
+| `node tests/starter-unit.cjs` | 0 |
+| `node tests/static-batch-unit.cjs` | 0 |
+| `node tests/story-order-unit.cjs` | 0 |
+| `node tests/story-unit.cjs` | 0 |
+| `node tests/touch-picking-unit.cjs` | 0 |
+| `node tests/voices-unit.cjs` | 0 |
+| `node tests/wallet-unit.cjs` | 0 |
+| `node tests/world-pose-unit.cjs` | 0 |
+| `node tests/world-sound-unit.cjs` | 0 |
+
+</details>
+
+### Next ten — round 4, rewritten from this pass
+
+1. Extend **actual page reloads** to the kitchen seats, pulled-out office chair and beanbag. The six exact lounge checks do not establish those other saved surfaces or arbitrary moved furniture. Picture acceptance is recorded in the evidence section.
+2. Add asymmetric resting-finger fans and occasional one-hand release/re-settle. Palm-down thigh support is now implemented; the remaining issue is variety and soft finger/self contact, not the old cupped-lap pose.
+3. Author a **complete page flip and a physical lap/table rest**. This round preserves release frames and adds an 8° solid-leaf adjustment; it does not place a persistent newspaper on furniture or turn an entire page over.
+4. Tighten the moving newspaper pinch beyond the present roughly 1.36 cm peak palm-anchor discrepancy, with contact checks through the entire leaf action and more side/rear player views.
+5. Extend interrupted-stair acceptance to ±180° sweeps, direction reversals, LOD-transition footprints and a real route restart close to both landing rails. This pass covers stops and 0°/45°/−90° turns at three speeds, not every continuous motion.
+6. Add arbitrary moved/swivelled-chair contact sweeps. Existing real surface metadata and saved pose conversion remain intact; this round does not establish all furniture placements.
+7. Refine can/case thumb opposition and finger silhouettes at close range. Their fingers now close on the authored handles, but nearest thumb-to-surface gaps remain around 1.3 cm and there is no full hand collision solver.
+8. Extend dialogue acting to longer, multi-sentence exchanges and listening reactions, with independent intent per person. Question brows, terminal nod targets and addressed gaze are implemented; emotional labels and phoneme timing are unavailable.
+9. Expand matched **real-house** captures to dedicated long idle, start/stop/turn sequences and all less-used grips on phone landscape/tablet. Probe clips and the five principal house actions are useful but are different evidence.
+10. Measure sustained GPU/frame cost, thermals and touch behaviour on physical weak phones/tablets. Paired host rig CPU, software rendering and emulated device profiles do not prove physical-device performance.

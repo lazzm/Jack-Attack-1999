@@ -13,9 +13,10 @@ font = ImageFont.truetype(font_path, 15)
 small = ImageFont.truetype(font_path, 12)
 for device in ['desktop', 'phone']:
     for person in ['mom', 'dad', 'sister']:
+        person_states = list(dict.fromkeys(f['state'] for f in frames if f['id']==person))
         for distance in [200, 400]:
-            for batch in range((len(states) + 3) // 4):
-                subset = states[batch*4:batch*4+4]
+            for batch in range((len(person_states) + 3) // 4):
+                subset = person_states[batch*4:batch*4+4]
                 sheet = Image.new('RGB', (960, 40+len(subset)*460), '#292c30')
                 d = ImageDraw.Draw(sheet)
                 d.text((10, 10), f'{label} / {device} / {person} / {distance//100} m / Low / production rig probe', fill='white', font=font)

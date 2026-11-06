@@ -1,4 +1,5 @@
 'use strict';
+const round=process.env.MODELS_ROUND||'r3';if(!/^r[0-9]+$/.test(round))throw Error('Invalid model round');
 // Actual r128 skeleton + geometry; canvas is stubbed only for atlas painting.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{execFileSync}=require('node:child_process'),T=require('../app/public/vendor/three.min.js');
 const baseline=process.argv.includes('--baseline'),gradient={addColorStop(){}},paint=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient,measureText:s=>({width:s.length*7})},{get:(o,k)=>k in o?o[k]:()=>{}});
@@ -94,5 +95,5 @@ for(const tier of ['low','high'])for(const id of Object.keys(c.NPCRig.OUTFITS))f
  const r=c.NPCRig.create(id,{tier,outfit});for(const near of [true,false]){r.update(.016,near);const key=[tier,id,outfit,near?'near':'far'].join('.');results.triangles[key]=r.tris+6;const g=r.mesh.geometry;for(const name of ['position','normal','skinWeight'])assert(g.attributes[name].array.every(Number.isFinite),key+' invalid '+name);if(tier==='low')assert(r.tris+6<=3000,key+' exceeds 3k');assert.equal(r.group.children.filter(m=>m.isSkinnedMesh).length,2);}
  r.dispose();
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r3-kinematics-'+(baseline?'before':'after')+'.json',JSON.stringify(results,null,2));
+fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/'+round+'-kinematics-'+(baseline?'before':'after')+'.json',JSON.stringify(results,null,2));
 console.log(JSON.stringify(results.people,null,2));console.log(JSON.stringify(results.contacts,null,2));console.log(baseline?'BASELINE recorded (acceptance assertions intentionally deferred until the fix)':'PASS production rig contacts, stand continuity, finite geometry, every outfit/LOD budget and two skinned draws');
