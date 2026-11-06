@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.75.0 - 2026-11-06
+- The family have far more to say. Each of them has at least a dozen new things to chat about in the morning, afternoon and evening, depending on the day, the weather, the season and what you've been up to: 287 new lines in all. In testing, 90 conversations across a day gave no repeats at all, where before a third of them were repeats. When they've genuinely got nothing new, they nod, smile or say "Mm?" instead of repeating themselves. Mom's job reminders come in different words each time. The new lines appear as text until they're recorded.
+- A refresh no longer replays an announcement you've already heard, such as Dad's after-Bonfire one.
+- The family only say things that fit what you're doing: Mom no longer tells you to get off the computer when you're standing in the hall.
+- If someone can't talk right now, they show it, instead of the Talk prompt doing nothing.
+- Dad's hand no longer sinks into the armchair while he talks, and picking up the beanbag no longer shoves it across the floor.
+- The on-screen labels look like they belong in 1999: the current objective is a taped-on note, and object names and directions are small paper captions that stay readable day and night. On phones and tablets every button is at least 44 px.
+
 ## 2.74.0 - 2026-11-06
 - The family move better, round 4. Their arms swing naturally from the shoulder instead of tucking in, their necks are fuller, they push up from a seat with no arms, their hands rest flat on their legs when sitting, and they hold magazines, the watering can, a briefcase and a crayon properly. When talking they raise their brows on a question, nod at the end of a sentence and look at you when they're talking to you. Turning on the stairs and being interrupted on them look right.
 - Metal Gerbil Solid is bigger: nine areas instead of six, twelve training exercises, equipment to find, unlocks, end credits and saves that bring you back exactly where you were. Guards are only ever put to sleep or sent back to their posts.
