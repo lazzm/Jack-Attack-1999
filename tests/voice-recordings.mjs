@@ -7,7 +7,10 @@ import {chromium} from 'playwright';
 const baseline=JSON.parse(await readFile(new URL('../tools/audio/releases/british-2026-10-29.json',import.meta.url),'utf8'));
 const final=JSON.parse(await readFile(new URL('../tools/audio/releases/voices-final-2026-11-01.json',import.meta.url),'utf8'));
 const lines1104=JSON.parse(await readFile(new URL('../tools/audio/releases/voices-2026-11-04.json',import.meta.url),'utf8'));
-const lines1105=JSON.parse(await readFile(new URL('../tools/audio/releases/voices-2026-11-05.json',import.meta.url),'utf8'));
+const {readdir}=await import('node:fs/promises');
+const relDir=new URL('../tools/audio/releases/',import.meta.url);
+const laterFiles=(await readdir(relDir)).filter(f=>/^voices-\d{4}-\d\d-\d\d\.json$/.test(f)&&f>'voices-2026-11-04.json').sort();
+const lines1105={accepted:Object.assign({},...await Promise.all(laterFiles.map(async f=>JSON.parse(await readFile(new URL(f,relDir),'utf8')).accepted)))};
 const accepted={...baseline.accepted,...final.accepted,...lines1104.accepted,...lines1105.accepted};
 const audit={accepted,acceptedCount:Object.keys(accepted).length,excluded:final.excluded.filter(v=>!lines1104.accepted[v.id]&&!lines1105.accepted[v.id])};
 await withTestServer(async base=>{

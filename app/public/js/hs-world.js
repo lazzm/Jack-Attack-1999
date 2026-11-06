@@ -1326,8 +1326,9 @@
   function drop(sx, sy, how) {
     if (!held) return false; const t = THINGS[held.id];
     if (held.drag) return letGo();
-    const g = how === 'user' ? drawnGhost.t === t && drawnGhost.g : computeGhost(t, sx, sy, true);
-    if (!g) { dirty(); return false; }
+    // What the player sees wins. Before the first frame after picking it up nothing has been drawn yet: work it out
+    // fresh, so the press still does something (or says why it can't).
+    const g = how === 'user' && drawnGhost.t === t && drawnGhost.g ? drawnGhost.g : computeGhost(t, sx, sy, true);
     if (g.snap) {
       const s = g.snap;
       if (SNAPS[s.id] !== s || s.enabled && !s.enabled() || s.accepts && !s.accepts(t.kind, t)) return false;
