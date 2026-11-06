@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.73.0 - 2026-11-06
+- The house is lit like a real home. Sunlight falls through the windows in soft patches across carpets and up the furniture, following the time of day, and rooms are brighter near the window and dimmer at the back. At night lamps throw warm pools of light, corners go dim and shades glow, while the stairs, beds and doorways stay easy to see. Furniture sits on the floor with soft contact shadows. Light fittings that were missing are now there and follow their switches. The lighting is worked out in the background when a room loads, so the game doesn't stall, and it falls back to doing it step by step if a phone can't run that.
+- Music no longer drops out when the game is busy. On slower machines the tunes used to lose their notes and go nearly silent; now they keep time and catch up cleanly.
+- Sound comes from where it should. The telly and hi-fi play from the set itself, rooms sound different, sound through a closed door is muffled, and someone behind you now sounds clearly behind you.
+
 ## 2.72.1 - 2026-11-05
 - The family repeat themselves far less, all year round. They remember what you've heard, per account and across refreshes, and pick the line you've heard least recently, so they work through everything they could say before any line comes back. Chatting to them, their passing remarks, Mom's shouts about jobs and the house's everyday calls all use it. A shout or seasonal line that has just played won't play again for a couple of minutes, and a passing remark stays quiet for half an hour. Story lines are unchanged.
 - Verified: parody 0, all unit checks including a new one for the line memory (every line before any repeat, kept across a refresh, separate for each account, bounded in size), Chapter 1, door walking, Bonfire end to end, voices 9/9, recordings, identity, smoke 12/12 and the family walking past you.
