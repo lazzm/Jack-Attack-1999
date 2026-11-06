@@ -453,9 +453,22 @@ await check('prompt', async () => {
     await stage(page, { dad: 'carStory' });
     await face(page, 'dad', 220, 70);
     await page.mouse.move(683, 430); await page.waitForTimeout(900);
-    const tip = await page.evaluate(() => { const t = document.querySelector('.hs-tip'); return { on: t.classList.contains('on'), text: t.textContent }; });
+    const tip = await page.evaluate(() => { const t = document.querySelector('.hs-tip'); const h=House.pick(innerWidth/2,innerHeight/2); return { on: t.classList.contains('on'), text: t.textContent, pick:h?.spot, mode:House.mode, label:House.SPOTS['np.dad'].label() }; });
+    await shot(page, 'talk-prompt-desktop');
     assert(tip.on && /\bDad\b/.test(tip.text) && (tip.text.match(/Talk/g) || []).length === 1, 'One clear action over Dad: ' + JSON.stringify(tip));
     assert.equal((tip.text.match(/\bF\b/g) || []).length, 1, 'F shown once: ' + tip.text);
+    await page.evaluate(()=>House.ui.tip(null)); // close-ups/menu transitions clear this same HUD surface
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='F Talk to Dad',10000*SCALE);
+    // No mouse movement: a passing remark still accepts an answer; one queued
+    // answer is busy, then the action returns when that conversation finishes.
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech,c=HouseFamily.chars.dad;S.freeze=true;S.q.length=0;S.cur={c,talk:false};c.talking=true;});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent.includes('Talk to Dad (speaking)'),10000*SCALE);
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.q.push({c:HouseFamily.chars.dad,talk:true});});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='Dad is busy',10000*SCALE);
+    await shot(page,'talk-prompt-busy');
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.cur=null;S.q.length=0;HouseFamily.chars.dad.talking=false;});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='F Talk to Dad',10000*SCALE);
+    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;});
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });

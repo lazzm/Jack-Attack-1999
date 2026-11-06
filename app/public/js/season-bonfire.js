@@ -19,11 +19,11 @@
     coal: M('#282725'), ash: M('#605d54'), ember: M({ c: '#a74b23', e: '#7d2308' }), flame: M({ c: '#ffac38', e: '#ff6518', basic: true }),
     yellow: M({ c: '#ffcc75', e: '#ff9c34', basic: true }), green: M('#3f5243'),
   };
-  const say = (id, who, text) => {
+  const say = (id, who, text, requested = false) => {
     const t = SE.cast(text), key = id.startsWith('c4.') ? id : 'bf.' + id, person = who === 'Mom' ? 'mom' : who === 'Dad' ? 'dad' : who === '{sister}' ? 'sister' : null;
     const phaseLine = ['lead','day','tail'].includes(id), stage = {wheel:'wheel',rocket:'rocket',finale:'finale',end:'over'}[id];
     const context = phaseLine ? {kind:'seasonPhase',event:EID,phase:id} : stage ? {kind:'bonfireStage',stage} : {kind:'seasonPhase',event:EID,phase};
-    if(window.st?.speakLine)return st.speakLine(key,person||who,t,{once:phaseLine || !!stage || id === 'display.start',context});
+    if(window.st?.speakLine)return st.speakLine(key,person||who,t,{once:phaseLine || !!stage || id === 'display.start',context,requested});
     return false; // family announcements always use the shared memory, including text-only playback
   };
   const sound = {
@@ -744,7 +744,7 @@
       const line = window.st?.lineId?.('bf.'+topic,who,text) || 'bf.'+topic;
       const heard = window.HouseFamily?.heardAt?.(line) || 0;
       if (heard && Date.now()-heard < 24*60*60000) return false;
-      say(topic,who,text); return true;
+      say(topic,who,text,true); return true;
     };
     if (phase === 'tail') { if (id === 'dad') { if (catchup()) { startDisplay(); return true; } else return reply('tail.talk.times', 'Dad', 'Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten.'); return true; } return false; }
     if (id === 'dad') return reply('dad.talk', 'Dad', done('bf-code') ? 'Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting.' : 'Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners.');

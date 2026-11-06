@@ -40,8 +40,10 @@
   // family lines: on screen (with the recorded voice when its id exists in tools/audio/voice-lines.json)
   // Shared per-account announcement memory also protects the subtitle fallback.
   function say(id, who, text, once) {
-    if (once) { // honour completed announcements saved before shared per-account memory
-      try { const old = JSON.parse(localStorage.getItem('jhp_se_said') || 'null'); if (old?.e === EID && old.ids?.[id]) return false; } catch (e) {}
+    if (once && window.Net?.me?.member) {
+      // Never inherit the old device-wide record: its owner cannot be known.
+      // New completions use st-voice's durable jhp_voice_once.<account> store.
+      try { const old = JSON.parse(localStorage.getItem('jhp_se_said.' + String(Net.me.nick || '').toLowerCase()) || 'null'); if (old?.e === EID && old.ids?.[id]) return false; } catch (e) {}
     }
     const announcementPhase = {'hw.mom.lead':'lead','c4.hal.mom':'day','hw.mom.clocks':'day','c4.hal.sis':'day','hw.mom.tail':'tail','c4.hal.night':'day','c4.hal.night2':'day','hw.mom.five':'day','hw.dad.safe':'day'}[id];
     if (announcementPhase && phase !== announcementPhase) return false;

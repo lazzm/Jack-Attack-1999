@@ -145,6 +145,11 @@
   }
   ['mom', 'dad', 'sister'].forEach(makeChar);
   const label = c => c.id === 'mom' ? 'Mom' : c.id === 'dad' ? 'Dad' : sisName();
+  function talkLabel(c) {
+    if (speech.q.some(n=>n.c===c && n.talk)) return label(c) + ' is busy';
+    if (speech.cur?.c === c && speech.cur.talk) return label(c) + (speech.cur.gesture ? ' is listening' : ' is busy');
+    return 'Talk to ' + label(c) + (c.talking || speech.cur?.c === c ? ' (speaking)' : '');
+  }
 
   function build(c) {
     if (c.rig) return;
@@ -175,7 +180,7 @@
       contact.x = handle.x; contact.y = -handle.y; contact.z = handle.z;
       return contact;
     };
-    H.spot('np.' + c.id, { label: () => speech.q.some(n=>n.c===c && n.talk) ? label(c) + ' is busy' : speech.cur?.c === c && speech.cur.gesture ? label(c) + ' is listening' : c.talking || speech.cur?.c === c ? label(c) + ' is speaking' : 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
+    H.spot('np.' + c.id, { label: () => talkLabel(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
     if (id !== 'dad') return null;
@@ -558,7 +563,7 @@
   function say(id, lineId, o) {
     // Unrecorded script variants use st.say's existing subtitle/bubble fallback.
     // Give them their own ids so an older, differently worded clip never plays.
-    o = o || {}; const c = C[id], l = L[lineId] || (o.text ? [id, o.text] : null); if (!c || !l || !lineValid(c,lineId,o.displayText||l[1],o.context) || o.valid && !o.valid()) return false;
+    o = o || {}; const c = C[id], l = L[lineId] || (o.text ? [id, o.text] : null); if (!c || !l || !lineValid(c,lineId,o.displayText||l[1],o.context,o.requested || o.talk) || o.valid && !o.valid()) return false;
     const person = c.present && (o.force || inEarshot(c, o.range));
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
@@ -570,7 +575,7 @@
     // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
     if (!o.resume && /^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
     c.said[lineId] = nowMs(); hear(lineId);
-    speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk, gesture:!!o.gesture || dialogue()[lineId]?.kind === 'gesture', valid:o.valid, context:o.context });
+    speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk, requested:!!o.requested, gesture:!!o.gesture || dialogue()[lineId]?.kind === 'gesture', valid:o.valid, context:o.context });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
     save();
     try { window.st?.prefetch?.(lineId,o); } catch (e) {}
@@ -594,7 +599,7 @@
       speech.voice = speech.bub = null;
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; save(); if (f) try { f(); } catch (e) { console.error(e); }
     }
-    while (speech.q.length && (!lineValid(speech.q[0].c,speech.q[0].lineId,speech.q[0].text,speech.q[0].context) || speech.q[0].valid && !speech.q[0].valid())) {
+    while (speech.q.length && (!lineValid(speech.q[0].c,speech.q[0].lineId,speech.q[0].text,speech.q[0].context,speech.q[0].requested || speech.q[0].talk) || speech.q[0].valid && !speech.q[0].valid())) {
       const stale = speech.q.shift(); stale.c.talking = false; stale.c.hold = 0; if(stale.talk && stale.c.present) acknowledge(stale.c); save();
     }
     const n0 = speech.q[0]; if (!n0) return;
@@ -716,7 +721,10 @@
     // those are familiar, allow ordinary conversation instead of nagging again.
     return [pick(reminders,c) || pick(barkPool(c,clock(),true) || [],c)];
   }
-  function lineValid(c, id, text, context) {
+  function lineValid(c, id, text, context, requested) {
+    // Requested/story/phone speech describes the conversation, not an ambient
+    // guess about the room. Only unsolicited lines inherit ambient eligibility.
+    if (requested) return true;
     const d = dialogue()[id];
     if (d && !dialogueFits(c,d.when)) return false;
     if (id === 'chore.allfour' && !window.ChoreKit?.list?.().every(k=>window.ChoreKit.done(k))) return false;
@@ -1096,7 +1104,7 @@
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { motion:3, x:c.x, z:c.z, k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
-    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
+    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,requested:n.requested,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
     ls.set(SKEY(), o);
   }
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q || SPOT[k].childSeat === q) || null;
@@ -1137,7 +1145,7 @@
         const key=n.id+':'+n.line; if(queued.has(key))return; queued.add(key);
         const c=C[n.id],script=/^c\d\./.test(n.line)&&n.talk!==false&&talkLines(c).find(l=>(typeof l==='string'?l:l?.id)===n.line);
         c.hold=99;
-        say(n.id,n.line,{text:n.text,displayText:n.text,callout:n.callout,legacyShout:n.legacyShout,context:n.context,force:true,call:true,again:true,resume:true,talk:n.talk!==false,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
+        say(n.id,n.line,{text:n.text,displayText:n.text,callout:n.callout,legacyShout:n.legacyShout,context:n.context,requested:n.requested,force:true,call:true,again:true,resume:true,talk:n.talk!==false,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
       });
     }
   }
@@ -1228,7 +1236,7 @@
       return !!s&&!openingHome&&!C.dad.present&&scheduled('dad',clock()).raw==='away:work'&&!storyDirectives().dad&&!manual.dad&&!sceneDbg.dad;
     },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text, o={}) => (speech.cur?.c?.id===id&&speech.cur.lineId===line)||speech.q.some(n=>n.c.id===id&&n.lineId===line)||say(id, line, { text, displayText:text, callout:o.callout, legacyShout:!!o.legacyShout, force: true, call: true, again: true, prio: 4, valid:o.valid, context:o.context }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
+    talk, say: (id, line, o={}) => say(id, line, {...o,requested:o?.requested ?? !o?.context}), speak: (id, line, text, o={}) => (speech.cur?.c?.id===id&&speech.cur.lineId===line)||speech.q.some(n=>n.c.id===id&&n.lineId===line)||say(id, line, { text, displayText:text, callout:o.callout, legacyShout:!!o.legacyShout, force: true, call: true, again: true, prio: 4, requested:o.requested ?? !o.context, valid:o.valid, context:o.context }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {

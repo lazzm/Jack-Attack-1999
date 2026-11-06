@@ -302,6 +302,10 @@
   }
   function speakLine(base, who, text, o) {
     o={...o};const speaker=speakerId(who),id=lineId(base,speaker,o.recordingText||text);
+    // Remote/telephone and UI-owned captions are explicit delivery requests.
+    // Their writing and lifetime belong to the phone/game/story which asked.
+    const remote = o.remote || o.telephone || o.caption === false;
+    if (remote || o.requested) delete o.context;
     if (!cueContextValid(o.context)) return id;
     o.callout=window.VoiceLines?.[id]?.[3]||o.callout;
     // Announcement identity is separate from its recording/text variant. Keep it
@@ -314,7 +318,7 @@
     }
     const remember = () => { if (once && account()) { announced[base] = 1; try { localStorage.setItem(onceKey, JSON.stringify(announced)); } catch (e) {} } };
     if (once && window.HouseFamily?.heardAt?.(id)) { remember(); return id; }
-    if(!o.remote && ['mom','dad','sister'].includes(speaker) && window.HouseFamily?.enabled) {
+    if(!remote && ['mom','dad','sister'].includes(speaker) && window.HouseFamily?.enabled) {
       if (window.HouseFamily.speak(speaker,id,text,o)) remember();
       // A shared-memory/cooldown rejection is final, never a second speech lane.
       return id;

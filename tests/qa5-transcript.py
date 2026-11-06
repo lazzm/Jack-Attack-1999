@@ -19,10 +19,10 @@ for tag,lo,hi in [('10am','qa5-dialogue.js','MORNING-MATRIX-COMPLETE'),('14_3','
     lines += ['','| requested person | F press | actual crosshair target | target speaker active/queued at +700ms |','|---|---|---|---|']
     for a in attempts:
         s=a['speech'];responses=([s['cur']] if s['cur'] and s['cur']['id']==a['id'] else [])+[q for q in s['q'] if q['id']==a['id']]
-        lines.append('| '+a['id']+' | '+str(a['n'])+' | '+str((a.get('pick') or {}).get('spot'))+' | '+('; '.join(q['line'] for q in responses) or 'NONE')+' |')
+        lines.append('| '+a['id']+' | '+str(a['n'])+' | '+str(a.get('pick',{}).get('spot'))+' | '+('; '.join(q['line'] for q in responses) or 'NONE')+' |')
     stats={who:{'utterances':sum(c.values()),'uniqueIDs':len(c),'repeatUtterances':sum(c.values())-len(c),'counts':dict(c)} for who,c in by.items()}
     silent={who:sum(not (a['speech']['cur'] and a['speech']['cur']['id']==who) and not any(q['id']==who for q in a['speech']['q']) for a in attempts if a['id']==who) for who in ['mom','dad','sister']}
-    summary[tag]={'presses':len(attempts),'validTargets':sum((a.get('pick') or {}).get('spot')=='np.'+a['id'] for a in attempts),'noTargetResponseAt700ms':silent,'delivered':stats}
+    summary[tag]={'presses':len(attempts),'validTargets':sum(a.get('pick',{}).get('spot')=='np.'+a['id'] for a in attempts),'noTargetResponseAt700ms':silent,'delivered':stats}
     lines += ['','Delivered counts (including automatic speech during this period): `'+json.dumps(stats,ensure_ascii=False)+'`','']
 start=next((i for i,e in enumerate(events) if e['label']=='ambient-start'),None)
 stop=next((i for i,e in enumerate(events) if e['label']=='ambient-complete'),len(events))
