@@ -118,9 +118,10 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   // Taps a touch-HUD button by its key (ht-hud data-k) or a selector, with a real finger on its centre.
   async function press(sel) {
     const s = sel.startsWith('[') || sel.startsWith('.') || sel.startsWith('#') ? sel : `.ht-hud [data-k="${sel}"]`;
-    await until(s => { const b = document.querySelector(s); if (!b || b.disabled) return false; const r = b.getBoundingClientRect(); return r.width > 0 && getComputedStyle(b).visibility !== 'hidden'; }, s, 15000);
-    const r = await page.evaluate(s => { const el = document.querySelector(s); el.scrollIntoView({ block: 'nearest' }); const b = el.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }, s);
-    await fingers.tap(r.x, r.y);
+    // Resolve visibility, stability and the receiving element in the same native
+    // touch action. A separately measured centre can be stale by the next frame
+    // when dialogue hides/repositions the objective or the HUD is rebuilt.
+    await page.locator(s).tap({ timeout: 15000 * SCALE });
   }
   return { ctx, page, errors, fingers, until, shot, press, cdp };
 }
@@ -411,14 +412,13 @@ const phases = {
       assert(Math.abs(ry1 - ry0) > 15, 'Drag did not look round: ' + ry0 + ' -> ' + ry1);
       await shot('story-05-looked');
       // the quest line (no keyboard hint on touch) and the diary's objective picker
-      const line = await page.evaluate(() => { const l = document.querySelector('.st-objective'); return l && !l.hidden ? l.textContent : ''; });
+      await page.locator('.st-objective').waitFor({ state: 'visible', timeout: 30000 * SCALE });
+      const line = await page.locator('.st-objective').textContent();
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
-      if (line) {
-        await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await p.press('[data-quest-close]');
-        await until(() => !window.stDiary?.picking);
-        await page.waitForTimeout(400);
-      }
+      await p.press('.st-objective'); await until(() => !!window.stDiary?.picking, null, 15000); await page.waitForTimeout(800); await shot('story-06-diary-picker');
+      await p.press('[data-quest-close]');
+      await until(() => !window.stDiary?.picking);
+      await page.waitForTimeout(400);
       // the pause menu: touch settings, no keyboard text
       await p.press('menu'); await until(() => HousePause.open); await page.waitForTimeout(300); await shot('story-07-pause');
       const pauseIssues = await page.evaluate(() => { const d = document.querySelector('dialog.hs-pause'), r = d.getBoundingClientRect(); return [r.left < 0 || r.right > innerWidth + 1 ? 'pause clipped' : '', !d.querySelector('.ht-settings') || getComputedStyle(d.querySelector('.ht-settings')).display === 'none' ? 'no touch settings' : '', getComputedStyle(d.querySelector('.hs-pause-controls:not(.ht-help)')).display !== 'none' ? 'keyboard help shown on touch' : ''].filter(Boolean); });

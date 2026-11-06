@@ -294,7 +294,7 @@
     if (now) { anims.delete('door:' + id); move(t0); dirty(); }
     else anims.set('door:' + id, move);
     if (d.open) visCalc();
-    if (changed) { sfxDoor(d.open); emit('door', id, d.open); }
+    if (changed) { sfxDoor(d.open,d); emit('door', id, d.open); }
   }
   let visSet = new Set(), vegetationRoutes = new Map();
   const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
@@ -839,11 +839,11 @@
     };
     PH.onImpact = (b, v) => {
       const t = b.user, now = performance.now(); if (!t || now - (lastBump.get(t.id) || 0) < 140) return; lastBump.set(t.id, now);
-      physicalSound('bump', { weight: thingWeight(t), speed: v });
+      physicalSound('bump', { weight: thingWeight(t), speed: v, ...thingSound(t) });
     };
     PH.onPush = (b, got, speed) => {
       const t = b.user, now = performance.now(); if (!t || got < 0.2 || now - (lastBump.get('push:' + t.id) || 0) < 160) return; lastBump.set('push:' + t.id, now);
-      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed });
+      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed, ...thingSound(t) });
     };
   }
   // the doors' leaves are kinematic boxes while they're open or swinging (a closed door is part of the wall)
@@ -898,7 +898,7 @@
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things && !drag) cur.things.attach ? cur.things.add(t.obj) : 0;
-    physicalSound('handle', {weight:thingWeight(t)});
+    physicalSound('handle', {weight:thingWeight(t),...thingSound(t)});
     ui.holdBar(t); saveGrip();
     emit('grab', id);
     return true;
@@ -1163,6 +1163,10 @@
   // ---------------------------------------------------------------- the ghost: a see-through copy where the carried thing will land
   // green = it fits there, red = something's in the way, gold = it clicks into a highlighted place. Uses the physics colliders.
   const GP = { t: null, at: 0, res: null, key: '', route: null };
+  // Input commits the last drawn picture, even if a turn or a moving object
+  // changes the selector before the next (possibly capped) frame is presented.
+  const drawnGhost = { t: null, g: null };
+  let ghostPose = null;
   // the ghost: a faint fill plus a fresnel rim on the carried thing's own shape (one merged geometry, two draws)
   const ghostFill = new T.MeshBasicMaterial({ color: 0x8fdc6a, transparent: true, opacity: 0.2, depthWrite: false }), ghostRim = GL.rimMat(GL.GREEN, 0.95);
   let ghostGroup = null, ghostFor = null;
@@ -1175,8 +1179,9 @@
     g.visible = false; root.add(g);
     return g;
   }
-  function clearGhost() { if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup.children[0]?.geometry.dispose(); ghostGroup = null; ghostFor = null; } }
+  function clearGhost() { drawnGhost.t = drawnGhost.g = null; if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup.children[0]?.geometry.dispose(); ghostGroup = null; ghostFor = null; } }
   function showGhost(t, g) {
+    ghostPose = g ? { ...g } : null;
     if (!g) { if (ghostGroup) ghostGroup.visible = false; floorGlow(null); return; }
     const mesh = ghostMesh(t);
     const col = g.snap ? GL.GOLD : g.ok ? GL.GREEN : GL.RED; ghostFill.color.set(col); ghostRim.uniforms.uColor.value.set(col);
@@ -1321,18 +1326,31 @@
   function drop(sx, sy, how) {
     if (!held) return false; const t = THINGS[held.id];
     if (held.drag) return letGo();
-    const g = computeGhost(t, sx, sy, true);
-    if (g.snap) return snapIn(t, g.snap);
+    // What the player sees wins. Before the first frame after picking it up nothing has been drawn yet: work it out
+    // fresh, so the press still does something (or says why it can't).
+    const g = how === 'user' && drawnGhost.t === t && drawnGhost.g ? drawnGhost.g : computeGhost(t, sx, sy, true);
+    if (g.snap) {
+      const s = g.snap;
+      if (SNAPS[s.id] !== s || s.enabled && !s.enabled() || s.accepts && !s.accepts(t.kind, t)) return false;
+      return snapIn(t, s);
+    }
     if (!g.ok) {
       if (how === 'api') return letGo(); // a pack letting go on the player's behalf: it must leave the hands
       ui.toast("Won't fit there", whyText(g.why) + '. Aim where the ghost turns green, X to drop it, or Q to put it back.');
       physicalSound('deny'); return false;
     }
+    if (how === 'user') {
+      // Recheck the pictured position, never choose a different destination.
+      const ph = physReady(), b = bodyFor(t), r = ROOMS[g.room];
+      if (!ph || !b || !r) return false;
+      const rest = ph.findRest(b, r.lvl, g.x, g.z, g.ry, g.y - .6, t.id, b.sw);
+      if (!rest.ok || Math.abs(rest.y - g.y) > .1) return false;
+    }
     if (t.canPlace && t.canPlace({ room: g.room, x: g.x, z: g.z, y0: g.y }) === false) return false;
     setDown(t, g);
     return true;
   }
-  function releaseHold() { held = null; hideArms(); ui.holdBar(null); snapGlow(null); floorGlow(null); showGhost(null); showTargets(null); GP.res = null; saveGrip(); }
+  function releaseHold() { drawnGhost.t = drawnGhost.g = null; held = null; hideArms(); ui.holdBar(null); snapGlow(null); floorGlow(null); showGhost(null); showTargets(null); GP.res = null; saveGrip(); }
   // the gentle place: a short glide from your hands down onto the spot, then it rests there (asleep: no settling wobble)
   function setDown(t, g, ms) {
     releaseHold(); unshrink(t);
@@ -1348,7 +1366,7 @@
       t.st = 'rest'; t.at = { room, x: g.x, y: g.y, z: g.z, ry: g.ry, sw: t.at.sw || 0 }; t.rx = g.rx || 0; t.rz = g.rz || 0;
       place(t); layerFor(t);
       const b = t.body; if (b && PH.overlapping(b)) PH.wake(b); // somebody moved into the spot meanwhile: let physics sort it out
-      physicalSound('handle', { weight: thingWeight(t), put: true });
+      physicalSound('handle', { weight: thingWeight(t), put: true, ...thingSound(t) });
       saveThings(); emit('rest', t.id); rescueQ.add(t);
       return false;
     });
@@ -1358,7 +1376,7 @@
   function letGo() {
     if (!held) return false; const t = THINGS[held.id], drag = held.drag, hv = held.hv;
     releaseHold();
-    if (drag) { t.st = 'rest'; const b = t.body; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; bodyState(t); renderBody(t); syncBody(t); layerFor(t); physicalSound('handle', { weight: thingWeight(t), put: true }); saveThings(); emit('place', t.id); emit('rest', t.id); return true; }
+    if (drag) { t.st = 'rest'; const b = t.body; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; bodyState(t); renderBody(t); syncBody(t); layerFor(t); physicalSound('handle', { weight: thingWeight(t), put: true, ...thingSound(t) }); saveThings(); emit('place', t.id); emit('rest', t.id); return true; }
     unshrink(t, true); // (full size where you saw it, kept out of walls and out of you)
     const o = t.obj.position, r = roomAt(o.x, o.z, W.lvl) || cur;
     t.st = 'rest'; t.at = { room: r.id, x: o.x, y: restOf(t, o.y), z: o.z, ry: t.obj.rotation.y / D2R, sw: t.at.sw || 0 };
@@ -1388,7 +1406,7 @@
       if (s.hide) t.obj.visible = false;
       syncBody(t); // clicked in: a fixed solid at the slot's pose (or nothing, if the slot hides it)
       layerFor(t);
-      physicalSound('handle', {weight:thingWeight(t),put:true});
+      physicalSound('handle', {weight:thingWeight(t),put:true,...thingSound(t)});
       if (s.onSnap) try { s.onSnap(t); } catch (e) { console.error(e); }
       emit('snap', s.id, t.id); saveThings();
       return false;
@@ -1458,7 +1476,7 @@
     if (Math.abs(dr) > 0.01) PH.tryTurn(b, dr, 0);
     renderBody(t);
     const moved = Math.hypot(b.x - x0, b.z - z0);
-    if (moved > 0.25 && performance.now() > dragSound) { dragSound = performance.now() + 170; physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: moved / Math.max(dt, 1e-3) }); }
+    if (moved > 0.25 && performance.now() > dragSound) { dragSound = performance.now() + 170; physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: moved / Math.max(dt, 1e-3), ...thingSound(t) }); }
     if (Math.hypot(tx - b.x, tz - b.z) > reach + 55) { letGo(); ui.toast("It's caught", 'You let go of ' + (typeof t.label === 'function' ? t.label() : t.label).replace(/^(The|My) /, 'the ') + '. Press E on it to take hold again.'); }
   }
   // Contact shadows for grab-API props that do not model their own (phones, toys, boxes...): one instanced,
@@ -1515,7 +1533,7 @@
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R, turn = angd(held.lry, P.ry);
         t.obj.rotation.set((HOLD.tiltSign * holdTilt() + Math.sin(now / 900) * 1.2) * D2R, (r0 + angd(r0, want) * follow) * D2R, (turn * 0.6 + Math.sin(now / 1300) * 0.8 + (t.holdRoll || 0)) * D2R, 'YXZ'); // (holdRoll: a pack tilting it in your hand, e.g. pouring)
         const g = live && mode !== 'glide' ? computeGhost(t) : null;
-        showGhost(t, g); snapGlow(g && g.snap || null); showTargets(live ? t : null, now); ui.carry(t, g); armsTick(t);
+        showGhost(t, g); snapGlow(g && g.snap || null); showTargets(live ? t : null, now); if (!g) ui.carry(t, null); armsTick(t);
       }
       any = true;
     }
@@ -1528,7 +1546,7 @@
         const sk = Math.min(1, (now - t.t0) / 240); t.obj.position.x = lerp(t.fromX == null ? a.x : t.fromX, a.x, ease(sk)); t.obj.position.z = lerp(t.fromZ == null ? a.z : t.fromZ, a.z, ease(sk));
         // A slow frame adds up to 216 cm/s of gravity. Do not bounce forever
         // on that numerical contact velocity (the old fixed 160 threshold did).
-        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > Math.max(160,1800*dt)) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
+        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > Math.max(160,1800*dt)) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true,...thingSound(t)}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
         t.obj.position.y = renderY(t,a.y);
         const r = t.obj.rotation; if(t.floorOnly){r.x=0;r.z=0}else{r.x *= 0.8; r.z *= 0.8;}
         any = true;
@@ -1838,7 +1856,7 @@
     const from = o.k, to = o.open ? 1 : 0, t0 = performance.now(), v0 = anims.has('open:' + id) ? (o.vel || 0) : 0;
     const ms = Math.max(160, o.ms * (v0 ? Math.min(1, Math.abs(to - from) + .25) : 1));let last = t0, prev = from;
     anims.set('open:' + id, n => { const k = clamp((n - t0) / ms, 0, 1); o.k = clamp(from + (to - from) * H5(k) + v0 * ms * H1(k), 0, 1); if (n > last) { o.vel = (o.k - prev) / (n - last); prev = o.k; last = n; } o.apply(); if (k < 1) return true; o.k = to; o.vel = 0; o.apply(); return false; });
-    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open}); }
+    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open,position:o.pivot?.getWorldPosition(new T.Vector3()),room:cur?.id}); }
     if (o.onToggle) try { o.onToggle(o.open); } catch (e) { console.error(e); }
     emit('open', id, o.open); saveThings();
   }
@@ -1847,17 +1865,19 @@
   let AC = null, OUT = null, NB = null;
   function ac() { if (!window.Sound || !Sound.effectsOn || controlsPaused) return null; if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); } if (AC.state === 'suspended') AC.resume(); return AC; }
   const sfx = {
-    tone(f, d, type, vol, when, to) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(OUT); o.start(t); o.stop(t + d + 0.03); },
-    noise(d, vol, f, when, type, to) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
+    tone(f, d, type, vol, when, to, output) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(output||OUT); o.start(t); o.stop(t + d + 0.03); },
+    noise(d, vol, f, when, type, to, output) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB;s.loop=true; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(output||OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
     ac, output: () => { ac(); return OUT; },
   };
   const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
   function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
-  function sfxDoor(open) { physicalSound('door',{open}); }
+  function thingSound(t) { return {position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
+  function sfxDoor(open,d) { physicalSound('door',{open,position:d?.pivot?.getWorldPosition(new T.Vector3()),room:d?.rooms?.includes(cur?.id)?cur.id:d?.rooms?.[0]}); }
   function footSurface() {
     const stair=onStairs(W.x,W.z);
     if(stair&&W.z>stair.m0&&W.z<stair.m1)return 'stairs';
     if(cur?.id==='kitchen')return 'lino';
+    if(cur?.id==='bathroom')return 'tile';
     if(cur?.outside){const grass=cur.id==='garden'?!REAR.paving.some(([x0,z0,x1,z1])=>W.x>=x0&&W.x<=x1&&W.z>=z0&&W.z<=z1):W.x< -25&&W.z>770;return grass?'grass':'paving';}
     return 'carpet'; // The hall and landing are visibly carpeted, like the bedroom.
   }
@@ -1865,7 +1885,7 @@
   let nextClock=0,nextOutside=0,clockSide=0;
   function tickWorldSound(now) {
     if(controlsPaused||!['walk','focus','glide'].includes(mode)||!window.Sound?.effectsOn)return;
-    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-154,172,290]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2});}
+    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-154,172,290]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2,position:{x:c[0],y:-c[1],z:c[2]},room:cur.id});}
     if(now>=nextOutside){nextOutside=now+7000+Math.random()*8000;if(cur?.outside){physicalSound('road');const hour=new Date().getHours();if(hour>=7&&hour<20)physicalSound('bird');}}
   }
 
@@ -2512,7 +2532,7 @@
       const dx = W.x - b.x, dz = W.z - b.z, d = Math.hypot(dx, dz) || 1, step = clamp((dt || 0.016) * 160, 1.5, 6);
       if (!tuckedUnder(t)) clear += step;
       b.ignorePlayer = true; // (you're about to sit in it: it may roll into where you stand)
-      if (clear < 10 && n++ < 60) { const got = PH.tryMove(b, dx / d * step, dz / d * step); renderBody(t); if (n % 6 === 1) physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: 120 }); if (Math.hypot(got[0], got[1]) < 0.05) n = 99; return true; }
+      if (clear < 10 && n++ < 60) { const got = PH.tryMove(b, dx / d * step, dz / d * step); renderBody(t); if (n % 6 === 1) physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: 120, ...thingSound(t) }); if (Math.hypot(got[0], got[1]) < 0.05) n = 99; return true; }
       b.ignorePlayer = false; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; syncBody(t); saveThings(); done(); return false;
     });
   }
@@ -2877,6 +2897,9 @@
       camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
       anyFront = front;
     }
+    drawnGhost.t = ghostGroup?.visible ? ghostFor : null;
+    drawnGhost.g = drawnGhost.t ? ghostPose : null;
+    if (drawnGhost.t) ui.carry(drawnGhost.t, drawnGhost.g);
     if (stood || monitor) glassFit();
     for (const sf of SURF) placeSurf(sf);
   }
@@ -3383,7 +3406,7 @@
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     isAway, restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop: (sx, sy) => drop(sx, sy, 'api'), placeHeld: (sx, sy) => drop(sx, sy, 'user'), letGo, setAside, putBack, interact, releaseGrip, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, get grip() { return held ? { id: held.id, drag: !!held.drag, d: held.d, ry: held.ry } : null; },
-    placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag?computeGhost(THINGS[held.id],null,null,true):null, act: id => act(SPOTS[id]), useAt,
+    placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag&&drawnGhost.t===THINGS[held.id]?drawnGhost.g:null, act: id => act(SPOTS[id]), useAt,
     // the physics world (js/hs-physics.js): bodies, stats, and a few queries the tests and packs use
     physics: { get world() { return physReady(); }, get ms() { return physMs; }, get frameMs() { return physFrame; }, get awake() { return PH ? PH.awake.size : 0; }, body: id => THINGS[id] ? bodyFor(THINGS[id]) : null, tucked: id => !!THINGS[id] && tuckedUnder(THINGS[id]), wake: id => { const b = THINGS[id] && bodyFor(THINGS[id]); if (b) PH.wake(b); }, sync: id => THINGS[id] && syncBody(THINGS[id]), rebuild: () => { physDirty = true; return physReady(); } },
     warmFront, glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },

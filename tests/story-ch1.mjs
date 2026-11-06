@@ -118,6 +118,8 @@ async function dropIn(id, snap) {
     assert(await p.evaluate(id => House.grab(id), id), 'Could not carry ' + id);
     // Extend the grip with the same distance controls as the carry HUD.
     for(let n=0;n<5+attempt;n++)await p.keyboard.press('+');
+    // A player presses E once the ghost shows the slot: E commits what's drawn.
+    await p.waitForFunction(snap=>House.ghost?.()?.snap?.id===snap,snap,{timeout:4000*(+process.env.STORY_SCALE||1)}).catch(()=>{});
     await p.keyboard.press('e');
     await wait(p,id => !House.held() && ['snap','rest'].includes(House.THINGS[id].st),id);
     if(await p.evaluate(({id,snap})=>House.THINGS[id].snap===snap,{id,snap}))return;

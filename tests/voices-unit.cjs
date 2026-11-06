@@ -18,7 +18,9 @@ if (real && fs.existsSync(ledgerPath)) {
   const sha=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
   // Clips repaired after their audit (tools/audio/voice-qa.py) carry their new bytes in the repair ledger.
   const repairs=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'repairs-2026-11-04.json')));
-  const lines1105=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-05.json')));
+  // Every audited batch after the first release: voices-YYYY-MM-DD.json, later ones overriding earlier ones.
+  const later=fs.readdirSync(path.dirname(ledgerPath)).filter(f=>/^voices-\d{4}-\d\d-\d\d\.json$/.test(f)&&f>'voices-2026-11-04.json').sort();
+  const lines1105={accepted:Object.assign({},...later.map(f=>JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),f))).accepted))};
   for(const [id,r] of Object.entries({...baseline.accepted,...release.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),lines1105.accepted[id]?.sha256||repairs.lines[id]?.sha256||r.sha256,'audited line bytes '+id);
   const lines1104=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-04.json')));
   for(const [id,r] of Object.entries({...lines1104.accepted,...lines1105.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),r.sha256,'audited line bytes '+id);

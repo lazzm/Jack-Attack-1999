@@ -120,3 +120,17 @@ try {
   assert.equal(mobileBoot.context.JHPBoot,'mobile');assert.equal(mobileBoot.values.jhp_off,'1');
   console.log('STORY UNIT PASS: sparse/veteran, ordered evidence, server checks, idempotent trust/no currency rewards, additive persistence, account-wide flood limit');
 } finally { Date.now = realNow; }
+
+// A touch press commits the objective once, before dialogue can hide it.
+{
+ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+ const src=fs.readFileSync(require.resolve('../app/public/js/st-engine.js'),'utf8'),handlers={};let opened=0;
+ const button={addEventListener:(id,fn)=>handlers[id]=fn};
+ const c={hooked:false,line:null,document:{createElement:()=>button},observe(){},window:{GameInput:{touch:true},stDiary:{picker:()=>opened++,build(){}},Room:{on(){}}}};
+ vm.createContext(c);vm.runInContext(src.slice(src.indexOf('  function hook(H)'),src.indexOf("  N.on('stState'")),c);
+ c.hook({ui:{el:{appendChild(){}}},on(){}});
+ handlers.pointerdown({pointerType:'touch',button:0,preventDefault(){}});assert.equal(opened,1);handlers.click({detail:1});assert.equal(opened,1,'Compatibility click toggled the diary twice');
+ handlers.click({detail:0});assert.equal(opened,2,'Keyboard activation lost');
+ handlers.pointerdown({pointerType:'mouse',button:0});assert.equal(opened,2);handlers.click({detail:1});assert.equal(opened,3,'Mouse activation lost');
+ console.log('STORY OBJECTIVE TOUCH PASS: one action on down; compatibility click ignored; mouse and keyboard retained');
+}

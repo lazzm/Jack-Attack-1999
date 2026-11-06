@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
 import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
+import {reconcileRupees} from './rupee-ledger.mjs';
 const base=process.argv[2]||'http://localhost:18197';
 assert(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Throwaway localhost server only');
 const shots=new URL('./shots/halloween/',import.meta.url).pathname;await mkdir(shots,{recursive:true});
@@ -23,11 +24,13 @@ const EYE=await page.evaluate(()=>House.STAND||128); // (the live standing eye h
 let failed=null;
 try{
  await until(()=>window.OwnerTools?.allowed);
- await page.evaluate(()=>{window.__own={};Net.on('ownerResult',m=>window.__own[m.rid]=m);window.__ec=null;Net.on('ecMe',m=>window.__ec=m);});
+ await page.evaluate(()=>{window.__own={};Net.on('ownerResult',m=>window.__own[m.rid]=m);window.__ec=null;});
  let rid=0;
  async function owner(action,args={}){const id='t'+(++rid)+'-'+Date.now();await page.evaluate(([id,action,args])=>Net.send({t:'ownerAction',rid:id,action,...args}),[id,action,args]);await until(`!!window.__own['${id}']`);const r=await page.evaluate(id=>window.__own[id],id);assert(r.ok,'owner '+action+': '+r.msg);await page.waitForTimeout(300);return r;}
  async function clock(date,hour){await owner('clock',{date,hour});await until(`OwnerTools.clock?.date==='${date}'&&OwnerTools.clock.hour===${hour}`);await page.waitForTimeout(600);}
- async function rupees(){await page.evaluate(()=>{window.__ec=null;Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec.bal);}
+ async function economy(){await page.evaluate(()=>{window.__ec=null;if(!window.__halloweenECBound){Net.on('ecMe',m=>window.__ec=m);window.__halloweenECBound=true;}Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec);}
+ let moneyCheckpoint;
+ function auditMoney(current,expected,label){const rows=reconcileRupees(moneyCheckpoint,current,expected,label);for(const [at,amount,source,note,balance]of rows)log('balance change',JSON.stringify({at,amount,source,note,balance}));moneyCheckpoint=current;return rows;}
  const st=()=>page.evaluate(id=>Season.st(id),EID);
  async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){const r=House.ROOMS[House.here],ceiling=r?.ceilingAt?.(W.x,W.z+22);W.eye=Math.min(r?.eye||House.STAND,Number.isFinite(ceiling)?Math.max(30,W.fy-ceiling-16):Infinity);W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
  async function key(k){await page.keyboard.press(k);await page.waitForTimeout(350);}
@@ -53,7 +56,7 @@ try{
  for(const [r,d] of Object.entries(dec))assert(d.meshes<=24,'decor in '+r+' is batched: '+d.meshes+' draws');
  const objs=await page.evaluate(()=>Season.objectives().map(o=>o.o.id));
  assert.deepEqual(objs,['hw-pumpkin','hw-decorate','hw-lights','hw-bowl','hw-treat']);
- const bal0=await rupees();log('Rupees at start',bal0);
+ moneyCheckpoint=await economy();const bal0=moneyCheckpoint.bal;log('Rupees at start',bal0);
  await aim([330,GY-EYE,640],[354,GY-118,697.4]);await key('f');
  await until(()=>Season.st('halloween99').porch===1&&!!Season.st('halloween99').obj['hw-lights']);
  assert.equal((await st()).paid['hw-lights'],5,'porch light paid 5');
@@ -142,10 +145,13 @@ try{
  log('trick-or-treat: ok');
 
  // ---- 7. rewards: once per loop, even after the owner starts the event again
- const bal1=await rupees();log('Rupees after',bal1,'(+'+(bal1-bal0)+')');
- assert.equal(Object.values((await st()).paid).reduce((a,b)=>a+b,0),5+10+10+20+20,'each objective paid exactly once (server record)');assert(bal1-bal0>=65,'Rupees credited');
+ const money1=await economy(),bal1=money1.bal;log('Rupees after',bal1,'(+'+(bal1-bal0)+')');
+ const moneyRows=auditMoney(money1,65,'Halloween objectives');
+ assert.deepEqual(moneyRows.filter(r=>r[2]==='season').map(r=>r[1]),[5,10,10,20,20],'five exact seasonal ledger payments');
+ assert.deepEqual((await st()).paid,{'hw-lights':5,'hw-bowl':10,'hw-decorate':10,'hw-pumpkin':20,'hw-treat':20},'exact per-objective paid record');
+ assert.equal(Object.values((await st()).paid).reduce((a,b)=>a+b,0),5+10+10+20+20,'each objective paid exactly once (server record)');
  await page.evaluate(()=>{for(const s of ['on','on'])Season.step('halloween99','hw-lights',s);Season.step('halloween99','hw-pumpkin','place');});await page.waitForTimeout(1500);
- assert.equal(await rupees(),bal1,'replayed steps pay nothing');
+ auditMoney(await economy(),0,'replayed steps pay nothing');
  const snap=await st();
 
  // ---- 8. refresh: nothing changes
@@ -159,14 +165,16 @@ try{
  // A refresh hands back what you were carrying (docs/PHYSICS.md): the sweets bowl is still in your hands.
  await until(()=>House.held()==='hw.bowl');
  await page.evaluate(()=>House.putBack());await until(()=>!House.held());
+ auditMoney(await economy(),0,'refresh pays no seasonal rewards');
  log('refresh: ok');
- await page.evaluate(()=>{window.__own={};Net.on('ownerResult',m=>window.__own[m.rid]=m);window.__ec=null;Net.on('ecMe',m=>window.__ec=m);});
+ await page.evaluate(()=>{window.__own={};Net.on('ownerResult',m=>window.__own[m.rid]=m);window.__ec=null;});
  await owner('season',{event:EID});await page.waitForTimeout(1200);
  assert.deepEqual((await st()).obj,{},'owner start-again clears progress');
  await clock('1999-10-31',16);
  await aim([330,GY-EYE,640],[354,GY-118,697.4]);await key('f');
  await until(()=>!!Season.st('halloween99').obj['hw-lights']);
- assert.equal(await rupees(),bal1,'no second payment after starting again');
+ auditMoney(await economy(),0,'no second payment after starting again');
+ assert.deepEqual((await st()).paid,snap.paid,'start-again keeps the paid record');
  log('rewards once: ok');
 
  // ---- 9. the diary page, the morning after, and off again
