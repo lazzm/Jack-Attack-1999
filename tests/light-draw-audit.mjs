@@ -1,6 +1,7 @@
 export async function drawAudit(page){return page.evaluate(()=>{
+ const prior={perf:House.perf(),camera:House.camera.matrixWorld.toArray(),pose:{...House.P}};
  const ren=House.ren,original=ren.renderBufferDirect,out=[],textures=new Map(Object.entries(House.K.TEX).map(([k,v])=>[v,k])),things=new Map(Object.entries(House.THINGS).map(([k,v])=>[v.obj,k])),rooms=new Map(Object.values(House.ROOMS).map(r=>[r.group,r.id]));
  ren.renderBufferDirect=function(camera,scene,geometry,material,object,group){let room=null,thing=null;for(let q=object;q;q=q.parent){if(!thing&&things.has(q))thing=things.get(q);if(rooms.has(q))room=rooms.get(q)}out.push({room,thing,name:object.name,triangles:(group?.count??geometry.index?.count??geometry.attributes.position.count)/3,static:!!object.userData.staticBatch,attributes:Object.keys(geometry.attributes).sort(),map:textures.get(material.map)||null,emissiveMap:textures.get(material.emissiveMap)||null,material:material.type,color:material.color?.getHex(),emissive:material.emissive?.getHex(),emissiveIntensity:material.emissiveIntensity,shininess:material.shininess,program:material.customProgramCacheKey(),shell:!!material.userData.interiorShell,pendant:!!material.userData.pendant});return original.apply(this,arguments)};
  try{House._.renderForBenchmark()}finally{ren.renderBufferDirect=original}
- return {draws:out,pose:{...House.P},perf:House.perf(),static:Object.fromEntries(Object.values(House.ROOMS).map(r=>[r.id,HouseStatic.stats(r.group)])),reasons:{...HouseStatic.REASONS}};
+ return {prior,draws:out,pose:{...House.P},perf:House.perf(),static:Object.fromEntries(Object.values(House.ROOMS).map(r=>[r.id,HouseStatic.stats(r.group)])),reasons:{...HouseStatic.REASONS}};
 })}

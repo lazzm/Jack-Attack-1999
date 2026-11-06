@@ -83,22 +83,12 @@
   function phongShader(shader){
     const state=INTERIOR_SHADER;
     Object.assign(shader.uniforms,state.uniforms);
-    // Aperture coordinates are affine in view position: perspective-correct
-    // interpolation gives the same floor/wall projection, with six dot products
-    // per vertex rather than per covered pixel.
-    shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
-      uniform mat4 houseProjector0,houseProjector1;
-      varying vec3 houseProjected0,houseProjected1;`);
-    shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
-      houseProjected0=vec3(dot(houseProjector0[0],mvPosition),dot(houseProjector0[1],mvPosition),dot(houseProjector0[3],mvPosition));
-      houseProjected1=vec3(dot(houseProjector1[0],mvPosition),dot(houseProjector1[1],mvPosition),dot(houseProjector1[3],mvPosition));`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
       uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;
       uniform mat4 houseProjector0,houseProjector1;
-      varying vec3 houseProjected0,houseProjected1;
-      float houseApertureMask(mat4 projector,vec3 projected){
-        vec4 a=projector[2];if(a.y<=a.x||projected.z<.5)return 0.0;
-        float u=projected.x,v=projected.y;
+      float houseApertureMask(mat4 projector,vec4 p){
+        vec4 a=projector[2];if(a.y<=a.x||dot(projector[3],p)<.5)return 0.0;
+        float u=dot(projector[0],p),v=dot(projector[1],p);
         if(u<a.x-4.0||u>a.y+4.0||v<a.z-4.0||v>a.w+4.0)return 0.0;
         float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
         return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
@@ -107,13 +97,13 @@
         if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
         float facing=max(0.0,dot(surfaceNormal,-houseSunViewDir));
         if(facing==0.0)return vec3(0.0);
-        float sunMask=houseApertureMask(houseProjector0,houseProjected0)+houseApertureMask(houseProjector1,houseProjected1);
+        vec4 p=vec4(-viewPosition,1.0);
+        float sunMask=houseApertureMask(houseProjector0,p)+houseApertureMask(houseProjector1,p);
         return houseSun*min(1.0,sunMask)*facing;
       }`);
-    // A black light contributes exactly zero, including its specular term.
-    // Baked rooms have no rig sun; switched-off lamp slots also remain in the
-    // fixed rig. Avoid their attenuation/Phong work without changing variants.
-    const direct=T.ShaderChunk.lights_fragment_begin.replace(/(\b(pointLight|spotLight|directionalLight)\s*=\s*\w+\[\s*i\s*\];)([\s\S]*?RE_Direct\( directLight, geometry, material, reflectedLight \);)/g,
+    // The real rig sun is black in baked rooms. Skip its zero contribution;
+    // retain r128's branch-free point-light path and vertex interface.
+    const direct=T.ShaderChunk.lights_fragment_begin.replace(/(\b(directionalLight)\s*=\s*\w+\[\s*i\s*\];)([\s\S]*?RE_Direct\( directLight, geometry, material, reflectedLight \);)/g,
       '$1\nif(any(notEqual($2.color,vec3(0.0)))){$3\n}');
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_begin>',direct);
     if(this.userData.pendant){
@@ -129,7 +119,14 @@
         .replace('material.specularShininess = shininess;','material.specularShininess = mix(shininess,6.0,houseCord);'));
     }
     let maps=T.ShaderChunk.lights_fragment_maps;
-    if(this.userData.interiorShell)maps=maps.replace(/vec3 lightMapIrradiance[^;]+;/,`vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + lightMapTexel.a*houseSpill;`);
+    if(this.userData.interiorShell){
+      // The five original UNORM8 channels are preserved: RGB weights + AO in
+      // one sample, with the fourth (doorway) weight fetched only when lit.
+      maps=maps.replace(/vec3 lightMapIrradiance[^;]+;/,`vec3 houseDoorIrradiance=vec3(0.0);
+        if(any(notEqual(houseSpill,vec3(0.0))))houseDoorIrradiance=texture2D(aoMap,vUv2).r*houseSpill;
+        vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + houseDoorIrradiance;`);
+      shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
+    }
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
   }
   function phongKey(){return 'house-interior-r3-'+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
@@ -265,7 +262,7 @@
         const worker=interiorWorker=new Worker(interiorWorkerUrl);
         worker.onmessage=({data})=>{
           if(worker!==interiorWorker)return;const pending=workerJobs.get(data?.id);if(!pending)return;
-          if(!ArrayBuffer.isView(data.light)||!ArrayBuffer.isView(data.ao)||data.light.length!==pending.bytes||data.ao.length!==pending.bytes){failInteriorWorker('message');return}
+          if(!ArrayBuffer.isView(data.light)||!ArrayBuffer.isView(data.ao)||data.light.length!==pending.bytes||data.ao.length!==pending.bytes||!ArrayBuffer.isView(data.packed)||!ArrayBuffer.isView(data.spill)||data.packed.length!==pending.bytes||data.spill.length!==pending.bytes/4){failInteriorWorker('message');return}
           workerJobs.delete(data.id);pending.stats.weightsMs=data.weightsMs;pending.stats.maxSliceMs=data.maxSliceMs;pending.complete(data);
           if(workerJobs.size)watchInteriorWorker();else releaseInteriorWorker();
         };
@@ -340,12 +337,16 @@
     // keep the room readable while the static weights finish in the background.
     aoData.fill(255);
     const texture=(data,format=T.RGBAFormat)=>{const t=new T.DataTexture(data,w,h,format);t.minFilter=t.magFilter=T.LinearFilter;t.generateMipmaps=false;t.flipY=false;t.needsUpdate=true;return t};
-    const light=texture(lightData),ao=texture(aoData,aoFormat),clones=new Map();
+    // Retain the original CPU atlases for deterministic worker/fallback proof.
+    // Only these two packed textures are bound to materials and uploaded.
+    const packedData=new Uint8Array(lightData.length),spillData=new Uint8Array(aoData.length);
+    for(let i=3;i<packedData.length;i+=4)packedData[i]=255;
+    const light=texture(lightData),ao=texture(aoData,aoFormat),gpuLight=texture(packedData),gpuSpill=texture(spillData,aoFormat),clones=new Map();
     for(const {mesh,verts} of receivers){
       const uv=new Float32Array(verts.length*2);
       verts.forEach(({c,u,v},i)=>{uv[i*2]=(c.x+pad+.5+(u-c.u0)/Math.max(.01,c.u1-c.u0)*(c.w-pad*2-1))/w;uv[i*2+1]=(c.y+pad+.5+(v-c.v0)/Math.max(.01,c.v1-c.v0)*(c.h-pad*2-1))/h});
       mesh.geometry.setAttribute('uv2',new T.Float32BufferAttribute(uv,2));
-      let m=clones.get(mesh.material);if(!m){m=mesh.material.clone();m.userData.interiorRoom=r.id;m.userData.interiorShell=true;m.lightMap=light;m.lightMapIntensity=1;m.aoMap=ao;m.aoMapIntensity=r.id==='cupboard'?.5:1;m.shininess=1;m.specular.set('#000');m.needsUpdate=true;clones.set(mesh.material,m)}mesh.material=m;
+      let m=clones.get(mesh.material);if(!m){m=mesh.material.clone();m.userData.interiorRoom=r.id;m.userData.interiorShell=true;m.lightMap=gpuLight;m.lightMapIntensity=1;m.aoMap=gpuSpill;m.aoMapIntensity=r.id==='cupboard'?.5:1;m.shininess=1;m.specular.set('#000');m.needsUpdate=true;clones.set(mesh.material,m)}mesh.material=m;
     }
     const chartMs=performance.now()-started;
     const [x0,x1,z0,z1,cy,fy]=bounds, H=window.House;
@@ -383,7 +384,7 @@
     function* weights(){let pixels=0;
     // A first GPU upload may happen between slices. Keep unfinished weights
     // separate from the neutral textures until the entire room is complete.
-    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4);aoData.fill(255);
+    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4),packed=new Uint8Array(w*h*4),spill=new Uint8Array(w*h);aoData.fill(255);for(let i=3;i<packed.length;i+=4)packed[i]=255;
     for(const c of charts)for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
       const u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
       if(c.axis===0)pos.set((c.dist-c.n.y*v-c.n.z*u)/c.n.x,v,u);else if(c.axis===1)pos.set(u,(c.dist-c.n.x*u-c.n.z*v)/c.n.y,v);else pos.set(u,v,(c.dist-c.n.x*u-c.n.y*v)/c.n.z);
@@ -400,9 +401,10 @@
       lightData[i]=Math.min(255,Math.round(sky*255+dither));lightData[i+1]=Math.round(lampWeight(main,px,py,pz,c.n)*255);
       lightData[i+2]=Math.round(lampWeight(bluePoints,px,py,pz,c.n)*(accent.length?1:.8)*255);
       lightData[i+3]=Math.round(lampWeight(alphaPoints,px,py,pz,c.n)*.8*255);
+      packed[i]=lightData[i];packed[i+1]=lightData[i+1];packed[i+2]=lightData[i+2];packed[i+3]=aoData[i];spill[i/4]=lightData[i+3];
       if(++pixels%32===0)yield;
     }
-    return {light:lightData,ao:aoData};
+    return {light:lightData,ao:aoData,packed,spill};
     }
     const uniforms=interiorUniforms();
     const stats={buildMs:0,chartMs,weightsMs:0,maxSliceMs:0,elapsedMs:0,ready:false,updateMs:0,maxUpdateMs:0,updates:0,staticAtlases:2,footprints:footprints.length};
@@ -436,10 +438,11 @@
       for(let i=0;i<2;i++){const m=uniforms[i?'houseProjector1':'houseProjector0'].value.elements,columns=[uniforms.houseU.value[i],uniforms.houseV.value[i],uniforms.houseAperture.value[i],uniforms.housePlane.value[i]];for(let c=0;c<4;c++){const v=columns[c],o=c*4;m[o]=v.x;m[o+1]=v.y;m[o+2]=v.z;m[o+3]=v.w}}
       stats.updateMs=performance.now()-t;stats.maxUpdateMs=Math.max(stats.maxUpdateMs,stats.updateMs);stats.updates++;
     }
-    r.lightBake={update,charts:charts.length,width:w,height:h,light,ao,stats};update();stats.buildMs=performance.now()-started;
+    r.lightBake={update,charts:charts.length,width:w,height:h,light,ao,gpuLight,gpuSpill,stats};update();stats.buildMs=performance.now()-started;
     const work=weights(),job={stats,bytes:lightData.length,complete(data){
-      if(data){lightData.set(data.light);for(let i=0;i<aoData.length;i++)aoData[i]=data.ao[i*4]}
-      light.needsUpdate=true;ao.needsUpdate=true;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
+      const publishStart=performance.now();
+      if(data){lightData.set(data.light);packedData.set(data.packed);spillData.set(data.spill);for(let i=0;i<aoData.length;i++)aoData[i]=data.ao[i*4]}
+      light.needsUpdate=true;ao.needsUpdate=true;gpuLight.needsUpdate=true;gpuSpill.needsUpdate=true;stats.publishMs=performance.now()-publishStart;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
     },step(){const result=work.next();if(!result.done)return false;this.complete(result.value);return true}};
     const ceiling=r.ceilingAt?[r.ceilingAt(0,0),r.ceilingAt(1,0)-r.ceilingAt(0,0),r.ceilingAt(0,1)-r.ceilingAt(0,0)]:null;
     stats.worker=workerInterior(job,{id:r.id,charts:charts.map(c=>({...c,n:c.n.toArray()})),w,h,bounds,windows,main,bluePoints,alphaPoints,accent:!!accent.length,footprints,ceiling});

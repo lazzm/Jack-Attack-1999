@@ -5,7 +5,7 @@
  const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
  function* bake(d){
   const {id,charts,w,h,bounds,windows,main,bluePoints,alphaPoints,accent,footprints,ceiling}=d;
-  const [x0,x1,z0,z1,cy,fy]=bounds,light=new Uint8Array(w*h*4),ao=new Uint8Array(w*h*4),pad=2;ao.fill(255);let pixels=0;
+  const [x0,x1,z0,z1,cy,fy]=bounds,light=new Uint8Array(w*h*4),ao=new Uint8Array(w*h*4),packed=new Uint8Array(w*h*4),spill=new Uint8Array(w*h),pad=2;ao.fill(255);for(let i=3;i<packed.length;i+=4)packed[i]=255;let pixels=0;
   const lamp=(points,px,py,pz,n)=>{let a=0;for(const p of points){const dx=p[0]-px,dy=p[1]-py,dz=p[2]-pz,d2=dx*dx+dy*dy+dz*dz;if(d2>=220900)continue;const dist=Math.sqrt(d2),cos=Math.max(0,(dx*n[0]+dy*n[1]+dz*n[2])/Math.max(1,dist));a+=1/(1+d2/12100)*(.12+.88*cos)*(1-smooth(270,470,dist))}return Math.min(1,a)};
   for(const c of charts)for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
    const n=c.n,u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
@@ -17,10 +17,11 @@
    const i=((c.y+y)*w+c.x+x)*4,dither=(((i/4*13)%17)/16-.5)*.8;ao[i]=ao[i+1]=ao[i+2]=Math.round(Math.max(.14,shade)*255);ao[i+3]=255;
    let sky=0;for(const a of windows){const lx=(a.axis===0?a.at:(a.u0+a.u1)/2)-px,lz=(a.axis===2?a.at:(a.u0+a.u1)/2)-pz,ly=(a.y0+a.y1)/2-py,d2=lx*lx+ly*ly+lz*lz,dist=Math.sqrt(d2),cos=Math.max(0,(lx*n[0]+ly*n[1]+lz*n[2])/Math.max(1,dist));sky+=1/(1+d2/24025)*(.23+.77*cos)}
    light[i]=Math.min(255,Math.round(sky*255+dither));light[i+1]=Math.round(lamp(main,px,py,pz,n)*255);light[i+2]=Math.round(lamp(bluePoints,px,py,pz,n)*(accent?1:.8)*255);light[i+3]=Math.round(lamp(alphaPoints,px,py,pz,n)*.8*255);
+   packed[i]=light[i];packed[i+1]=light[i+1];packed[i+2]=light[i+2];packed[i+3]=ao[i];spill[i/4]=light[i+3];
    if(++pixels%32===0)yield;
   }
-  return {light,ao};
+  return {light,ao,packed,spill};
  }
- function run(){timer=0;const start=performance.now(),job=jobs[0];let result;do{result=job.work.next()}while(!result.done&&performance.now()-start<3);const ms=performance.now()-start;job.cpu+=ms;job.max=Math.max(job.max,ms);if(result.done){jobs.shift();const {light,ao}=result.value;postMessage({id:job.id,light,ao,weightsMs:job.cpu,maxSliceMs:job.max},[light.buffer,ao.buffer])}if(jobs.length)timer=setTimeout(run,0)}
+ function run(){timer=0;const start=performance.now(),job=jobs[0];let result;do{result=job.work.next()}while(!result.done&&performance.now()-start<3);const ms=performance.now()-start;job.cpu+=ms;job.max=Math.max(job.max,ms);if(result.done){jobs.shift();const {light,ao,packed,spill}=result.value;postMessage({id:job.id,light,ao,packed,spill,weightsMs:job.cpu,maxSliceMs:job.max},[light.buffer,ao.buffer,packed.buffer,spill.buffer])}if(jobs.length)timer=setTimeout(run,0)}
  self.onmessage=({data})=>{jobs.push({id:data.id,work:bake(data),cpu:0,max:0});if(!timer)timer=setTimeout(run,0)};
 })();

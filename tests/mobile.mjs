@@ -71,6 +71,13 @@ let browser;
 async function phone(profile, { tier = null, hour = 14 } = {}) {
   const ctx = await browser.newContext({ ...PROFILES[profile] });
   const page = await ctx.newPage(), errors = [];
+  // Diagnostic ablation only; the normal performance gate keeps the live code.
+  if(process.env.LIGHT5_WATCHDOG)await page.route('**/js/hs-world.js*',async route=>{
+    const response=await route.fetch();let body=await response.text();
+    if(process.env.LIGHT5_WATCHDOG==='off')body=body.replace('function wdCheck() {','function wdCheck() {return;');
+    if(process.env.LIGHT5_WATCHDOG==='sync')body=body.replace('wdReading=wdAsyncSample(ren.getContext(),render,sampled);if(!wdReading)sampled(wdSample());','sampled(wdSample());');
+    await route.fulfill({response,body});
+  });
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/GPU stall|ReadPixels|GL Driver/.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
   page.setDefaultTimeout(30000 * SCALE);
@@ -735,7 +742,7 @@ const phases = {
         for (let i = 0; i < ms / 100; i++) { await fingers.move(2, w - 140 - (i % 20) * 6, h * .45); await sleep(100); }
         await fingers.up(2); await fingers.up(1);
         const perf = await page.evaluate(() => House.perf()), t1 = perf.frames;
-        const extra = await page.evaluate(() => { const t0 = performance.now(); for (let i = 0; i < 5; i++) House.pick(innerWidth / 2, innerHeight / 2); const pick = (performance.now() - t0) / 5; const ft = (window.__ft || []).slice().sort((a, b) => a - b); const rooms=Object.values(House.ROOMS).filter(r=>r.lightBake),versions=()=>rooms.reduce((n,r)=>n+r.lightBake.light.version+r.lightBake.ao.version,0),v0=versions(),minute=Date.prototype.getMinutes;let uniformClockMs;try{Date.prototype.getMinutes=()=>1;const start=performance.now();for(const r of rooms)r.lightBake.update();uniformClockMs=performance.now()-start}finally{Date.prototype.getMinutes=minute;for(const r of rooms)r.lightBake.update()}return { view:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry,zoom:House.P.zm,rooms:Object.values(House.ROOMS).filter(r=>r._renderDrawn).map(r=>r.id),doors:Object.fromEntries(Object.entries(House.DOORS).map(([id,d])=>[id,!!d.open]))},bakeLoadMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.buildMs||0).toFixed(2)])),bakeWorkerMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.weightsMs||0).toFixed(2)])),bakeElapsedMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.elapsedMs||0).toFixed(2)])),bakeMaxSliceMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.maxSliceMs||0).toFixed(2)])),bakeOffMain:rooms.every(r=>r.lightBake.stats?.worker),bakeReady:rooms.every(r=>r.lightBake.stats?.ready),loadCpuThrottled:false,uniformClockMs:+uniformClockMs.toFixed(3),atlasVersionDelta:versions()-v0,pickMs: +pick.toFixed(2), physicsMs: +(House.physics.ms || 0).toFixed(2), rafP50: +(ft[ft.length >> 1] || 0).toFixed(1), rafP95: +(ft[Math.floor(ft.length * .95)] || 0).toFixed(1), family: !!window.HouseFamily?.enabled }; });
+        const extra = await page.evaluate(() => { const t0 = performance.now(); for (let i = 0; i < 5; i++) House.pick(innerWidth / 2, innerHeight / 2); const pick = (performance.now() - t0) / 5; const ft = (window.__ft || []).slice().sort((a, b) => a - b); const rooms=Object.values(House.ROOMS).filter(r=>r.lightBake),versions=()=>rooms.reduce((n,r)=>n+r.lightBake.light.version+r.lightBake.ao.version+(r.lightBake.gpuLight?.version||0)+(r.lightBake.gpuSpill?.version||0),0),v0=versions(),minute=Date.prototype.getMinutes;let uniformClockMs;try{Date.prototype.getMinutes=()=>1;const start=performance.now();for(const r of rooms)r.lightBake.update();uniformClockMs=performance.now()-start}finally{Date.prototype.getMinutes=minute;for(const r of rooms)r.lightBake.update()}return { view:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry,zoom:House.P.zm,rooms:Object.values(House.ROOMS).filter(r=>r._renderDrawn).map(r=>r.id),doors:Object.fromEntries(Object.entries(House.DOORS).map(([id,d])=>[id,!!d.open]))},bakeLoadMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.buildMs||0).toFixed(2)])),bakeWorkerMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.weightsMs||0).toFixed(2)])),bakeElapsedMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.elapsedMs||0).toFixed(2)])),bakePublishMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.publishMs||0).toFixed(2)])),bakeMaxSliceMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.maxSliceMs||0).toFixed(2)])),bakeOffMain:rooms.every(r=>r.lightBake.stats?.worker),bakeReady:rooms.every(r=>r.lightBake.stats?.ready),loadCpuThrottled:false,uniformClockMs:+uniformClockMs.toFixed(3),atlasVersionDelta:versions()-v0,pickMs: +pick.toFixed(2), physicsMs: +(House.physics.ms || 0).toFixed(2), rafP50: +(ft[ft.length >> 1] || 0).toFixed(1), rafP95: +(ft[Math.floor(ft.length * .95)] || 0).toFixed(1), family: !!window.HouseFamily?.enabled }; });
         assert.equal(extra.bakeReady,true,'Static light weights must be ready before the walking sample');
         assert.equal(extra.atlasVersionDelta,0,'Clock updates must not repaint indoor atlases');
         if(process.env.LIGHT5_AUDIT){const audit=await drawAudit(page);await writeFile(new URL('shots/light/round5/'+process.env.LIGHT5_AUDIT+'-'+label+'-draws.json',import.meta.url),JSON.stringify(audit,null,2));console.log('DRAW AUDIT',label,JSON.stringify({calls:audit.perf.calls,reasons:audit.reasons,static:audit.static.bedroom}));}
@@ -745,6 +752,21 @@ const phases = {
       await p.cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
       await run('walk-cpu1x', 6000);
       console.log('PERF', JSON.stringify(report.perf));
+      assert.deepEqual(p.errors, [], 'perf browser errors');
+      // Optional matched-view attribution AFTER the gate's samples are saved.
+      if(process.env.LIGHT5_PROFILE){
+        const tag=process.env.LIGHT5_PROFILE,cdp=p.cdp;
+        await page.evaluate(()=>House.anims.set('light5-profile',()=>true));
+        await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});await cdp.send('Performance.enable');
+        const before=await cdp.send('Performance.getMetrics'),pose=await page.evaluate(()=>({pose:{...House.P},perf:House.perf()}));
+        await cdp.send('Profiler.enable');await cdp.send('Profiler.setSamplingInterval',{interval:1000});
+        await cdp.send('Tracing.start',{categories:'toplevel,gpu,devtools.timeline,cc,viz',transferMode:'ReturnAsStream'});await cdp.send('Profiler.start');await page.waitForTimeout(2000);
+        const {profile}=await cdp.send('Profiler.stop'),after=await cdp.send('Performance.getMetrics');
+        const completed=new Promise(resolve=>cdp.once('Tracing.tracingComplete',resolve));await cdp.send('Tracing.end');const {stream}=await completed;let trace='';
+        while(true){const part=await cdp.send('IO.read',{handle:stream});trace+=part.base64Encoded?Buffer.from(part.data,'base64').toString():part.data;if(part.eof)break}await cdp.send('IO.close',{handle:stream});
+        const dir=new URL('shots/light/round5/',import.meta.url);await writeFile(new URL(tag+'-final.cpuprofile',dir),JSON.stringify(profile));await writeFile(new URL(tag+'-final-trace.json',dir),trace);await writeFile(new URL(tag+'-final-profile.json',dir),JSON.stringify({before,after,...pose,end:await page.evaluate(()=>House.perf())},null,2));
+        await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});await page.evaluate(()=>House.anims.delete('light5-profile'));assert.deepEqual(p.errors, [], 'profile browser errors');
+      }
     } finally { await p.ctx.close(); }
   },
 };
