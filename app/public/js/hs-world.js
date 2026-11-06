@@ -378,7 +378,7 @@
     if(moving)dirty();
   }
   function applyRoomRig(r) {
-    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r);
+    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera);
     hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
@@ -3322,6 +3322,32 @@
     for (const [fx, fy] of [[.5,.5],[.25,.5],[.75,.5],[.5,.25],[.5,.75],[.3,.3],[.7,.7],[.08,.5],[.92,.5],[.5,.08],[.5,.92]]) { gl.readPixels(Math.floor(w*fx),Math.floor(h*fy),1,1,gl.RGBA,gl.UNSIGNED_BYTE,px); if (px[0]+px[1]+px[2]>24 || Math.abs(px[0]-5)+Math.abs(px[1]-4)+Math.abs(px[2]-4)>6) return true; }
     return false;
   }
+  // Queue WebGL2 pixel transfers behind the GPU work. The old synchronous
+  // readPixels forced a full pipeline wait (~200 ms on the software test GPU).
+  // Poll a fence without waiting; WebGL1 retains the existing recovery path.
+  function wdAsyncSample(gl,draw,done){
+    if(!gl.fenceSync||!gl.getBufferSubData)return false;
+    let buffer,sync,tries=0;const pixels=new Uint8Array(44);
+    const cleanup=()=>{if(sync)gl.deleteSync(sync);if(buffer)gl.deleteBuffer(buffer)};
+    try{
+      draw();const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight;if(!w||!h)return false;
+      const previous=gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING);buffer=gl.createBuffer();
+      try{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.bufferData(gl.PIXEL_PACK_BUFFER,44,gl.STREAM_READ);let offset=0;
+        for(const [fx,fy]of [[.5,.5],[.25,.5],[.75,.5],[.5,.25],[.5,.75],[.3,.3],[.7,.7],[.08,.5],[.92,.5],[.5,.08],[.5,.92]]){gl.readPixels(Math.floor(w*fx),Math.floor(h*fy),1,1,gl.RGBA,gl.UNSIGNED_BYTE,offset);offset+=4}
+        sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);gl.flush();
+      }finally{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,previous)}
+      const poll=()=>{
+        if(gl.isContextLost()||++tries>40){cleanup();done(null);return}
+        const status=gl.clientWaitSync(sync,0,0);
+        if(status===gl.TIMEOUT_EXPIRED){setTimeout(poll,50);return}
+        if(status===gl.WAIT_FAILED){cleanup();done(null);return}
+        const previous=gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING);
+        try{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,pixels)}finally{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,previous);cleanup()}
+        let lit=false;for(let i=0;i<pixels.length;i+=4)if(pixels[i]+pixels[i+1]+pixels[i+2]>24||Math.abs(pixels[i]-5)+Math.abs(pixels[i+1]-4)+Math.abs(pixels[i+2]-4)>6){lit=true;break}done(lit);
+      };setTimeout(poll,50);return true;
+    }catch(e){cleanup();return false}
+  }
+  let wdReading=false;
   function wdCheck() {
     if (!live || document.hidden || window.AccountGate?.blocked || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
@@ -3338,7 +3364,8 @@
       }
       if (glLost()) { const ok = rebuildGL(); wdDiag('context-lost', ok); return; }
       if(mainDraws===wdFrames&&!(need&&++wdStuck>=3))return;wdStuck=0; // a pending draw is the main loop's job; only sample if it stays stuck for ~4.5 s
-      const lit = wdSample(); wdFrames=mainDraws;
+      if(wdReading)return;wdFrames=mainDraws;
+      const sampled=lit=>{wdReading=false;if(lit===null)return;
       if (lit) wdBlack = 0;
       else if (++wdBlack >= 2) {
         wdBlack = 0; let fix = 'rooms';
@@ -3347,6 +3374,8 @@
         measure(); dirty(); const lit2 = wdSample(); wdDiag('draws-nothing', { fix, lit2 });
         if (lit2) visCalc();
       }
+      };
+      wdReading=wdAsyncSample(ren.getContext(),render,sampled);if(!wdReading)sampled(wdSample());
       const e = document.elementFromPoint(innerWidth / 2, innerHeight / 2);
       if (e && e !== cv && e !== cv2 && e.id && /^(boot|crt|saver)/i.test(e.id) && getComputedStyle(e).backgroundColor !== 'rgba(0, 0, 0, 0)') wdDiag('overdraw', e.id + '.' + e.className);
     } catch (e) { console.error(e); }

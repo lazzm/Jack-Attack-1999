@@ -222,8 +222,8 @@
     switchLook();
   }
   function interiorAmb(id, dayIntensity = .64) {
-    if (phase() === 'day') return {sky: '#c2d5ee', gnd: '#756b60', i: dayIntensity*.62};
-    if (phase() === 'night') return {sky: '#8699bd', gnd: '#51483f', i: lit(id)?(id==='kitchen'?.18:.14):.105};
+    if (phase() === 'day') return {sky: '#e2e2d9', gnd: '#8b7b64', i: dayIntensity*(id==='kitchen'?1.1:1)};
+    if (phase() === 'night') return {sky: '#8699bd', gnd: '#51483f', i: lit(id)?(id==='landing'||id==='hall'?.24:id==='kitchen'?.18:.14):(id==='landing'||id==='hall'?.19:.105)};
     return phase() === 'dawn' ? {sky:'#c3d7f2',gnd:'#666674',i:.23} : {sky:'#d3ad91',gnd:'#615044',i:.2};
   }
   function outdoorAmb(ground) {
@@ -1868,7 +1868,7 @@
   const rearGlass=[[-160,143,-186,-40,253,-174],[95,167,-180,145,245,-174],[193,143,-160,207,235,-80]],bedroomGlass=REAR.bedroomWindows.map(w=>[w.x0,w.y0,-74,w.x1,w.y1,-50]),bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding, windowViews:[{room:'drive',bounds:[[410,-80,400,420,60,480]]}],
-      lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }, { x: 300, y: 130, z: 560, c: '#fff0d8', i: lit('hall') ? .65 : 0, d: 450 }],
+      lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }, { x: 300, y: 130, z: 560, c: '#fff0d8', i: lit('hall') ? 1.05 : 0, d: 580 }],
       amb: () => interiorAmb('landing', .68),
       stations: [{ id: 'top', n: 'Top of the stairs', pose: () => look('U', 300, 175, 370, 220, 520, 158) }, { id: 'doors', n: 'Landing', pose: () => look('U', 310, 640, 250, -40, 420, 158) }] },
     hall: { name: 'The hall', title: 'THE HALL', lvl: 'G', area: [[205, 60, 410, 250], [205, 250, 330, 600], [205, 600, 410, 700], [330, 570.625, 410, 600]], bx0: 207, bx1: 408, bz0: 62, bz1: 698, build: buildHall, windowViews:[{room:'drive',bounds:frontGlass}],

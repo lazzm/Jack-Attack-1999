@@ -214,15 +214,15 @@
       const ph = skyPhase || 'day', day = ph === 'day', dim = ph === 'dusk' || ph === 'dawn';
       if (LIGHT.lamp) { const p=R.lampSource||{x:-52.65,y:-33.65,z:-30};L.push({x:p.x,y:p.y,z:p.z,c:'#ffc888',i:1.45,d:270}); } // a warm 60 W bulb: the room's key light
       if (LIGHT.main) L.push({ x: -20, y: -140, z: 90, c: '#fff0d6', i: 1.15, d: 680 });
-      L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .16, d: day ? 620 : 420 });
+      L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .5, d: day ? 620 : dim ? 420 : 520 });
       if (LIGHT.lava) L.push({ x: 134, y: 4.6, z: BZ + 21, c: '#ff6d9c', i: .32, d: 150 });
       if (LIGHT.telly) L.push({ x: TX, y: -8, z: 28, c: '#9bb5ed', i: .32, d: 180 });
       if (pcPowered && window.StoryAccess?.available !== false) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
       return L;
     },
-    amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .36 + (LIGHT.main ? .04 : 0)};
+    amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .52 + (LIGHT.main ? .04 : 0)};
       if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .16};
-      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .115} : {sky: '#c3bdc9', gnd: '#65574f', i: .22}; },
+      return ph === 'night' ? {sky: '#8896b0', gnd: '#66616b', i: .21} : {sky: '#c3bdc9', gnd: '#65574f', i: .22}; },
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });

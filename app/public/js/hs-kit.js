@@ -61,22 +61,30 @@
   const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
   // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
   function interiorUniforms(){const uniform=v=>({value:v});return {houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
-  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:interiorUniforms()},interiorDark=new T.Color('#000');
-  function interiorFor(r){const state=INTERIOR_BAKES.get(r?.id);for(const key in INTERIOR_SHADER.uniforms){const u=INTERIOR_SHADER.uniforms[key];if(state)u.value=state.uniforms[key].value;else if(key==='houseSun')u.value=interiorDark}}
+  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()}}},interiorDark=new T.Color('#000');
+  const interiorViewProjectors=[new T.Matrix4(),new T.Matrix4()],interiorViewTransform=new T.Matrix4(),interiorPlane=new T.Vector4();
+  function interiorFor(r,camera){
+    const state=INTERIOR_BAKES.get(r?.id),shared=INTERIOR_SHADER.uniforms;
+    if(!state){shared.houseSun.value=interiorDark;return}
+    for(const key in state.uniforms)shared[key].value=state.uniforms[key].value;
+    // Phong already normalises its view-space normal. Transform the sun once
+    // per room pass instead of a second normal transform on every vertex.
+    const d=shared.houseSunDir.value;shared.houseSunViewDir.value.set(d.x,-d.y,d.z);
+    if(camera){
+      shared.houseSunViewDir.value.transformDirection(camera.matrixWorldInverse);
+      interiorViewTransform.copy(camera.matrixWorld).transpose();
+      for(let i=0;i<2;i++){
+        const key=i?'houseProjector1':'houseProjector0',source=state.uniforms[key].value.elements,target=interiorViewProjectors[i].copy(state.uniforms[key].value).elements;
+        for(const column of [0,1,3]){const offset=column*4;interiorPlane.fromArray(source,offset);interiorPlane.y=-interiorPlane.y;interiorPlane.applyMatrix4(interiorViewTransform);interiorPlane.toArray(target,offset)}
+        shared[key].value=interiorViewProjectors[i];
+      }
+    }
+  }
   function phongShader(shader){
     const state=INTERIOR_SHADER;
     Object.assign(shader.uniforms,state.uniforms);
-    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 houseSun; varying vec3 housePosition; varying vec3 houseNormal;').replace('#include <worldpos_vertex>',`#include <worldpos_vertex>
-      housePosition=vec3(0.0);houseNormal=vec3(0.0,1.0,0.0);
-      if(dot(houseSun,vec3(1.0))>.001){
-        vec4 houseWorld=modelMatrix*vec4(transformed,1.0);
-        housePosition=vec3(houseWorld.x,-houseWorld.y,houseWorld.z);
-        vec3 houseN=(vec4(transformedNormal,0.0)*viewMatrix).xyz;
-        houseNormal=vec3(houseN.x,-houseN.y,houseN.z);
-      }`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
-      varying vec3 housePosition; varying vec3 houseNormal;
-      uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunDir;
+      uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;
       uniform mat4 houseProjector0,houseProjector1;
       float houseApertureMask(mat4 projector,vec4 p){
         vec4 a=projector[2];if(a.y<=a.x||dot(projector[3],p)<.5)return 0.0;
@@ -85,17 +93,17 @@
         float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
         return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
       }
-      vec3 houseWindowLight(){
+      vec3 houseWindowLight(vec3 surfaceNormal,vec3 viewPosition){
         if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
-        vec4 p=vec4(housePosition,1.0);
+        vec4 p=vec4(-viewPosition,1.0);
         float sunMask=houseApertureMask(houseProjector0,p)+houseApertureMask(houseProjector1,p);
-        return houseSun*min(1.0,sunMask)*max(0.0,dot(normalize(houseNormal),-houseSunDir));
+        return houseSun*min(1.0,sunMask)*max(0.0,dot(surfaceNormal,-houseSunViewDir));
       }`);
     let maps=T.ShaderChunk.lights_fragment_maps;
     if(this.userData.interiorShell)maps=maps.replace(/vec3 lightMapIrradiance[^;]+;/,`vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + lightMapTexel.a*houseSpill;`);
-    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight();');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
   }
-  function phongKey(){return 'house-interior-r2-'+(this.userData.interiorShell?'shell':'prop')}
+  function phongKey(){return 'house-interior-r3-'+(this.userData.interiorShell?'shell':'prop')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
@@ -203,6 +211,64 @@
   // holes stay holes, no decal crosses an opening, and no extra draws are needed.
   // These are indirect light / occlusion only; the existing rig still lights
   // movable things. Neither exterior materials nor saved game state is touched.
+  // One queue for the house, not one budget per room. Yield after at most 3 ms
+  // (checked every 32 texels), so a weak phone can draw and accept input between
+  // slices. Only completed atlases upload; no geometry/material re-batching.
+  const interiorJobs=[],workerJobs=new Map();let interiorTimer=0,interiorScheduled=false,interiorChannel=null,interiorSuspended=false,interiorWorker=null,workerWatch=0,workerFailed=false;
+  const interiorWorkerUrl=typeof Worker==='function'&&document.currentScript?new URL('hs-light-worker.js',document.currentScript.src):null;
+  if(interiorWorkerUrl)interiorWorkerUrl.search=new URL(document.currentScript.src).search;
+  function releaseInteriorWorker(){
+    if(workerWatch)clearTimeout(workerWatch);workerWatch=0;
+    if(interiorWorker){interiorWorker.onmessage=interiorWorker.onerror=interiorWorker.onmessageerror=null;interiorWorker.terminate();interiorWorker=null}
+  }
+  function failInteriorWorker(reason){
+    releaseInteriorWorker();workerFailed=true;
+    for(const pending of workerJobs.values()){pending.stats.worker=false;pending.stats.fallback=reason;queueInterior(pending)}workerJobs.clear();
+  }
+  function watchInteriorWorker(){
+    if(workerWatch)clearTimeout(workerWatch);
+    workerWatch=setTimeout(()=>failInteriorWorker('timeout'),30000);
+  }
+  function workerInterior(job,payload){
+    if(!interiorWorkerUrl||workerFailed){job.stats.fallback='unavailable';return false}
+    try{
+      if(!interiorWorker){
+        const worker=interiorWorker=new Worker(interiorWorkerUrl);
+        worker.onmessage=({data})=>{
+          if(worker!==interiorWorker)return;const pending=workerJobs.get(data?.id);if(!pending)return;
+          if(!ArrayBuffer.isView(data.light)||!ArrayBuffer.isView(data.ao)||data.light.length!==pending.bytes||data.ao.length!==pending.bytes){failInteriorWorker('message');return}
+          workerJobs.delete(data.id);pending.stats.weightsMs=data.weightsMs;pending.stats.maxSliceMs=data.maxSliceMs;pending.complete(data);
+          if(workerJobs.size)watchInteriorWorker();else releaseInteriorWorker();
+        };
+        worker.onerror=event=>{event.preventDefault();if(worker===interiorWorker)failInteriorWorker('error')};
+        worker.onmessageerror=()=>{if(worker===interiorWorker)failInteriorWorker('message')};
+      }
+      workerJobs.set(payload.id,job);interiorWorker.postMessage(payload);watchInteriorWorker();return true;
+    }catch(e){workerJobs.delete(payload.id);failInteriorWorker('start');job.stats.fallback='start';return false}
+  }
+  function closeInteriorChannel(){
+    if(interiorChannel){interiorChannel.port1.onmessage=null;interiorChannel.port1.close();interiorChannel.port2.close();interiorChannel=null}
+    if(interiorTimer)clearTimeout(interiorTimer);interiorTimer=0;interiorScheduled=false;
+  }
+  function scheduleInterior(){
+    if(interiorSuspended||interiorScheduled||!interiorJobs.length)return;interiorScheduled=true;
+    // Posted tasks yield to input/painting without a timer's background clamp.
+    if(typeof MessageChannel==='function'){
+      if(!interiorChannel){const channel=interiorChannel=new MessageChannel();channel.port1.onmessage=()=>{if(channel===interiorChannel)runInterior()}}
+      interiorChannel.port2.postMessage(0);
+    }else interiorTimer=setTimeout(runInterior,0);
+  }
+  function queueInterior(job){interiorJobs.push(job);scheduleInterior()}
+  function runInterior(){
+    interiorTimer=0;interiorScheduled=false;if(interiorSuspended)return;const start=performance.now(),worked=new Set();
+    while(interiorJobs.length){const job=interiorJobs[0],t=performance.now();worked.add(job);const done=job.step();job.stats.weightsMs+=performance.now()-t;if(done)interiorJobs.shift();if(performance.now()-start>=3)break}
+    const slice=performance.now()-start;for(const job of worked)job.stats.maxSliceMs=Math.max(job.stats.maxSliceMs,slice);
+    if(interiorJobs.length)scheduleInterior();else closeInteriorChannel();
+  }
+  if(typeof addEventListener==='function'){
+    addEventListener('pagehide',()=>{interiorSuspended=true;closeInteriorChannel();releaseInteriorWorker();for(const job of workerJobs.values()){job.stats.worker=false;job.stats.fallback='pagehide';interiorJobs.push(job)}workerJobs.clear()});
+    addEventListener('pageshow',()=>{interiorSuspended=false;scheduleInterior()});
+  }
   function bakeInterior(r) {
     const started=performance.now();
     const layouts = {
@@ -238,6 +304,9 @@
     for(const c of charts.slice().sort((a,b)=>b.h-a.h)){if(packX+c.w>w){packX=0;packY+=rowH;rowH=0}c.x=packX;c.y=packY;packX+=c.w;rowH=Math.max(rowH,c.h)}
     const h=pow2(packY+rowH);
     const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4);
+    // Neutral occlusion during loading: the existing lamp rig and hemisphere
+    // keep the room readable while the static weights finish in the background.
+    aoData.fill(255);
     const texture=data=>{const t=new T.DataTexture(data,w,h,T.RGBAFormat);t.minFilter=t.magFilter=T.LinearFilter;t.generateMipmaps=false;t.flipY=false;t.needsUpdate=true;return t};
     const light=texture(lightData),ao=texture(aoData),clones=new Map();
     for(const {mesh,verts} of receivers){
@@ -279,14 +348,18 @@
     const spillPoints=spills.map(s=>[[s[2],s[3],s[4]]]),bluePoints=accent.length?accent:spillPoints[0]||[],alphaPoints=accent.length?spillPoints[0]||[]:spillPoints[1]||[];
     // Static RGBA channels: window bounce, ceiling pool, accent/door pool,
     // second doorway. Time and switches change uniforms, never these texels.
+    function* weights(){let pixels=0;
+    // A first GPU upload may happen between slices. Keep unfinished weights
+    // separate from the neutral textures until the entire room is complete.
+    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4);aoData.fill(255);
     for(const c of charts)for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
       const u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
       if(c.axis===0)pos.set((c.dist-c.n.y*v-c.n.z*u)/c.n.x,v,u);else if(c.axis===1)pos.set(u,(c.dist-c.n.x*u-c.n.z*v)/c.n.y,v);else pos.set(u,v,(c.dist-c.n.x*u-c.n.y*v)/c.n.z);
-      const px=pos.x,py=pos.y,pz=pos.z,dx=Math.max(0,Math.min(px-x0,x1-px)),dz=Math.max(0,Math.min(pz-z0,z1-pz)),dy=Math.max(0,Math.min(py-(r.ceilingAt?.(px,pz)??cy),fy-py));
+      const px=pos.x,py=pos.y,pz=pos.z,stairFloor=r.id==='landing'&&px>=328&&pz>=250&&pz<=600?fy+(pz-250)*.8:fy,dx=Math.max(0,Math.min(px-x0,x1-px)),dz=Math.max(0,Math.min(pz-z0,z1-pz)),dy=Math.max(0,Math.min(py-(ceiling?ceiling[0]+ceiling[1]*px+ceiling[2]*pz:cy),stairFloor-py));
       const edge=c.axis===1?Math.min(dx,dz):Math.min(c.axis===0?dz:dx,dy);
       let shade=(.58+.42*smooth(0,72,edge))*(.72+.28*smooth(0,12,edge));
       // Each tread has its own dark riser junction, not one flat stair wash.
-      if(r.id==='landing'&&py>fy+4&&c.axis===1&&c.v1-c.v0<45)shade*=.55+.45*smooth(0,16,pz-c.v0);
+      if(r.id==='landing'&&py>fy+4&&c.axis===1&&c.v1-c.v0<45)shade*=.72+.28*smooth(0,16,pz-c.v0);
       const contactHeight=1-smooth(0,c.axis===1?8:95,Math.abs(fy-py));
       if(contactHeight>0)for(const b of footprints){const fx=Math.max(b[0]-px,0,px-b[1]),fz=Math.max(b[2]-pz,0,pz-b[3]),d2=fx*fx+fz*fz;if(d2<484)shade*=1-.58*(1-smooth(0,22,Math.sqrt(d2)))*contactHeight}
       const i=((c.y+y)*w+c.x+x)*4,dither=(((i/4*13)%17)/16-.5)*.8;
@@ -295,9 +368,12 @@
       lightData[i]=Math.min(255,Math.round(sky*255+dither));lightData[i+1]=Math.round(lampWeight(main,px,py,pz,c.n)*255);
       lightData[i+2]=Math.round(lampWeight(bluePoints,px,py,pz,c.n)*(accent.length?1:.8)*255);
       lightData[i+3]=Math.round(lampWeight(alphaPoints,px,py,pz,c.n)*.8*255);
+      if(++pixels%32===0)yield;
+    }
+    return {light:lightData,ao:aoData};
     }
     const uniforms=interiorUniforms();
-    const stats={buildMs:0,chartMs,weightsMs:performance.now()-started-chartMs,updateMs:0,maxUpdateMs:0,updates:0,staticAtlases:2,footprints:footprints.length};
+    const stats={buildMs:0,chartMs,weightsMs:0,maxSliceMs:0,elapsedMs:0,ready:false,updateMs:0,maxUpdateMs:0,updates:0,staticAtlases:2,footprints:footprints.length};
     const state={uniforms};INTERIOR_BAKES.set(r.id,state);
     // Room render passes bind these uniforms once for the whole room. Furniture
     // keeps its original materials, controllers and static batching classes.
@@ -311,7 +387,7 @@
       const match=points=>{let a=0;for(const p of points){const l=lamps.find(l=>Math.hypot(l.x-p[0],l.y-p[1],l.z-p[2])<6);if(l)a=Math.max(a,l.i||0)}return a};
       uniforms.houseMain.value.set('#ffd39a').multiplyScalar(match(main)*(r.id==='cupboard'?.28:1.6));
       const spillColour=(s,c)=>{c.set('#ffce96');if(!s){c.multiplyScalar(0);return}const door=s[1]?H.DOORS[s[1]]:null,open=door?Math.max(0,door.ang||0):1,other=H.ROOMS[s[0]],ls=(typeof other?.lights==='function'?other.lights():other?.lights)||[],warm=ls.some(l=>l.i>.4&&new T.Color(l.c||'#fff').r>new T.Color(l.c||'#fff').b);c.multiplyScalar(open*(warm?.62:daylight*.28))};
-      if(accent.length)uniforms.houseAccent.value.set('#ffbe72').multiplyScalar(match(accent)*2.1);else spillColour(spills[0],uniforms.houseAccent.value);
+      if(accent.length)uniforms.houseAccent.value.set('#ffbe72').multiplyScalar(match(accent)*(r.id==='bedroom'?.65:2.1));else spillColour(spills[0],uniforms.houseAccent.value);
       spillColour(accent.length?spills[0]:spills[1],uniforms.houseSpill.value);
       const progress=Math.max(0,Math.min(1,(hour-sun.rise)/(sun.set-sun.rise))),drift=(progress-.5)*1.05,alt=.48+.62*Math.sin(progress*Math.PI),a0=windows[0],dir=uniforms.houseSunDir.value;
       if(a0?.axis===0)dir.set(a0.sign,alt,drift);else dir.set(drift,alt,a0?.sign||1);dir.normalize();
@@ -329,6 +405,13 @@
       stats.updateMs=performance.now()-t;stats.maxUpdateMs=Math.max(stats.maxUpdateMs,stats.updateMs);stats.updates++;
     }
     r.lightBake={update,charts:charts.length,width:w,height:h,light,ao,stats};update();stats.buildMs=performance.now()-started;
+    const work=weights(),job={stats,bytes:lightData.length,complete(data){
+      if(data){lightData.set(data.light);aoData.set(data.ao)}
+      light.needsUpdate=true;ao.needsUpdate=true;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
+    },step(){const result=work.next();if(!result.done)return false;this.complete(result.value);return true}};
+    const ceiling=r.ceilingAt?[r.ceilingAt(0,0),r.ceilingAt(1,0)-r.ceilingAt(0,0),r.ceilingAt(0,1)-r.ceilingAt(0,0)]:null;
+    stats.worker=workerInterior(job,{id:r.id,charts:charts.map(c=>({...c,n:c.n.toArray()})),w,h,bounds,windows,main,bluePoints,alphaPoints,accent:!!accent.length,footprints,ceiling});
+    if(!stats.worker)queueInterior(job);stats.buildMs=performance.now()-started;
   }
 
   // ================================================================ materials (cached by their spec)
