@@ -891,6 +891,12 @@
     const was = t.st === 'snap' || t.st === 'anim' ? t.snap : null;
     const drag = dragged(t) && t.st === 'rest' && !t.at.hide && !was;
     held = { id, d: clamp(o?.d || holdDistance(t), 25, 150), ry: o?.ry || 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z, drag, pry: P.ry, rel: (t.at.ry || 0) + P.ry, hand: null, hv: { x: 0, y: 0, z: 0 } };
+    // A soft beanbag is taken hold of where it lies. Preserve the actual
+    // player-to-centre offset instead of pulling it to a generic chair reach.
+    if (drag && t.id === 'beanbag') {
+      const a = P.ry * D2R, dx = t.at.x - W.x, dz = t.at.z - W.z;
+      held.dragOffset = {right:dx*Math.cos(a)+dz*Math.sin(a),forward:dx*Math.sin(a)-dz*Math.cos(a)};
+    }
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
     aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; showTargets(null); // never inherit the previous object's shelf targets
@@ -1466,8 +1472,9 @@
   let dragSound = 0;
   function dragTick(t, dt) {
     const b = t.body; if (!b) { letGo(); return; }
-    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = RAD + 12 + b.rad * 0.95; // (an arm's length: the chair's back never fills the view)
-    const tx = W.x + fx * reach, tz = W.z + fz * reach;
+    const grip = held.dragOffset;
+    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = grip ? Math.hypot(grip.right,grip.forward) : RAD + 12 + b.rad * 0.95; // existing reach for furniture; actual grip radius for the beanbag
+    const tx = W.x + fx * (grip ? grip.forward : reach) + (grip ? Math.cos(a)*grip.right : 0), tz = W.z + fz * (grip ? grip.forward : reach) + (grip ? Math.sin(a)*grip.right : 0);
     let mx = tx - b.x, mz = tz - b.z; const len = Math.hypot(mx, mz), cap = 260 * dt;
     if (len > cap) { mx *= cap / len; mz *= cap / len; }
     const x0 = b.x, z0 = b.z;

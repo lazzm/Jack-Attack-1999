@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('app/public/js/hs-world.js','utf8');
+const start=source.indexOf("    if (drag && t.id === 'beanbag')"),offset=source.slice(start,source.indexOf('    if (was)',start));
+const tick=source.slice(source.indexOf('  function dragTick('),source.indexOf('  // Contact shadows for grab-API'));
+const w={drag:true,t:{id:'beanbag',at:{x:-108.3826,z:78.8198}},held:{rel:0,ry:0},P:{ry:31},W:{x:-35.9102,z:198.0406},D2R:Math.PI/180,RAD:22,dragSound:Infinity,performance:{now:()=>0},clamp:(x,a,b)=>Math.max(a,Math.min(b,x)),angd:(a,b)=>b-a,PH:{tryMove:(b,x,z)=>{b.x+=x;b.z+=z},tryTurn:(b,r)=>b.ry+=r},renderBody:()=>{},letGo:()=>{throw Error('Unexpected release')},ui:{toast:()=>{}}};
+vm.createContext(w);vm.runInContext(offset+tick,w);
+const b={x:w.t.at.x,z:w.t.at.z,rad:41,ry:-31};w.t.body=b;
+const before={x:b.x,z:b.z};for(let i=0;i<120;i++)w.dragTick(w.t,1/60);
+assert(Math.hypot(b.x-before.x,b.z-before.z)<1e-8,'stationary grip preserves original 140cm offset');
+w.W.x+=30;for(let i=0;i<60;i++)w.dragTick(w.t,1/60);assert(Math.abs(b.x-before.x-30)<1e-8,'walking pulls from the initial grip');
+w.P.ry+=15;for(let i=0;i<60;i++)w.dragTick(w.t,1/60);assert(Math.hypot(b.x-before.x-30,b.z-before.z)>10,'looking turns the held offset');
+w.P.ry+=90;for(let i=0;i<90;i++)w.dragTick(w.t,1/60);
+const other={...w,t:{id:'chair',at:{x:1,z:1}},held:{rel:0,ry:0}};vm.createContext(other);vm.runInContext(offset,other);assert(!other.held.dragOffset,'other furniture keeps existing reach');
+console.log('BEANBAG GRIP PASS: stationary, moving, turning; chair unchanged');

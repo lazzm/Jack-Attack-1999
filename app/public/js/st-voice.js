@@ -269,12 +269,14 @@
   const account = () => window.Net?.me?.member ? String(Net.me.nick || '').toLowerCase() : '';
   function saveCues() {
     const name = account(); if (!name) return;
-    try { localStorage.setItem('jhp_voice_queue.' + name, JSON.stringify({ at:Date.now(), lines:[cue, ...cueQueue].filter(Boolean).map(n=>({id:n.id,who:n.who,text:n.text,caption:n.caption,telephone:n.telephone,callout:n.callout,legacyShout:n.legacyShout})) })); } catch (e) {}
+    try { localStorage.setItem('jhp_voice_queue.' + name, JSON.stringify({ at:Date.now(), lines:[cue, ...cueQueue].filter(Boolean).map(n=>({id:n.id,who:n.who,text:n.text,caption:n.caption,telephone:n.telephone,callout:n.callout,legacyShout:n.legacyShout,context:n.context})) })); } catch (e) {}
   }
   function pumpCues() {
     clearTimeout(cueTimer);
     if (cue || !cueQueue.length) return;
     if (window.HouseFamily?.speaking || active.size || pending.size || document.hidden || window.AccountGate?.allowed === false) { cueTimer=setTimeout(pumpCues,120); return; }
+    while (cueQueue.length && !cueContextValid(cueQueue[0].context)) { cueQueue.shift(); saveCues(); }
+    if (!cueQueue.length) return;
     const n=cue=cueQueue.shift(), m=info(n.id), name=nameInfo(n.id,n), rec=m?{...m,dur:(+m.dur||0)+(name?name.dur+0.10:0)}:null;
     const finish=()=>{if(cue!==n)return;cue=null;saveCues();pumpCues();};
     let h=null;
@@ -290,16 +292,39 @@
     if(n.caption && window.House?.say) House.say(n.who,esc(voiceText(n.id,n.text,n)),Math.max(4500,(rec?.dur||0)*1000+500),start);
     else start();
   }
+  function cueContextValid(context) {
+    if (context?.kind === 'seasonPhase') return !!window.Season?.active?.().some(x=>x.e.id===context.event && x.phase===context.phase);
+    if (context?.kind === 'bonfireStage') return window.Bonfire?._?.stageAt?.() === context.stage;
+    if (context?.kind === 'tvQuiet') return !!window.HouseLife?.quiet?.() && !!window.HouseTelly?.on && window.HouseTelly.volume >= 8;
+    if (context?.kind === 'moment') return !!window.HouseLife?.momentValid?.(context.text);
+    if (context?.kind === 'choreNag') return !!window.ChoreKit?.list?.().some(k=>!window.ChoreKit.done(k)) && (!context.pc || window.House?.mode === 'monitor');
+    return true;
+  }
   function speakLine(base, who, text, o) {
     o={...o};const speaker=speakerId(who),id=lineId(base,speaker,o.recordingText||text);
+    if (!cueContextValid(o.context)) return id;
     o.callout=window.VoiceLines?.[id]?.[3]||o.callout;
-    if(!o.remote && ['mom','dad','sister'].includes(speaker) && window.HouseFamily?.speak?.(speaker,id,text,o))return id;
+    // Announcement identity is separate from its recording/text variant. Keep it
+    // per account, forever; unfinished speech resumes from the saved queues.
+    const once = o.once || /^st\.opening\./.test(base), onceKey = 'jhp_voice_once.' + account();
+    let announced = {};
+    if (once) {
+      try { const old = JSON.parse(localStorage.getItem(onceKey) || '{}'); if (old && typeof old === 'object' && !Array.isArray(old)) announced = old; } catch (e) {}
+      if (announced[base]) return id;
+    }
+    const remember = () => { if (once && account()) { announced[base] = 1; try { localStorage.setItem(onceKey, JSON.stringify(announced)); } catch (e) {} } };
+    if (once && window.HouseFamily?.heardAt?.(id)) { remember(); return id; }
+    if(!o.remote && ['mom','dad','sister'].includes(speaker) && window.HouseFamily?.enabled) {
+      if (window.HouseFamily.speak(speaker,id,text,o)) remember();
+      // A shared-memory/cooldown rejection is final, never a second speech lane.
+      return id;
+    }
     // Games and phone cards already carry their own writing and timed mouths.
     // An uncast/missing remote recording must not hold up the family's queue.
     if(o.caption===false&&!info(id))return id;
     if(cueQueue.some(n=>n.id===id)||cue?.id===id)return id;
-    cueQueue.push({id,who,text,caption:o.caption!==false,telephone:!!o.telephone,callout:o.callout,legacyShout:!!o.legacyShout});
-    prefetch(id,o);saveCues();pumpCues();return id;
+    cueQueue.push({id,who,text,caption:o.caption!==false,telephone:!!o.telephone,callout:o.callout,legacyShout:!!o.legacyShout,context:o.context});
+    prefetch(id,o);saveCues();remember();pumpCues();return id;
   }
   // Account-scoped text/id only: no story events, rewards, pose or PC state.
   function restoreCues() {

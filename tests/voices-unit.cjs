@@ -156,7 +156,7 @@ const tick = () => new Promise(r => setImmediate(r));
     for(const [id,n]of Object.entries(catalogue.batches)){assert(n<=13&&n>0,id);const ls=catalogue.lines.filter(l=>l.batch===id);assert.equal(ls.length,n);assert.equal(new Set(ls.map(l=>l.character+' / '+(l.fx||''))).size,1,'one voice/effect '+id);}
     {const neutral=JSON.parse(fs.readFileSync(path.join(__dirname,'../tools/audio/releases/voices-2026-11-04.json'),'utf8')).accepted['c4.xmas.eve.dad.neutral'];
       assert.equal(w.st.voiceInfo('c4.xmas.eve.dad').dur,neutral.dur,'old gendered id plays only its audited neutral replacement, never the old clip');}
-    const sent=[];w.HouseFamily={speaking:false,speak:(who,id,text)=>{sent.push({who,id,text});return true;}};
+    const sent=[];w.HouseFamily={enabled:true,speaking:false,speak:(who,id,text)=>{sent.push({who,id,text});return true;}};
     const line=catalogue.lines.find(l=>l.id.startsWith('bf.')&&l.character==='mom');
     w.st.speakLine('bf.old-label','Mom',line.line);assert.equal(sent[0].id,line.id,'seasonal helper finds its recording through the real catalogue');
     const timers=[];w.clearTimeout=()=>{};w.setTimeout=f=>{timers.push(f);return timers.length;};
@@ -175,7 +175,7 @@ const tick = () => new Promise(r => setImmediate(r));
     const h=w.st.play(id,{});for(let i=0;i<6;i++)await tick();assert(h.started);assert.equal(h.nameId,'mom-shout/sarah');h.stop();
     w.first='Zelphina';const before=fetched.length;assert.equal(w.st.voiceText(id,plain),"ZELPHINA! TEA'S READY! It'll go cold!");
     const unknown=w.st.play(id,{});for(let i=0;i<6;i++)await tick();assert(unknown.started);assert.equal(unknown.nameId,null);unknown.stop();assert(!fetched.slice(before).some(u=>u.includes('/names/')),'unknown name plays the plain recording');
-    const sent=[];w.HouseFamily={speak:(who,id,text,o)=>{sent.push({who,id,text,o});return true;}};
+    const sent=[];w.HouseFamily={enabled:true,speak:(who,id,text,o)=>{sent.push({who,id,text,o});return true;}};
     w.st.speakLine('house.voice','Mom',plain,{callout:'mom-call',legacyShout:true});assert.equal(sent[0].id,id);assert.equal(sent[0].o.callout,'mom-shout','catalogue style survives dynamic dispatch');assert(sent[0].o.legacyShout);
     const src=js('hs-life.js'),part=src.slice(src.indexOf('  function shoutSound('),src.indexOf('  const where ='));
     const tones=[],passed=[];let show;

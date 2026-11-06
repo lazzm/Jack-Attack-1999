@@ -51,36 +51,38 @@
     const c = H.sfx.ac && H.sfx.ac();
     if (c) { const n = Math.min(10, Math.ceil(text.length / 7)); for (let i = 0; i < n; i++) H.sfx.tone(180 + Math.random() * 90, 0.09, 'sawtooth', 0.015, i * 0.11, 150); }
   }
-  function voice(who, text, ms) {
+  function voice(who, text, ms, context) {
     const named = /^\{me(?:\.NAME)?\}/.test(text);
     const recordingText = named ? text.replace(/^\{me(?:\.NAME)?\}[!?,. ]*/, '').replace(/^./, c => c.toUpperCase()) : text;
     who = cast(who); text = cast(text);
     const callout = /^mom\b/i.test(who) ? 'mom-shout' : /^dad\b/i.test(who) ? 'dad-shout' : who.toLowerCase() === sis().toLowerCase() ? 'sis-whine' : undefined;
-    if(window.st?.speakLine){lastVoice=Date.now();return st.speakLine('house.voice',who,text,{recordingText:cast(recordingText),callout,legacyShout:true});}
+    if(window.st?.speakLine){lastVoice=Date.now();return st.speakLine('house.voice',who,text,{recordingText:cast(recordingText),callout,legacyShout:true,context});}
     H.say(who, esc(text), ms || Math.max(4200, text.length * 75), () => shoutSound(text));
     lastVoice = Date.now();
   }
   const where = () => H.here || 'bedroom';
   const away = () => where() === 'bedroom' || where() === 'landing' ? ' (shouting up the stairs)' : '';
+  function tomorrow(n) { const d = new Date(1999,n.m-1,n.d+1); return {md:(d.getMonth()+1)*100+d.getDate(),dow:d.getDay()}; }
   function moments() { // what someone might shout right now
-    const p = part(), n = now99(), L = [], pcOn = H.stood, hifi = !!(R && R._ && R._.S && false);
+    const p = part(), n = now99(), L = [], pcOn = H.mode === 'monitor', hifi = !!(R && R._ && R._.S && false);
     const M = 'MOM' + away(), Dd = 'DAD' + away(), Sis = sis().toUpperCase();
-    if (p === 'morning') L.push([M, schoolDay(n) ? "You'll be late for school! Have you had any breakfast?" : "Are you up? It's gone eight! Lazybones!"], [M, "Have you seen my car keys?"]);
-    if (p === 'school') L.push([M, "Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day."]);
-    if (p === 'after' || p === 'day') L.push([M, "Have you done your homework?"], [M, "Come and get your washing, it's on the stairs!"], [Sis, "MOM! They're being annoying!"], [M, "Your friend's Mom rang. Are you going round there?"]);
+    if (p === 'morning' && n.t >= 8) L.push([M, schoolDay(n) ? "You'll be late for school! Have you had any breakfast?" : "Are you up? It's gone eight! Lazybones!"], [M, "Have you seen my car keys?"]);
+    if (p === 'school') L.push([M, "School day, love. If you're home for a bit, don't forget your homework."]);
+    if (p === 'after' || p === 'day') L.push([M, "Have you done your homework?"], [M, "Don't leave your washing on the stairs, love. Into the basket, please!"], [Sis, "MOM! They're being annoying!"], [M, "Your friend's Mom rang. Are you going round there?"]);
     if (p === 'tea') L.push([M, "TEA'S READY! It'll go cold!"], [M, "Set the table please, love!"], [M, 'Tea in five minutes! Wash your hands!']);
-    if (p === 'evening') L.push([M, "It's a school night. Not too late, eh?"], [Dd, "Have you been using the phone? The bill came."], [M, "Do you want a cup of tea?"], [Sis, "Can I have a go on the Game Lad? Pleeeeease?"]);
+    if (p === 'evening' && schoolDay(tomorrow(n))) L.push([M, "It's a school night. Not too late, eh?"]);
+    if (p === 'evening') L.push( [Dd, "Have you been using the phone? The bill came."], [M, "Do you want a cup of tea?"], [Sis, "Can I have a go on the Game Lad? Pleeeeease?"]);
     if (p === 'late') L.push([Dd, "Bed! Now!"], [M, "Turn that light off, love, it's late."]);
     if (p === 'night') L.push([Dd + ' (half asleep)', '{me}... it\'s gone midnight. What are you doing? Go to bed.']);
     if (pcOn) L.push([M, "Are you on that computer AGAIN?"], [M, "Get off the Internet! I need to ring your Nan!"], [Dd, 'Is that the Internet on? Do you know how much those phone calls cost?']);
     if (n.dow === 6) L.push([M, "I'm popping to the shops. Do you want anything? ...Besides a Daydream."]);
-    if (n.dow === 0) L.push([M, "We're going to Gran's for Sunday dinner at one! Wear something clean!"]);
+    if (n.dow === 0 && n.t < 13) L.push([M, "If we go to Gran's later, wear something clean, love."]);
     return L;
   }
   function shoutLoop() {
     const wait = (quiet() ? 7 : 3.5) * 60000 + Math.random() * 5 * 60000;
     setTimeout(() => {
-      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const [w, t] = window.HouseFamily?.freshest ? HouseFamily.freshest(L, m => 'house.say.' + m[1]) : pick(L); voice(w, t); } } // (the family in the house speak for themselves: js/np-life.js)
+      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const chosen = window.HouseFamily?.freshest?.(L, m => 'house.say.' + m[1]); if (chosen) { const [w,t] = chosen; voice(w,t,undefined,{kind:'moment',text:t}); } } } // (the family in the house speak for themselves: js/np-life.js)
       shoutLoop();
     }, wait);
   }
@@ -370,7 +372,7 @@
 
   // ================================================================ the API
   const USE = { tin, micro, fridge, paper, phone, bin, pbook: () => { if (ring) return answer(); H.focus(phonePose(), { label: 'Put it down', enter: () => { dial(); book(); }, exit: hangUp }); } };
-  window.HouseLife = {
+  window.HouseLife = { momentValid: text => moments().some(([,t])=>t===text),
     use(what) { const f = USE[what]; if (f) f(); },
     chore, voice, shoutSound, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay,
     ownerEvent(id) {
