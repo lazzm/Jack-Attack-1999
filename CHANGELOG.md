@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.73.0 - 2026-11-06
+- Music no longer drops out when the game is busy. On slower machines the tunes used to lose their notes and go nearly silent; now they keep time and catch up cleanly.
+- Sound comes from where it should. The telly and hi-fi play from the set itself, rooms sound different, sound through a closed door is muffled, and someone behind you now sounds clearly behind you.
+- Putting things down does what you see. Pressing E now puts a case, cartridge or object exactly where its ghost is shown, even if the game is running slowly. Before, it could say "Won't fit there" or do nothing while the slot was lit.
+- On phones, tapping the current objective opens the diary straight away, even if someone starts talking at that moment.
+
 ## 2.72.1 - 2026-11-05
 - The family repeat themselves far less, all year round. They remember what you've heard, per account and across refreshes, and pick the line you've heard least recently, so they work through everything they could say before any line comes back. Chatting to them, their passing remarks, Mom's shouts about jobs and the house's everyday calls all use it. A shout or seasonal line that has just played won't play again for a couple of minutes, and a passing remark stays quiet for half an hour. Story lines are unchanged.
 - Verified: parody 0, all unit checks including a new one for the line memory (every line before any repeat, kept across a refresh, separate for each account, bounded in size), Chapter 1, door walking, Bonfire end to end, voices 9/9, recordings, identity, smoke 12/12 and the family walking past you.
