@@ -252,8 +252,9 @@
       if (o.surface === 'stairs' && Math.random()<.18) t(195,.16,.012,.025,145,'triangle');
     } else if (kind === 'handle') {
       const heavy=o.weight==='heavy',light=o.weight==='light';
-      n(o.put?.09:.055,heavy?.09:light?.028:.055,light?2400:heavy?230:700);
-      if (o.put) t(heavy?72:light?480:140,heavy?.16:.07,heavy?.12:.04,0,heavy?40:90);
+      if(o.soft){n(o.put?.13:.08,heavy?.075:.045,heavy?320:650);}
+      else {n(o.put?.055:.035,heavy?.09:light?.04:.06,light?2800:heavy?230:1100);
+        if(o.put)t(heavy?72:light?940:360,heavy?.16:.055,heavy?.12:.045,0,heavy?40:160,'triangle');}
     } else if (kind === 'bump') { // something landing or knocking into something: a thud scaled by weight and speed
       const heavy=o.weight==='heavy',light=o.weight==='light',k=Math.min(1,Math.max(.25,(o.speed||200)/500));
       n(.06,(heavy?.08:light?.03:.05)*k,light?2600:heavy?260:900);

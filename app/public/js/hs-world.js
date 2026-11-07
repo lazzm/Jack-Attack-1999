@@ -391,7 +391,8 @@
       // Optional bulb shimmer uses the existing slots, with no new lights,
       // material changes, re-sorting or shader variants per frame.
       const shimmer=l?.flicker?1+l.flicker*(Math.sin(time*.0061)+.35*Math.sin(time*.0173))/1.35:1;
-      pl.intensity=s.cur*shimmer;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
+      const tv=l?.tv&&window.HouseVFX?.tvLight?.();
+      pl.intensity=s.cur*shimmer*(tv?tv.intensity:1);if(l){pl.position.set(l.x,l.y,l.z);if(tv)pl.color.copy(tv.color);else pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
     const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
@@ -1881,7 +1882,8 @@
   };
   const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
   function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
-  function thingSound(t) { return {position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
+  function softThing(t){return ['clothing','mess.clothes','pjs','pillow','cushion'].includes(t.kind)||/pillow|cushion|beanbag|schoolbag/.test(t.id);}
+  function thingSound(t) { return {soft:softThing(t),position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
   function sfxDoor(open,d) { physicalSound('door',{open,position:d?.pivot?.getWorldPosition(new T.Vector3()),room:d?.rooms?.includes(cur?.id)?cur.id:d?.rooms?.[0]}); }
   function footSurface() {
     const stair=onStairs(W.x,W.z);
@@ -2731,8 +2733,10 @@
     if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
     // People move and finish sentences without another mouse event. Refresh
-    // their ray and action label while the pointer rests over the world.
-    if ((hoverQ || now - lastHover >= 120) && frame % 3 === 0) { hoverQ = false; lastHover = now; hover(); }
+    // their ray and action label while the pointer rests over the world. Keep
+    // fast mouse look throttled, but let the time deadline win on slow frames:
+    // three software-rendered frames can otherwise hide an action for seconds.
+    if ((hoverQ && frame % 3 === 0) || now - lastHover >= 120) { hoverQ = false; lastHover = now; hover(); }
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;
@@ -2896,7 +2900,7 @@
   }
   function backgroundCovered(){if(monitor&&desktopFull&&!glass.lockAnim||window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
-  function render() { rendering = true; try { renderNow(); } finally { rendering = false; } }
+  function render() { rendering = true; try { renderNow(); } finally { try { window.HouseVFX?.afterRender(); } finally { rendering = false; } } }
   function renderNow() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
@@ -2908,6 +2912,7 @@
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
+    window.HouseVFX?.beforeRender();
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
       // (measure() resizes, and so clears, the room canvas too: draw it again, or this frame shows black)
@@ -3462,7 +3467,7 @@
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms, onShow) => ui.say(t, x, ms, onShow), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
-    dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
+    dirty, relight, ambient, anims, softThing, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; }, get state() { return { ...touchMove }; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,showFps,adapt:adaptTo,screenRate,screenBudget, perf:perfSnapshot, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
