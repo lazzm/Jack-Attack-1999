@@ -32,12 +32,16 @@ console.log('INTERIOR LIGHT PASS: yielding bake, neutral fallback, one completed
  console.log('INTERIOR WORKER PASS: byte-identical light and occlusion, one shared worker, completed upload');
 }
 // Projector planes transformed on the CPU must give the same aperture
-// coordinates from Phong's existing view position, without a new vertex varying.
+// coordinates before and after affine projection is moved to the vertex stage.
 {
- const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);assert.equal(sh.vertexShader,T.ShaderLib.phong.vertexShader);
+ const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);assert(sh.vertexShader.includes('houseWindowUV'));assert(!sh.fragmentShader.includes('uniform mat4 houseProjector0'),'Fragment shader must not retain projector matrices');assert(sh.fragmentShader.includes('houseWindowLight(normal,vViewPosition)'),'Curved props must keep the existing fragment normal');
  K.interiorFor(r);const original=sh.uniforms.houseProjector0.value.clone(),camera=new T.PerspectiveCamera();camera.position.set(80,130,350);camera.lookAt(0,0,0);camera.updateMatrixWorld(true);K.interiorFor(r,camera);
  for(const point of [[10,-40,100],[-120,20,-20],[200,-80,200]]){const view=new T.Vector4(point[0],-point[1],point[2],1).applyMatrix4(camera.matrixWorldInverse),world=new T.Vector4(...point,1);for(const column of [0,1,3]){const a=new T.Vector4().fromArray(original.elements,column*4).dot(world),b=new T.Vector4().fromArray(sh.uniforms.houseProjector0.value.elements,column*4).dot(view);assert(Math.abs(a-b)<1e-8,'Window plane changed with camera')}}
- console.log('INTERIOR PROJECTOR PASS: CPU view planes preserve world aperture at every camera angle; no added vertex work');
+ const vertices=[[-100,-20,0],[150,-70,-20],[20,40,-120]].map(p=>new T.Vector4(p[0],-p[1],p[2],1).applyMatrix4(camera.matrixWorldInverse)),lambda=[.21,.37,.42],weights=vertices.map((v,i)=>lambda[i]/-v.z),total=weights.reduce((a,b)=>a+b,0),fragment=new T.Vector4(0,0,0,0);vertices.forEach((v,i)=>fragment.addScaledVector(v,weights[i]/total));
+ for(const key of ['houseProjector0','houseProjector1'])for(const column of [0,1,3]){const plane=new T.Vector4().fromArray(sh.uniforms[key].value.elements,column*4),old=plane.dot(fragment),projected=vertices.reduce((sum,v,i)=>sum+plane.dot(v)*weights[i]/total,0);assert(Math.abs(old-projected)<1e-9,'Perspective interpolation moved a window edge')}
+ const prop=K.mat({c:'#aabbcc'}),ps={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};prop.onBeforeCompile(ps);assert(ps.vertexShader.includes('houseWindowUV'),'Props must use vertex window coordinates too');assert(ps.fragmentShader.includes('#include <lights_phong_pars_fragment>'),'Full props must retain Phong highlights');
+ const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};for(const width of [42,108,208])for(const height of [40,98,140])for(const u of [-6,-4,-2,0,2,4,width/2,width-4,width-2,width,width+2,width+4,width+6])for(const v of [-6,-4,-2,0,2,4,height/2,height-4,height-2,height,height+2,height+4,height+6]){const old=smooth(-4,4,u)*(1-smooth(width-4,width+4,u))*smooth(-4,4,v)*(1-smooth(height-4,height+4,v)),fast=smooth(-4,4,Math.min(u,width-u))*smooth(-4,4,Math.min(v,height-v));assert(Math.abs(old-fast)<1e-12,'Nearest-edge ramps changed the window mask')}
+ console.log('INTERIOR PROJECTOR PASS: affine vertex coordinates preserve perspective window masks and fragment normals on shells and props');
 }
 // Automatic adaptation keeps the authored maps and batch/material identity.
 {

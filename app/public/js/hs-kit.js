@@ -62,7 +62,7 @@
   // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
   function interiorUniforms(){const uniform=v=>({value:v});return {houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
   let interiorCheap=false;
-  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
+  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()},houseClip0:{value:new T.Vector4()},houseClip1:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
   const interiorViewProjectors=[new T.Matrix4(),new T.Matrix4()],interiorViewTransform=new T.Matrix4(),interiorPlane=new T.Vector4();
   function interiorFor(r,camera){
     const state=INTERIOR_BAKES.get(r?.id),shared=INTERIOR_SHADER.uniforms;
@@ -81,6 +81,8 @@
         shared[key].value=interiorViewProjectors[i];
       }
     }
+    shared.houseClip0.value.fromArray(shared.houseProjector0.value.elements,12);
+    shared.houseClip1.value.fromArray(shared.houseProjector1.value.elements,12);
   }
   function phongShader(shader){
     const state=INTERIOR_SHADER;
@@ -130,54 +132,57 @@
       shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
     }
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
-    if(interiorCheap&&this.userData.interiorShell)interiorDiffuse(shader);
+    interiorSun(shader,interiorCheap&&this.userData.interiorShell);
   }
-  // The last adaptation rungs use diffuse-only shell lighting and vertex
-  // window coordinates. Per-pixel lamp pools and the authored atlases remain.
+  // All house surfaces project window coordinates at vertices. The last
+  // adaptation rungs also skip shell specular work; lamp falloff stays per pixel.
   // No material identity, map, geometry or batch is changed by a step.
   function interiorAdapt(level,scene){
     const cheap=level>=4;if(cheap===interiorCheap)return;
     interiorCheap=cheap;
     scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.userData.interiorShell&&m.onBeforeCompile===phongShader)m.needsUpdate=true});
   }
-  function interiorDiffuse(shader){
+  function interiorSun(shader,diffuse){
     // Projector coordinates are affine in position: perspective interpolation
     // preserves the exact window shape, including its soft edges and mullion.
-    // The fragment path needs seven scalars, not two matrices and a normal.
-    const varyings='varying vec4 houseWindowUV;varying vec2 houseWindowSide;varying float houseWindowFacing;';
+    // Four interpolated scalars replace both fragment-stage matrices. Keep the
+    // existing fragment normal so curved props retain exactly the same facing.
+    const varyings='varying vec4 houseWindowUV;';
     shader.vertexShader=shader.vertexShader
       .replace('#include <common>',`#include <common>
-        ${varyings}uniform mat4 houseProjector0,houseProjector1;uniform vec3 houseSunViewDir;`)
+        ${varyings}uniform mat4 houseProjector0,houseProjector1;uniform vec3 houseSun;`)
       .replace('#include <project_vertex>',`#include <project_vertex>
-        vec4 houseP=vec4(mvPosition.xyz,1.0);
-        houseWindowUV=vec4(dot(houseProjector0[0],houseP),dot(houseProjector0[1],houseP),dot(houseProjector1[0],houseP),dot(houseProjector1[1],houseP));
-        houseWindowSide=vec2(dot(houseProjector0[3],houseP),dot(houseProjector1[3],houseP));
-        houseWindowFacing=dot(normalize(transformedNormal),-houseSunViewDir);`);
+        houseWindowUV=vec4(0.0);
+        if(dot(houseSun,vec3(1.0))>=.001){
+          vec4 houseP=vec4(mvPosition.xyz,1.0);
+          houseWindowUV=vec4(dot(houseProjector0[0],houseP),dot(houseProjector0[1],houseP),dot(houseProjector1[0],houseP),dot(houseProjector1[1],houseP));
+        }`);
     shader.fragmentShader=(shader.fragmentShader.slice(0,shader.fragmentShader.indexOf('uniform vec3 houseSky'))+shader.fragmentShader.slice(shader.fragmentShader.indexOf('#include <packing>')))
       .replace('#include <common>',`#include <common>
-        ${varyings}uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun;uniform vec4 houseBounds0,houseBounds1;
+        ${varyings}uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;uniform vec4 houseBounds0,houseBounds1,houseClip0,houseClip1;
         float houseMask(vec4 a,vec2 uv,float side){
           if(a.y<=a.x||side<.5)return 0.0;
           float u=uv.x,v=uv.y;
           if(u<a.x-4.0||u>a.y+4.0||v<a.z-4.0||v>a.w+4.0)return 0.0;
-          float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
-          return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
+          // Opposite soft edges never overlap: nearest-edge distance is
+          // algebraically the same product, using two ramps instead of four.
+          vec2 edge=min(uv-a.xz,a.yw-uv);
+          vec2 ramp=smoothstep(vec2(-4.0),vec2(4.0),edge);
+          return ramp.x*ramp.y*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
         }
-        vec3 houseWindowLight(){
+        vec3 houseWindowLight(vec3 surfaceNormal,vec3 viewPosition){
           if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
-          float facing=houseWindowFacing;
-          #ifdef DOUBLE_SIDED
-            facing*=gl_FrontFacing?1.0:-1.0;
-          #endif
+          float facing=max(0.0,dot(surfaceNormal,-houseSunViewDir));
           if(facing<=0.0)return vec3(0.0);
-          float mask=houseMask(houseBounds0,houseWindowUV.xy,houseWindowSide.x)+houseMask(houseBounds1,houseWindowUV.zw,houseWindowSide.y);
+          vec4 p=vec4(-viewPosition,1.0);
+          float mask=houseMask(houseBounds0,houseWindowUV.xy,dot(houseClip0,p))+houseMask(houseBounds1,houseWindowUV.zw,dot(houseClip1,p));
           return houseSun*min(1.0,mask)*facing;
-        }`)
+        }`);
+    if(diffuse)shader.fragmentShader=shader.fragmentShader
       .replace('#include <lights_phong_pars_fragment>',T.ShaderChunk.lights_phong_pars_fragment.replace(/reflectedLight\.directSpecular \+= irradiance[^;]+;/,''))
-      .replace('#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )','#if 0')
-      .replace('houseWindowLight(normal,vViewPosition)','houseWindowLight()');
+      .replace('#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )','#if 0');
   }
-  function phongKey(){return 'house-interior-r4-'+(interiorCheap&&this.userData.interiorShell?'diffuse-':'pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
+  function phongKey(){return 'house-interior-r7-'+(interiorCheap&&this.userData.interiorShell?'diffuse-':'pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
