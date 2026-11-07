@@ -2,6 +2,9 @@
 
 ## 2.76.0 - 2026-11-07
 - The house reacts. The kettle sends up a plume of steam when it boils and a hot mug curls steam. At night the telly lights up the walls, ceiling and anyone in front of it in the programme's colours. Putting something down gives a little puff of dust or a hard clack, timed with the sound. Picking something up gives it a little squash, and switches and door handles move when you use them. Phone frame times are unchanged.
+- The Talk prompt and other action labels no longer go missing for a second or two when the game is running slowly: what you are looking at is checked on time, not only every few frames.
+- Verified: all unit checks, the Talk prompt check 5 times in a row, voices 9/9, Chapter 1, phone gate and story, Zeldo, the effects readability check (at most 2 extra draws), smoke.
+
 ## 2.75.1 - 2026-11-07
 - 156 more recorded lines, 658 in all. Most of the family's new chat from 2.75.0 now has a voice, recorded in a standard Southern English accent and checked for the right words. About 150 lines are still text-only and are being recorded over the next few days.
 - Verified: all unit checks, the release-hash and recording checks for every clip, voices 9/9, smoke 12/12.
