@@ -7,6 +7,8 @@
 - If someone can't talk right now, they show it, instead of the Talk prompt doing nothing.
 - Dad's hand no longer sinks into the armchair while he talks, and picking up the beanbag no longer shoves it across the floor.
 - The on-screen labels look like they belong in 1999: the current objective is a taped-on note, and object names and directions are small paper captions that stay readable day and night. On phones and tablets every button is at least 44 px.
+- Talking stays clear: the Talk prompt shows whenever talking will work, someone busy says so, and on phones you can queue a reply while someone is speaking. Lines you ask for, or that the story or the phone needs, are never dropped.
+- Verified: parody 0, all unit checks run from both folders, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, mobile (all phases), voices 9/9, recordings, characters, zero, cupboard, identity, seasons, performance, physics, people, screen focus, smoke 12/12. Phone frame times match 2.74.0. The repetition check delivered 98 lines across 90 conversations at three times of day with no repeats at all; before this release a third were repeats.
 
 ## 2.74.0 - 2026-11-06
 - The family move better, round 4. Their arms swing naturally from the shoulder instead of tucking in, their necks are fuller, they push up from a seat with no arms, their hands rest flat on their legs when sitting, and they hold magazines, the watering can, a briefcase and a crayon properly. When talking they raise their brows on a question, nod at the end of a sentence and look at you when they're talking to you. Turning on the stairs and being interrupted on them look right.
