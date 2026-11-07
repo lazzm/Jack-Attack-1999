@@ -55,7 +55,7 @@
         // soft "ambient occlusion": faces turned down (under the chin, a hem, the hair) are a touch darker
         const ao = o.noAO ? 1 : 1 - 0.12 * Math.max(0, -ny);
         Cl.push(c.r * ao, c.g * ao, c.b * ao);
-        if (o.cell && uv) { const r = o.cell; UV.push(r[0] + clamp(uv.getX(i), 0, 1) * r[2], r[1] + clamp(uv.getY(i), 0, 1) * r[3]); }
+        if (o.cell && uv) { const r = o.cell, p = o.pad || 0; UV.push(r[0] + p + clamp(uv.getX(i), 0, 1) * (r[2]-2*p), r[1] + p + clamp(uv.getY(i), 0, 1) * (r[3]-2*p)); }
         else UV.push(WHITE_UV[0], WHITE_UV[1]);
         if (hp) { const zz = (z - hp.c[2]) / hp.r[2]; F.push((x - hp.c[0]) / hp.r[0], (y - hp.c[1]) / hp.r[1], smooth((zz - 0.12) / 0.3)); }
         else F.push(0, 0, 0);
@@ -141,6 +141,10 @@
     if (o.bottom !== false) capIt(0, false, o.bottomDome || 0);
     if (o.top !== false) capIt(R - 1, true, o.topDome || 0);
     const g = mesh(pos, idx, uv), nr = g.attributes.normal;
+    if(o.smoothTop&&o.top!==false){
+      const cap=R*n+(o.bottom===false?0:n+1)+1;
+      for(let i=0;i<n;i++){const a=(R-1)*n+i,b=cap+i,x=nr.getX(a)+nr.getX(b),y=nr.getY(a)+nr.getY(b),z=nr.getZ(a)+nr.getZ(b),l=Math.hypot(x,y,z)||1;nr.setXYZ(a,x/l,y/l,z/l);nr.setXYZ(b,x/l,y/l,z/l);}
+    }
     for (let j = 0; j < R; j++) { const a = j * n, b = a + seg; const x = nr.getX(a) + nr.getX(b), y = nr.getY(a) + nr.getY(b), z = nr.getZ(a) + nr.getZ(b), l = Math.hypot(x, y, z) || 1; nr.setXYZ(a, x / l, y / l, z / l); nr.setXYZ(b, x / l, y / l, z / l); }
     return g;
   }
@@ -331,6 +335,15 @@
     soft(g, x, y, r, col, a) { const c = C(col), s = `${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)}`, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${s},${a})`); gr.addColorStop(0.55, `rgba(${s},${a * 0.6})`); gr.addColorStop(1, `rgba(${s},0)`); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); },
     stripesH(g, x0, x1, y0, y1, period, colA, colB, frac) { for (let y = y0; y < y1; y += period) { P2.rect(g, x0, y, x1, y + period * (frac || 0.5), colA); if (colB) P2.rect(g, x0, y + period * (frac || 0.5), x1, y + period, colB); } },
     ribsV(g, x0, x1, y0, y1, period, col, a) { g.save(); g.globalAlpha = a; for (let x = x0; x < x1; x += period) P2.rect(g, x, y0, x + period * 0.35, y1, col); g.restore(); },
+    knit(g, fr, light, dark) {
+      g.save(); g.globalAlpha=.22;
+      // Broad stitch pairs survive atlas magnification; no sub-texel noise.
+      for(let y=fr.y0+4;y<fr.y1;y+=1.4)for(let x=-fr.c/2;x<fr.c/2;x+=1.2){
+        P2.stroke(g,dark,.19,q=>{q.moveTo(x-.35,y+.45);q.lineTo(x,y);q.lineTo(x+.35,y+.45);});
+        P2.stroke(g,light,.16,q=>{q.moveTo(x-.28,y+.6);q.lineTo(x,y+.2);});
+      }
+      g.restore();
+    },
   };
 
   // the face: base (cheeks, brows, nose shadow), 4 eye frames and 4 mouth frames
@@ -394,11 +407,11 @@
     for (const [k, fr] of Object.entries(frames)) {
       A.cell(CELL[k], -fr.c / 2, fr.c / 2, fr.y0, fr.y1, q => {
         P2.rect(q, -fr.c, fr.y0 - 5, fr.c, fr.y1 + 5, fr.base || '#ffffff'); paint[k] && paint[k](q, S, fr, P2);
-        if (k === 'torso') P2.rect(q, -fr.c, fr.y1 - 3.2, fr.c, fr.y1 + 5, O.neckline === 'skin' ? S.skin : O.neckline || mixHex(fr.base || '#ffffff', '#000000', 0.2));
+        if (k === 'torso' && !(S.familyHands && O.neckline === 'skin')) P2.rect(q, -fr.c, fr.y1 - (S.familyHands?1.1:3.2), fr.c, fr.y1 + 5, O.neckline === 'skin' ? S.skin : O.neckline || mixHex(fr.base || '#ffffff', '#000000', 0.2));
       });
     }
     const tex = new T.CanvasTexture(A.cv);
-    tex.anisotropy = 1; tex.needsUpdate = true;
+    tex.anisotropy = S.familyHands && S.lod !== 2 ? 4 : 1; tex.needsUpdate = true;
     return { tex, uni };
   }
 
@@ -426,10 +439,10 @@
     // ---- head (the face is painted: see paintFace), neck, ears
     G.add(grid(L.head[0], L.head[1], S.shape.fn), skin, 'head', { face: S, noAO: true });
     const nr = (S.familyHands ? (kind === 'sister' ? 0.42 : 0.44) : 0.31) * rx;
-    const neck = S.familyHands ? [[S.neck - 7, 0, -0.8, nr + 3.1, nr * 0.75 + 0.5], [S.neck + 0.8, 0, -0.8, nr, nr * 0.86], [cy - ry * 0.55, 0, 0.4, nr * 0.94, nr * 0.96]] :
+    const neck = S.familyHands ? [[S.neck - 6, 0, -0.2, nr + 4.2, nr * 0.9 + 0.8], [S.neck + 2, 0, -0.4, nr + 0.25, nr * 0.9], [cy - ry * 0.55, 0, 0.6, nr * 0.98, nr]] :
       [[S.neck - 5, 0, -1.2, nr + 0.6, nr + 0.3], [S.neck, 0, -1.1, nr, nr - 0.2], [cy - ry * 0.55, 0, -0.6, nr - 0.2, nr - 0.4]];
     G.add(loft(neck, L.limb, { bottom: false, top: false }),
-      skin, (x, y) => blend(y, S.neck + (S.familyHands ? 1 : -2), S.headY + 1, 'chest', 'head'));
+      (x,y) => skin.clone().multiplyScalar(S.familyHands ? 1-.13*smooth((y-S.neck-2)/7) : 1), (x, y) => blend(y, S.neck + (S.familyHands ? 1 : -2), S.headY + 1, 'chest', 'head'));
     const hair = HAIR[S.hairStyle || kind] || HAIR.short;
     if (!hair.ears) for (const sd of ['L', 'R']) {
       const ex = k(sd) * rx * 0.97, s = rx / 13.3;
@@ -438,7 +451,7 @@
 
     // ---- body: a soft torso, a pelvis, chunky limbs, mitten hands, big shoes
     const torsoW = (x, y) => {
-      if (y > S.sh[1] - 9 && Math.abs(x) > S.sh[0] - 7) { const t = clamp((Math.abs(x) - (S.sh[0] - 7)) / 6, 0, 0.5) * clamp((y - (S.sh[1] - 9)) / 6, 0, 1); return [['chest', 1 - t], [x > 0 ? 'armL' : 'armR', t]]; }
+      if (y > S.sh[1] - 9 && Math.abs(x) > S.sh[0] - 7) { const t = clamp((Math.abs(x) - (S.sh[0] - 7)) / 6, 0, 0.5) * clamp((y - (S.sh[1] - 9)) / 6, 0, 1) * (S.familyHands ? 1-smooth((y-S.neck+5)/5) : 1); return [['chest', 1 - t], [x > 0 ? 'armL' : 'armR', t]]; }
       if (y > S.spine + 3) return blend(y, S.chest - 9, S.chest - 1, 'spine', 'chest');
       return blend(y, S.hip + 3, S.spine + 3, 'hips', 'spine');
     };
@@ -450,8 +463,11 @@
       // Reallocate the existing rings into a broad trapezius and a soft collar
       // opening. The neck inclines forward; its base stays tucked inside this.
       const shoulder=torso[torso.length-2], collar=torso[torso.length-1];
-      shoulder[0]-=0.9; shoulder[3]+=1.7; shoulder[4]+=0.6;
-      collar[2]=-0.8; collar[3]=nr+0.9; collar[4]=nr*0.86+0.55;
+      shoulder[0]=S.neck-2.5; shoulder[2]=-.7; shoulder[3]=nr+3.0; shoulder[4]=nr*.9+1.15;
+      collar[0]=S.neck+.7; collar[2]=-.4; collar[3]=nr+1.35; collar[4]=nr*.9+.6;
+      // Roll a solid lip back into the skin, closing the thin opening rather
+      // than leaving a cut edge. The inner row is buried inside the neck.
+      torso.push([S.neck+.2,0,-.5,nr+.78,nr*.9+.03]);
     }
     // the hips: one rounded pelvis (a little seat at the back) wide enough to hold the tops of both thighs, so the
     // trousers follow one smooth shape (no ledge where the legs start, no wedge between them)
@@ -466,8 +482,15 @@
     torso.unshift([ty0 - 1.2, 0, under[2], under[3] + 0.15, under[4] + 0.15]);
     S.torsoRings = torso;
     const mid = surfRing(torso, lerp(ty0, ty1, 0.6));
-    const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0 - 1.2, y1: ty1, base: O.base?.torso } };
-    G.add(loft(torso, L.torso, { bottomDome: 1, topDome: 1 }), C('#ffffff'), torsoW, { cell: CELL.torso });
+    const frames = { torso: { c: circ(mid[3], mid[4]) / (kind==='mom'?1.5:1), y0: ty0 - 1.2, y1: ty1, base: O.base?.torso } };
+    const bodyGeo=loft(torso, L.torso, { bottomDome: 1, top: !S.familyHands, topDome: 1 });
+    if(kind==='mom'){
+      // Give the front third half the existing torso cell. The less prominent
+      // back uses the remaining texels; atlas dimensions and draws stay fixed.
+      const uv=bodyGeo.attributes.uv;
+      for(let i=0;i<uv.count;i++){const u=uv.getX(i)-.5,a=Math.abs(u);uv.setX(i,.5+Math.sign(u)*(a<1/6?a*1.5:.25+(a-1/6)*.75));}
+    }
+    G.add(bodyGeo, C('#ffffff'), torsoW, { cell: CELL.torso, pad:S.familyHands?1/256:0 });
     frames.pelvis = { c: circ(Wp, Dp), y0: S.hip - 10, y1: S.hip + 4, base: O.base?.pelvis };
     const la = S.limb.arm, ll = S.limb.leg, se = O.sleeveEase || 0, le = O.legEase || 0;
     for (const sd of ['L', 'R']) {
@@ -485,14 +508,19 @@
         rings[1] = [wr[1] + 2.6, lerp(wr[0], el[0], 0.12), lerp(wr[2], el[2], 0.12), rings[0][3] + 0.55, rings[0][4] + 0.45];
         rings[2][0] -= 1.2; rings[2][2] += 0.45; rings[2][3] += 0.35;
         rings[3] = [el[1] + 5.5, lerp(el[0], a[0], 0.22), lerp(el[2], a[2], 0.22) - 0.25, 3.6 * la + se, 3.65 * la + se];
+        rings[4][1]-=kk*.2;
+        rings[5]=[a[1]-1.2,a[0]-kk*2,a[2]-.2,3.3*la+se*.5,3.6*la+se*.5];
+        // A small final latitude rolls the shoulder into the trapezius. A
+        // single flat fan left a visible cut even with smooth side normals.
+        rings.push([a[1],a[0]-kk*4.2,a[2]-.2,1.5*la,2.5*la]);
       }
-      if (sd === 'L') frames.sleeve = { c: TAU * 3.5 * la, y0: rings[0][0], y1: rings[5][0], base: O.base?.sleeve, elbow: el[1] };
-      G.add(loft(rings, L.limb, { topDome: 0.6, bottomDome: 0.3 }), C('#ffffff'), (x, y) => {
+      if (sd === 'L') frames.sleeve = { c: TAU * 3.5 * la, y0: rings[0][0], y1: rings[rings.length-1][0], base: O.base?.sleeve, elbow: el[1] };
+      G.add(loft(rings, L.limb, { topDome: S.familyHands ? 0.4 : 0.6, smoothTop:S.familyHands, bottomDome: 0.3 }), C('#ffffff'), (x, y) => {
         if (y > a[1] - 3) return [['arm' + sd, 0.75], ['clav' + sd, 0.25]];
         if (y > el[1] + 3) return [['arm' + sd, 1]];
         if (y > el[1] - 3) return blend(y, el[1] - 3, el[1] + 3, 'fore' + sd, 'arm' + sd);
         return blend(y, wr[1] + 0.5, wr[1] + 3, 'hand' + sd, 'fore' + sd);
-      }, { cell: CELL.sleeve });
+      }, { cell: CELL.sleeve, pad:S.familyHands?1/256:0 });
       mitten(G, S, wr, kk, 'hand' + sd, O.gloves ? C(O.gloves) : skin, L);
       const t = J['thigh' + sd], kn = J['shin' + sd], an = J['foot' + sd];
       const legs = [
@@ -536,12 +564,14 @@
   function mitten(G, S, wr, kk, bone, color, L) {
     const H = S.handLen, x = wr[0] - kk * 0.3, y = wr[1], z = wr[2];
     if (S.familyHands) {
-      G.add(loft([[y - H * 0.51, x, z + H * 0.045, H * 0.205, H * 0.105], [y - H * 0.28, x, z, H * 0.215, H * 0.12], [y + H * 0.045, x, z - H * 0.025, H * 0.145, H * 0.12]], L.hand, { bottomDome: H * 0.025, topDome: 0.15 }), color, bone);
+      G.add(loft([[y - H * 0.51, x, z + H * 0.025, H * 0.205, H * 0.07], [y - H * 0.28, x, z, H * 0.215, H * 0.12], [y + H * 0.045, x, z - H * 0.025, H * 0.145, H * 0.12]], L.hand, { bottomDome: H * 0.025, topDome: 0.15 }), color, bone);
       for (let i = 0; i < 4; i++) {
-        const fx = x + (i - 1.5) * H * 0.105, len = H * [0.34, 0.40, 0.38, 0.28][kk > 0 ? i : 3 - i], fy = y - H * 0.47;
-        G.add(loft([[fy - len, fx, z + H * 0.18, H * 0.043, H * 0.045], [fy - len * 0.5, fx, z + H * 0.13, H * 0.052, H * 0.057], [fy, fx, z + H * 0.035, H * 0.06, H * 0.06]], S.lod === 0 ? 4 : 3, { bottomDome: H * 0.035, topDome: H * 0.015 }), color, (px, py) => blend(py, fy - len * 0.8, fy, 'lid' + (kk > 0 ? 'L' : 'R'), bone));
+        const digit=kk>0?i:3-i, fx=x+(i-1.5)*H*.095, len=H*[.36,.42,.39,.29][digit], fy=y-H*(.46+digit*.008), curl=.12+digit*.026;
+        // The root cap is buried in the palm. Spend its triangles on four
+        // sides near the player instead of a triangular claw cross-section.
+        G.add(loft([[fy-len*(.96-digit*.04),fx-kk*H*.012,z+H*curl,H*.032,H*.036],[fy-len*.55,fx,z+H*(.07+digit*.012),H*.046,H*.049],[fy,fx,z+H*.025,H*.052,H*.054]],S.lod===2?3:4,{bottomDome:H*.024,top:false}),color,(px,py)=>blend(py,fy-len*.8,fy,'lid'+(kk>0?'L':'R'),bone));
       }
-      G.add(ell([x - kk * H * 0.22, y - H * 0.36, z + H * 0.12], [H * 0.085, H * 0.23, H * 0.09], [L.hand, 3], [18, 0, -kk * 27]), color, bone);
+      G.add(ell([x-kk*H*.18,y-H*.4,z+H*.085],[H*.075,H*.22,H*.085],[L.hand,3],[12,0,-kk*12]),color,bone);
       return;
     }
     const r = [[y - H * 0.9, x - kk * 0.7, z + 1.3, H * 0.15, H * 0.17], [y - H * 0.78, x - kk * 0.5, z + 1.0, H * 0.21, H * 0.24], [y - H * 0.55, x - kk * 0.2, z + 0.5, H * 0.23, H * 0.27], [y - H * 0.3, x, z + 0.1, H * 0.21, H * 0.24], [y + H * 0.05, x, z - 0.1, H * 0.16, H * 0.18]];
@@ -586,8 +616,10 @@
           torso(g, S, fr, P) {
             const dark = '#6c2545', cream = '#f2e6cc', yB = fr.y0, yT = fr.y1, top = S.neck - 1;
             P.ribsV(g, -fr.c / 2, fr.c / 2, yB, yT, 1.1, '#4a1430', 0.13);
+            P.knit(g,fr,'#d78aa5','#4a1430');
             const half = y => lerp(1.5, 6.8, smooth((y - yB) / (top - yB)));
             P.fill(g, cream, q => { q.moveTo(-1.5, yB - 2); for (let y = yB; y <= yT + 2; y += 1) q.lineTo(half(y), y); for (let y = yT + 2; y >= yB - 2; y -= 1) q.lineTo(-half(y), y); q.closePath(); });
+            g.save();g.clip();P.ribsV(g,-8,8,yB,yT,1.1,'#fff9e9',.25);g.restore();
             P.fill(g, S.skin, q => { q.moveTo(-6, yT + 3); q.lineTo(-5.2, yT); q.quadraticCurveTo(0, yT - 7, 5.2, yT); q.lineTo(6, yT + 3); q.closePath(); });
             g.save(); g.globalAlpha = 0.9; P.stroke(g, '#d9b860', 0.24, q => { q.moveTo(-4.6, yT - 3.6); q.quadraticCurveTo(0, yT - 8.4, 4.6, yT - 3.6); }); g.restore();
             for (const k of [1, -1]) P.stroke(g, dark, 1.2, q => { q.moveTo(k * 2.1, yB - 2); for (let y = yB; y <= yT + 2; y += 1) q.lineTo(k * (half(y) + 0.6), y); });
@@ -595,7 +627,7 @@
             P.rect(g, -fr.c, yB - 5, fr.c, yB + 3.8, dark); P.ribsV(g, -fr.c / 2, fr.c / 2, yB - 5, yB + 3.8, 0.9, '#3a0f22', 0.28);
             for (const k of [1, -1]) { const x0 = k > 0 ? 7.5 : -14, x1 = k > 0 ? 14 : -7.5; P.rect(g, x0, yB + 5, x1, yB + 11.5, '#7a2b4d'); P.rect(g, x0, yB + 10.2, x1, yB + 11.5, dark); }
           },
-          sleeve(g, S, fr, P) { P.ribsV(g, -fr.c / 2, fr.c / 2, fr.y0, fr.y1, 1.0, '#4a1430', 0.13); P.rect(g, -fr.c, fr.y0 - 5, fr.c, fr.y0 + 3.4, '#6c2545'); P.ribsV(g, -fr.c / 2, fr.c / 2, fr.y0 - 5, fr.y0 + 3.4, 0.8, '#3a0f22', 0.3); },
+          sleeve(g, S, fr, P) { P.ribsV(g, -fr.c / 2, fr.c / 2, fr.y0, fr.y1, 1.0, '#4a1430', 0.13); P.knit(g,fr,'#d78aa5','#4a1430'); P.rect(g, -fr.c, fr.y0 - 5, fr.c, fr.y0 + 3.4, '#6c2545'); P.ribsV(g, -fr.c / 2, fr.c / 2, fr.y0 - 5, fr.y0 + 3.4, 0.8, '#3a0f22', 0.3); },
           pelvis(g, S, fr, P) { P.rect(g, -fr.c, fr.y1 - 2.4, fr.c, fr.y1 + 5, '#5f7eab'); P.ell(g, 0, fr.y1 - 1.2, 0.55, 0.55, '#c9b27a'); },
           legs(g, S, fr, P) { knees(g, fr, P); seams(g, fr, P, '#d9a441', 0.35); P.rect(g, -fr.c, fr.y0 - 5, fr.c, fr.y0 + 2.6, '#8fabd0'); P.stroke(g, '#6683ad', 0.25, q => { q.moveTo(-fr.c, fr.y0 + 2.6); q.lineTo(fr.c, fr.y0 + 2.6); }); },
         },
@@ -1108,7 +1140,7 @@
       gait: 0, walking: false, walkTravel: 0, prevX: 0, prevZ: 0, moveX: 0, moveZ: 0, climb: 0,
       feet: [{ x: 0, y: 0, z: 0, yaw: 0, swing: null, side: 1, lift: 0, stance: -1 }, { x: 0, y: 0, z: 0, yaw: 0, swing: null, side: -1, lift: 0, stance: -1 }],
       placed: false, contactK: 0, contactPoint: null, contactSide: null,
-      action: null, seat: null, seatPose: null, look: null, carry: false, props: {}, sitK: 0, engage: false,
+      action: null, seat: null, seatPose: null, look: null, listen: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0, brow: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
@@ -1402,6 +1434,17 @@
       let endNod=0;
       if(near&&talking&&(!voice||voiceActive))for(const end of st.phraseEnds||[]){const d=progress-end;if(d>-.1&&d<.08)endNod=Math.max(endNod,Math.sin(Math.PI*clamp((d+.1)/.18,0,1))**2*.075);}
       st.endNod=endNod;
+      // A listener answers selected phrase endings, slightly after the speaker.
+      // It shares the existing speech clock, never line selection or memory.
+      let listenNod=0;
+      const partner=near&&!talking&&st.listen?.st, pv=partner?.talkVoice;
+      if(partner&&now<partner.talkUntil&&(!pv||pv.started&&!pv.ended)){
+        const lp=pv?clamp(pv.progress(),0,1):clamp((now-partner.talkStart)/Math.max(1,partner.talkUntil-partner.talkStart),0,1);
+        const delay=(kind==='sister'?.24:kind==='dad'?.36:.3)/Math.max(1,(partner.talkUntil-partner.talkStart)/1000);
+        for(let i=0;i<(partner.phraseEnds?.length||0);i++)if((i+(kind==='dad'?1:0))%2===0){const d=lp-partner.phraseEnds[i]-delay,w=.65/Math.max(1,(partner.talkUntil-partner.talkStart)/1000);if(d>0&&d<w)listenNod=Math.max(listenNod,Math.sin(Math.PI*d/w)**2*.085);}
+      }
+      if(listenNod>.06&&st.listenNod<=.06){st.blinkT=.18;st.blinkAt=t+2.5+st.seed*.15;}
+      st.listenNod=listenNod;
       // A selected phrase beat, followed by a hold; no free-running hand wave.
       st.accent = 0;
       if (near && talking) {
@@ -1466,7 +1509,7 @@
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
-      const lean = (act?.lean || 0) + (st.walking ? 2 : 0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
+      const lean = (act?.lean || 0) + (st.walking ? 2 : 0) + (st.engage&&!seat&&S.familyHands&&kind!=='sister'?2.5:0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
       _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
       _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.8 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
       for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(0, 0, (sd === 'L' ? 1 : -1) * breathe * 0.5 * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
@@ -1539,7 +1582,7 @@
           const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * motion.arm * swing, walking=Math.min(1,swing);
           // The shoulder carries the pendulum. A soft elbow and quiet wrist
           // keep the forward extreme beside the hip instead of lifting a parcel.
-          a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), lerp(18 + (sd === 'L' ? 4 : 0),9 + Math.max(0,sw)*0.1,walking), lerp(8,2+sw*0.07,walking), lerp(-7,-4,walking)];
+          a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), lerp(18 + (sd === 'L' ? 4 : 0),9 + Math.max(0,sw)*0.1,walking), lerp(S.familyHands?3:8,2+sw*0.07,walking), S.familyHands?-78:lerp(-7,-4,walking)];
         }
         if (Array.isArray(a)) armFK(sd, a, k);
         else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2]), a.worldHand); }
@@ -1570,8 +1613,13 @@
       // No extra bones, vertices, attributes or draws, including at distance.
       if (S.familyHands) for (const sd of ['L', 'R']) {
         const right = sd === 'R', held = act?.props || st.props;
-        const curl = st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : 0;
-        const finger = B['lid' + sd]; if (curl || Math.abs(finger.rotation.x) > 0.0001) finger.rotation.x += (curl * D2R - finger.rotation.x) * k; else if (finger.rotation.x) finger.rotation.x = 0;
+        const resetPhase=(t+st.seed*1.3+(right?8:0))%19,settle=near&&!talking&&!st.walking&&resetPhase<1.5?Math.sin(Math.PI*resetPhase/1.5)**2:0;
+        const curl = st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : (right?-3:-1)+settle*7;
+        const finger = B['lid' + sd], targetCurl=curl*D2R, delta=targetCurl-finger.rotation.x;
+        // Resting curl is nonzero now. Once settled, avoid rebuilding the same
+        // Euler quaternion every frame; retain full easing during a release.
+        if(Math.abs(delta)>1e-5)finger.rotation.x+=delta*k;
+        else if(finger.rotation.x!==targetCurl)finger.rotation.x=targetCurl;
       }
       // ---- props
       const props = Object.assign({}, act?.props || {}, st.props || {});
@@ -1636,20 +1684,23 @@
       let yawH = 0, pitchH = 0, lookYawRaw = 0, lookPitchRaw = 0;
       if (look) {
         tmp.copy(look).sub(W.neck.p); tmp.applyQuaternion(_q2.copy(W.chest.q).invert());
-        yawH = Math.atan2(tmp.x, tmp.z); pitchH = Math.atan2(tmp.y - 6, Math.hypot(tmp.x, tmp.z)); lookYawRaw = yawH; lookPitchRaw = pitchH;
+        // Aim from the eyes, rather than the neck: the old origin made parents
+        // lift their chins when their teenager was actually below eye level.
+        if(S.familyHands){tmp.y-=S.eyeY-S.neck;tmp.z-=S.head.r[2]*.8;}else tmp.y-=6;
+        yawH = Math.atan2(tmp.x, tmp.z); pitchH = Math.atan2(tmp.y, Math.hypot(tmp.x, tmp.z)); lookYawRaw = yawH; lookPitchRaw = pitchH;
         if (Math.abs(yawH) > 1.7) { yawH = 0; pitchH = 0; lookYawRaw = 0; lookPitchRaw = 0; }
         yawH = clamp(yawH, -1.15, 1.15); pitchH = clamp(pitchH, -0.6, 0.45);
       }
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
       const ackPhase = clamp((now-(st.gestureStart||-1e9))/1100,0,1), ackNod = st.gestureKind === 'nod' ? Math.sin(Math.PI*ackPhase)**2*.16 : 0;
-      const nod = (st.accent || 0) * 0.055 + endNod + ackNod;
+      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod;
       const stableHead = st.walking && !look;
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
       slerpTo('neck', _q, k * 0.7); fk('neck');
       if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
-      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, Math.sin(t * 0.21 + st.seed) * 0.03, 'YXZ'));
+      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (S.familyHands ? .025 : .03), 'YXZ'));
       slerpTo('head', _q, k * 0.7); fk('head');
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
@@ -1736,7 +1787,7 @@
           }
         }
         st.seat = o.seat || null; if (st.seat) st.seatPose = st.seat;
-      } if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
+      } if ('look' in o) st.look = o.look || null; if ('listen' in o) st.listen = o.listen || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
       talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length); },
       hush() { st.talkUntil = 0; st.talkVoice = null; },
@@ -1747,6 +1798,13 @@
         return out.addScaledVector(up, S.head.c[1] - S.headY + S.head.r[1] + 9);
       },
       mouthWorld(out) { B.mouth.updateWorldMatrix(true, false); return B.mouth.getWorldPosition(out); },
+      eyeWorld(out) { // House coordinates, like headWorld; include lean/tilt.
+        // Room roots flip renderer Y. Use the solved rig frame so this target
+        // has the same y-down convention before and after room parenting.
+        out.set(0,S.eyeY-J.head[1],S.shape.front(0,S.eyeY)-J.head[2]).applyQuaternion(W.head.q).add(W.head.p);
+        const x=out.x,z=out.z,c=Math.cos(st.h),s=Math.sin(st.h);
+        return out.set(st.x+x*c+z*s,st.y-out.y,st.z-x*s+z*c);
+      },
       get talking() { return performance.now() < st.talkUntil; },
       update(dt, near) {
         update(Math.min(dt, 0.1), near);

@@ -201,7 +201,7 @@
     const y = NV.onFlight(c.x, c.z) && c.x > 340 ? NV.ramp(c.z) : H.LV[c.lvl];
     // A tight shuffle uses the rig's planted-foot adjustment steps. Its back
     // stays against the wall; a forward walk cycle would put toes into it.
-    c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow ? 0 : c.v);
+    c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow || c.backoff ? 0 : c.v);
     g.visible = c.present && !hideAll;
   }
   function spawn(c, at, h) {
@@ -658,6 +658,7 @@
     const lines = talkLines(c);
     c.hold = 99;
     const p = player(), d = dist(c, p);
+    H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0);
     if (!c.seated && d < 82 && sameFloor(c, p)) { // (half a pace back if there's room: never into the worktop)
       const a0 = Math.atan2(c.x - p.x, c.z - p.z); c.backoff = null;
       for (const da of [0, 0.5, -0.5, 0.9, -0.9]) {
@@ -743,6 +744,7 @@
   }
 
   const eyes = () => ({ x: H.P.x, y: H.P.y, z: H.P.z });
+  const conversationFace = new T.Vector3();
 
   // ================================================================ barks: the house talking to itself
   function barkPool(c, clk, talking) {
@@ -1035,7 +1037,9 @@
       const fwd = Math.atan2(p.x - c.x, p.z - c.z), off = Math.abs(angd(c.seated ? c.seated.face * D2R : c.h, fwd));
       if (speaking || c.talking || c.hold > 0 || off < 1.7) look = eyes();
     }
-    c.rig.set({ look, engage: c.present && c.hold > 0 });
+    const speaker=speech.cur?.c, listening=c.present&&speaker&&speaker!==c&&speaker.present&&speaker.room===c.room&&sameFloor(c,speaker)&&dist(c,speaker)<330;
+    if(listening&&!c.hold&&!show)look=speaker.rig.eyeWorld(c.listenEye||(c.listenEye=new T.Vector3()));
+    c.rig.set({ look, listen: listening?speaker.rig:null, engage: c.present && c.hold > 0 });
   }
 
   // ================================================================ the loop

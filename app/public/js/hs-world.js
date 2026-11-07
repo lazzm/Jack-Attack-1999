@@ -2042,6 +2042,30 @@
   }
 
   // ================================================================ moving: keyboard and mouse look
+  // A conversation eases only the view angles, never the walking capsule.
+  // Save the visible view normally; the ease itself is never resumed on load.
+  // Real look/movement input immediately takes ownership.
+  let conversationAim = null;
+  function cancelConversationAim() { conversationAim = null; }
+  function frameConversation(face, active) {
+    if (mode !== 'walk' || controlsPaused || viewOpen()) return;
+    conversationAim = { face, active, start: performance.now(), rx: P.rx, ry: P.ry, x: W.x, z: W.z, done: false };
+    dirty();
+  }
+  function tickConversationAim(now) {
+    const a = conversationAim;
+    if (!a) return false;
+    if (mode !== 'walk' || controlsPaused || viewOpen() || Math.hypot(W.x-a.x,W.z-a.z)>1) { cancelConversationAim(); return false; }
+    if (!a.active()) { a.done = true; return false; }
+    if (a.done) return false;
+    const p = a.face(), dx = p.x-P.x, dz = p.z-P.z, d = Math.hypot(dx,dz);
+    if (!Number.isFinite(p.y) || d < 1) { cancelConversationAim(); return false; }
+    const e = H5(clamp((now-a.start)/400,0,1));
+    const rx = Math.atan2(P.y-p.y,d)/D2R, ry = Math.atan2(dx,-dz)/D2R;
+    P.rx = lerp(a.rx,clamp(rx,-78,70),e); P.ry = a.ry+angd(a.ry,ry)*e;
+    a.done = e >= 1;
+    return true;
+  }
   const keys = {};
   let crouchToggle = !!ls.get('jhp_hs_crouch_toggle', false);
   function crouchSetting(value) {
@@ -2072,9 +2096,10 @@
   }
   // The touch stick and drag-to-look (js/hs-touch.js) feed the same walking and view code as the keys and the mouse.
   const touchMove = { on: false, x: 0, y: 0, run: false };
-  function touchSet(x, y, run) { const m = Math.hypot(x, y) > 1 ? Math.hypot(x, y) : 1; touchMove.x = clamp(x / m, -1, 1) || 0; touchMove.y = clamp(y / m, -1, 1) || 0; touchMove.run = !!run; touchMove.on = !!(touchMove.x || touchMove.y); if (touchMove.on) { if (glide) cancelGlide(); ui.crossOn(); } }
+  function touchSet(x, y, run) { const m = Math.hypot(x, y) > 1 ? Math.hypot(x, y) : 1; touchMove.x = clamp(x / m, -1, 1) || 0; touchMove.y = clamp(y / m, -1, 1) || 0; touchMove.run = !!run; touchMove.on = !!(touchMove.x || touchMove.y); if (touchMove.on) { cancelConversationAim(); if (glide) cancelGlide(); ui.crossOn(); } }
   function touchLook(dx, dy) {
     if (controlsPaused || worldLoading || !live) return false;
+    if (dx || dy) cancelConversationAim();
     if (mode === 'glide' && glide) { if (glide.lock) return false; glide.look.ry += dx; glide.look.rx -= dy; }
     else if (mode === 'walk' || mode === 'focus' && focusS?.o.seatId) { P.ry += dx; P.rx = clamp(P.rx - dy, -78, 70); }
     else return false;
@@ -2244,6 +2269,7 @@
     if (ui.modalOpen()) return;
     if (worldLoading) {ev.preventDefault(); return;}
     const k=ev.key;
+    if (KEYMOVE[k] || ['Escape',' ','F2','q','Q','c','C'].includes(k)) cancelConversationAim();
     if(window.ChoreKit?.tool?.key?.(ev)){wantLock();return;}
     if (KEYMOVE[k]) { wantLock(); if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
@@ -2305,6 +2331,7 @@
   });
   pb.addEventListener('pointermove', ev => {
     if(controlsPaused||ev.pointerType&&ev.pointerType!=='mouse')return;
+    if (ev.movementX || ev.movementY) cancelConversationAim();
     if (locked()) {
       if (mode === 'walk' || mode === 'glide'||mode==='focus'&&focusS?.o.seatId) { if (mode === 'glide' && glide) { if (!glide.lock) { glide.look.ry += ev.movementX * 0.1; glide.look.rx -= ev.movementY * 0.1; } } else { P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); } dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
       return;
@@ -2721,6 +2748,7 @@
     }
     tickQueuedLock(now);
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
+    if (tickConversationAim(now)) moving = true;
     if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
     // People move and finish sentences without another mouse event. Refresh
@@ -3419,7 +3447,7 @@
     placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag&&drawnGhost.t===THINGS[held.id]?drawnGhost.g:null, act: id => act(SPOTS[id]), useAt,
     // the physics world (js/hs-physics.js): bodies, stats, and a few queries the tests and packs use
     physics: { get world() { return physReady(); }, get ms() { return physMs; }, get frameMs() { return physFrame; }, get awake() { return PH ? PH.awake.size : 0; }, body: id => THINGS[id] ? bodyFor(THINGS[id]) : null, tucked: id => !!THINGS[id] && tuckedUnder(THINGS[id]), wake: id => { const b = THINGS[id] && bodyFor(THINGS[id]); if (b) PH.wake(b); }, sync: id => THINGS[id] && syncBody(THINGS[id]), rebuild: () => { physDirty = true; return physReady(); } },
-    warmFront, glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
+    warmFront, glideTo, goStation, cancelGlide, frameConversation, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
     motion: { get ms() { return MOTION.ms; }, get reduce() { return MOTION.reduce; }, set reduce(v) { MOTION.reduce = v; }, scale: motionMs, H5, H5d, H1, H1d, lensFov, get moving() { return movingLock; }, glideVel: () => glideVel(performance.now()), queueLock, get lockQueued() { return !!lockQueued; } },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,

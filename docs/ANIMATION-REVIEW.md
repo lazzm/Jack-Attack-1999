@@ -574,3 +574,149 @@ No deployment, commit, version/CHANGELOG/AGENTS edit, live-data access or new vo
 8. Extend dialogue acting to longer, multi-sentence exchanges and listening reactions, with independent intent per person. Question brows, terminal nod targets and addressed gaze are implemented; emotional labels and phoneme timing are unavailable.
 9. Expand matched **real-house** captures to dedicated long idle, start/stop/turn sequences and all less-used grips on phone landscape/tablet. Probe clips and the five principal house actions are useful but are different evidence.
 10. Measure sustained GPU/frame cost, thermals and touch behaviour on physical weak phones/tablets. Paired host rig CPU, software rendering and emulated device profiles do not prove physical-device performance.
+
+## Round 5 — close-range family pass, 7 November 2026
+
+Base: `62cadbc` (2.75.1); main subsequently reached `83c706d` (2.77.0), deliberately unmerged for owner review. `np-rig.js` and `np-life.js` are unchanged between this HEAD and main, so the isolated pre-change rig control also matches main’s rig source. No deploy, commit, version, changelog, AGENTS, site or real-data changes. The pre-existing untracked `app/public/audio/voice` is untouched. Research and the inspected source references are in ANIMATION-RESEARCH.md.
+
+### What changed
+
+- `np-rig.js`: a thigh-facing free-hand frame; grouped, tapered fingers with a gentle index-to-little cascade; thumb closer to the index; staggered one-hand release/re-settle. Reallocated hidden finger-root cap triangles to four-sided near fingers. Explicit prop/support grips remain separate. Settled nonzero finger curls skip redundant Euler/quaternion writes; release motion retains its easing.
+- `np-rig.js`: a flared neck base, shaded upper join, collar rings around the neck, and rolled shoulder caps with joined normals. Mom's torso cell gives its front more texels within the same atlas; legible knit stitches, restrained cream ribbing and removal of the skin-coloured shelf address the close surface defects. Atlas sizes remain 512 px / 256 px, with two draws per person.
+- `hs-world.js` / the presentation hooks in `np-life.js`: 400 ms face framing after F. Mouse movement, touch look and walking input cancel it. Only view angles change; walking coordinates, grounded height and seat state are unchanged. Existing visible angles save normally, with no saved/replayed framing timer. The original checked 32 cm half-step path and family routes are retained; the retreat now uses the rig’s planted adjustment steps instead of playing a forward walk cycle under backward root motion.
+- `np-rig.js` / `looks()` in `np-life.js`: look pitch originates at eye height, a small addressed parent lean/tilt, and listener nod/blink responses to selected internal sentence endings. Other nearby family members look at the active speaker in their room. Reactions consume the existing line/voice clock; speech selection and heard-line memory are unchanged.
+
+### Geometry and CPU
+
+Low near / far, **including six contact-shadow triangles**:
+
+| Person | HEAD | Working tree | Near change |
+|---|---:|---:|---:|
+| Mom | 2762 / 1726 | 2818 / 1731 | +2.03% |
+| Dad, all three outfits | 2942 / 1890 | 2998 / 1895 | +1.90% |
+| Crystal | 2938 / 1830 | 2994 / 1835 | +1.91% |
+
+All measured Low/Potato costumes stay below 3,000; no draw or bone was added. Every new near family increase is below the requested 8%. Complete outfit/LOD figures: `tests/shots/models/r5-closeup-before.json` and `r5-closeup-after.json`. These exclude rendering and are not a physical-device claim.
+
+Paired per-person CPU (ms/update; 16 AB/BA batches × 2,000 updates after 3,000 warmups; no rendering):
+
+| Person | Idle HEAD → after | Walk HEAD → after | Conversation HEAD → after | Listener HEAD → after |
+|---|---:|---:|---:|---:|
+| mom | 0.02098 → 0.02385 | 0.02534 → 0.02437 | 0.02773 → 0.02922 | 0.02551 → 0.02560 |
+| dad | 0.02237 → 0.02574 | 0.02534 → 0.02289 | 0.02634 → 0.02712 | 0.02478 → 0.02574 |
+| sister | 0.02589 → 0.02567 | 0.02452 → 0.02675 | 0.02698 → 0.02876 | 0.02444 → 0.02369 |
+
+Raw batches: `tests/shots/models/r5-person-cpu.json`; all-three-rig modes, including stairs/turns/jobs/seated/far: `tests/shots/models/r5-paired-cpu.json`. Both commands exit 0: `node tests/models-closeup-perf.cjs` and `MODELS_ROUND=r5 node tests/models-perf.cjs`. Shared-host noise limits interpretation of small percentage differences.
+
+
+The actual standing palm normals align with the thigh by **0.27 → >0.99**. A 20-second deterministic rest sample records 97/97/136 release frames for Mom/Dad/Crystal, with zero simultaneous left/right releases. Parent head pitch at a 60 cm eye target changes from Mom **+9.5° upward to about −2.2° downward**, Dad **−3.1° to about −19.1°**. Crystal continues to look up. Listener phrase-response peak is approximately 4.9°, with blink frames and a closed listening mouth. Native bone/skin checks also verify that the house eye target remains correct when the renderer's mirrored room root is attached. The same 32 cm retreat trajectory now has hip-height ranges **7.63 → 2.31 cm / 6.86 → 2.09 cm / 10.39 → 3.10 cm** (Mom/Dad/Crystal), with an exclusive support foot. This is a controlled rig comparison of the previous forward-cycle request against the new adjustment-step request, not a house-navigation capture.
+
+### Evidence and limits
+
+The three owner-provided hall screenshots in `/opt/stacks/landing-train7/tests/shots/people-pass/` were inspected before production edits. New **native mesh/material diagnostic** comparison sheets are in `tests/shots/models/r5-native-probe/compare-*.jpg`. All 30 final front/side/rear/neck/hand comparison pairs were inspected, together with the three overview sheets for the three people, standing and engaged. They render the exported production mesh, skin normals and atlas with a small CPU rasteriser; they omit the painted-face shader and real house lighting, and are **not gameplay screenshots** or proof of real-input staging. Their headings explicitly identify this limitation. The previews caught a raised shoulder point, a dark atlas-edge line and a rear neck-base breakthrough. The cap was lowered into the torso, clothing UVs inset, collar weights anchored to the chest, and the hidden neck base moved 7 mm forward. A solid rolled collar lip closes the edge. Actual geometry cross-sections now keep the skin inside the garment, with about 2 mm clearance at the opening; all final native views were recaptured and reviewed.
+
+The release workers were both inactive before the first browser run. The original `systemctl --user` query failed inside the worker, so the same units were checked through read-only D-Bus `ActiveState` queries. No browser ran during the active hold. Browser work resumed after the owner's pause, serially, with a fresh 80-minute allowance.
+
+`tests/models-conversation.mjs` starts from a saved standing pose and uses real keys / CDP fingers for all subsequent travel and aim, then actual F / the phone F button. Only actors are staged by fixtures. Every case has a **before-F / after-F gameplay pair** at 1366×860 desktop or 844×390 phone landscape. Capture raster is native requested resolution; navigation alone uses an explicitly recorded 0.25 cap. These are staging comparisons within the working tree, not HEAD model comparisons. The separate successful HEAD Mom/1 m pilot and native mesh A/B sheets provide base-model controls.
+
+**18/18 after shots have eyes in frame**, checked numerically and by inspecting both complete contact sheets. All F samples retain player X/Z exactly. Closest desktop approaches measure 59.98 cm; phone approaches measure 58.93 cm. The existing retreat reaches approximately 92/91 cm respectively without moving the player. Actual 1 m and 2 m stopping distances are retained below. Mouse and touch look cancel the ease; each cancelled view remains unchanged after 500 ms. Both real reload checks preserve coordinates exactly and view angles within normal save rounding (under 0.04°); standing stays standing.
+
+Raw pairs: `tests/shots/models/r5-conversation/after/{device}-{person}-{cm}-{before-f|after-f}.png`. The complete manifest is `after/evidence.json`, with measured approach ranges, viewports and paths. Numerical cases, cancellations and reloads: `after/report.json`. Reviewed contact sheets: `after/desktop-contact.jpg`, `after/landscape-contact.jpg`, and matching `*-before-contact.jpg`. The native PNGs remain the evidence for close surface judgement.
+
+| Person / nominal cm | Desktop actual cm / eyes x,y | Phone landscape actual cm / eyes x,y |
+|---|---:|---:|
+| mom / 200 | 201.30 / 679.7, 427.3 | 200.86 / 422.0, 195.0 |
+| mom / 100 | 100.61 / 693.9, 425.6 | 101.36 / 420.2, 195.6 |
+| mom / 60 | 59.98 / 697.3, 459.9 | 58.93 / 428.1, 175.2 |
+| dad / 200 | 194.76 / 684.5, 424.5 | 200.57 / 423.6, 194.0 |
+| dad / 100 | 102.57 / 673.9, 406.7 | 101.22 / 421.9, 195.0 |
+| dad / 60 | 59.98 / 683.0, 424.6 | 58.93 / 407.7, 190.5 |
+| sister / 200 | 196.12 / 683.0, 429.2 | 202.20 / 422.0, 195.0 |
+| sister / 100 | 104.11 / 679.3, 439.9 | 100.75 / 429.8, 203.7 |
+| sister / 60 | 59.98 / 700.7, 442.4 | 58.93 / 417.8, 193.5 |
+
+Eye coordinates are sampled before the following PNG capture; normal facial motion can change their exact pixels during capture. Both the telemetry and images pass the frame check. Adaptive character LOD differs between some house shots, so matched Low triangle deltas come from the rig measurements above, not a subtraction of unmatched screenshot LODs.
+
+The first long sweep terminated with exit 143 after 17 saved cases; a separate appended case completed the set with exit 0. Precision refinements exposed test-controller stopping/touch sequencing errors (exit 1), and one reload readiness predicate referenced a not-yet-loaded global (exit 1). Those fixture defects were fixed. The final appended phone close/refresh run exits 0, completing all eighteen final frame samples and both refresh checks. Detailed attempt logs remain in `/tmp/jhp-r5-logs/talk-*.log`; none of the failed attempts is counted as a passing command.
+
+The phone Mom captures expose an existing temporary chore reminder / busy-label overlap across the lower face. Eyes remain visible, but this prevents claiming a fully polished conversation HUD. Long natural listener exchanges and physical-device performance remain separate acceptance work.
+
+### Validation ledger — node and native checks
+
+| Command | Actual result |
+|---|---|
+| `node --check` on all touched production and test JS | Exit 0 at each completed edit; final sweep exit 0. |
+| `MODELS_ROUND=r5 python3 tests/models-units.py` | Initial working-tree run: 66/67 passed, with a save-fixture failure during staging development. The final ordinary view-angle save path and updated fixture pass 68/68, exit 0, including the new close-range test; per-file real exits and log paths are in `tests/shots/models/r5-unit-results.json`. |
+| `node tests/models-closeup-unit.cjs --baseline` | Exit 0; before geometry/palm/gaze measurements. |
+| `node tests/models-closeup-unit.cjs` | Exit 0; real rig geometry, standing palms, parent gaze, one-hand re-settle, listening, mirrored root, view projection and actual mouse/touch cancellation hooks, garment/neck cross-section clearance, atlas edge guards, and a grounded half-step with one support foot. The projection test is not real-input browser evidence. |
+| `node tests/models-appeal-unit.cjs` | Exit 0. |
+| `node tests/models-grips-unit.cjs` | Exit 0; solid prop/thumb contact and existing speech-expression acceptance retained. |
+| `MODELS_ROUND=r5 node tests/models-weight-unit.cjs` | Exit 0; existing weight, support, paper and voice behaviour. |
+| `node tests/world-pose-unit.cjs` | Exit 0, including unchanged saved coordinates and retention of visible view angles. |
+| `node tests/norepeat-unit.cjs` | Exit 0; least recently heard, refresh-safe, per account, bounded. |
+| `node --expose-internals tests/parody-audit.cjs` | Exit 0; zero authored spans in zero files. |
+| Throwaway server boot at port 18097, DATA_DIR under `/tmp`, own-PID shutdown | Exit 0; HTTP readiness succeeded and no “mod failed to load”. No browser was started. |
+| `node /tmp/r5-native-probe.cjs` / `python3 /tmp/r5-native-probe.py` | Exit 0; native comparison diagnostics only, as limited above. |
+
+### Serial browser gates
+
+Browser commands run serially with disposable local data. The current sweep's log is `/tmp/jhp-r5-logs/talk-after-resumed.log`; earlier attempts and the successful baseline Mom/1 m pilot remain in the same log directory. Final results replace the in-progress entries below. A complete isolated `main` 2.77.0 application tree is used for the phone performance control; it is not merged or deployed.
+
+| Required command | Status |
+|---|---|
+| `node tests/models-conversation.mjs --baseline` / appended after runs | HEAD Mom/1 m pilot exit 0. Completed working-tree pre-F/post-F matrix: 18/18 eyes inside, native requested capture raster, position preserved, mouse/touch cancellation and desktop/phone refresh pass. Full sweep 143 after 17 cases; append 0; precision fixture retries 1; final phone close/refresh append 0. Exact successful final command: `node tests/models-conversation.mjs --devices=landscape --people=sister --ranges=60 --append`. |
+| `node tests/models-animation.mjs --label=r5-after --only=idle,question,rear --skip-perf` | Exit 0; 144 native desktop/phone frames across Mom/Dad/Crystal, 2 m/4 m, idle/addressed/rear. Actual renderer: 2 calls, 2,994 triangles for final character; all Low outfits <=3,000. Metrics `tests/shots/models/r5-after/metrics.json`. Full browser pose matrix and browser HEAD model baseline not run. |
+| `node tests/characters.mjs --only=day,space,bump` | Exit 0, 3/3: day 77,760 ticks, bump, space; normal raster. Initial non-terminal attempt terminated 143 before output; the persistent-terminal rerun is the passing gate. Log `/tmp/jhp-r5-logs/characters-final.log`. |
+| `FIXTURE_RASTER_RATIO=.5 node tests/people-pass.mjs --desktop --skip-perf` | Exit 0; 18/18 cases including conversation, two people, oncoming and six doors. Native attempt passed Hall/landing, then was interrupted (terminal exit 1) because software-rendered passage took 31/27 seconds. Full uncapped run is not complete; viewport/input/routes are unchanged by the raster cap. |
+| `FIXTURE_RASTER_RATIO=.25 node tests/voices.mjs http://127.0.0.1:18080` | Exit 1, 8/9, 415.394 s. My six-minute wrapper deadline closed the prompt browser; audio/layout/speak/muted/names/edge/two/phone all pass. The full invocation is not reported as a pass. |
+| `FIXTURE_RASTER_RATIO=.25 node tests/voices.mjs http://127.0.0.1:18097 --only=prompt` | Exit 0, 1/1, 55 s. All nine cases have passing coverage across the two runs; a single clean 9/9 full invocation was not completed. |
+| `FIXTURE_RASTER_RATIO=.25 node tests/door-walk.mjs http://127.0.0.1:18080` | Exit 0; all eight door directions, 52.822 s. Functional raster diagnostic; full uncapped run not performed. |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | Interrupted, terminal exit 1. Normal raster. Sparse signup (80.1 s), account-house (78.3 s), walk-refresh (41.2 s) pass; pc-controls times out at 60 s with player still standing. Cause unresolved. Console-game, phone-typing, prop-refresh, escape-menu, canonical-views, mobile-desktop, browser-errors and server-log cases were not completed. |
+| `node tests/mobile.mjs http://127.0.0.1:18098 --only=perf` | Exit 0; 1/1, uncapped complete main 2.77.0 control, 175 seconds. |
+| `node tests/mobile.mjs http://127.0.0.1:18098 --only=gate,perf` | Exit 0; 2/2, five account-gate profiles plus uncapped CPU4x/CPU1x walking. Gate 63 s, perf 188 s. |
+
+### Uncapped mobile comparison against current main
+
+The control serves the complete archived application at `83c706d` (main 2.77.0) with the same installed dependencies and voice-asset link. It does not route a few newer files into an older application and does not merge main. Both runs use their own disposable server/data and a single browser. No raster cap or competing test ran during either benchmark.
+
+| Case | Main frameP50 → working tree | Delta | Main → after calls / triangles | Host load main → after |
+|---|---:|---:|---:|---:|
+| `walk-cpu4x` | 466.7 → 533.3 ms | **+14.3% worse** | 208 → 164 / 166,968 → 174,630 | 14.8 → 17.9 |
+| `walk-cpu1x` | 300.0 → 200.0 ms | −33.3% | 67 → 63 / 148,180 → 154,654 | 16.1 → 15.7 |
+
+Both are High, 832,932 pixels, scale 0.85, with family enabled. The test command passes its functional assertions; that does **not** establish a frame-time performance pass. The CPU4x regression is unresolved. The actual views, host load and version lighting differ, so neither result isolates model cost or demonstrates physical-phone performance. Matched per-person rig CPU above is the separate model-only evidence.
+
+Raw controls: `tests/shots/mobile/r5-main-2.77.0-report.json`, `r5-after-report.json`; comparison with full fields and revision: `r5-comparison.json`. Own server logs have no “mod failed to load”.
+
+Full command/exit/log ledger, including fixture failures and interrupted attempts: `tests/shots/models/r5-validation.json`. The 68-unit ledger is separate at `r5-unit-results.json`. Final syntax command: `bash /tmp/jhp-r5-syntax.sh` (all eight touched/restored JS files), exit 0. Final parody command: `node --expose-internals tests/parody-audit.cjs`, exit 0, zero spans.
+
+### Narrow visual scorecard
+
+The three supplied calibration anchors and the complete eighteen-case gameplay capture set were inspected. This scores only the changed family presentation; unchanged world, lighting, rewards and art direction are not re-scored. No overall AAA/showcase or whole-game premium claim is made.
+
+| Changed genre category | Before → after | Evidence / remaining pass |
+|---|---:|---|
+| Family forms (Hero) | 1.5 → 2 | Recognisable painted faces retained; thigh-facing tapered fingers, wrapped collar and rounded shoulder silhouette. Faceting remains visible close up. |
+| Conversation interaction | 1 → 2 | Real body aim and F now bring all eighteen eye frames into view, with immediate input ownership and stable saved standing poses. |
+| Clothing materials | 1.5 → 2 | Sharper Mom knit/cream front, guarded atlas boundaries and no neckline shelf; same atlas allocation and draw count. Other outfits need a wider continuity sweep. |
+| Acting / motion | 1.5 → 2 | Parent lean/look-down, planted retreat and separate rest-hand releases; controlled listener nod/blink checks pass. Long natural alternating exchanges remain unverified. |
+| Conversation HUD | 1 → 1 | Existing temporary task/busy UI still covers part of Mom's lower face in phone landscape. This is an automatic premium failure under the skill scorecard. |
+
+Changed-category mean: **1.3 → 1.8**. The pass improves the requested close presentation; it does not meet the complete premium threshold. Native renderer/budget evidence is the rig metrics and requested game/performance gates, with software-host limitations stated separately. The standalone canvas inspector has not been run; no entropy/edge-density score is invented.
+
+### Next ten — round 5, rewritten
+
+1. Move temporary chore reminders and the redundant busy prompt clear of the lower face in phone landscape; inspect complete facial expressions as well as eye framing.
+2. Isolate the CPU4x frameP50 regression with matched world revisions, view/route samples and repeated AB/BA phone runs; record load, LOD and pixels rather than attributing the whole-version comparison to models.
+3. Extend real-input conversation staging to seated speakers, stairs, oblique approaches, walls that prevent the half-step, and rapid F/Esc/look interruptions.
+4. Refine the moving newspaper pinch through a complete leaf action, then author a full page flip and persistent lap/table rest. The current leaf adjustment is not a page turn.
+5. Extend reload/interrupt coverage to kitchen chairs, pulled-out office chair and beanbag; sweep moved/swivelled furniture against armrests and thigh supports from front/side/rear.
+6. Extend stair acceptance to continuous ±180° turns, reversals, LOD changes and real route restarts near both landing rails.
+7. Inspect every existing prop grip close up; refine can/case thumb opposition and finger webs by funding triangles from hidden surfaces, preserving thigh-facing free-hand rest.
+8. Capture long natural alternating family exchanges, paused/ended recordings and interrupted jobs; tune listener timing from that acting evidence rather than adding continuous nods.
+9. Extend outfit collar/underarm and cloth-pattern continuity captures to phone landscape and tablets; preserve the atlas/draw budgets while improving less-used silhouettes.
+10. Measure sustained GPU cost, thermal behaviour and touch response on physical weak phones/tablets. Software rendering and emulated CPU throttling do not establish those results.
+
+### Stop-point risks / not verified
+
+Stopped at the requested ten-minute reserve. No further production edits were made during the resumed browser pass. Smoke failed/incomplete; its PC-control timeout has not been attributed to a source change. One clean full voices invocation did not pass (wrapper limit); all nine cases have passing coverage across the full run and prompt retry. Full uncapped people/voice/door gates were not completed; explicit functional raster caps are listed above. Full browser model pose matrix and baseline model browser captures were not run; focused native captures, native A/B diagnostics, all 68 units and paired CPU checks are separate evidence. CPU4x phone frameP50 is 14.3% worse and unresolved. Phone lower-face HUD overlap, long natural listener acting, physical-device performance and integration with main 2.77.0 lighting remain unverified. Main is deliberately unmerged; no commit/deploy/version/data changes.

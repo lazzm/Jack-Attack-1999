@@ -15,6 +15,11 @@ function fixture(limit){
 }
 const pose=()=>({x:215,y:241,z:392,rx:0,ry:90,seat:0,lvl:'G',d:{cupboard:true}});
 let c=fixture(215);assert.equal(c.walkingPose().x,214.999999999,'Saving rounded across a collision boundary');
+{
+ const c=fixture(215),before=c.walkingPose();c.P.rx=35;c.P.ry=100;const after=c.walkingPose();
+ for(const key of ['x','y','z','lvl','seat'])assert.equal(after[key],before[key],'Changing view angles changes saved '+key);
+ assert.equal(after.rx,35,'Refresh must retain the visible conversation pitch');assert.equal(after.ry,100);
+}
 let s=pose();s.x=214.999999999;assert(c.restorePose(s));assert.equal(c.P.x,s.x,'Valid precise pose moved');assert(c.DOORS.cupboard.open);assert.equal(c.DOORS.cupboard.pivot.rotation.y,100*Math.PI/180);
 c=fixture(215);s=pose();assert(c.restorePose(s));assert.equal(c.P.x,214.949,'Legacy rounding was not recovered');assert.equal(s.x,215,'Input save was mutated');assert.equal(c.P.z,392);
 c=fixture(208);s=pose();assert(c.restorePose(s));assert.equal(c.P.x,207.5,'New solid-door margin did not recover nearby');assert.equal(c.cur.id,'cupboard');assert(Math.hypot(c.P.x-s.x,c.P.z-s.z)<=30);
