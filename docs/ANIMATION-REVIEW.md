@@ -720,3 +720,87 @@ Changed-category mean: **1.3 → 1.8**. The pass improves the requested close pr
 ### Stop-point risks / not verified
 
 Stopped at the requested ten-minute reserve. No further production edits were made during the resumed browser pass. Smoke failed/incomplete; its PC-control timeout has not been attributed to a source change. One clean full voices invocation did not pass (wrapper limit); all nine cases have passing coverage across the full run and prompt retry. Full uncapped people/voice/door gates were not completed; explicit functional raster caps are listed above. Full browser model pose matrix and baseline model browser captures were not run; focused native captures, native A/B diagnostics, all 68 units and paired CPU checks are separate evidence. CPU4x phone frameP50 is 14.3% worse and unresolved. Phone lower-face HUD overlap, long natural listener acting, physical-device performance and integration with main 2.77.0 lighting remain unverified. Main is deliberately unmerged; no commit/deploy/version/data changes.
+
+## Round 5b — unobstructed conversations and speed, 7 November 2026
+
+Base `5cd96fb`, including the owner's round-5 commit and clean main 2.77.0 lighting/effects merge. Main control is `/opt/stacks/landing/app`, read-only, pinned `83c706d`. Baseline rig/life/world working files match that commit's blobs. No commits, deployment, version, changelog, AGENTS, site or real-data edits. Pre-existing voice symlink untouched.
+
+### Changes
+
+- Family spots expose a transient `hideTip` predicate while that person holds a player conversation or has a current/queued addressed line after the pose is released. Desktop hover and phone caption rendering honour it; labels/verbs and the disabled Wait action retain their existing semantics. Speech selection and memory are unchanged.
+- The house HUD gets an ephemeral conversation class at state transitions, including gaps between lines. On short landscape screens the current-job strip moves from its ordinary bottom offset to 12 px above the safe-area bottom while a hold or family balloon is present. It returns to normal placement afterward. Chore counters, hint lifetime and saves are unchanged.
+- Completed face easing returns before modal, distance and active-speaker checks. The 400 ms motion and input cancellation are unchanged; its completed/idle path no longer repeats those guards.
+- The conversation harness records the speaker's projected eyes/mouth and a face exclusion rectangle, visible UI panels, action-caption count and intersections. It also checks reminder restoration. All navigation/aim/F remains real input; actor-only staging is explicit. Native requested capture resolution is restored for every image; navigation alone uses the existing 0.25 cap.
+
+### Alternating uncapped mobile performance
+
+Exactly main1 → tree1 → main2 → tree2, each `node tests/mobile.mjs http://127.0.0.1:18098 --only=perf`, fresh disposable server/data, one browser, no other tests of mine during sampling. Another worker's game remained running. All four exit 0. No fidelity cap or performance-test assertion was weakened.
+
+| Run | Source | CPU4x frameP50 | CPU1x frameP50 | 4x / 1x calls | 4x / 1x load |
+|---|---|---:|---:|---:|---:|
+| main1 | main 2.77.0 | 366.7 ms | 233.3 ms | 181 / 63 | 11.9 / 11.6 |
+| tree1 | working tree | 383.3 ms | 233.4 ms | 181 / 63 | 10.9 / 11.2 |
+| main2 | main 2.77.0 | 366.8 ms | 233.3 ms | 208 / 67 | 10.2 / 11.2 |
+| tree2 | working tree | 366.7 ms | 233.3 ms | 208 / 67 | 12 / 11.6 |
+
+Mean of the two reported run P50s: **CPU4x 366.75 → 375.00 ms (+2.25%)**, **CPU1x 233.30 → 233.35 ms (+0.02%)**. Both meet the requested 5% target in this sample. All runs: High, 832,932 pixels, scale 0.85, diffuse lighting, light weights ready and no atlas repaint on clock update. Corresponding pairs have matching calls and triangle totals. One tree CPU4x run is one 16.6 ms step slower; the other matches main. This sample does not establish an 8.25 ms model-caused cost. Raw runs, views, adaptive history, source checks and comparison: `tests/shots/mobile/r5b-{main1,tree1,main2,tree2,comparison}.json`.
+
+### Controlled CPU attribution
+
+Actual production rigs, main source versus working tree, 16 paired AB/BA batches × 2,000 updates after 3,000 warmups. Atlas paint and rendering excluded. Milliseconds per person/update:
+
+| Person | Idle main → tree | Walk | Addressed | Listening |
+|---|---:|---:|---:|---:|
+| mom | 0.010058 → 0.010464 | 0.011327 → 0.011564 | 0.013076 → 0.013912 | 0.011881 → 0.012723 |
+| dad | 0.011025 → 0.011886 | 0.011266 → 0.011624 | 0.011991 → 0.012420 | 0.011846 → 0.012048 |
+| sister | 0.011618 → 0.012431 | 0.012071 → 0.012562 | 0.012565 → 0.013351 | 0.011206 → 0.012193 |
+
+The additional rig-update costs are under 0.001 ms per person in these medians. Controlled actual `looks()` functions for all three people cost 0.003208 → 0.003632 ms idle and 0.003175 → 0.008264 ms during listening (about 0.0051 ms extra for the trio). These isolate presentation logic with controlled world inputs, not full navigation or rendering.
+
+Framing function: idle 0.000013 ms/tick; active about 0.00281 ms for the short ease; completed 0.000697 → 0.000018 ms. In 163,000 completed-tick calls, the old code repeats 163,000 modal guards; the new code repeats zero. The walking performance test does not start a player conversation, so its framing state is null: the completed-ease cleanup is not credited for the ABAB walking result. Raw CPU batches: `tests/shots/models/r5b-person-cpu.json`, `r5b-presentation-cpu.json`.
+
+### Validation and images
+
+All 75 `*-unit.cjs` files pass, with actual command/exit/log records in `tests/shots/models/r5b-unit-results.json`. The initial desktop matrix hit a coarse-key stopping oscillation (fixture exit 1); diagonal mouse-directed key corrections fixed precision without any player pose API. The appended desktop run exits 0, completing nine native after frames. The first phone run then hit a slow partial-stick return timeout (fixture exit 1); full stick for long returns and shorter fine corrections fixed the fixture. Its appended Dad/Crystal run exits 0. All eighteen native after frames (Mom, Dad, Crystal × 60/100/200 cm × desktop/phone landscape) now have zero redundant captions, zero measured face intersections and eyes inside the frame. Movement, mouse/touch look cancellation, F, refresh and saved player-pose assertions pass. The phone Mom reminder moves from y=207 to y=345 during conversation and returns to y=207 afterward. Screens: `tests/shots/models/r5b-conversation/after/{desktop,landscape}-contact.jpg`, eighteen `*-after-f.png`, `landscape-objective-restored.png`; exact distances, projected face bounds and panels are in `report.json`/`evidence.json`. Full browser-gate results follow below.
+
+After the four alternating performance runs, the caption predicate was broadened to cover current/queued addressed lines after the pose hold is released. This presentation-only edge branch is not exercised by the walking sample. No rig, renderer, lighting, walking logic or framing math changed afterward; the measurement-time and final file hashes are retained separately.
+
+Functional house gates use the existing explicit raster diagnostic (0.5 for smoke/people/characters, 0.25 for voices/door) so all cases can complete on this software renderer while another worker's game remains active. Viewports, input, collision geometry and assertions are unchanged. The eighteen conversation images and four mobile performance runs use native requested capture resolution / uncapped rendering respectively. Raster caps are disclosed per command; these functional runs are not uncapped performance evidence.
+
+### Round 5b visual/budget result
+
+The owner's round-5 before contact sheets showed the busy caption over mouths/chins and the phone Mom reminder over the face. Both revised contact sheets and native captures have been inspected: 18/18 eyes inside, 0/18 captions on the active speaker, 0/18 face-panel intersections. The narrow conversation-HUD score rises from 1 to 2 for this tested matrix; other round-5 categories are unchanged. This is not a whole-game AAA claim. Low triangles are unchanged this round: Mom 2,818 → 2,818, Dad 2,998 → 2,998, Crystal 2,994 → 2,994, including six shadow triangles each; all remain two character draw calls. There are no model, atlas or material edits in 5b.
+
+### Next ten — round 5b, rewritten
+
+1. Extend the face/UI matrix to seated speakers, stairs, oblique approaches and walls that prevent the half-step.
+2. Extend real-input rapid F/Esc/look cancellation to interrupted/queued exchanges and changed jobs, checking all HUD restoration paths.
+3. Inspect phone portrait, tablet and very short landscape conversation layouts with simultaneous carry/objective UI.
+4. Capture long natural alternating family exchanges, paused/ended recordings and interrupted jobs; tune listener timing from that evidence.
+5. Refine newspaper pinch through a complete leaf action, then author a full page flip and persistent lap/table rest.
+6. Extend furniture reload/interrupt coverage to kitchen chairs, pulled-out office chair and beanbag, including swivelled supports.
+7. Extend stairs to continuous ±180° turns, reversals, LOD changes and real route restarts at both landing rails.
+8. Inspect every prop grip close up; refine thumb opposition and webs by reallocating hidden triangles while preserving relaxed free hands.
+9. Sweep less-used outfit collars, underarms and cloth-pattern joins at close desktop/phone/tablet ranges within the same atlas/draw budgets.
+10. Repeat sustained matched performance on physical weak phones/tablets for GPU, thermal and touch response; shared-host SwiftShader ABAB is narrower evidence.
+
+### Round 5b final gate ledger
+
+Full commands, actual exits, fixture retries and log paths: `tests/shots/models/r5b-validation.json`; all 75 individual unit commands: `r5b-unit-results.json`. Final syntax checks pass for all nine touched/new JavaScript test/production files; parody audit exits 0 with zero authored spans; `git diff --check` exits 0.
+
+| Command (from repository root unless shown) | Actual result | Rendering / evidence |
+|---|---|---|
+| `node tests/mobile.mjs http://127.0.0.1:18098 --only=perf` | 0, 0, 0, 0, alternating main/tree/main/tree | Uncapped; raw four reports and comparison above |
+| `node tests/models-closeup-perf.cjs --baseline-ref=main --round=r5b` | exit 0 | Controlled real rigs; CPU table above |
+| `node tests/models-presentation-perf.cjs` | exit 0 | Controlled actual looks/framing functions |
+| `cd tests && MODELS_ROUND=r5b python3 models-units.py` | exit 0, 75/75 | Repeated on final caption source |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | exit 0, 12/12 | `FIXTURE_RASTER_RATIO=.5`; own disposable server, no URL |
+| `node tests/voices.mjs http://127.0.0.1:18080` | exit 0, 9/9 in one full invocation, 414 s | `FIXTURE_RASTER_RATIO=.25`; URL first; speaking, muted, names, edge, two, prompt and phone all pass |
+| `node tests/door-walk.mjs http://127.0.0.1:18080` | exit 0, 53 s | `FIXTURE_RASTER_RATIO=.25`; eight real-input traversals, own server log clean |
+| `node tests/people-pass.mjs --desktop --skip-perf` | exit 0, 18/18 | `FIXTURE_RASTER_RATIO=.5`; real keyboard passage, browser/server checks pass |
+| `node tests/characters.mjs --only=day,space,bump` | exit 0, 3/3 | `FIXTURE_RASTER_RATIO=.5`; 77,760 day ticks, bump and personal space |
+| `node tests/models-conversation.mjs --round=r5b` with explicit device/person selections | complete 18/18; corrected append runs exit 0 | Two initial fixture attempts exit 1, preserved in ledger; all real input, native requested captures |
+
+### Round 5b limits / handoff
+
+All requested 5b suites completed before the ten-minute work cutoff. No browser remains running from these gates. No further implementation is planned. Functional raster caps are explicit above; uncapped full smoke/voice/people/door/character runs were not repeated. Physical-phone GPU/thermal behaviour, portrait/tablet conversation layout, seated/oblique/wall-blocked staging and long natural listener exchanges remain future work. The final current/queued-line caption guard was added after the four uncapped speed runs; final units, full voices and the later matrix cases cover it functionally, but that final predicate was not re-benchmarked. Source hashes distinguish the sampled and final trees. Geometry, rig animation, rendering, lighting and walking are unchanged after sampling. Both initial matrix failures were fixture navigation precision/timeouts, corrected with real inputs; their nonzero exits are not concealed by the completed eighteen-frame set. No commit, deployment, data, site, version, changelog or AGENTS changes; pre-existing voice link retained.

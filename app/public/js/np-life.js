@@ -145,6 +145,11 @@
   }
   ['mom', 'dad', 'sister'].forEach(makeChar);
   const label = c => c.id === 'mom' ? 'Mom' : c.id === 'dad' ? 'Dad' : sisName();
+  let conversationUI = false;
+  function conversationHud() {
+    const on = chars.some(c => c.present && c.hold > 0);
+    if (on !== conversationUI) { conversationUI = on; H.ui?.el?.classList?.toggle('np-conversation', on); }
+  }
   function talkLabel(c) {
     if (speech.q.some(n=>n.c===c && n.talk)) return label(c) + ' is busy';
     if (speech.cur?.c === c && speech.cur.talk) return label(c) + (speech.cur.gesture ? ' is listening' : ' is busy');
@@ -180,7 +185,7 @@
       contact.x = handle.x; contact.y = -handle.y; contact.z = handle.z;
       return contact;
     };
-    H.spot('np.' + c.id, { label: () => talkLabel(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
+    H.spot('np.' + c.id, { label: () => talkLabel(c), hideTip: () => c.hold > 0 || speech.cur?.c === c && speech.cur.talk || speech.q.length > 0 && speech.q.some(n => n.c === c && n.talk), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
     if (id !== 'dad') return null;
@@ -656,7 +661,7 @@
     // Let a passing remark finish before starting the conversation.
     if (window.Bonfire?.talk?.(id)) { c.hold = 3; if(!speech.q.some(n=>n.c===c) && speech.cur?.c!==c && !window.st?.voiceBusy) acknowledge(c); return; }
     const lines = talkLines(c);
-    c.hold = 99;
+    c.hold = 99; conversationHud();
     const p = player(), d = dist(c, p);
     H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0);
     if (!c.seated && d < 82 && sameFloor(c, p)) { // (half a pace back if there's room: never into the worktop)
@@ -1072,6 +1077,7 @@
     if (simMode) return;
     speechTick(); barks(clk); carryReactions(); gameLadCameo();
     for (const c of chars) looks(c);
+    conversationHud();
     if (nowMs() - savedAt > 2000) save();
   }
   // Dad changes after work (and into his weekend jumper) when nobody's watching

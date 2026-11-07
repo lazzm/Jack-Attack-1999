@@ -10,7 +10,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 import {bonfireLogin} from './bonfire-login.mjs';
-const __dirname=path.dirname(fileURLToPath(import.meta.url)),root=path.join(__dirname,'..')+path.sep,baseline=process.argv.includes('--baseline'),label=baseline?'before':'after',out=path.join(__dirname,'shots','models','r5-conversation',label)+path.sep;
+const round=process.argv.find(a=>a.startsWith('--round='))?.slice(8)||'r5';assert(/^r[0-9]+[a-z]?$/.test(round));
+const __dirname=path.dirname(fileURLToPath(import.meta.url)),root=path.join(__dirname,'..')+path.sep,baseline=process.argv.includes('--baseline'),label=baseline?'before':'after',out=path.join(__dirname,'shots','models',round+'-conversation',label)+path.sep;
 const one=process.argv.includes('--one'),selected=k=>process.argv.find(a=>a.startsWith('--'+k+'='))?.split('=')[1].split(','),devices=selected('devices')||(one?['desktop']:['desktop','landscape']),people=selected('people')||(one?['mom']:['mom','dad','sister']),ranges=(selected('ranges')||(one?[100]:[200,100,60])).map(Number),comparisonOnly=process.argv.includes('--comparison-only'),report={baseline,navigationRaster:.25,captureRaster:'native requested ratio',setup:'Initial saved standing hall pose; actor-only fixtures; all subsequent player movement/look/F are real input',cases:[]};
 let server,fixture,data,log='',closing;
 async function close(){return closing||=(async()=>{await fixture?.browser.close().catch(()=>{});if(server?.exitCode===null){const end=once(server,'exit');server.kill('SIGTERM');await end;}if(data)await rm(data,{recursive:true,force:true});})();}
@@ -52,8 +53,8 @@ try{
   let releaseWalk=null;await page.exposeBinding('__r5StopWalk',async()=>{const stop=releaseWalk;releaseWalk=null;if(stop)await stop();});
   async function travel(z,cm){
    for(let n=0;n<16;n++){
-    const p=await position();if(cm)z=600-Math.sqrt(Math.max(1,cm*cm-(270-p.x)**2));const d=z-p.z;if(Math.abs(d)<1.9)return;console.log('WALK',z,p.x.toFixed(1),p.z.toFixed(1));await aim({x:270,y:210,z:p.z+500});const key=d>0?'w':'s',sign=Math.sign(d),slow=Math.abs(d)<150,fine=Math.abs(d)<25;
-    if(!touch&&Math.abs(d)<10){await page.keyboard.down('c');await page.keyboard.press(key,{delay:20});await page.keyboard.up('c');await page.waitForTimeout(650);continue;}
+    const p=await position();if(cm)z=600-Math.sqrt(Math.max(1,cm*cm-(270-p.x)**2));const d=z-p.z;if(Math.abs(d)<1.9)return;console.log('WALK',z,p.x.toFixed(1),p.z.toFixed(1));const correction=!touch&&Math.abs(d)<10,sign=Math.sign(d);await aim(correction?{x:p.x+(p.x<270?1:-1)*sign*500,y:210,z:p.z+180}:{x:270,y:210,z:p.z+500});const key=d>0?'w':'s',slow=Math.abs(d)<(touch?60:150),fine=Math.abs(d)<25;
+    if(correction){await page.keyboard.down('c');await page.keyboard.press(key,{delay:20});await page.keyboard.up('c');await page.waitForTimeout(650);continue;}
     let resolveStop,timer;const stopped=new Promise(r=>resolveStop=r);releaseWalk=async()=>{if(touch)await finger('touchEnd');else{await page.keyboard.up(key);if(slow)await page.keyboard.up('c');}resolveStop();};
     const armWatch=()=>page.evaluate(({z,sign,margin})=>{const watch=()=>{if(sign*(z-House.W.z)<margin)window.__r5StopWalk();else requestAnimationFrame(watch);};requestAnimationFrame(watch);},{z,sign,margin:Math.min(touch&&fine?.65:slow?14:27,Math.max(.1,Math.abs(d)-.5))});
     if(!touch)await armWatch();
@@ -80,20 +81,30 @@ try{
    assert(Math.abs(preDistance-cm)<2.5,name+' approach missed requested range: '+preDistance);
    if(!comparisonOnly)await shot(name+'-before-f.png');
    if(touch)await page.locator('.ht-acts [data-k=f]').tap();else await page.keyboard.press('f');await page.waitForTimeout(700);
+   if(id==='mom')await page.evaluate(()=>ChoreKit.chip('bed'));
    const sample=await page.evaluate(id=>{
     const H=House,c=HouseFamily.chars[id],r=c.rig,p=new THREE.Vector3();
     if(r.eyeWorld)r.eyeWorld(p);else{r.bones.head.updateWorldMatrix(true,false);r.bones.head.localToWorld(p.set(0,r.S.eyeY-r.J.head[1],r.S.shape.front(0,r.S.eyeY)-r.J.head[2]));p.y=-p.y;}
-    const eyes=H.toScreen(p.x,p.y,p.z);return{player:{x:H.W.x,z:H.W.z,rx:H.P.rx,ry:H.P.ry},actor:{x:c.x,z:c.z},distance:Math.hypot(H.W.x-c.x,H.W.z-c.z),eyes,inside:!!eyes&&eyes.x>0&&eyes.x<innerWidth&&eyes.y>0&&eyes.y<innerHeight,hold:c.hold,speech:HouseFamily.debug.speech.cur?.c?.id,tris:r.tris+6,calls:2};
+    const eyes=H.toScreen(p.x,p.y,p.z),project=v=>{v.project(H.camera);return{x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight}},mouth=project(r.mouthWorld(new THREE.Vector3())),top=project(r.headTop(new THREE.Vector3())),span=Math.max(18,Math.hypot(mouth.x-top.x,mouth.y-top.y)),face={x:eyes.x-span*.55,y:Math.min(eyes.y,mouth.y)-10,w:span*1.1,h:Math.abs(eyes.y-mouth.y)+24};
+    const visible=e=>{for(let n=e;n;n=n.parentElement){const s=getComputedStyle(n);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;}return e.getBoundingClientRect().width>0;},panels=[...document.querySelectorAll('.hs-tip.on,.ht-target.on,.ch-chip:not([hidden]),.st-objective:not([hidden]),.se-objective:not([hidden]),.np-bub:not(.np-out)')].filter(visible).map(e=>{const b=e.getBoundingClientRect();return{class:e.className,text:e.textContent.trim().slice(0,80),x:b.x,y:b.y,w:b.width,h:b.height}}),overlaps=panels.filter(b=>b.x<face.x+face.w&&b.x+b.w>face.x&&b.y<face.y+face.h&&b.y+b.h>face.y),labels=panels.filter(b=>/hs-tip|ht-target/.test(b.class));
+    return{mouth,face,panels,overlaps,labels,player:{x:H.W.x,z:H.W.z,rx:H.P.rx,ry:H.P.ry},actor:{x:c.x,z:c.z},distance:Math.hypot(H.W.x-c.x,H.W.z-c.z),eyes,inside:!!eyes&&eyes.x>0&&eyes.x<innerWidth&&eyes.y>0&&eyes.y<innerHeight,hold:c.hold,speech:HouseFamily.debug.speech.cur?.c?.id,tris:r.tris+6,calls:2};
    },id);
    await shot(name+'-after-f.png');assert(Math.hypot(sample.player.x-start.x,sample.player.z-start.z)<.1,'F moved the player');
    report.cases=report.cases.filter(c=>c.name!==name);report.cases.push({name,cm,device,id,preDistance,start,...sample});await writeFile(out+'report.json',JSON.stringify(report,null,2));console.log('TALK',JSON.stringify(report.cases.at(-1)));
-   if(!baseline){assert(sample.inside,name+' eyes outside frame');assert(sample.hold>0,name+' F did not start conversation');}
+   if(!baseline){assert(sample.inside,name+' eyes outside frame');assert(sample.hold>0,name+' F did not start conversation');if(round!=='r5'){assert.deepEqual(sample.labels,[],name+' redundant action label');assert.deepEqual(sample.overlaps,[],name+' UI covers face');}}
    if(!baseline&&id==='mom'&&cm===100){
     await aim(actor);await page.evaluate(id=>{const sp=HouseFamily.debug.speech;House.hush();sp.q.length=0;sp.cur=null;sp.voice=null;const c=HouseFamily.chars[id];c.hold=0;c.talking=false;c.rig.hush();},id);
     if(touch)await page.locator('.ht-acts [data-k=f]').tap();else await page.keyboard.press('f');await page.waitForTimeout(100);
     if(touch){await finger('touchStart',width*.72,height*.4);await finger('touchMove',width*.72+20,height*.4+12);await finger('touchEnd');}
     else{await page.mouse.move(width/2+15,height/2+10);}
     const cancelled=await position();await page.waitForTimeout(500);const settled=await position();assert(Math.abs(cancelled.rx-settled.rx)<.3,'Look input did not cancel framing');report.cancellations=(report.cancellations||[]).filter(c=>c.device!==device);report.cancellations.push({device,cancelled,settled});
+    if(touch&&round!=='r5'){
+     await page.evaluate(()=>ChoreKit.chip('bed'));const during=await page.locator('.ch-chip').boundingBox();
+     await page.evaluate(id=>{const sp=HouseFamily.debug.speech;sp.q.length=0;sp.cur=null;sp.voice?.stop?.();sp.voice=null;sp.freeze=true;const c=HouseFamily.chars[id];c.hold=0;c.talking=false;c.rig.hush();NPCBubble.clear();ChoreKit.chip('bed');},id);
+     await until(()=>!House.ui.el.classList.contains('np-conversation'));const restored=await page.locator('.ch-chip').boundingBox();
+     assert(during&&restored&&during.y>restored.y+80,'Job reminder did not return after conversation');report.objectiveRestore={during,restored};await shot(device+'-objective-restored.png');
+    }
+
    }
    if(!baseline&&id==='sister'&&cm===60){
     await page.evaluate(()=>House.saveWalkState());const saved=await position();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.HouseFamily?.ready&&window.House?.mode==='walk'&&!House.gliding);await page.waitForTimeout(700);const resumed=await position();assert(Math.hypot(saved.x-resumed.x,saved.z-resumed.z)<.2,'Refresh moved player');assert(Math.abs(saved.rx-resumed.rx)<.2&&Math.abs(saved.ry-resumed.ry)<.2,'Refresh replayed framing or changed view');await shot(name+'-refresh.png');report.refreshes=(report.refreshes||[]).filter(c=>c.device!==device);report.refreshes.push({device,saved,resumed});

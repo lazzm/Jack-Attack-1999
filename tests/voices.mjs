@@ -464,7 +464,7 @@ await check('prompt', async () => {
     await page.evaluate(()=>{const S=HouseFamily.debug.speech,c=HouseFamily.chars.dad;S.freeze=true;S.q.length=0;S.cur={c,talk:false};c.talking=true;});
     await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent.includes('Talk to Dad (speaking)'),10000*SCALE);
     await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.q.push({c:HouseFamily.chars.dad,talk:true});});
-    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='Dad is busy',10000*SCALE);
+    await waitFor(page,()=>House.SPOTS['np.dad'].label()==='Dad is busy'&&!document.querySelector('.hs-tip.on'),10000*SCALE);
     await shot(page,'talk-prompt-busy');
     await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.cur=null;S.q.length=0;HouseFamily.chars.dad.talking=false;});
     await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='F Talk to Dad',10000*SCALE);

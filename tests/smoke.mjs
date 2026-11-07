@@ -118,14 +118,15 @@ const checks=[
  ['pc-controls',20000,async()=>{
    const {page}=await room();await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');
    await until(()=>House.mode==='monitor'&&!House.gliding&&DesktopSurface.ready());
+   console.log('pc-controls: entered monitor');
    await page.evaluate(async()=>{await Apps.open('notepad')});
    assert.equal(await page.locator('.appwin').count(),1);
    await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('t');await until(()=>House.desktopDisplay());
    await page.keyboard.press('t');assert(!await page.evaluate(()=>House.desktopDisplay()));
    await page.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());await until(()=>!document.querySelector('.appwin'));assert.equal(await page.locator('.appwin').count(),0);
-   await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
-   await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding);
-   await page.keyboard.press('F2');await until(()=>House.mode==='walk'&&!House.gliding);
+   console.log('pc-controls: leaving first monitor');await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
+   console.log('pc-controls: first standing pose settled');await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding);
+   console.log('pc-controls: leaving second monitor with F2');await page.keyboard.press('F2');await until(()=>House.mode==='walk'&&!House.gliding);console.log('pc-controls: F2 standing pose settled');
  }],
  ['console-game',60000,async()=>{
    const f=await room(),{page}=f;
@@ -265,7 +266,7 @@ try{
       results.push(false);console.log(`FAIL ${name}: ${reason(e)}`);
       const failedPage=fixture?.page||activeBrowser?.contexts()[0]?.pages()[0];
       if(failedPage){
-        const state=await Promise.race([failedPage.evaluate(()=>({mode:window.House?.mode,focus:!!window.House?.focused,paused:!!window.House?.paused,loading:!!document.querySelector('.hs-loading,#houseEntry'),loadingPanels:[...document.querySelectorAll('.hs-loading,#houseEntry')].map(el=>({id:el.id,cls:el.className,text:el.textContent,role:el.getAttribute('role')})),ok:window.House?.ok,frames:window.House?.perf?.().frames,gate:!!document.querySelector('#accountGate'),allowed:!!window.AccountGate?.allowed,blocked:window.AccountGate?.blocked,profileEvents:window.__smokeProfileEvents,phone:window.FamilyPhone?.state?.()?.id,dialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.className)})).catch(()=>null),delay(3000)]);
+        const state=await Promise.race([failedPage.evaluate(()=>({mode:window.House?.mode,focus:!!window.House?.focused,paused:!!window.House?.paused,loading:!!document.querySelector('.hs-loading,#houseEntry'),loadingPanels:[...document.querySelectorAll('.hs-loading,#houseEntry')].map(el=>({id:el.id,cls:el.className,text:el.textContent,role:el.getAttribute('role')})),ok:window.House?.ok,frames:window.House?.perf?.().frames,anims:window.House?[...House.anims.keys()]:[],stood:window.House?.stood,live:window.House?.live,visibility:document.visibilityState,motion:window.House?.motion?.ms,gate:!!document.querySelector('#accountGate'),allowed:!!window.AccountGate?.allowed,blocked:window.AccountGate?.blocked,profileEvents:window.__smokeProfileEvents,phone:window.FamilyPhone?.state?.()?.id,dialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.className)})).catch(()=>null),delay(3000)]);
         console.log('Failure state',name,state);
         if(keep)await failedPage.screenshot({path:shots+`failure-${name}.png`,timeout:15000}).catch(()=>{});
       }

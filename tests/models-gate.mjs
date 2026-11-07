@@ -6,7 +6,7 @@ import {once} from 'node:events';
 import {mkdtemp,mkdir,rm,writeFile,readFile} from 'node:fs/promises';
 import {openSync,closeSync} from 'node:fs';
 import net from 'node:net';
-const round=process.env.MODELS_ROUND||'r3';assert(/^r[0-9]+$/.test(round));
+const round=process.env.MODELS_ROUND||'r3';assert(/^r[0-9]+[a-z]?$/.test(round));
 const root=new URL('../',import.meta.url).pathname,out=root+'tests/shots/models/'+round+'-gate-results.json';
 const only=process.argv.find(a=>a.startsWith('--only='))?.slice(7).split(',');
 await mkdir(root+'tests/shots/models',{recursive:true});

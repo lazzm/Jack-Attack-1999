@@ -2059,10 +2059,9 @@
   }
   function tickConversationAim(now) {
     const a = conversationAim;
-    if (!a) return false;
+    if (!a || a.done) return false;
     if (mode !== 'walk' || controlsPaused || viewOpen() || Math.hypot(W.x-a.x,W.z-a.z)>1) { cancelConversationAim(); return false; }
     if (!a.active()) { a.done = true; return false; }
-    if (a.done) return false;
     const p = a.face(), dx = p.x-P.x, dz = p.z-P.z, d = Math.hypot(dx,dz);
     if (!Number.isFinite(p.y) || d < 1) { cancelConversationAim(); return false; }
     const e = H5(clamp((now-a.start)/400,0,1));
@@ -2382,7 +2381,7 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    if (!held) ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab&&!held&&h.dist<=s.range?' <i><span><kbd>E</kbd> Pick up</span>'+'<span><kbd>F</kbd> '+esc(actionLabel(THINGS[sid]))+'</span>'+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    if (!held) ui.tip(s && !s.hideTip?.() ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab&&!held&&h.dist<=s.range?' <i><span><kbd>E</kbd> Pick up</span>'+'<span><kbd>F</kbd> '+esc(actionLabel(THINGS[sid]))+'</span>'+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // Ordinary interaction never moves the player. Screens/inspection own their

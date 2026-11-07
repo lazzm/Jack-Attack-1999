@@ -1,7 +1,8 @@
 'use strict';
 // Per-person AB/BA costs on the production rig, no rendering or texture paint.
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process'),{performance}=require('node:perf_hooks'),T=require(path.join(__dirname,'../app/public/vendor/three.min.js'));
-const root=path.join(__dirname,'..'),sources={before:execFileSync('git',['show','HEAD:app/public/js/np-rig.js'],{cwd:root,encoding:'utf8'}),after:fs.readFileSync(path.join(root,'app/public/js/np-rig.js'),'utf8')};
+const baselineRef=process.argv.find(a=>a.startsWith('--baseline-ref='))?.slice(15)||'HEAD',round=process.argv.find(a=>a.startsWith('--round='))?.slice(8)||'r5';if(!/^r[0-9]+[a-z]?$/.test(round))throw Error('Invalid round');
+const root=path.join(__dirname,'..'),sources={before:execFileSync('git',['show',baselineRef+':app/public/js/np-rig.js'],{cwd:root,encoding:'utf8'}),after:fs.readFileSync(path.join(root,'app/public/js/np-rig.js'),'utf8')};
 function load(src){const gradient={addColorStop(){}},paint=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient},{get:(o,k)=>k in o?o[k]:()=>{}}),w={THREE:T},doc={createElement:()=>({getContext:()=>paint})},math=Object.create(Math);let seed=1999;math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);return new Function('window','document','performance','Math',src+';return window.NPCRig;')(w,doc,performance,math);}
 const api={before:load(sources.before),after:load(sources.after)},report={units:'milliseconds per person per update; CPU only, no rendering',batches:'16 alternating AB/BA batches, 2000 updates, after 3000 warmups',people:{}};
 for(const id of ['mom','dad','sister']){
@@ -17,4 +18,4 @@ for(const id of ['mom','dad','sister']){
   const out=report.people[id][mode]={};for(const key of ['before','after']){const c=cases[key],s=c.samples.slice().sort((a,b)=>a-b);out[key]={median:s[8],p95:s[15],samples:c.samples};c.rig.dispose();c.speaker?.dispose();}out.percent=(out.after.median/out.before.median-1)*100;
  }
 }
-const out=path.join(__dirname,'shots/models/r5-person-cpu.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+const out=path.join(__dirname,'shots/models/'+round+'-person-cpu.json');fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

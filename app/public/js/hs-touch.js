@@ -319,7 +319,9 @@
       } else {
         const a = aimed();
         if (a) {
-          caption = a.label + (a.far ? ' · walk closer' : '');
+          const hideTip = !!H.SPOTS[a.id]?.hideTip?.();
+          caption = hideTip ? '' : a.label + (a.far ? ' · walk closer' : '');
+          k += '|quiet' + hideTip;
           if (!a.far) {
             const pickFirst=a.grab&&window.st?.current?.()?.id==='lad'&&H.THINGS[a.id]?.gameId?.startsWith('gb.');
             k+='|pick'+!!pickFirst;

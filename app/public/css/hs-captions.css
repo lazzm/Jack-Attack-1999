@@ -393,3 +393,13 @@ html.hs-live :is(.hs-pause, .st-quests) {
   overflow-wrap: anywhere;
   text-align: center;
 }
+
+/* A short-screen job reminder steps below the face while a family balloon is
+   visible. Normal placement returns afterward; the existing lifetime is unchanged. */
+@media (max-height:500px) and (min-aspect-ratio:1/1) {
+  .hs-ui.np-conversation .ch-chip,
+  .hs-ui:has(.np-bub:not(.np-out)) .ch-chip {
+    top: auto;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
