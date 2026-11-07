@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.78.0 - 2026-11-07
+- Talking to the family feels personal. When you walk up and talk, Mom, Dad and your sister look down at you, and the view eases up to their face (move the mouse or your thumb and it lets go at once). If you're standing right on top of them, they take a small half-step back. Nothing covers their face while they talk to you, and on phones the objective note moves down out of the way.
+- The family look better up close: hands rest relaxed at their sides with gently curled fingers instead of stiff claws, necks have a proper shape into the shoulders, collars wrap round the neck, and clothes are sharper. While one of them talks, the others listen: they look at whoever is speaking, nod and blink.
+- Bounce Quest 64 is much bigger: 44 golden acorns instead of 33. There's a new underwater grotto with an air meter, a two-floor haunted manor with a library and staircase, a bell-tune challenge, and a full King Grumpus fight through to the credits. The camera keeps you in view and recovers when a wall gets in the way, jumps feel snappier, Bopper has a shadow so you can judge landings, and the on-screen counters read clearly on any background.
+
 ## 2.77.0 - 2026-11-07
 - Better light indoors. In the day, sunlight comes through the windows and lands in warm patches on the floors and stair runners. At night each room is lit by its own ceiling light and lamps, with the light falling off into the corners, and furniture sits on soft contact shadows instead of floating. If a computer or phone struggles, the game quietly switches to a cheaper version of the same lighting that looks almost the same, and switches back when it can.
 - Looking closely at something and then walking on no longer sometimes opens the pause menu and hides the outline for putting things down.
