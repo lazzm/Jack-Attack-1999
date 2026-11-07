@@ -264,14 +264,20 @@
   const btn = (k, icon, label, cls = '', disabled = false) => `<button type="button" class="ht-b ${cls}" data-k="${k}"${disabled ? ' disabled' : ''} aria-label="${esc(label)}">${ICON[icon]}<span>${esc(label)}</span></button>`;
   // A spot's own label is a name ("Band poster"); the button wants a verb. Labels that already start with one keep it.
   const VERB = /^(Open|Shut|Close|Turn on|Turn off|Turn|Switch on|Switch off|Switch|Play|Read|Look|Sit|Use|Plug in|Unplug|Press|Answer|Pick up|Put|Ring|Watch|Listen|Feed|Pet|Lie|Get in|Get|Take|Wind|Water|Empty|Check|Raid|Set|Unbox|Wash|Mow|Fill|Eat|Drink|Talk|Knock|Sleep|Wake|Lock|Unlock|Insert|Eject|Flip|Draw|Pull|Push|Tidy|Clean)\b/i;
-  const verbOf = label => { const m = String(label || '').match(VERB); return m ? m[1].replace(/^./, c => c.toUpperCase()) : 'Use'; };
+  const verbOf = label => { if (/\bis (busy|listening)$/.test(label)) return 'Wait'; const m = String(label || '').match(VERB); return m ? m[1].replace(/^./, c => c.toUpperCase()) : 'Use'; };
   const short = s => String(s || '').replace(/\s*\[[^\]]*\]\s*$/, '').replace(/\s*\(.*\)$/, '').replace(/^F:\s*/, '').trim();
   const thingVerb = t => !t?.use || t.useLabel === 'Inspect' ? 'Look closely' : t.useLabel || 'Use';
   let aim = null, aimAt = 0, aimPose = '', lastKey = '';
   function aimed() {
     // (a raycast through every visible mesh: only when the view has really changed, at most ~4 times a second)
     const now = performance.now(), P = H.P, pose = [P.x, P.y, P.z, P.rx, P.ry].map(v => Math.round(v * 2)).join() + '|' + (H.held() || '');
-    if (now - aimAt < 240 || pose === aimPose && now - aimAt < 1500) return aim; aimAt = now; aimPose = pose; aim = null;
+    if (now - aimAt < 240 || pose === aimPose && now - aimAt < 1500) {
+      // Speech can finish while the view is still. Refresh its action/status
+      // from the cached person; keep the expensive world raycast throttled.
+      if (aim && /^np\./.test(aim.id)) { const s=H.SPOTS[aim.id]; if(s){aim.label=short(typeof s.label==='function'?s.label():s.label);aim.use=aim.label;} }
+      return aim;
+    }
+    aimAt = now; aimPose = pose; aim = null;
     if (H.busy) return null;
     let h = null; try { const id = H.held(); h = H.pick(innerWidth / 2, innerHeight / 2, id ? { skip: o => o.userData.spot === id } : undefined); } catch (e) { return null; }
     const s = h && h.spot && H.SPOTS[h.spot]; if (!s || s.off) return null;
@@ -318,7 +324,7 @@
             const pickFirst=a.grab&&window.st?.current?.()?.id==='lad'&&H.THINGS[a.id]?.gameId?.startsWith('gb.');
             k+='|pick'+!!pickFirst;
             if(pickFirst)buttons+=btn('e','grab','Pick up','ht-main');
-            if (a.use) { const v = a.thing ? a.use : verbOf(a.use); buttons += btn('f', v === 'Look closely' ? 'look' : /^Sit/.test(v) ? 'sit' : 'use', v.length > 13 ? verbOf(v) : v, pickFirst?'':'ht-main'); }
+            if (a.use) { const v = a.thing ? a.use : verbOf(a.use); buttons += btn('f', v === 'Look closely' ? 'look' : /^Sit/.test(v) ? 'sit' : 'use', v.length > 13 ? verbOf(v) : v, pickFirst?'':'ht-main', /^np\./.test(a.id) && v === 'Wait'); }
             if (a.grab&&!pickFirst) buttons += btn('e', 'grab', 'Pick up', a.use ? '' : 'ht-main');
             else if (a.remove) buttons += btn('e', 'grab', 'Take out');
           }

@@ -1,0 +1,36 @@
+import {roomFixture} from './room-fixture.mjs';
+import {playCase,caseEjected} from './case-actions.mjs';
+import {mkdir,writeFile} from 'node:fs/promises';
+import readline from 'node:readline';
+import {readFile} from 'node:fs/promises';
+import {bonfireLogin} from './bonfire-login.mjs';
+const out='tests/shots/qa5'+'/'; await mkdir(out,{recursive:true});
+const report={started:new Date().toISOString(),events:[]};
+const account='Tablet'+Date.now().toString(36),password='Throwaway-1999';
+await fetch(process.argv[2]+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});
+const standing=true,storageState=standing?await bonfireLogin(process.argv[2],password,account):undefined;
+const f=await roomFixture(process.argv[2],{account,password,signup:false,resume:standing,opening:standing,storageState,touch:false,width:1366,height:860,hour:10,timeoutScale:1,debug:true,onPage:async p=>{await p.exposeFunction('qaRecord',async data=>{report.events.push({label:'speech',data,time:new Date().toISOString()});await writeFile(out+'report.json',JSON.stringify(report,null,2));console.log('SPEECH',JSON.stringify(data))});await p.addInitScript(()=>{localStorage.setItem('jhp_touch_slow_asked','true');const t=setInterval(()=>{if(!window.st?.say)return;clearInterval(t);const orig=st.say;st.say=function(...args){window.qaRecord({args:args.slice(0,4),step:st.current()?.id,pose:window.House&&{x:House.W.x,z:House.W.z,lvl:House.W.lvl},clock:window.auditHour});return orig.apply(this,args)}},20)})}});
+const p=f.page,cdp=await p.context().newCDPSession(p),pts=new Map();
+const log=async(label,data)=>{report.events.push({label,data,time:new Date().toISOString()});console.log(label,JSON.stringify(data));await writeFile(out+'report.json',JSON.stringify(report,null,2))};
+const down=async(id,x,y)=>{pts.set(id,{id,x,y,radiusX:7,radiusY:7,force:1});await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[...pts.values()]})};
+const move=async(id,x,y)=>{pts.set(id,{...pts.get(id),x,y});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[...pts.values()]})};
+const up=async id=>{const q=pts.get(id);pts.delete(id);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:q?[q]:[]})};
+const tap=async(x,y)=>{await down(30,x,y);await p.waitForTimeout(70);await up(30);await p.waitForTimeout(250)};
+const press=async(sel)=>{if(!/^[.#[]/.test(sel))sel='.ht-hud [data-k="'+sel+'"]';await p.locator(sel).first().waitFor({state:'visible'});const r=await p.locator(sel).first().boundingBox();if(!r)throw Error('No visible '+sel);await tap(r.x+r.width/2,r.y+r.height/2)};
+const drag=async(x,y,xx,yy,ms=500)=>{await down(20,x,y);for(let i=1;i<=10;i++){await move(20,x+(xx-x)*i/10,y+(yy-y)*i/10);await p.waitForTimeout(ms/10)}await up(20)};
+const wait=async(fn,arg,ms=30000)=>{const end=Date.now()+ms;while(Date.now()<end){if(await p.evaluate(fn,arg))return;await p.waitForTimeout(200)}throw Error('Timeout '+fn)};
+const shot=async(name)=>{await p.screenshot({path:out+name+'.png',timeout:60000});await log('shot',name)};
+const state=async()=>p.evaluate(()=>({mode:House.mode,held:House.held(),pose:{x:House.W.x,z:House.W.z,lvl:House.W.lvl,ry:House.P.ry},tv:RoomTV._dbg()&&{st:RoomTV._dbg().st,gid:RoomTV._dbg().gid},full:House.desktopDisplay(),touch:document.documentElement.dataset.touchState}));
+const audit=async(name)=>{await log(name,{state:await state(),buttons:await p.evaluate(()=>[...document.querySelectorAll('.ht-b,.rm-pad [data-b],.rm-tools button,.hs-pause button,.np-bubble button')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.height&&getComputedStyle(e).visibility!=='hidden'}).map(e=>{const r=e.getBoundingClientRect(),el=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{text:e.getAttribute('aria-label')||e.textContent.trim(),key:e.dataset.b||e.dataset.k,x:r.x,y:r.y,w:r.width,h:r.height,clipped:r.x<0||r.y<0||r.right>innerWidth||r.bottom>innerHeight,covered:!e.contains(el)}}))});await shot(name)};
+const aim=async(eye,target,level='U')=>{await p.evaluate(({eye,target,level})=>{House.hush();House.setWalkFrom({x:eye[0],y:House.LV[level]-House.STAND,z:eye[2],lvl:level,seat:0});House._.setMode('walk');House.dirty()},{eye,target,level});await p.waitForTimeout(500);await p.evaluate(t=>{const P=House.P;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()},target);await p.waitForTimeout(600)};
+const centre=async id=>p.evaluate(id=>{const H=House,o=H.THINGS[id]?.obj||H.SPOTS[id]?.obj,v=new H.T.Box3().setFromObject(o).getCenter(new H.T.Vector3());return[v.x,-v.y,v.z]},id);
+const target=async(id,eye,level='U')=>{await aim(eye,await centre(id),level);await log('target',{id,pick:await p.evaluate(()=>{const h=House.pick(innerWidth/2,innerHeight/2);return h&&{spot:h.spot,dist:h.dist}})})};
+const rotate=async(w,h)=>{await p.setViewportSize({width:w,height:h});await p.waitForTimeout(1000)};
+await p.evaluate(()=>{HouseFamily.debug.clock({md:1107,dow:0,t:10})}); await log('ready',await state());await audit('00-desktop-standing');
+console.log('READY');
+const script=process.argv.find(a=>a.startsWith('--script='))?.slice(9);
+try{
+ if(script)await eval('(async()=>{'+await readFile(script,'utf8')+'})()');
+ else for await(const line of readline.createInterface({input:process.stdin,crlfDelay:Infinity})){if(line==='EXIT')break;try{await log('command',line);await eval('(async()=>{'+line+'})()');console.log('DONE')}catch(e){await log('driver-error',e.stack);process.exitCode=1;console.log('DONE ERROR')}}
+}catch(e){await log('driver-error',e.stack);process.exitCode=1}
+finally{await log('browser-errors',f.errors);if(f.errors.length)process.exitCode=1;await f.browser.close()}

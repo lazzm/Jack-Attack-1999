@@ -281,7 +281,7 @@ await check('names', async () => {
         }
       },10);
     },base);
-    const owner=await page.evaluate(()=>({first:Cast.me().first,clip:st.voiceName('bark.dad.bed2')}));
+    const owner=await page.evaluate(()=>({first:Cast.me().first,clip:st.voiceName('c2.post.dad')}));
     assert.equal(owner.first,'Jack');assert.equal(owner.clip?.id,'dad-shout/jack');
 
     async function reset(speaker){
@@ -342,7 +342,7 @@ await check('names', async () => {
         const S=HouseFamily.debug.speech;
         if(once){const member=String(Net.me.nick).toLowerCase();localStorage.removeItem('np.once.'+member+'.'+id);
           const step=st.current?.()?.id||'-';localStorage.removeItem('np.step.'+member+'.'+step+'.'+id);}
-        const prefix=generic?'I can hear':st.voiceName(id).text;
+        const prefix=generic?NPCLines[id][1].split(/\s+/).slice(0,3).join(' '):st.voiceName(id).text;
         window.__nameRun={speaker,id,muted,prefix,text:st.voiceText(id,NPCLines[id][1]),proof:{},missing:false};
         S.freeze=false;
         return HouseFamily.say(speaker,id,{force:true,prio:9,again:true,call:true,once,talk:!once});
@@ -363,14 +363,16 @@ await check('names', async () => {
       await finish();
     }
     async function runLine(speaker,id,kind,name,options){await page.evaluate(id=>window.__nameId=id,id);await line(speaker,id,kind,name,options);}
-    const cases=[['dad','bark.dad.bed2','dad-shout','owner-jack'],['mom','bark.mom.tea1','mom-shout','mom-shout'],
+    // Audition name clips with forced story entries. Ambient barks now require
+    // their live time/room/PC context and are tested through the gameplay selector.
+    const cases=[['dad','c2.post.dad','dad-shout','owner-jack'],['mom','c1.wake.mom.shout','mom-shout','mom-shout'],
       ['mom','c1.wake.mom.call','mom-call','mom-call'],['sister','c1.sis.stairs','sis-whine','sis-whine']];
     for(const [speaker,id,kind,name]of cases)await runLine(speaker,id,kind,'name-'+name,{once:kind==='mom-call'});
-    const aliases=await page.evaluate(()=>['Jak','Jac','Jakk','Jaque'].map(first=>{Cast.bind('voice-fixture',{first,g:'m'});return st.voiceName('bark.dad.bed2')?.id;}));
+    const aliases=await page.evaluate(()=>['Jak','Jac','Jakk','Jaque'].map(first=>{Cast.bind('voice-fixture',{first,g:'m'});return st.voiceName('c2.post.dad')?.id;}));
     assert.deepEqual(aliases,Array(4).fill('dad-shout/jack'));
-    await runLine('dad','bark.dad.bed2','dad-shout','name-generic-fallback',{generic:true});
-    await runLine('dad','bark.dad.bed2','dad-shout','name-muted-jack',{muted:'off'});
-    await runLine('dad','bark.dad.bed2','dad-shout','name-zero-volume-jack',{muted:'zero'});
+    await runLine('dad','c2.post.dad','dad-shout','name-generic-fallback',{generic:true});
+    await runLine('dad','c2.post.dad','dad-shout','name-muted-jack',{muted:'off'});
+    await runLine('dad','c2.post.dad','dad-shout','name-zero-volume-jack',{muted:'zero'});
     await page.setViewportSize({width:390,height:844});
     const touch=await page.context().newCDPSession(page);
     await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:195,y:2}]});
@@ -382,7 +384,7 @@ await check('names', async () => {
     await waitFor(page,()=>!document.querySelector('.ht-coach'),30000*SCALE);
     for(const [speaker,id,kind,name]of cases)await runLine(speaker,id,kind,'phone-name-'+name);
     await page.setViewportSize({width:844,height:390});
-    await runLine('dad','bark.dad.bed2','dad-shout','phone-name-landscape');
+    await runLine('dad','c2.post.dad','dad-shout','phone-name-landscape');
     assert.deepEqual(errors,[]);
   } finally {
     await page.evaluate(()=>{clearInterval(window.__nameWatch);clearInterval(window.__nameIdle);st.stopVoice();st.say=window.__nameOriginalSay||st.say;HouseFamily.debug.speech.freeze=false;Sound.ctx?.resume();}).catch(()=>{});
@@ -451,9 +453,22 @@ await check('prompt', async () => {
     await stage(page, { dad: 'carStory' });
     await face(page, 'dad', 220, 70);
     await page.mouse.move(683, 430); await page.waitForTimeout(900);
-    const tip = await page.evaluate(() => { const t = document.querySelector('.hs-tip'); return { on: t.classList.contains('on'), text: t.textContent }; });
+    const tip = await page.evaluate(() => { const t = document.querySelector('.hs-tip'); const h=House.pick(innerWidth/2,innerHeight/2); return { on: t.classList.contains('on'), text: t.textContent, pick:h?.spot, mode:House.mode, label:House.SPOTS['np.dad'].label() }; });
+    await shot(page, 'talk-prompt-desktop');
     assert(tip.on && /\bDad\b/.test(tip.text) && (tip.text.match(/Talk/g) || []).length === 1, 'One clear action over Dad: ' + JSON.stringify(tip));
     assert.equal((tip.text.match(/\bF\b/g) || []).length, 1, 'F shown once: ' + tip.text);
+    await page.evaluate(()=>House.ui.tip(null)); // close-ups/menu transitions clear this same HUD surface
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='F Talk to Dad',10000*SCALE);
+    // No mouse movement: a passing remark still accepts an answer; one queued
+    // answer is busy, then the action returns when that conversation finishes.
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech,c=HouseFamily.chars.dad;S.freeze=true;S.q.length=0;S.cur={c,talk:false};c.talking=true;});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent.includes('Talk to Dad (speaking)'),10000*SCALE);
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.q.push({c:HouseFamily.chars.dad,talk:true});});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='Dad is busy',10000*SCALE);
+    await shot(page,'talk-prompt-busy');
+    await page.evaluate(()=>{const S=HouseFamily.debug.speech;S.cur=null;S.q.length=0;HouseFamily.chars.dad.talking=false;});
+    await waitFor(page,()=>document.querySelector('.hs-tip.on')?.textContent==='F Talk to Dad',10000*SCALE);
+    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;});
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }
 });

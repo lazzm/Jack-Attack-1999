@@ -38,7 +38,7 @@ console.log('PASS opening: four periods/boundaries, delayed clock change, progre
 // A subtitle-only variant keeps its own clip id but shares the original once key.
 const sayCode=life.slice(life.indexOf('  function say(id, lineId, o)'),life.indexOf('  // Where a speaker is'));
 const saved=new Map(),q=[],prefetched=[];
-const voice={C:{mom:{id:'mom',present:false,said:{}}},L:{'c1.wake.mom.call':['mom','original morning recording','downstairs']},inEarshot:()=>false,member:()=> 'temporary',ls:{get:k=>saved.get(k),set:(k,v)=>saved.set(k,v)},nowMs:()=>1000,speech:{q},window:{st:{current:()=>({id:'lad'}),prefetch:id=>prefetched.push(id)}}};
+const voice={hear:()=>{},lineValid:()=>true,dialogue:()=>({}),save:()=>{},C:{mom:{id:'mom',present:false,said:{}}},L:{'c1.wake.mom.call':['mom','original morning recording','downstairs']},inEarshot:()=>false,member:()=> 'temporary',ls:{get:k=>saved.get(k),set:(k,v)=>saved.set(k,v)},nowMs:()=>1000,speech:{q},window:{st:{current:()=>({id:'lad'}),prefetch:id=>prefetched.push(id)}}};
 vm.createContext(voice);vm.runInContext(sayCode,voice);
 assert(voice.say('mom','c1.wake.mom.call.night',{text:'Keep it down, it is late.',call:true,once:true,onceId:'c1.wake.mom.call'}));
 assert.equal(q[0].text,'Keep it down, it is late.');assert.equal(q[0].lineId,'c1.wake.mom.call.night');assert.equal(prefetched[0],q[0].lineId);

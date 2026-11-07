@@ -1,0 +1,395 @@
+/* House HUD stationery: blue label tape, exercise-book paper and little
+   inventory tickets. Screen captions only; never part of the 3D scene. */
+html.hs-live {
+  --hud-paper: #f5edcf;
+  --hud-ink: #25394c;
+  --hud-rule: #a2afad;
+  --hud-tape: #233c50;
+  --hud-shadow: 0 1px 2px #0009, 0 0 0 1px #17232bc4;
+  --hud-safe-top: env(safe-area-inset-top, 0px);
+  --hud-safe-left: env(safe-area-inset-left, 0px);
+  --hud-safe-right: env(safe-area-inset-right, 0px);
+  --hud-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* An exercise-book reminder: punched margin, blue ruling, a taped top and
+   torn lower edge. The whole strip remains the existing diary button. */
+.hs-ui :is(.st-objective, .se-objective) {
+  top: calc(var(--hud-safe-top) + 52px);
+  max-width: min(540px, calc(100vw - 360px));
+  min-height: 44px;
+  padding: 12px 16px 12px 37px;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 12px 18px, #6d756a 0 2px, #fff8df 2.5px 3.5px, transparent 4px),
+    linear-gradient(90deg, transparent 27px, #b56e6280 27px 28px, transparent 28px),
+    repeating-linear-gradient(0deg, transparent 0 19px, #829ba12e 19px 20px),
+    linear-gradient(100deg, #faf4dc, #eee3bf);
+  color: var(--hud-ink);
+  box-shadow: 0 2px 4px #0008, 0 0 0 1px #fff8df65;
+  font: 700 13px/20px Tahoma, Arial, sans-serif;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+  touch-action: manipulation;
+  transition: background-color .12s, box-shadow .12s;
+}
+.hs-ui :is(.st-objective, .se-objective)::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 24px);
+  top: -5px;
+  width: 48px;
+  height: 10px;
+  background: #d7bb7fc7;
+  border-inline: 1px solid #ae925c55;
+  transform: rotate(-2deg);
+  pointer-events: none;
+}
+.hs-ui :is(.st-objective, .se-objective)::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -3px;
+  height: 4px;
+  background: linear-gradient(135deg, #eee3bf 3px, transparent 0) 0 0 / 7px 5px repeat-x;
+  pointer-events: none;
+}
+.hs-ui :is(.st-objective, .se-objective):hover {
+  box-shadow: 0 2px 5px #0009, 0 0 0 2px #fff8df;
+}
+.hs-ui :is(.st-objective, .se-objective):active { box-shadow: inset 0 2px 5px #79653755, 0 0 0 1px #fff8df; }
+.hs-ui :is(.st-objective, .se-objective):focus-visible {
+  outline: 2px dashed #fff8df;
+  outline-offset: 5px;
+}
+.hs-ui :is(.st-objective, .se-objective).st-tick { color: #29502d; }
+
+/* Label-maker room strip with a smaller paper subtitle. Trimmed tape ends
+   give the title its silhouette without a large backing card. */
+.hs-ui .hs-top {
+  top: calc(var(--hud-safe-top) + 10px);
+  left: calc(var(--hud-safe-left) + 12px);
+  gap: 0;
+  padding: 0;
+  max-width: min(300px, calc(100vw - 160px));
+  border: 0;
+  background: transparent;
+  filter: drop-shadow(0 1px 1px #0009);
+}
+.hs-ui .hs-title {
+  padding: 4px 12px;
+  background: var(--hud-tape);
+  color: #fff8df;
+  font: 700 13px/17px Tahoma, Arial, sans-serif;
+  letter-spacing: .08em;
+  text-shadow: 0 1px #000;
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  overflow-wrap: anywhere;
+}
+.hs-ui .hs-where {
+  align-self: flex-start;
+  margin: 0 6px;
+  padding: 2px 7px;
+  background: var(--hud-paper);
+  color: var(--hud-ink);
+  font: 11px/14px Tahoma, Arial, sans-serif;
+  letter-spacing: .01em;
+  text-shadow: none;
+  box-shadow: inset 0 -1px #c0b38e;
+}
+.hs-ui .hs-where:empty { display: none; }
+.hs-ui .hs-map {
+  left: calc(var(--hud-safe-left) + 14px);
+  top: calc(var(--hud-safe-top) + 56px);
+  border-radius: 0;
+  box-shadow: 0 0 0 2px #e1d5b6, 0 0 0 3px #46515a, 0 2px 5px #0008;
+}
+
+/* Two small punched tickets, right aligned. Stable numeric widths keep a
+   changing balance from moving the icon. Each ticket is a 44px target. */
+.hs-ui :is(.rm-tinbtn, .ch-jobs) {
+  box-sizing: border-box;
+  right: calc(var(--hud-safe-right) + 12px);
+  min-width: 78px;
+  min-height: 44px;
+  height: auto;
+  padding: 7px 12px;
+  gap: 8px;
+  border: 1px solid #e8ddbb;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 0 50%, #293e4b 0 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 50%, #293e4b 0 2px, transparent 2.5px),
+    linear-gradient(#f6edcf, #e6d7ad);
+  color: var(--hud-ink);
+  box-shadow: var(--hud-shadow), inset 0 -3px #c5b48b;
+  font: 700 12px/18px Tahoma, Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
+}
+.hs-ui .rm-tinbtn { top: calc(var(--hud-safe-top) + 10px); }
+.hs-ui .ch-jobs { top: calc(var(--hud-safe-top) + 62px); }
+.hs-ui :is(.rm-tinbtn, .ch-jobs):hover { background-color: #fff8df; box-shadow: var(--hud-shadow), inset 0 0 0 2px #a08a58; }
+.hs-ui :is(.rm-tinbtn, .ch-jobs):active { box-shadow: var(--hud-shadow), inset 0 2px #a08a58; }
+.hs-ui :is(.rm-tinbtn, .ch-jobs):focus-visible { outline: 2px dashed #fff8df; outline-offset: 3px; }
+.hs-ui :is(.rm-tinn, .ch-jn) { min-width: 3ch; text-align: right; }
+.hs-ui .rm-coinb { background: #edce65; color: #4d340b; border-radius: 0; }
+.hs-ui .ch-jobs.all { color: #29502d; }
+.hs-ui .rm-toast { top: calc(var(--hud-safe-top) + 116px); }
+
+/* Small identification tags: opaque stock, dark ink, white and dark keylines
+   work against sunlit plaster, busy wallpaper and an unlit garden alike. */
+.hs-ui .hs-tip, .ht-hud .ht-target, .hs-ui .st-marker[data-state="edge"] .st-marker-label,
+.hs-ui .st-prompt, .hs-ui .hs-lockhint {
+  box-sizing: border-box;
+  padding: 7px 11px;
+  border: 1px solid #fff7dc;
+  border-left: 3px solid #637b86;
+  border-radius: 1px 4px 4px 1px;
+  background: linear-gradient(100deg, #f8f1d9, #e8ddbc);
+  color: var(--hud-ink);
+  box-shadow: var(--hud-shadow), inset 0 -2px #c6b994;
+  font: 700 12px/17px Tahoma, Arial, sans-serif;
+  text-shadow: none;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.hs-ui .hs-tip { max-width: min(440px, calc(100vw - 32px)); }
+.hs-ui .hs-tip :is(i, small) { color: #405364; font-weight: 400; }
+.hs-ui .hs-tip i { margin-top: 5px; gap: 6px 12px; }
+.hs-ui .hs-tip small { margin-top: 4px; }
+.hs-ui .hs-tip.carry { padding: 7px 11px; }
+.ht-hud .ht-target {
+  max-width: min(72vw, 360px);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.hs-ui .st-marker[data-state="edge"] .st-marker-label {
+  top: 0;
+  max-width: min(180px, calc(100vw - 110px));
+  padding: 5px 9px;
+  font-size: 12px;
+  line-height: 17px;
+}
+.hs-ui .st-marker[data-border="bottom"] .st-marker-label { top: auto; }
+.hs-ui .st-prompt { max-width: min(260px, calc(100vw - 52px)); }
+.hs-ui kbd {
+  background: #f1e9d2;
+  color: #283b4a;
+  border-color: #8b8c7a;
+  border-bottom-color: #626c69;
+  box-shadow: inset 0 1px #fff9e7;
+}
+
+/* The carried object's inventory tag keeps the existing fit / blocked / slot
+   state colours, with words as well as colour. It stays clear of the hands. */
+.hs-ui .hs-hold {
+  background: linear-gradient(105deg, #f8f1d9, #e8ddbc);
+  color: var(--hud-ink);
+  border: 1px solid #fff7dc;
+  border-top: 3px solid #637b86;
+  box-shadow: var(--hud-shadow), inset 0 -2px #c6b994;
+}
+.hs-ui .hs-hold :is(.hs-hname, .hs-hkeys) { color: var(--hud-ink); }
+.hs-ui .hs-hold :is(.hs-hmode, .hs-carry-help) { color: #405364; }
+.hs-ui .hs-hold.fit { border-top-color: #426c35; }
+.hs-ui .hs-hold.fit .hs-hmode { color: #345728; }
+.hs-ui .hs-hold.blocked { border-top-color: #a23525; }
+.hs-ui .hs-hold.blocked :is(.hs-hmode, .hs-carry-help) { color: #8b3025; }
+.hs-ui .hs-hold.snap { border-top-color: #a47a18; }
+.hs-ui .hs-hold.snap .hs-hmode { color: #71500d; }
+.hs-ui .hs-hold.drag .hs-hmode { color: #71500d; }
+.hs-ui .hs-hbtn button, .hs-ui .hs-getup {
+  min-height: 44px;
+  min-width: 44px;
+  height: auto;
+  background: #e6ddc1;
+  border: 1px solid #7e887e;
+  border-bottom: 3px solid #61716f;
+  color: var(--hud-ink);
+  box-shadow: inset 0 1px #fff7dc;
+}
+.hs-ui .hs-hbtn button:hover, .hs-ui .hs-getup:hover { background: #fff7dc; }
+.hs-ui .hs-hbtn button:active, .hs-ui .hs-getup:active { border-bottom-width: 1px; }
+.hs-ui .hs-hbtn button:focus-visible, .hs-ui .hs-getup:focus-visible { outline: 2px dashed #fff7dc; outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .hs-ui :is(.st-objective, .se-objective) {
+    top: calc(var(--hud-safe-top) + 118px);
+    max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 32px);
+    width: max-content;
+  }
+  .hs-ui .hs-top { max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 230px); }
+}
+html[data-game-touch="true"] .hs-ui .hs-top { left: calc(var(--hud-safe-left) + 70px); }
+html[data-game-touch="true"] .hs-ui .hs-hold { max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 24px); }
+html[data-game-touch="true"] .hs-ui.holding .st-objective { top: var(--ht-objective-top, 280px); }
+html[data-game-touch="true"] .ht-b.ht-mini { width: 44px; height: 44px; }
+html[data-touch-state="pc"] .ht-top .ht-b { min-height: 44px; min-width: 44px; }
+
+@media (max-height: 500px) and (min-width: 600px) {
+  .hs-ui :is(.st-objective, .se-objective) {
+    top: calc(var(--hud-safe-top) + 12px);
+    left: calc(50% + 70px);
+    max-width: min(540px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 480px));
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .hs-ui .hs-title { font-size: 12px; }
+  .hs-ui .hs-top { max-width: 210px; }
+  .hs-ui .hs-where { max-width: 190px; }
+  .hs-ui .rm-toast { top: calc(var(--hud-safe-top) + 112px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-ui :is(.st-objective, .se-objective) { transition: none; }
+}
+
+/* Current-job and chapter cues share the diary's printed stationery. */
+.hs-ui .ch-chip {
+  background: var(--hud-paper);
+  color: var(--hud-ink);
+  border: 1px solid #fff7dc;
+  border-left: 4px solid #637b86;
+  box-shadow: var(--hud-shadow);
+}
+.hs-ui .ch-chip :is(b, i, .ch-tname, .ch-thint) { color: var(--hud-ink); }
+.hs-ui .st-chapter {
+  background: var(--hud-paper);
+  color: var(--hud-ink);
+  border: 0;
+  border-left: 4px solid #637b86;
+  box-shadow: var(--hud-shadow);
+  font: 700 16px/1.4 Tahoma, Arial, sans-serif;
+  letter-spacing: .04em;
+}
+/* Edge guidance and exit controls stay inside device cut-outs as well. */
+.hs-ui .st-marker[data-side="left"] { margin-left: var(--hud-safe-left); }
+.hs-ui .st-marker[data-side="right"] { margin-left: calc(0px - var(--hud-safe-right)); }
+.hs-ui .st-marker[data-border="bottom"] { margin-top: calc(0px - var(--hud-safe-bottom)); }
+.hs-ui .st-marker[data-state="edge"] .st-marker-label { max-width: min(180px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 110px)); }
+.hs-ui .st-prompt { right: calc(var(--hud-safe-right) + 26px); bottom: calc(var(--hud-safe-bottom) + 174px); }
+.hs-ui .hs-getup { left: calc(var(--hud-safe-left) + 14px); bottom: calc(var(--hud-safe-bottom) + max(18px, 3vh)); }
+html:not([data-game-touch="true"]) .hs-ui .hs-hold { right: calc(var(--hud-safe-right) + 18px); bottom: calc(var(--hud-safe-bottom) + 22px); }
+@media (orientation: landscape) {
+  html[data-game-touch="true"] .hs-ui .hs-hold { max-width: min(440px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 320px)); }
+}
+@media (max-height: 500px) {
+  .hs-ui .st-prompt { bottom: calc(var(--hud-safe-bottom) + 112px); }
+}
+.hs-ui .ch-chip { white-space: normal; flex-wrap: wrap; }
+.hs-ui .ch-chip b { text-shadow: none; overflow: visible; text-overflow: clip; }
+.hs-ui .ch-dots i { background: #c5b997; box-shadow: inset 0 0 0 1px #8b856e; }
+.hs-ui .ch-dots i.on { background: #41673a; box-shadow: inset 0 0 0 1px #254b2c; }
+.hs-ui .hs-hbtn button[data-h="put"] { background: #cbd7bc; border-color: #617353; }
+.hs-ui .hs-hold.snap .hs-hbtn button[data-h="put"] { background: #e7ce80; border-color: #8f742b; }
+/* The same finger-sized exits and menu targets in every screen state. */
+html[data-game-touch="true"] .hs-pause :is(button, select, summary) { min-height: 44px; min-width: 44px; }
+html[data-game-touch="true"] .hs-pause label { min-height: 44px; }
+html[data-game-touch="true"] .hs-pause input[type="range"] { min-height: 44px; }
+html[data-game-touch="true"] .hs-pause summary { box-sizing: border-box; padding-block: 10px; }
+html[data-game-touch="true"] .rm-tvv .rm-tools .rm-b,
+html[data-game-touch="true"] .rm-tvv .rm-livebar .rm-b { min-height: 44px; min-width: 44px; }
+.ht-hud .ht-tapmark {
+  border: 1px solid #fff7dc;
+  border-left: 3px solid #637b86;
+  background: linear-gradient(100deg, #f8f1d9, #e8ddbc);
+  color: var(--hud-ink);
+  box-shadow: var(--hud-shadow), inset 0 -2px #c6b994;
+}
+.ht-hud .ht-tapmark :is(b, span) { color: var(--hud-ink); font-family: Tahoma, Arial, sans-serif; }
+.ht-hud .ht-tapmark span { white-space: normal; overflow: visible; text-overflow: clip; }
+/* A dark dotted focus mark is always readable on the paper itself. */
+.hs-ui :is(.st-objective, .se-objective, .rm-tinbtn, .ch-jobs):focus-visible {
+  outline: 2px dotted var(--hud-ink);
+  outline-offset: -5px;
+  box-shadow: 0 0 0 2px #fff8df, 0 0 0 4px #233c50;
+}
+/* Discovery notes are the same exercise-book stock. Reward feedback uses a
+   short strip of blue tape, rather than another dark utility panel. */
+html.hs-live .hs-ui .hs-note.rm-note {
+  padding: 12px 40px 12px 14px;
+  border: 1px solid #fff7dc;
+  border-left: 3px solid #637b86;
+  background:
+    linear-gradient(90deg, transparent 7px, #b56e6255 7px 8px, transparent 8px),
+    repeating-linear-gradient(0deg, transparent 0 17px, #829ba12e 17px 18px), #f5edcf;
+  color: var(--hud-ink);
+  box-shadow: var(--hud-shadow), inset 0 -2px #c6b994;
+  font: 12px/1.5 Tahoma, Arial, sans-serif;
+}
+html.hs-live .hs-ui .hs-note.rm-note b { color: var(--hud-ink); font: 700 13px/1.4 Tahoma, Arial, sans-serif; letter-spacing: 0; }
+html.hs-live .hs-ui .hs-note.rm-note small { color: #405364; }
+html.hs-live .hs-ui .hs-note.rm-note .rm-x {
+  top: 0; right: 0; width: 44px; height: 44px;
+  border: 0; background: transparent; color: var(--hud-ink);
+}
+html.hs-live .hs-ui .hs-note.rm-note .rm-x:hover { background: #d5c69a66; }
+html.hs-live .hs-ui .hs-note.rm-note .rm-x:focus-visible { outline: 2px dotted var(--hud-ink); outline-offset: -5px; }
+html.hs-live .hs-ui .hs-toast.rm-toast {
+  right: calc(var(--hud-safe-right) + 12px);
+  box-sizing: border-box;
+  max-width: min(360px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 24px));
+  background: var(--hud-tape); color: #fff8df; border: 1px solid #94a6a9;
+  box-shadow: var(--hud-shadow); padding: 8px 12px;
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  overflow-wrap: anywhere;
+}
+html.hs-live .hs-ui .hs-toast.rm-toast b { color: #fff8df; font: 700 13px/1.4 Tahoma, Arial, sans-serif; letter-spacing: .02em; }
+html.hs-live .hs-ui .hs-toast.rm-toast span { color: #fff8df; font: 12px/1.4 Tahoma, Arial, sans-serif; }
+.hs-ui .hs-tip { max-width: min(440px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 32px)); }
+.ht-hud .ht-target { max-width: min(72vw, 360px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 32px)); }
+html:not([data-game-touch="true"]) .hs-ui .rm-note {
+  left: calc(var(--hud-safe-left) + 18px);
+  max-width: min(380px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 36px));
+}
+@media (orientation: portrait) {
+  html[data-game-touch="true"] .hs-ui .rm-note, html[data-game-touch="true"] .hs-ui.holding .rm-note {
+    left: calc(var(--hud-safe-left) + 12px); right: calc(var(--hud-safe-right) + 12px);
+    max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 24px);
+  }
+}
+@media (orientation: landscape) {
+  html[data-game-touch="true"] .hs-ui .rm-note, html[data-game-touch="true"] .hs-ui.holding .rm-note {
+    max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 460px);
+  }
+}
+/* On a short screen the carry tag owns the second row. The objective stays
+   in its clear top strip, rather than being stacked over the placement aim. */
+@media (max-height: 500px) and (min-width: 600px) {
+  html[data-game-touch="true"] .hs-ui.holding :is(.st-objective, .se-objective) {
+    top: calc(var(--hud-safe-top) + 12px);
+  }
+}
+/* Modal reading space also belongs inside the usable screen rectangle. */
+html.hs-live :is(.hs-pause, .st-quests) {
+  inset: var(--hud-safe-top) var(--hud-safe-right) var(--hud-safe-bottom) var(--hud-safe-left);
+  max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 28px);
+  max-height: calc(100dvh - var(--hud-safe-top) - var(--hud-safe-bottom) - 32px);
+}
+@media (max-height: 500px) {
+  html.hs-live .st-quests { max-height: calc(100dvh - var(--hud-safe-top) - var(--hud-safe-bottom) - 16px); }
+}
+.hs-inspection {
+  bottom: calc(var(--hud-safe-bottom) + 28px);
+  max-width: min(760px, calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 36px));
+  max-height: min(40vh, calc(100dvh - var(--hud-safe-top) - var(--hud-safe-bottom) - 32px));
+}
+/* The PC chin has three real controls, each with its whole printed label. */
+@media (max-width: 600px) {
+  html[data-touch-state="pc"] .ht-top { gap: 6px; }
+  html[data-touch-state="pc"] .ht-top::before { font-size: 9px; letter-spacing: .08em; }
+  html[data-touch-state="pc"] .ht-top .ht-b { flex: 0 0 auto; gap: 4px; padding-inline: 6px; }
+  html[data-touch-state="pc"] .ht-top .ht-b span { max-width: none; overflow: visible; text-overflow: clip; font-size: 10px; }
+}
+/* Longer verbs belong on two printed lines, never behind an ellipsis. */
+.ht-hud .ht-acts .ht-b span {
+  max-width: calc(100% - 8px);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  text-align: center;
+}

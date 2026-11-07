@@ -892,6 +892,12 @@
     const was = t.st === 'snap' || t.st === 'anim' ? t.snap : null;
     const drag = dragged(t) && t.st === 'rest' && !t.at.hide && !was;
     held = { id, d: clamp(o?.d || holdDistance(t), 25, 150), ry: o?.ry || 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z, drag, pry: P.ry, rel: (t.at.ry || 0) + P.ry, hand: null, hv: { x: 0, y: 0, z: 0 } };
+    // A soft beanbag is taken hold of where it lies. Preserve the actual
+    // player-to-centre offset instead of pulling it to a generic chair reach.
+    if (drag && t.id === 'beanbag') {
+      const a = P.ry * D2R, dx = t.at.x - W.x, dz = t.at.z - W.z;
+      held.dragOffset = {right:dx*Math.cos(a)+dz*Math.sin(a),forward:dx*Math.sin(a)-dz*Math.cos(a)};
+    }
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
     aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; showTargets(null); // never inherit the previous object's shelf targets
@@ -1467,8 +1473,9 @@
   let dragSound = 0;
   function dragTick(t, dt) {
     const b = t.body; if (!b) { letGo(); return; }
-    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = RAD + 12 + b.rad * 0.95; // (an arm's length: the chair's back never fills the view)
-    const tx = W.x + fx * reach, tz = W.z + fz * reach;
+    const grip = held.dragOffset;
+    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = grip ? Math.hypot(grip.right,grip.forward) : RAD + 12 + b.rad * 0.95; // existing reach for furniture; actual grip radius for the beanbag
+    const tx = W.x + fx * (grip ? grip.forward : reach) + (grip ? Math.cos(a)*grip.right : 0), tz = W.z + fz * (grip ? grip.forward : reach) + (grip ? Math.sin(a)*grip.right : 0);
     let mx = tx - b.x, mz = tz - b.z; const len = Math.hypot(mx, mz), cap = 260 * dt;
     if (len > cap) { mx *= cap / len; mz *= cap / len; }
     const x0 = b.x, z0 = b.z;
@@ -2333,7 +2340,7 @@
   // Wheel turns what you're carrying (15 degree clicks); Shift + wheel (or + / -) brings it nearer or further.
   pb.addEventListener('wheel', ev => { if (!live || !held || controlsPaused) return; ev.preventDefault(); const d = Math.sign(ev.deltaY || ev.deltaX); if (!d) return; if (ev.shiftKey && !held.drag) held.d = clamp(held.d - d * 8, 25, 150); else held.ry += d * 15; dirty(); }, { passive: false });
   pb.addEventListener('pointerleave', () => { setHot(null); ui.tip(null); });
-  let hoverQ = false;
+  let hoverQ = false, lastHover = 0;
   function hover() {
     if (!lastPt.mouse || !canAct() || PT.size) return;
     const h=pick(lastPt.x,lastPt.y,held?{skip:o=>o.userData.spot===held.id}:undefined);
@@ -2385,6 +2392,7 @@
     const raw = String(typeof s.label === 'function' ? s.label() : s.label || ''), hint = /<kbd>F<\/kbd>\s*([^<]+)/.exec(raw);
     const label = raw.replace(/\s*<i>[\s\S]*<\/i>\s*$/, '').replace(/<[^>]*>/g, '').replace(/\s*\(.*\)$/, ''), o = OPEN[s.id], d = doorOf(s);
     if (hint && /^talk$/i.test(hint[1].trim())) return 'Talk to ' + label;
+    if (/^np\./.test(s.id)) return label;
     const low = label.replace(/^(The|My|Your) /, m => m.toLowerCase());
     if (o) return (o.open ? 'Close ' : 'Open ') + low.replace(/^./, c => c.toLowerCase());
     if (d) return d.open ? (/^Shut /.test(label) ? label : 'Shut the door') : 'Open ' + (/door/i.test(label) ? low : 'the door');
@@ -2634,7 +2642,7 @@
       say(title,text,ms,onShow){if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
       hush() { note.classList.remove('on');notes.length=0;clearTimeout(notePumpT);clearTimeout(noteT); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
+      tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry||/\bis (busy|listening)$/.test(text)?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
@@ -2717,7 +2725,9 @@
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
     if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
-    if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
+    // People move and finish sentences without another mouse event. Refresh
+    // their ray and action label while the pointer rests over the world.
+    if ((hoverQ || now - lastHover >= 120) && frame % 3 === 0) { hoverQ = false; lastHover = now; hover(); }
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;

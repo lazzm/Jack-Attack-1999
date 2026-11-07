@@ -212,9 +212,9 @@
   setInterval(() => { const d = day(); if (d !== S.day) { newDay(d); send({ t: 'chMe' }); } }, 60000);
 
   // ================================================================ talking: Mom (shouting from downstairs) and Jack (thinking)
-  function mom(text, ms) {
+  function mom(text, ms, context) {
     text = cast(text);
-    if(window.st?.speakLine)return st.speakLine('chore.shout','mom',text,{recordingText:text.replace(/\s*\(\d+%\)\s*$/,'')});
+    if(window.st?.speakLine)return st.speakLine('chore.shout','mom',text,{recordingText:text.replace(/\s*\(\d+%\)\s*$/,''),context});
     try { if (window.HouseLife && HouseLife.voice) return HouseLife.voice('MOM', text, ms); } catch (e) {}
     H.say('MOM (shouting up the stairs)', esc(text), ms || 5000);
     const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(8, Math.ceil(text.length / 8)); for (let i = 0; i < n; i++) H.sfx.tone(190 + Math.random() * 80, 0.09, 'sawtooth', 0.012, i * 0.11, 150); }
@@ -544,7 +544,10 @@
     try { if (window.HouseLife && HouseLife.quiet && HouseLife.quiet()) return; } catch (e) {}
     const L = list(); if (!L.length || L.every(id => S.done[id])) return;
     lastShout = Date.now(); shouts++;
-    mom(cast(window.HouseFamily?.freshest ? HouseFamily.freshest(SHOUTS, x => 'chore.say.' + x) : pick(SHOUTS)));
+    const pool = SHOUTS.filter(text => !/off that computer/.test(text) || H.mode === 'monitor');
+    const line = window.HouseFamily?.freshest ? HouseFamily.freshest(pool, x => 'chore.say.' + x) : null;
+    if (!line) return;
+    mom(cast(line), undefined, {kind:'choreNag',pc:/off that computer/.test(line)});
     setTimeout(() => jack('{me}', pick(REPLY), 3500), 4200);
   }, 30000);
 

@@ -424,7 +424,7 @@
     if (k === 'sub') { st.sub = !st.sub; osd(st.sub ? 'SUBTITLES' : 'SUBTITLES OFF'); return; }
     if (/^[0-9]$/.test(k)) { const n = +k; if (n <= 5) chan(n); else osd('NO SIGNAL'); return; }
     if (k === 'chup') return chan((st.ch + 1) % 6); if (k === 'chdn') return chan((st.ch + 5) % 6);
-    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); programmeVolume(); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"), 900); return; }
+    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); programmeVolume(); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => { if(st.on && !st.mute && S.vol >= 8 && life()?.quiet()) life().voice('DAD (from upstairs)', "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!", undefined, {kind:'tvQuiet'}); }, 900); return; }
     if (k === 'mute') { st.mute = !st.mute; S.mute=st.mute; save(); programmeVolume(); osd(st.mute ? 'MUTE' : ''); return; }
     if (k === 'r' || k === 'g' || k === 'y' || k === 'c') { ensureTtx(); st.text = true; ttx.key(k); return; }
     if (k === 'index') { ensureTtx(); st.text = true; ttx.go(100); return; }
@@ -475,7 +475,7 @@
     if (window.TTXData) show(); else loadJs('js/hs-ttx-data.js').then(show, () => {});
   }
 
-  window.HouseTelly = { open(what) { if (what === 'tapes') { tapes(); say('Video tapes', 'Pick a tape up off the shelf and push it into the slot on the front of the video. Then sit down at the telly and press PLAY.', 6000); return; } open(what); }, guide, get on() { return st.on; }, phoneLine: n => window.TTX ? TTX.phoneLine(n) : null, press, st, tapes };
+  window.HouseTelly = { open(what) { if (what === 'tapes') { tapes(); say('Video tapes', 'Pick a tape up off the shelf and push it into the slot on the front of the video. Then sit down at the telly and press PLAY.', 6000); return; } open(what); }, guide, get on() { return st.on; }, get volume() { return st.mute ? 0 : S.vol; }, phoneLine: n => window.TTX ? TTX.phoneLine(n) : null, press, st, tapes };
   tapes();
   if(st.on)power(true);
   loadJs('js/hs-ttx-data.js').catch(() => {});

@@ -1525,7 +1525,15 @@
         let a = act?.arms ? act.arms[sd] : null;
         if (st.action === 'reach' && st.contactSide && sd !== st.contactSide) a = null;
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
-        if (!a && seat && sitK > 0.07 && !st.engage && !st.carry) a = lapArms[sd];
+        if (!a && seat && sitK > 0.07 && !st.carry) {
+          // Conversation keeps the seated support from the leg solve. One hand
+          // stays on its thigh; the other can gesture a little above the lap,
+          // never dropping through an armrest when the paper is put away.
+          a = lapArms[sd];
+          if (st.engage && talking && sd === 'R') {
+            a = {...a,ik:[a.ik[0],a.ik[1]+(st.accent||0)*6,a.ik[2]+(st.accent||0)*2]};
+          }
+        }
         if (!a && near && talking && (sd === 'R' || st.talkSeed % 2 || act?.props?.mug)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
         if (!a) {
           const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * motion.arm * swing, walking=Math.min(1,swing);
@@ -1634,7 +1642,8 @@
       }
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
-      const nod = (st.accent || 0) * 0.055 + endNod;
+      const ackPhase = clamp((now-(st.gestureStart||-1e9))/1100,0,1), ackNod = st.gestureKind === 'nod' ? Math.sin(Math.PI*ackPhase)**2*.16 : 0;
+      const nod = (st.accent || 0) * 0.055 + endNod + ackNod;
       const stableHead = st.walking && !look;
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
@@ -1671,6 +1680,7 @@
       let eye = EYE.open; if (!st.look && !talking && (st.action === 'paper' || st.action === 'draw' || st.action === 'magazine' || st.action === 'washup')) eye = EYE.half; if (act?.doze && !st.look) eye = EYE.shut;
       if (st.blinkT > 0) { st.blinkT -= dt; eye = st.blinkT > 0.135 || st.blinkT < 0.045 ? EYE.half : EYE.shut; }
       if (near && talking && st.accent > 0.65 && /[!?]/.test(st.talkText) && st.blinkT <= 0) eye = EYE.happy;
+      if (st.gestureKind === 'smile' && now < (st.gestureStart||0)+1800 && st.blinkT <= 0) eye = EYE.happy;
       const question=st.question&&progress>.5&&progress<.94?Math.sin(Math.PI*(progress-.5)/.44)*voiceOpen*.022:0;
       st.brow += ((talking ? st.accent * 0.032 + question : 0) - st.brow) * k; U.npBrow.value = st.brow;
       // talking: mouth frames from the line's rhythm (syllable-ish beats, rounder on o/u, closed at punctuation)
@@ -1730,6 +1740,7 @@
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
       talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length); },
       hush() { st.talkUntil = 0; st.talkVoice = null; },
+      acknowledge(kind) { rig.hush(); st.gestureStart = performance.now(); st.gestureKind = kind === 'smile' ? 'smile' : 'nod'; },
       headTop(out) { // world position just above the hair (speech bubbles hang from here)
         B.head.updateWorldMatrix(true, false); B.head.getWorldPosition(out);
         const up = _up.set(0, 1, 0).transformDirection(group.matrixWorld); // (the rig's up, in world space)
