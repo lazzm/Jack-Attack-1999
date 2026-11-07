@@ -11,8 +11,8 @@ const H={ok:true,K:{rnd:()=>()=>.4},T,root,scene,ROOMS:rooms,P:{x:0,y:-55,z:50,r
 const fire=(ev,...a)=>{for(const fn of events.get(ev)||[])fn(...a)};
 let picture=128;const sg={drawImage(){},getImageData:()=>({data:Uint8ClampedArray.from({length:64},(_,i)=>Array.isArray(picture)?(i%4===3?255:picture[i%4]):picture)})};
 const window={House:H,THREE:T,HouseEnvironment:{phase:'day'},HouseFamily:{chars:{}},OwnerTools:{now:()=>new Date(1999,10,6,21)}};
-vm.runInNewContext(fs.readFileSync('app/public/js/hs-vfx.js','utf8'),{window,document:{createElement:()=>({getContext:()=>sg})},performance:{now:()=>now},Float32Array,Math,Date,Set,Map,Array,console});
-const kitWindow={THREE:T};vm.runInNewContext(fs.readFileSync('app/public/js/hs-kit.js','utf8'),{window:kitWindow,document:{createElement:()=>({getContext:()=>sg})},console});
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'..','app/public/js/hs-vfx.js'),'utf8'),{window,document:{createElement:()=>({getContext:()=>sg})},performance:{now:()=>now},Float32Array,Math,Date,Set,Map,Array,console});
+const kitWindow={THREE:T};vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'..','app/public/js/hs-kit.js'),'utf8'),{window:kitWindow,document:{createElement:()=>({getContext:()=>sg})},console});
 const kit=kitWindow.HouseKit,pivot=new T.Group(),brass=kit.mat('#aa8844'),paint=kit.mat('#eeeecc');root.add(pivot);kit.doorLeaf(pivot,{cx:-40,cy:200,cz:0,w:80,h:200,t:4,along:true,leaf:paint,mould:paint,brass,handleA:-73,handleY:250,leverDir:1});H.DOORS.kitchen={pivot};
 const fx=window.HouseVFX,tick=[...H.ambient][0];assert(fx);assert.equal(root.children.filter(o=>/house-/.test(o.name)).length,2);assert.equal(root.children.filter(o=>o.isLight).length,0);assert.equal(root.getObjectByName('house-pooled-atmosphere').renderOrder,3);assert.equal(root.getObjectByName('house-pooled-atmosphere').material.depthTest,true);
 const before={pos:mug.position.clone(),scale:mug.scale.clone(),at:JSON.stringify(H.THINGS.mug.at)};
@@ -36,5 +36,5 @@ rung=4;fire('gfx');Object.assign(H.P,{x:-100,y:210,z:0});fire('click','hs.kettle
 
 H.motion.reduce=true;fire('grab','mug');now+=50;fx.beforeRender();assert(mug.scale.equals(before.scale));fx.afterRender();
 H.paused=true;tick(now+100);assert.equal(fx.stats().draws,0);H.paused=false;H.stood=false;tick(now+200);assert.equal(fx.stats().draws,0);assert.equal(saved,0);
-const source=fs.readFileSync('app/public/js/hs-world.js','utf8'),classify=vm.runInNewContext('('+source.match(/function softThing\(t\)\{[^}]+\}/)[0]+')');for(const kind of ['clothing','mess.clothes','pjs','pillow'])assert(classify({id:'test',kind}));assert(!classify({id:'mug',kind:'dish'}));
+const source=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/hs-world.js'),'utf8'),classify=vm.runInNewContext('('+source.match(/function softThing\(t\)\{[^}]+\}/)[0]+')');for(const kind of ['clothing','mess.clothes','pjs','pillow'])assert(classify({id:'test',kind}));assert(!classify({id:'mug',kind:'dish'}));
 console.log('VFX PASS: render-only transforms restored, 2 shared draws, bounded pool/adaptation, contact events deduplicated, reduce motion, pause and desktop idle.');
