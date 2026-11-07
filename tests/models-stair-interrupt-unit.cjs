@@ -28,6 +28,6 @@ for(const id of ['mom','dad','sister']){
  }
  report.people[id]={penetration:worst,detail,both,slide,contactGap,gapDetail};r.dispose();
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r4-stair-interrupt-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/r4-stair-interrupt-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 if(!baseline&&!process.argv.includes('--measure'))for(const [id,v]of Object.entries(report.people)){assert(v.penetration<.25,id+' interrupted stair sole crosses tread '+v.penetration);assert(v.contactGap<2,id+' settled stair foot floats '+v.contactGap);assert.equal(v.both,0,id+' interrupted feet both swing');assert(v.slide<1.5,id+' planted stair support slides '+v.slide)}
 console.log(process.argv.includes('--measure')?'MEASURE ONLY (acceptance assertions deferred)':baseline?'BASELINE stair interruptions':'PASS interrupted stair skin contacts and ordered turns');

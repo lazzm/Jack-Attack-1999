@@ -238,7 +238,7 @@
   }
   function buildRoom(r) {
     if (!r || r.built) return; r.built = true;
-    try { if (r.build) r.build(r); } catch (e) { console.error('hs build', r.id, e); }
+    try { if (r.build) r.build(r); K.bakeInterior?.(r); } catch (e) { console.error('hs build', r.id, e); }
     emit('built', r.id);
     setTimeout(() => mergeRoom(r), 2500); // (after late additions; prewarm merges too)
   }
@@ -341,6 +341,7 @@
   function lightsFor() {
     for (const id in ROOMS) {
       const r=ROOMS[id]; if (!r.built) continue;
+      r.lightBake?.update();
       const rig=roomRig(r), all=[],cx=Number.isFinite(r.bx0)?(r.bx0+r.bx1)/2:0,cz=Number.isFinite(r.bz0)?(r.bz0+r.bz1)/2:0;
       for (const l of (typeof r.lights==='function'?r.lights():r.lights)) {
         if (l.i!=null && l.i<=0) continue;
@@ -353,7 +354,7 @@
       rig.slots.forEach((s,i)=>{if(i<active&&!s.t&&remaining.length)s.t=remaining.shift()});
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
       rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
-      const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
+      const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=r.lightBake?0:sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
     }
     tickLights(0);
   }
@@ -377,7 +378,7 @@
     if(moving)dirty();
   }
   function applyRoomRig(r) {
-    const rig=roomRig(r);if(!rig)return;
+    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera);
     hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
@@ -390,7 +391,8 @@
       // Optional bulb shimmer uses the existing slots, with no new lights,
       // material changes, re-sorting or shader variants per frame.
       const shimmer=l?.flicker?1+l.flicker*(Math.sin(time*.0061)+.35*Math.sin(time*.0173))/1.35:1;
-      pl.intensity=s.cur*shimmer;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
+      const tv=l?.tv&&window.HouseVFX?.tvLight?.();
+      pl.intensity=s.cur*shimmer*(tv?tv.intensity:1);if(l){pl.position.set(l.x,l.y,l.z);if(tv)pl.color.copy(tv.color);else pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
     const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
@@ -422,11 +424,13 @@
   // (the outdoor-fog variant is only drawn outside: compiled now when there, otherwise in idle time shortly after)
   function compileVariants(level){
     const a=ADAPT[level]||ADAPT[0];
-    const one=f=>{const key=a.lamps+':'+(f?1:0);if(compiled.has(key))return;compiled.add(key);const vis=PL.map(l=>l.visible),fog=scene.fog;
+    K.interiorAdapt?.(level,scene);
+    const one=f=>{const key=a.lamps+':'+(f?1:0)+':'+(level>=4?'vertex':'pixel');if(compiled.has(key))return;compiled.add(key);const vis=PL.map(l=>l.visible),fog=scene.fog;
       try{scene.fog=f;for(let i=0;i<PL.length;i++)PL[i].visible=i<a.lamps;ren.compile(scene,camera)}catch(e){}
       scene.fog=fog;for(let i=0;i<PL.length;i++)PL[i].visible=vis[i]};
     one(null);
-    if(a.far){if(cur?.outside)one(outdoorFog);else setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>one(outdoorFog)),3000)}
+    if(a.far){if(cur?.outside)one(outdoorFog);else setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>{K.interiorAdapt?.(level,scene);one(outdoorFog);K.interiorAdapt?.(Q.adapt,scene)}),3000)}
+    K.interiorAdapt?.(Q.adapt,scene);
   }
   // Keep the merge fresh in idle time: re-batch a room once a scripted change has settled, adopt late additions.
   setInterval(()=>{if(!live||document.hidden||!window.HouseStatic)return;(window.requestIdleCallback||setTimeout)(()=>{const now=performance.now();for(const id of visSet){const r=ROOMS[id];if(r&&r.built)try{HouseStatic.maintain(r.group,now)}catch(e){console.error('hs merge',id,e)}}for(const g of staticRoot)if(g.visible)try{HouseStatic.maintain(g,now)}catch(e){}})},2000);
@@ -1878,7 +1882,8 @@
   };
   const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
   function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
-  function thingSound(t) { return {position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
+  function softThing(t){return ['clothing','mess.clothes','pjs','pillow','cushion'].includes(t.kind)||/pillow|cushion|beanbag|schoolbag/.test(t.id);}
+  function thingSound(t) { return {soft:softThing(t),position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
   function sfxDoor(open,d) { physicalSound('door',{open,position:d?.pivot?.getWorldPosition(new T.Vector3()),room:d?.rooms?.includes(cur?.id)?cur.id:d?.rooms?.[0]}); }
   function footSurface() {
     const stair=onStairs(W.x,W.z);
@@ -2308,7 +2313,8 @@
   });
   // first-person mouse lock (desktop only): click in the room to lock, Esc lets go (the browser does that), drag-to-look still works unlocked
   const locked = () => !!cv && document.pointerLockElement === cv;
-  function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
+  let expectedUnlock = false;
+  function unlock() { try { if (locked()) { expectedUnlock = true; document.exitPointerLock(); } } catch (e) { expectedUnlock = false; } }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
   function plOK() { return !window.GameInput?.touch && !controlsPaused && !worldLoading && live && (mode === 'walk'||mode==='focus'&&focusS?.o.seatId) && !viewOpen() && !ui.modalOpen(); }
   let lockTry = 0, lockPending = false;
@@ -2322,8 +2328,11 @@
   const freeIfPC = () => { if (!inRoom() && locked()) unlock(); }; // sitting down or leaving the room always gives the desktop mouse back
   setInterval(freeIfPC, 300);
   document.addEventListener('mousedown', freeIfPC, true);
-  document.addEventListener('pointerlockchange', () => {
+  document.addEventListener('pointerlockchange', ev => {
     const on = locked(); lockPending = false; clearTimeout(lockHintT); PT.clear();
+    // The browser may deliver our focus/inspection release after walking has
+    // resumed. It is still our release, not the player's Esc pause request.
+    ev.houseIntentionalUnlock = !on && expectedUnlock; expectedUnlock = false;
     if (!on) for (const k in keys) keys[k] = false;
     ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && inRoom());
     if (on) { lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; setHot(null); ui.tip(null); }
@@ -2752,8 +2761,10 @@
     if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
     // People move and finish sentences without another mouse event. Refresh
-    // their ray and action label while the pointer rests over the world.
-    if ((hoverQ || now - lastHover >= 120) && frame % 3 === 0) { hoverQ = false; lastHover = now; hover(); }
+    // their ray and action label while the pointer rests over the world. Keep
+    // fast mouse look throttled, but let the time deadline win on slow frames:
+    // three software-rendered frames can otherwise hide an action for seconds.
+    if ((hoverQ && frame % 3 === 0) || now - lastHover >= 120) { hoverQ = false; lastHover = now; hover(); }
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;
@@ -2813,7 +2824,9 @@
     const f=Q.f;
     if(!continuous||backgroundCovered()){lastR=0;f.n=0;f.t=0;return}
     const d=lastR?(now-lastR)/1000:0;lastR=now;
-    if(d>0&&d<.75){f.n++;f.t+=d}
+    // Very slow visible frames must still count: excluding 750 ms frames
+    // strands precisely the devices that need the cheaper lighting path.
+    if(d>0&&d<5){f.n++;f.t+=Math.min(d,1)}
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
@@ -2829,7 +2842,7 @@
       if(++slowBudget>=2&&Q.adapt<ADAPT.length-1&&now-lastStep>4000){slowBudget=0;lastDown=lastStep=now;adaptTo(Q.adapt+1)}
     }else if(Q.fps>=55&&Q.adapt>0){
       slowBudget=0;
-      if(++goodBudget>=12&&now-lastDown>20000&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
+      if(++goodBudget>=12&&now-lastDown>(Q.adapt===4?60000:20000)&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
     }else{goodBudget=0;slowBudget=0}
   }
   function adaptTo(level,o){
@@ -2845,7 +2858,7 @@
     if(level<ADAPT.length-1)(window.requestIdleCallback||setTimeout)(()=>compileVariants(level+1));
     return Q.adapt;
   }
-  function graphicsGet(){return{tier:Q.tier,adapt:Q.adapt,pinned:Q.pinned,showFps:graphics.showFps,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:Q.renderScale,pixelRatioActual:Q.pixelRatio}}
+  function graphicsGet(){return{tier:Q.tier,adapt:Q.adapt,lighting:Q.adapt>=4?'diffuse':'pixel',pinned:Q.pinned,showFps:graphics.showFps,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:Q.renderScale,pixelRatioActual:Q.pixelRatio}}
   function showFps(on){graphics.showFps=!!on;ls.set('jhp_hs_fps',graphics.showFps);return graphics.showFps}
   // Scratch records survive frames. New records are only made when a model or
   // material first appears (building, pickup highlight or an editor change).
@@ -2915,7 +2928,7 @@
   }
   function backgroundCovered(){if(monitor&&desktopFull&&!glass.lockAnim||window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
-  function render() { rendering = true; try { renderNow(); } finally { rendering = false; } }
+  function render() { rendering = true; try { renderNow(); } finally { try { window.HouseVFX?.afterRender(); } finally { rendering = false; } } }
   function renderNow() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
@@ -2927,6 +2940,7 @@
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
+    window.HouseVFX?.beforeRender();
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
       // (measure() resizes, and so clears, the room canvas too: draw it again, or this frame shows black)
@@ -3382,6 +3396,32 @@
     for (const [fx, fy] of [[.5,.5],[.25,.5],[.75,.5],[.5,.25],[.5,.75],[.3,.3],[.7,.7],[.08,.5],[.92,.5],[.5,.08],[.5,.92]]) { gl.readPixels(Math.floor(w*fx),Math.floor(h*fy),1,1,gl.RGBA,gl.UNSIGNED_BYTE,px); if (px[0]+px[1]+px[2]>24 || Math.abs(px[0]-5)+Math.abs(px[1]-4)+Math.abs(px[2]-4)>6) return true; }
     return false;
   }
+  // Queue WebGL2 pixel transfers behind the GPU work. The old synchronous
+  // readPixels forced a full pipeline wait (~200 ms on the software test GPU).
+  // Poll a fence without waiting; WebGL1 retains the existing recovery path.
+  function wdAsyncSample(gl,draw,done){
+    if(!gl.fenceSync||!gl.getBufferSubData)return false;
+    let buffer,sync,tries=0;const pixels=new Uint8Array(44);
+    const cleanup=()=>{if(sync)gl.deleteSync(sync);if(buffer)gl.deleteBuffer(buffer)};
+    try{
+      draw();const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight;if(!w||!h)return false;
+      const previous=gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING);buffer=gl.createBuffer();
+      try{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.bufferData(gl.PIXEL_PACK_BUFFER,44,gl.STREAM_READ);let offset=0;
+        for(const [fx,fy]of [[.5,.5],[.25,.5],[.75,.5],[.5,.25],[.5,.75],[.3,.3],[.7,.7],[.08,.5],[.92,.5],[.5,.08],[.5,.92]]){gl.readPixels(Math.floor(w*fx),Math.floor(h*fy),1,1,gl.RGBA,gl.UNSIGNED_BYTE,offset);offset+=4}
+        sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);gl.flush();
+      }finally{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,previous)}
+      const poll=()=>{
+        if(gl.isContextLost()||++tries>40){cleanup();done(null);return}
+        const status=gl.clientWaitSync(sync,0,0);
+        if(status===gl.TIMEOUT_EXPIRED){setTimeout(poll,50);return}
+        if(status===gl.WAIT_FAILED){cleanup();done(null);return}
+        const previous=gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING);
+        try{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,pixels)}finally{gl.bindBuffer(gl.PIXEL_PACK_BUFFER,previous);cleanup()}
+        let lit=false;for(let i=0;i<pixels.length;i+=4)if(pixels[i]+pixels[i+1]+pixels[i+2]>24||Math.abs(pixels[i]-5)+Math.abs(pixels[i+1]-4)+Math.abs(pixels[i+2]-4)>6){lit=true;break}done(lit);
+      };setTimeout(poll,50);return true;
+    }catch(e){cleanup();return false}
+  }
+  let wdReading=false;
   function wdCheck() {
     if (!live || document.hidden || window.AccountGate?.blocked || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
@@ -3398,7 +3438,8 @@
       }
       if (glLost()) { const ok = rebuildGL(); wdDiag('context-lost', ok); return; }
       if(mainDraws===wdFrames&&!(need&&++wdStuck>=3))return;wdStuck=0; // a pending draw is the main loop's job; only sample if it stays stuck for ~4.5 s
-      const lit = wdSample(); wdFrames=mainDraws;
+      if(wdReading)return;wdFrames=mainDraws;
+      const sampled=lit=>{wdReading=false;if(lit===null)return;
       if (lit) wdBlack = 0;
       else if (++wdBlack >= 2) {
         wdBlack = 0; let fix = 'rooms';
@@ -3407,6 +3448,8 @@
         measure(); dirty(); const lit2 = wdSample(); wdDiag('draws-nothing', { fix, lit2 });
         if (lit2) visCalc();
       }
+      };
+      wdReading=wdAsyncSample(ren.getContext(),render,sampled);if(!wdReading)sampled(wdSample());
       const e = document.elementFromPoint(innerWidth / 2, innerHeight / 2);
       if (e && e !== cv && e !== cv2 && e.id && /^(boot|crt|saver)/i.test(e.id) && getComputedStyle(e).backgroundColor !== 'rgba(0, 0, 0, 0)') wdDiag('overdraw', e.id + '.' + e.className);
     } catch (e) { console.error(e); }
@@ -3452,7 +3495,7 @@
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms, onShow) => ui.say(t, x, ms, onShow), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
-    dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
+    dirty, relight, ambient, anims, softThing, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; }, get state() { return { ...touchMove }; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,showFps,adapt:adaptTo,screenRate,screenBudget, perf:perfSnapshot, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },

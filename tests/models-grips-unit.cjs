@@ -34,7 +34,7 @@ for(const id of ['mom','dad','sister']){
   voice.ended=true;step(r,30);const mouth=r.face.mouth;r.dispose();return {brow,nod,away,mouth};};
  report.expression[id]={question:sample(true),statement:sample(false)};
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r4-grips-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/r4-grips-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 if(!baseline&&!process.argv.includes('--measure')){
  for(const [prop,g]of Object.entries(report.grips))for(const sd of ['L','R'])if(g[sd]){assert(g[sd].fingerGap<1.3,prop+' '+sd+' fingers miss solid surface '+g[sd].fingerGap);assert(g[sd].thumbGap<1.6,prop+' '+sd+' thumb misses grip '+g[sd].thumbGap)}
  assert(Math.abs(report.grips.crayon.tipAbovePad)<.4,'crayon tip misses actual pad');assert(Math.abs(report.grips.crayon.padPalmHeight)<.6,'support palm misses pad');

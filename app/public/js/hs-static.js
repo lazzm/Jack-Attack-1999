@@ -39,7 +39,7 @@
   }
   function classMaterial(key, m) {
     let c = CLASSES.get(key);
-    if (!c) { c = m.clone(); c.vertexColors = true; c.color.setRGB(1, 1, 1); c.userData = { staticClass: key }; c.needsUpdate = true; CLASSES.set(key, c); }
+    if (!c) { c = m.clone(); c.vertexColors = true; c.color.setRGB(1, 1, 1); c.userData = { staticClass: key, ...(m.userData.interiorShell?{interiorShell:true,houseSurface:true}:{}), ...(m.userData.pendant?{pendant:true,houseSurface:true}:{}) }; c.needsUpdate = true; CLASSES.set(key, c); }
     return c;
   }
   // Program-upload counters can change after a context loss without changing the material appearance.

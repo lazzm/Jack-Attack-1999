@@ -9,3 +9,25 @@ for(const edit of ['replace','reveal']){const group=new T.Group(),mats=[new T.Me
 for(const property of ['defines','displacementMap']){const group=new T.Group(),mat=new T.MeshPhongMaterial();mat[property]=property==='defines'?{CUSTOM:1}:new T.Texture();group.add(new T.Mesh(new T.BoxGeometry(),mat),new T.Mesh(new T.BoxGeometry(),mat));assert.equal(S.merge(group),0,property+' must retain object shader semantics');}
 const f=fixture();const ray=new T.Raycaster(new T.Vector3(0,0,40),new T.Vector3(0,0,-1));ray.layers.enableAll();assert(ray.intersectObject(f.a).length,'original remains pickable');assert(!S.verify(f.group),'unchanged batch dissolved');f.mat.needsUpdate=true;f.b.material.needsUpdate=true;assert(!S.verify(f.group),'GPU program invalidation dissolved unchanged batches');S.unmerge(f.group);assert.equal(f.a.layers.mask,1);
 console.log('STATIC BATCH PASS:',Object.keys(edits).length,'mutations restore both sources; originals pickable; unchanged batches retained');
+// The production light-atlas shader must survive material-class batching. Losing
+// its channel decoder silently renders lamp weights as RGB surface colours.
+{
+ const k={THREE:T,document:{getElementById:()=>null},localStorage:{getItem:()=>null},performance,console};k.window=k;vm.createContext(k);vm.runInContext(fs.readFileSync(require.resolve('../app/public/js/hs-kit.js'),'utf8'),k);
+ const material=k.HouseKit.mat('#c0b090');material.userData.interiorShell=true;material.lightMap=new T.Texture();material.aoMap=new T.Texture();
+ const shader=m=>{const s={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};m.onBeforeCompile(s);return s},before=shader(material),group=new T.Group();
+ group.add(new T.Mesh(new T.BoxGeometry(),material),new T.Mesh(new T.BoxGeometry(),material));assert(S.merge(group)>0);
+ const merged=group.userData.staticHost.children.find(o=>o.userData.staticBatch),after=shader(merged.material);
+ assert.equal(after.vertexShader,before.vertexShader);assert.equal(after.fragmentShader,before.fragmentShader,'Batched surfaces must decode the same lamp/sky channels');assert.equal(after.uniforms.houseSun,before.uniforms.houseSun,'Room passes share the projector binding');
+ console.log('STATIC LIGHTING PASS: production atlas decoder and room projector survive material batching');
+}
+// The pendant cord shares a draw with its shade without inheriting the shade's
+// paint, emission or specular response. Batching must preserve that selector.
+{
+ const k={THREE:T,document:{getElementById:()=>null},localStorage:{getItem:()=>null},performance,console};k.window=k;vm.createContext(k);vm.runInContext(fs.readFileSync(require.resolve('../app/public/js/hs-kit.js'),'utf8'),k);
+ const material=k.HouseKit.mat({c:'#f0e0b8',sh:5,sp:'#101010'});material.userData.pendant=true;material.emissiveMap=new T.Texture();
+ const shader=m=>{const s={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};m.onBeforeCompile(s);return s},before=shader(material),group=new T.Group();
+ assert(before.fragmentShader.includes('mix(specular,vec3(0.047058823529411764),houseCord)'));assert(before.fragmentShader.includes('mix(shininess,6.0,houseCord)'));assert(before.fragmentShader.includes('totalEmissiveRadiance*=1.0-houseCord'));
+ group.add(new T.Mesh(new T.BoxGeometry(),material),new T.Mesh(new T.BoxGeometry(),material));assert(S.merge(group)>0);
+ const after=shader(group.userData.staticHost.children.find(o=>o.userData.staticBatch).material);assert.equal(after.fragmentShader,before.fragmentShader);assert.equal(after.vertexShader,before.vertexShader);
+ console.log('STATIC PENDANT PASS: original cord paint/specular/shininess/emission preserved through batching');
+}

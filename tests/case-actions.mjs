@@ -1,9 +1,34 @@
 import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+const caseShotDir=new URL('./shots/light/round8/gold/',import.meta.url).pathname;
 // Change game closes the TV before its camera return starts the case animation.
 // Neither an idle transaction nor a committed snap alone proves ejection finished.
 export function caseEjected(gid){
  const box=House.THINGS['media.box.'+gid],medium=House.THINGS['media.'+gid];
  return !!(!RoomTV.open_&&!House.gliding&&!HouseCases.busy&&medium?.snap==='media.case.'+gid&&box?.canGrab?.());
+}
+// view() deliberately hides the carry ghost while it positions a focus camera.
+// Polling JS faster than the renderer cannot produce a new walking picture.
+export async function caseGhostFrame(p,id,frame){
+ // Poll from Node: this Playwright's in-page timer re-evaluates a string,
+ // which the site's script-src 'self' correctly refuses after the first poll.
+ const end=Date.now()+15000;let state;
+ while(Date.now()<end){
+  state=await p.evaluate(()=>({held:House.held(),frame:House.perf().frames,ghost:!!House.ghost(),mode:House.mode,paused:House.paused}));
+  if(state.held===id&&state.frame>frame&&state.ghost)return;
+  await p.waitForTimeout(50);
+ }
+ throw Error('No drawn case ghost after a walking frame: '+JSON.stringify({id,after:frame,...state}));
+}
+async function caseParked(p,id,sid){
+ const end=Date.now()+3000;
+ while(Date.now()<end){if(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}))return;await p.waitForTimeout(50)}
+}
+async function caseGoldShot(p,id){
+ if(!process.env.LIGHTING_GHOST_SHOTS)return;
+ const state=await p.evaluate(()=>({lighting:House.graphicsGet().lighting,width:innerWidth,height:innerHeight,paused:House.paused,ghost:House.ghost()?.snap?.id,frame:House.perf().frames}));assert(!state.paused);
+ const dir=caseShotDir;await mkdir(dir,{recursive:true});const name=state.lighting+'-'+id.replace(/[^a-z0-9.-]/gi,'-')+'-'+state.width+'x'+state.height;
+ await p.screenshot({path:dir+name+'.png'});await writeFile(dir+name+'.json',JSON.stringify(state,null,2));
 }
 // Find a real gold target from a clear standing position, then use the normal E path.
 export async function insertCase(f,id,sid,{press}={}){
@@ -17,10 +42,11 @@ export async function insertCase(f,id,sid,{press}={}){
    const grip=await p.evaluate(id=>{const t=House.THINGS[id],ok=House.grab(id);return{ok,exists:!!t,held:House.held(),away:t&&House.isAway(t),canGrab:t?.canGrab?.(),state:t?.st,snap:t?.snap,at:t?.at,busy:HouseCases.busy,mode:House.mode,medium:House.THINGS['media.'+id.slice('media.box.'.length)]?.snap}},id);
    assert(grip.ok,'Cannot grip '+id+': '+JSON.stringify(grip));
   }
+  await caseGhostFrame(p,id,await p.evaluate(()=>House.perf().frames));
   for(let j=0;j<10;j++){
    const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why,x:g.x,y:g.y,z:g.z}});
-   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');await p.waitForFunction(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid},{timeout:3000}).catch(()=>{});const committed=await p.evaluate(({id,sid})=>({ok:House.THINGS[id].snap==='case.park.'+sid,snap:House.THINGS[id].snap,held:House.held(),st:House.THINGS[id].st,busy:HouseCases.busy,mode:House.mode,ghost:House.ghost()?.snap?.id,why:House.ghost()?.why}),{id,sid});assert(committed.ok,'Native E did not commit the case: '+JSON.stringify(committed));assert(await p.evaluate(({id,g})=>{const a=House.THINGS[id].at;return Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)<.11},{id,g}),'Case did not land at its gold ghost');return}
-   missed.push(g?.snap||g?.why||'no ghost');await p.keyboard.press('+');
+   if(g?.snap==='case.insert.'+sid){await caseGoldShot(p,id);if(press)await press();else await p.keyboard.press('e');await caseParked(p,id,sid);const committed=await p.evaluate(({id,sid})=>({ok:House.THINGS[id].snap==='case.park.'+sid,snap:House.THINGS[id].snap,held:House.held(),st:House.THINGS[id].st,busy:HouseCases.busy,mode:House.mode,ghost:House.ghost()?.snap?.id,why:House.ghost()?.why}),{id,sid});assert(committed.ok,'Native E did not commit the case: '+JSON.stringify(committed));assert(await p.evaluate(({id,g})=>{const a=House.THINGS[id].at;return Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)<.11},{id,g}),'Case did not land at its gold ghost');return}
+   missed.push(g?.snap||g?.why||'no ghost');const frame=await p.evaluate(()=>House.perf().frames);await p.keyboard.press('+');await caseGhostFrame(p,id,frame);
   }
  }
  throw Error('No accepting gold case target '+id+' -> '+sid+': '+missed.slice(-20).join(','));
