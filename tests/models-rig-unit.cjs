@@ -95,5 +95,5 @@ for(const tier of ['low','high'])for(const id of Object.keys(c.NPCRig.OUTFITS))f
  const r=c.NPCRig.create(id,{tier,outfit});for(const near of [true,false]){r.update(.016,near);const key=[tier,id,outfit,near?'near':'far'].join('.');results.triangles[key]=r.tris+6;const g=r.mesh.geometry;for(const name of ['position','normal','skinWeight'])assert(g.attributes[name].array.every(Number.isFinite),key+' invalid '+name);if(tier==='low')assert(r.tris+6<=3000,key+' exceeds 3k');assert.equal(r.group.children.filter(m=>m.isSkinnedMesh).length,2);}
  r.dispose();
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/'+round+'-kinematics-'+(baseline?'before':'after')+'.json',JSON.stringify(results,null,2));
+fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/'+round+'-kinematics-'+(baseline?'before':'after')+'.json',JSON.stringify(results,null,2));
 console.log(JSON.stringify(results.people,null,2));console.log(JSON.stringify(results.contacts,null,2));console.log(baseline?'BASELINE recorded (acceptance assertions intentionally deferred until the fix)':'PASS production rig contacts, stand continuity, finite geometry, every outfit/LOD budget and two skinned draws');

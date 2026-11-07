@@ -48,7 +48,7 @@ for(const id of ['mom','dad','sister']){
  out.voice={silent,audible,ended,browPeak};if(!baseline){assert.equal(silent,0,id+' silent voice opens mouth');assert.notEqual(audible,0,id+' audible voice stays closed');assert.equal(ended,0,id+' ended voice keeps mouth open');assert(browPeak>.002,id+' audible phrase has no readable brow accent');}
  report.people[id]=out;r.dispose();
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/'+round+'-weight-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));
+fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/'+round+'-weight-'+(baseline?'before':'after')+'.json',JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 console.log(baseline?'BASELINE weight recorded':'PASS weight measurements finite');
 for(const p of Object.values(report.people))assert(JSON.stringify(p).indexOf('null')<0,'non-finite mechanics measurement');
