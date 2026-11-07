@@ -2726,8 +2726,10 @@
     if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
     // People move and finish sentences without another mouse event. Refresh
-    // their ray and action label while the pointer rests over the world.
-    if ((hoverQ || now - lastHover >= 120) && frame % 3 === 0) { hoverQ = false; lastHover = now; hover(); }
+    // their ray and action label while the pointer rests over the world. Keep
+    // fast mouse look throttled, but let the time deadline win on slow frames:
+    // three software-rendered frames can otherwise hide an action for seconds.
+    if ((hoverQ && frame % 3 === 0) || now - lastHover >= 120) { hoverQ = false; lastHover = now; hover(); }
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;
