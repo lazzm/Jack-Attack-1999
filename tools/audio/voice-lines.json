@@ -6,11 +6,12 @@
   "tag = leading [bracket tag] for gemini-3.8-flash-tts. character -> voice per docs/AUDIO.md (mom Sulafat, dad Algenib, sister Leda, gran Vindemiatrix, announcer Fenrir).",
   "fx: downstairs = through-the-floor muffle (shouts from another room); console = crunchy console filter; absent = clean.",
   "callout: play the matching name clip first (names/out/<callout>/<name>), then this line. Generic fallback: the line alone.",
-  "Mom and Dad's lines are written to work for any player: no 'lad', no he/she, no names."
+  "Mom and Dad's lines are written to work for any player: no 'lad', no he/she, no names.",
+  "QA5 dialogue.when holds declarative conditions. dialogue.kind=gesture entries are silent, never recordings; tools/audio/qa5-recording-ids.json lists only spoken recordingIDs."
  ],
  "totals": {
-  "lines": 523,
-  "batches": 43
+  "lines": 810,
+  "batches": 67
  },
  "batches": {
   "announcer-plain-01": 13,
@@ -55,7 +56,31 @@
   "announcer-console-03": 13,
   "announcer-console-04": 13,
   "announcer-console-05": 13,
-  "announcer-console-06": 13
+  "announcer-console-06": 13,
+  "mom-qa5-01": 13,
+  "mom-qa5-02": 13,
+  "mom-qa5-03": 13,
+  "mom-qa5-04": 13,
+  "mom-qa5-05": 13,
+  "mom-qa5-06": 13,
+  "mom-qa5-07": 13,
+  "mom-qa5-08": 13,
+  "mom-qa5-09": 13,
+  "mom-qa5-10": 13,
+  "mom-qa5-11": 13,
+  "mom-qa5-12": 10,
+  "dad-qa5-01": 13,
+  "dad-qa5-02": 13,
+  "dad-qa5-03": 13,
+  "dad-qa5-04": 13,
+  "dad-qa5-05": 13,
+  "dad-qa5-06": 2,
+  "sister-qa5-01": 13,
+  "sister-qa5-02": 13,
+  "sister-qa5-03": 13,
+  "sister-qa5-04": 13,
+  "sister-qa5-05": 13,
+  "sister-qa5-06": 2
  },
  "lines": [
   {
@@ -4967,6 +4992,4293 @@
    "chapter": "5",
    "fx": "console",
    "batch": "announcer-console-06"
+  },
+  {
+   "id": "talk.mom.morning.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Morning, love. I've put the kettle on. That's my first sensible decision of the day.",
+   "context": "Everyday family conversation; morning.01",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Sleep all right? You looked as though you were solving sums in your sleep.",
+   "context": "Everyday family conversation; morning.02",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "There's toast if you're hungry. The first slice is the practice one.",
+   "context": "Everyday family conversation; morning.03",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.04",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I found a sock in the washing basket with no partner. Another mysterious disappearance.",
+   "context": "Everyday family conversation; morning.04",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.05",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Have a proper breakfast. A biscuit held over a cereal bowl doesn't count.",
+   "context": "Everyday family conversation; morning.05",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.06",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your hair's doing something adventurous this morning. Shall we call it a style?",
+   "context": "Everyday family conversation; morning.06",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.07",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I'm making a list. If I lose it, remind me I was being organised.",
+   "context": "Everyday family conversation; morning.07",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.08",
+   "character": "mom",
+   "tag": "warm",
+   "line": "One thing at a time today. That's advice for me as much as you.",
+   "context": "Everyday family conversation; morning.08",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.09",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Did you hear the birds? They're having a much busier morning than I am.",
+   "context": "Everyday family conversation; morning.09",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.10",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I've already reheated my tea once. It's becoming a family heirloom.",
+   "context": "Everyday family conversation; morning.10",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.11",
+   "character": "mom",
+   "tag": "warm",
+   "line": "You can have the last bit of jam. Leave the jar; I haven't washed it yet.",
+   "context": "Everyday family conversation; morning.11",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.morning.12",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Nice to see you before lunchtime. I was starting to think your duvet had adopted you.",
+   "context": "Everyday family conversation; morning.12",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "How's your day going, love? You can give me the version without sound effects.",
+   "context": "Everyday family conversation; afternoon.01",
+   "chapter": "all",
+   "batch": "mom-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I sat down for five minutes and remembered six things. Sitting down is dangerous.",
+   "context": "Everyday family conversation; afternoon.02",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "There's fruit if you're peckish. It doesn't come with a free sticker album, sadly.",
+   "context": "Everyday family conversation; afternoon.03",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.04",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I went looking for a pen and tidied a whole drawer. Still no pen.",
+   "context": "Everyday family conversation; afternoon.04",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.05",
+   "character": "mom",
+   "tag": "warm",
+   "line": "If you find my good scissors, bring them back. The kitchen ones have gone exploring.",
+   "context": "Everyday family conversation; afternoon.05",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.06",
+   "character": "mom",
+   "tag": "warm",
+   "line": "You look as if you've got a plan. Is it one I need to know about?",
+   "context": "Everyday family conversation; afternoon.06",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.07",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I've been reading a recipe that says 'simply'. That's usually where the trouble starts.",
+   "context": "Everyday family conversation; afternoon.07",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.08",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Can you remember what I came in for? No? Good, neither of us is showing off.",
+   "context": "Everyday family conversation; afternoon.08",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.09",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Half the afternoon gone already. Someone ought to have a word with the clock.",
+   "context": "Everyday family conversation; afternoon.09",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.10",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Come and have a chat whenever you like. I can listen and fold things at the same time.",
+   "context": "Everyday family conversation; afternoon.10",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.11",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I found a button and kept it. The cardigan it belonged to is probably long gone.",
+   "context": "Everyday family conversation; afternoon.11",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.afternoon.12",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I've had a lovely quiet minute. Don't look so worried; you're allowed to speak.",
+   "context": "Everyday family conversation; afternoon.12",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Have you had a good day? Tell me one good bit. It needn't be a big bit.",
+   "context": "Everyday family conversation; evening.01",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I'll put the kettle on in a minute. I'm letting it think it's retired.",
+   "context": "Everyday family conversation; evening.02",
+   "chapter": "all",
+   "batch": "mom-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I'm not doing another useful thing tonight. Unless someone needs a sandwich.",
+   "context": "Everyday family conversation; evening.03",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.04",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I like this time of day. Everything can wait until I've finished my tea.",
+   "context": "Everyday family conversation; evening.04",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.05",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Those slippers have worked harder than I have. Listen to them sigh.",
+   "context": "Everyday family conversation; evening.05",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.06",
+   "character": "mom",
+   "tag": "warm",
+   "line": "You can sit with us for a bit, love. You needn't bring a reason.",
+   "context": "Everyday family conversation; evening.06",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.07",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I meant to mend that loose button tonight. It's survived another dramatic episode.",
+   "context": "Everyday family conversation; evening.07",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.08",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Did anything funny happen today? I could do with a laugh that isn't the electricity bill.",
+   "context": "Everyday family conversation; evening.08",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.09",
+   "character": "mom",
+   "tag": "warm",
+   "line": "I've put tomorrow's list somewhere sensible. Tomorrow we'll find out where.",
+   "context": "Everyday family conversation; evening.09",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.10",
+   "character": "mom",
+   "tag": "warm",
+   "line": "A quiet evening would be lovely. Ordinary quiet, though. Suspicious quiet means glue.",
+   "context": "Everyday family conversation; evening.10",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.11",
+   "character": "mom",
+   "tag": "warm",
+   "line": "If you want a bedtime snack later, ask me before you build a cheese tower.",
+   "context": "Everyday family conversation; evening.11",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.evening.12",
+   "character": "mom",
+   "tag": "warm",
+   "line": "It's nice having everyone about. Even if I do spend half the day looking for the remote.",
+   "context": "Everyday family conversation; evening.12",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.01",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Morning. I've had one cup of tea, so I'm nearly qualified to hold a conversation.",
+   "context": "Everyday family conversation; morning.01",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.02",
+   "character": "dad",
+   "tag": "warm",
+   "line": "The toast landed butter side up. Good start. We should stop while we're ahead.",
+   "context": "Everyday family conversation; morning.02",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.03",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Did you sleep well? I was having a brilliant dream until the alarm joined in.",
+   "context": "Everyday family conversation; morning.03",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.04",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've got a list of things to do. Writing it counts as the first thing.",
+   "context": "Everyday family conversation; morning.04",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.05",
+   "character": "dad",
+   "tag": "warm",
+   "line": "The paper's full of things getting more expensive. Except my jokes. Still free.",
+   "context": "Everyday family conversation; morning.05",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.06",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I was up before the alarm. Wasted a perfectly good minute of sleep.",
+   "context": "Everyday family conversation; morning.06",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.07",
+   "character": "dad",
+   "tag": "warm",
+   "line": "There's a very important job I ought to start. It'll come to me after breakfast.",
+   "context": "Everyday family conversation; morning.07",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.08",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Morning, champion. That's not a prediction; I'm just being encouraging.",
+   "context": "Everyday family conversation; morning.08",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.09",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I put my watch somewhere safe last night. Apparently too safe for this morning.",
+   "context": "Everyday family conversation; morning.09",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.10",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Do you think the kettle knows it's the hardest worker in this house?",
+   "context": "Everyday family conversation; morning.10",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.11",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I'm trying not to rush about today. It's a talent that takes years of practice.",
+   "context": "Everyday family conversation; morning.11",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.morning.12",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I found a screw in my pocket. Something somewhere is being very brave.",
+   "context": "Everyday family conversation; morning.12",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.01",
+   "character": "dad",
+   "tag": "warm",
+   "line": "All right? I was just deciding whether this is a one-biscuit problem or a two-biscuit problem.",
+   "context": "Everyday family conversation; afternoon.01",
+   "chapter": "all",
+   "batch": "dad-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.02",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've been meaning to sort my toolbox. It keeps putting up a very good argument against it.",
+   "context": "Everyday family conversation; afternoon.02",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.03",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Tell me what you're up to. Slowly, if it involves more than two buttons.",
+   "context": "Everyday family conversation; afternoon.03",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.04",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I fixed a little thing earlier. Now I'm waiting to see what else stops working.",
+   "context": "Everyday family conversation; afternoon.04",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.05",
+   "character": "dad",
+   "tag": "warm",
+   "line": "The best bit of a cup of tea is pretending it needs your full attention.",
+   "context": "Everyday family conversation; afternoon.05",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.06",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I found an old receipt for something we don't have any more. Excellent filing, that.",
+   "context": "Everyday family conversation; afternoon.06",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.07",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Do you want a hand with anything? I've still got two, despite all my repairs.",
+   "context": "Everyday family conversation; afternoon.07",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.08",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've spent ten minutes looking for something I was holding. Don't tell Mom.",
+   "context": "Everyday family conversation; afternoon.08",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.09",
+   "character": "dad",
+   "tag": "warm",
+   "line": "You can always ask me a question. I reserve the right to fetch a pencil first.",
+   "context": "Everyday family conversation; afternoon.09",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.10",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I reckon the afternoon goes faster once you've sat down. Someone should investigate.",
+   "context": "Everyday family conversation; afternoon.10",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.11",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've got an excellent idea for a shelf. Mom says we've got enough excellent shelves.",
+   "context": "Everyday family conversation; afternoon.11",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.afternoon.12",
+   "character": "dad",
+   "tag": "warm",
+   "line": "No news from me. Though I did find the missing end of the sticky tape.",
+   "context": "Everyday family conversation; afternoon.12",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.01",
+   "character": "dad",
+   "tag": "warm",
+   "line": "All right, you? Come and tell me what the great adventure was today.",
+   "context": "Everyday family conversation; evening.01",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.02",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've decided the rest of the evening needs very little supervision from me.",
+   "context": "Everyday family conversation; evening.02",
+   "chapter": "all",
+   "batch": "dad-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.03",
+   "character": "dad",
+   "tag": "warm",
+   "line": "My slippers are on. That's the official end of my useful hours.",
+   "context": "Everyday family conversation; evening.03",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.04",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I was going to read something improving. Then I found the crossword.",
+   "context": "Everyday family conversation; evening.04",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.05",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Anything you want to ask? I'm at my wisest when nobody checks the answers.",
+   "context": "Everyday family conversation; evening.05",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.06",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Nice to have a quiet minute together. We don't need to be doing anything special.",
+   "context": "Everyday family conversation; evening.06",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.07",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've made it through the day without losing my glasses. They're on my head, aren't they?",
+   "context": "Everyday family conversation; evening.07",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.08",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I wonder who invents the clues for crosswords. Someone who's never had to solve one.",
+   "context": "Everyday family conversation; evening.08",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.09",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Evening. My knees announced it before the clock did.",
+   "context": "Everyday family conversation; evening.09",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.10",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I've got one of those tunes stuck in my head. Unfortunately, only the unhelpful bit.",
+   "context": "Everyday family conversation; evening.10",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.11",
+   "character": "dad",
+   "tag": "warm",
+   "line": "If you need a knot undone, bring it here. I enjoy a problem that isn't electrical.",
+   "context": "Everyday family conversation; evening.11",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.evening.12",
+   "character": "dad",
+   "tag": "warm",
+   "line": "There's always tomorrow for that little job. That's what I told it yesterday, too.",
+   "context": "Everyday family conversation; evening.12",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.01",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I had a dream I could fly. Only about this high. Still counts.",
+   "context": "Everyday family conversation; morning.01",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.02",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've decided I'm in charge of choosing today's best colour. It's yellow so far.",
+   "context": "Everyday family conversation; morning.02",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.03",
+   "character": "sister",
+   "tag": "bright",
+   "line": "My cereal went soggy while I was thinking. I was thinking about more cereal.",
+   "context": "Everyday family conversation; morning.03",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.04",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Do you think cats have alarms? Or do they just wake up cross?",
+   "context": "Everyday family conversation; morning.04",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.05",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I found a really good pencil. It's shorter than my finger, but it means business.",
+   "context": "Everyday family conversation; morning.05",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.06",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I got dressed really quickly. Don't look at whether my socks agree.",
+   "context": "Everyday family conversation; morning.06",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.07",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I'm drawing an animal nobody's discovered. That way it can't be wrong.",
+   "context": "Everyday family conversation; morning.07",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.08",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If I finish breakfast first, do I win? Mom says I win washing my bowl.",
+   "context": "Everyday family conversation; morning.08",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.09",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I was awake ages ago. I just hadn't told my legs yet.",
+   "context": "Everyday family conversation; morning.09",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.10",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Can you teach me a card trick later? One where I get to know the secret.",
+   "context": "Everyday family conversation; morning.10",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.11",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I made up a joke, but I forgot the middle. The end was brilliant.",
+   "context": "Everyday family conversation; morning.11",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.morning.12",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I think my teddy stayed up late. Look how tired he looks.",
+   "context": "Everyday family conversation; morning.12",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "morning"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.01",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've made a map of an imaginary island. The biscuit shop is very important.",
+   "context": "Everyday family conversation; afternoon.01",
+   "chapter": "all",
+   "batch": "sister-qa5-01",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.02",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Can you guess what I'm drawing? You get three guesses and none can be 'a potato'.",
+   "context": "Everyday family conversation; afternoon.02",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.03",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've invented a game. I'm still working out how I win it.",
+   "context": "Everyday family conversation; afternoon.03",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.04",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If I were a detective, I'd start with whoever hid the nice crayons.",
+   "context": "Everyday family conversation; afternoon.04",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.05",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I found a shiny button. It's treasure until somebody needs their coat back.",
+   "context": "Everyday family conversation; afternoon.05",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.06",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've been practising whistling. So far I'm very good at breathing.",
+   "context": "Everyday family conversation; afternoon.06",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.07",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Do you want to see my picture later? It's a surprise. Mostly to me.",
+   "context": "Everyday family conversation; afternoon.07",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.08",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I made a paper boat. It isn't allowed water until I've finished the decorations.",
+   "context": "Everyday family conversation; afternoon.08",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.09",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've got a secret club. You can join if you think of a better name.",
+   "context": "Everyday family conversation; afternoon.09",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.10",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I tried writing with my other hand. It looks like a spider went shopping.",
+   "context": "Everyday family conversation; afternoon.10",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.11",
+   "character": "sister",
+   "tag": "bright",
+   "line": "What's the hardest word you know? Mine changes whenever there's homework.",
+   "context": "Everyday family conversation; afternoon.11",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.afternoon.12",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've sorted my crayons into best ones and other best ones. It took ages.",
+   "context": "Everyday family conversation; afternoon.12",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "afternoon"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.01",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Do grown-ups get told to go to bed? Who tells them? Bigger grown-ups?",
+   "context": "Everyday family conversation; evening.01",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.02",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I'm saving my best drawing for tomorrow. Unless I think of a better one tonight.",
+   "context": "Everyday family conversation; evening.02",
+   "chapter": "all",
+   "batch": "sister-qa5-02",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.03",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I can stay awake for ages. That yawn was just my mouth stretching.",
+   "context": "Everyday family conversation; evening.03",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.04",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If I have a really good dream, I'll tell you. Unless you're the villain.",
+   "context": "Everyday family conversation; evening.04",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.05",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I'm not tired. My feet are tired. There's a difference.",
+   "context": "Everyday family conversation; evening.05",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.06",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Will you read something with me later? I can do the funny voices.",
+   "context": "Everyday family conversation; evening.06",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.07",
+   "character": "sister",
+   "tag": "bright",
+   "line": "My teddy needs a blanket. He says it's draughty. Well, I said it for him.",
+   "context": "Everyday family conversation; evening.07",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.08",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I like it when everyone's home. You can hear where everyone is.",
+   "context": "Everyday family conversation; evening.08",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.09",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I'm trying to remember all the good things today. There were at least four.",
+   "context": "Everyday family conversation; evening.09",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.10",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Can tomorrow have an extra afternoon? I didn't finish everything I was inventing.",
+   "context": "Everyday family conversation; evening.10",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.11",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I've put my slippers in a sensible place. One sensible place each.",
+   "context": "Everyday family conversation; evening.11",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.evening.12",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If I fall asleep first, don't let anybody finish my story. I haven't picked the ending.",
+   "context": "Everyday family conversation; evening.12",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "period": "evening"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.0",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Monday again. Clean page on the calendar, same washing basket.",
+   "context": "Everyday family conversation; context.dow.0",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 1
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.1",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Tuesday feels like a good day to find the missing lids. I remain optimistic.",
+   "context": "Everyday family conversation; context.dow.1",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 2
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.2",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Wednesday. Halfway through, and nobody's eaten the emergency pasta yet.",
+   "context": "Everyday family conversation; context.dow.2",
+   "chapter": "all",
+   "batch": "mom-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 3
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.3",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Thursday already. I ought to stop saying 'I'll do it on Thursday'.",
+   "context": "Everyday family conversation; context.dow.3",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 4
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.4",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Friday! I'm declaring the weekend open as soon as the dishes are done.",
+   "context": "Everyday family conversation; context.dow.4",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 5
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.5",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Saturday. A lie-in would be lovely, but the kettle doesn't bring itself up.",
+   "context": "Everyday family conversation; context.dow.5",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 6
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.dow.6",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Sunday's for taking things gently. Even the ironing can have a little rest.",
+   "context": "Everyday family conversation; context.dow.6",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 0
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.room.kitchen",
+   "character": "mom",
+   "tag": "warm",
+   "line": "This kitchen produces crumbs when nobody's in it. I'm certain of it.",
+   "context": "Everyday family conversation; context.room.kitchen",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "kitchen"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.room.lounge",
+   "character": "mom",
+   "tag": "warm",
+   "line": "It's lovely to sit in here without folding anything. I'm practising.",
+   "context": "Everyday family conversation; context.room.lounge",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "lounge"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.room.hall",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The hall collects shoes like your sister collects shiny things.",
+   "context": "Everyday family conversation; context.room.hall",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "hall"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.weather.wet",
+   "character": "mom",
+   "tag": "warm",
+   "line": "That forecast sounds damp. Take a coat if you go out, love.",
+   "context": "Everyday family conversation; context.weather.wet",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "wet"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.weather.warm",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Warm spell in the forecast. I might get the washing dry before it starts school.",
+   "context": "Everyday family conversation; context.weather.warm",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "warm"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.weather.cold",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cold in the forecast. Find your jumper before you start blaming the house.",
+   "context": "Everyday family conversation; context.weather.cold",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "cold"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.season.winter",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Winter does make the house feel cosy. Apart from the cold bit by the door.",
+   "context": "Everyday family conversation; context.season.winter",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "winter"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.season.spring",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Spring cleaning sounds lovely until you have to do the cleaning part.",
+   "context": "Everyday family conversation; context.season.spring",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "spring"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.season.summer",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Summer holidays ought to come with an extra fridge shelf.",
+   "context": "Everyday family conversation; context.season.summer",
+   "chapter": "all",
+   "batch": "mom-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "summer"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.season.autumn",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Autumn already. Every coat pocket seems to have a leaf in it.",
+   "context": "Everyday family conversation; context.season.autumn",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "autumn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.jobDone.cat",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Thanks for feeding the cat. Someone round here thinks you're running a hotel.",
+   "context": "Everyday family conversation; context.jobDone.cat",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.jobDone.tidy",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Thank you for doing your room. It's lovely when asking once actually works.",
+   "context": "Everyday family conversation; context.jobDone.tidy",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.jobDone.washup",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Thanks for washing up. You've saved my hands from turning into raisins.",
+   "context": "Everyday family conversation; context.jobDone.washup",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.console.u64",
+   "character": "mom",
+   "tag": "warm",
+   "line": "That Ultra 64 looks comfortable there. I hope you're enjoying it, love.",
+   "context": "Everyday family conversation; context.console.u64",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "n64"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.console.ps",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Enjoy your PlaySpace, love. Leave room for a proper chat with us as well.",
+   "context": "Everyday family conversation; context.console.ps",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "ps"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.chapter.1",
+   "character": "mom",
+   "tag": "warm",
+   "line": "One job at a time, love. We'll get you set up properly.",
+   "context": "Everyday family conversation; context.chapter.1",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 1
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.chapter.2",
+   "character": "mom",
+   "tag": "warm",
+   "line": "It's nice seeing you work towards something you really want.",
+   "context": "Everyday family conversation; context.chapter.2",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 2
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.0",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Monday. I'm trying to look as if I know what the week's doing.",
+   "context": "Everyday family conversation; context.dow.0",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 1
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.1",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Tuesday's an underrated day. Quietly gets on with it.",
+   "context": "Everyday family conversation; context.dow.1",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 2
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.2",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Wednesday. The week has reached the top of the hill.",
+   "context": "Everyday family conversation; context.dow.2",
+   "chapter": "all",
+   "batch": "dad-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 3
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.3",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Thursday. Nearly Friday, which is nearly a reason for another biscuit.",
+   "context": "Everyday family conversation; context.dow.3",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 4
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.4",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Friday at last. My watch seems rather pleased about it.",
+   "context": "Everyday family conversation; context.dow.4",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 5
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.5",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Saturday means I can put off different jobs from the weekday ones.",
+   "context": "Everyday family conversation; context.dow.5",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 6
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.dow.6",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Sunday. I believe in resting properly. You don't want to pull a muscle relaxing.",
+   "context": "Everyday family conversation; context.dow.6",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 0
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.room.kitchen",
+   "character": "dad",
+   "tag": "warm",
+   "line": "I come in here for a teaspoon and leave with a sandwich. Remarkable room.",
+   "context": "Everyday family conversation; context.room.kitchen",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "kitchen"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.room.lounge",
+   "character": "dad",
+   "tag": "warm",
+   "line": "This room has all my favourite features. Chairs, mostly.",
+   "context": "Everyday family conversation; context.room.lounge",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "lounge"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.room.garden",
+   "character": "dad",
+   "tag": "warm",
+   "line": "A garden's never finished. That's why I keep looking thoughtful in it.",
+   "context": "Everyday family conversation; context.room.garden",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "garden"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.weather.wet",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Rain in the forecast. Nature's washing the car. Poorly, but the rates are good.",
+   "context": "Everyday family conversation; context.weather.wet",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "wet"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.weather.warm",
+   "character": "dad",
+   "tag": "warm",
+   "line": "They reckon it'll be warm. Excellent weather for saying we'll do it tomorrow.",
+   "context": "Everyday family conversation; context.weather.warm",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "warm"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.weather.cold",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Cold forecast. My sensible jumper has been waiting for this moment.",
+   "context": "Everyday family conversation; context.weather.cold",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "cold"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.season.winter",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Winter: the season when looking out of the window counts as gardening.",
+   "context": "Everyday family conversation; context.season.winter",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "winter"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.season.spring",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Spring. Everything grows, including the list of things to fix.",
+   "context": "Everyday family conversation; context.season.spring",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "spring"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.season.summer",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Summer's good for outdoor jobs. Also for thinking about outdoor jobs.",
+   "context": "Everyday family conversation; context.season.summer",
+   "chapter": "all",
+   "batch": "dad-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "summer"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.season.autumn",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Autumn leaves. Beautiful to look at. Less beautiful to collect in a sack.",
+   "context": "Everyday family conversation; context.season.autumn",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "autumn"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.jobDone.car",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Car looks much better. Thanks. I'll try not to park under anything with feathers.",
+   "context": "Everyday family conversation; context.jobDone.car",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.jobDone.lawn",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Nice job on the lawn. Those stripes look more organised than I feel.",
+   "context": "Everyday family conversation; context.jobDone.lawn",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.jobDone.bin",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Thanks for taking your bin down. A small job until nobody does it.",
+   "context": "Everyday family conversation; context.jobDone.bin",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.u64",
+   "character": "dad",
+   "tag": "warm",
+   "line": "That Ultra 64's quite a machine. I still think the controller looks surprised.",
+   "context": "Everyday family conversation; context.console.u64",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "n64"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.ps",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Your PlaySpace's clever. I'll have a go if there's a setting for baffled fathers.",
+   "context": "Everyday family conversation; context.console.ps",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "ps"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.chapter.1",
+   "character": "dad",
+   "tag": "warm",
+   "line": "If something's fiddly, take your time. That goes for me as well, mind.",
+   "context": "Everyday family conversation; context.chapter.1",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 1
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.chapter.2",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Saving for things teaches patience. So does waiting for somebody to finish a level.",
+   "context": "Everyday family conversation; context.chapter.2",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 2
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.0",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Monday sounds like it should be a pudding. A very plain one.",
+   "context": "Everyday family conversation; context.dow.0",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 1
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.1",
+   "character": "sister",
+   "tag": "bright",
+   "line": "On Tuesday I like doing things twice. Except getting told off.",
+   "context": "Everyday family conversation; context.dow.1",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 2
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.2",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Wednesday's got too many letters. I've checked.",
+   "context": "Everyday family conversation; context.dow.2",
+   "chapter": "all",
+   "batch": "sister-qa5-03",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 3
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.3",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Thursday is nearly the weekend. Nearly nearly counts.",
+   "context": "Everyday family conversation; context.dow.3",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 4
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.4",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Friday's the best word on a timetable.",
+   "context": "Everyday family conversation; context.dow.4",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 5
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.5",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Saturday should have a rule against hurrying. Unless there's cake.",
+   "context": "Everyday family conversation; context.dow.5",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 6
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.dow.6",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Sunday goes faster than the other days. I think it's cheating.",
+   "context": "Everyday family conversation; context.dow.6",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "dow": 0
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.room.kitchen",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I like the kitchen. Things you can eat keep appearing in it.",
+   "context": "Everyday family conversation; context.room.kitchen",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "kitchen"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.room.lounge",
+   "character": "sister",
+   "tag": "bright",
+   "line": "This room would make an excellent den. We could still let the grown-ups visit.",
+   "context": "Everyday family conversation; context.room.lounge",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "lounge"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.room.hall",
+   "character": "sister",
+   "tag": "bright",
+   "line": "You can't build a den in the hall. I've asked. Several times.",
+   "context": "Everyday family conversation; context.room.hall",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "room": "hall"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.weather.wet",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Rain in the forecast. I could make a coat for my paper boat.",
+   "context": "Everyday family conversation; context.weather.wet",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "wet"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.weather.warm",
+   "character": "sister",
+   "tag": "bright",
+   "line": "They said warm weather. Does that mean ice lollies count as sensible planning?",
+   "context": "Everyday family conversation; context.weather.warm",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "warm"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.weather.cold",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If it's going to be cold, my teddy wants a scarf. He says he has rights.",
+   "context": "Everyday family conversation; context.weather.cold",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "weather": "cold"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.season.winter",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I want to see my breath in winter. Then I pretend I'm a dragon.",
+   "context": "Everyday family conversation; context.season.winter",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "winter"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.season.spring",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Spring's when the trees get dressed again. Slowly.",
+   "context": "Everyday family conversation; context.season.spring",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "spring"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.season.summer",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Summer evenings are brilliant. The sky forgets to tell you it's bedtime.",
+   "context": "Everyday family conversation; context.season.summer",
+   "chapter": "all",
+   "batch": "sister-qa5-04",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "summer"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.season.autumn",
+   "character": "sister",
+   "tag": "bright",
+   "line": "I like crunchy leaves. They're the only rubbish that's supposed to make a noise.",
+   "context": "Everyday family conversation; context.season.autumn",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "season": "autumn"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.jobDone.cat",
+   "character": "sister",
+   "tag": "bright",
+   "line": "You fed the cat! Did you get a thank you? No? Same here.",
+   "context": "Everyday family conversation; context.jobDone.cat",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.jobDone.tidy",
+   "character": "sister",
+   "tag": "bright",
+   "line": "You've tidied your room. Now you can hear things when they fall on the floor.",
+   "context": "Everyday family conversation; context.jobDone.tidy",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.jobDone.plant",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Your plant looks happier. I think. Plants are hard to interview.",
+   "context": "Everyday family conversation; context.jobDone.plant",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "jobDone": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.u64",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Can we play your Ultra 64 together sometime? I'll try being a good loser. Briefly.",
+   "context": "Everyday family conversation; context.console.u64",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "n64"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.ps",
+   "character": "sister",
+   "tag": "bright",
+   "line": "PlaySpace games look like tiny mirrors. Mom says stop doing faces in them.",
+   "context": "Everyday family conversation; context.console.ps",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "ps"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.chapter.1",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If you get stuck, ask. I can help. Or make encouraging noises.",
+   "context": "Everyday family conversation; context.chapter.1",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 1
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.chapter.2",
+   "character": "sister",
+   "tag": "bright",
+   "line": "If you're saving for games, I can help count. I won't help spend. Probably.",
+   "context": "Everyday family conversation; context.chapter.2",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "chapter": 2
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Next door's cat is waiting for dinner. Shake biscuits into the bowl by the cat tree, then call the cat over.",
+   "context": "Everyday family conversation; job.cat.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you feed our furry visitor? Biscuits in the bowl by the cat tree, then give a call. Wait until the cat's eaten.",
+   "context": "Everyday family conversation; job.cat.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.give.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The cat's bowl needs biscuits, love. Shake some in, call the cat over and let dinner finish.",
+   "context": "Everyday family conversation; job.cat.give.03",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.give.04",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cat dinner, please. Fill the bowl by the cat tree with biscuits, then call our visitor over to eat.",
+   "context": "Everyday family conversation; job.cat.give.04",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cat biscuits, love. Bowl first, then call.",
+   "context": "Everyday family conversation; job.cat.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-05",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Our visitor's dinner is still waiting.",
+   "context": "Everyday family conversation; job.cat.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Don't forget the hungry cat.",
+   "context": "Everyday family conversation; job.cat.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.04",
+   "character": "mom",
+   "tag": "warm",
+   "line": "A few biscuits in the cat's bowl, please.",
+   "context": "Everyday family conversation; job.cat.remind.04",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.05",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The cat's still on your list, love.",
+   "context": "Everyday family conversation; job.cat.remind.05",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.06",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Bowl, biscuits, then a call. That's the one.",
+   "context": "Everyday family conversation; job.cat.remind.06",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.07",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Our furry guest hasn't had dinner yet.",
+   "context": "Everyday family conversation; job.cat.remind.07",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.08",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Feed the cat when you're ready, please.",
+   "context": "Everyday family conversation; job.cat.remind.08",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.09",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The little diner by the cat tree, remember?",
+   "context": "Everyday family conversation; job.cat.remind.09",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.10",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Biscuits for the cat before you forget.",
+   "context": "Everyday family conversation; job.cat.remind.10",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.11",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cat dinner first, then back to your plans.",
+   "context": "Everyday family conversation; job.cat.remind.11",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cat.remind.12",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Still the cat, love. The bowl's by the tree.",
+   "context": "Everyday family conversation; job.cat.remind.12",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cat"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bed.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Plump your pillow, fold your pyjamas, then pull the duvet straight, tuck it and smooth it down.",
+   "context": "Everyday family conversation; job.bed.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bed"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bed.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Bed next, please. Pillow plumped, pyjamas folded, duvet pulled straight and tucked in.",
+   "context": "Everyday family conversation; job.bed.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-06",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bed"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bed.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your bed still needs doing, love.",
+   "context": "Everyday family conversation; job.bed.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bed"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bed.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Pillow and duvet, remember?",
+   "context": "Everyday family conversation; job.bed.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bed"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bed.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Make that bed before it makes itself comfy.",
+   "context": "Everyday family conversation; job.bed.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bed"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bin.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Tie up your bedroom bin bag and bring it down to the kitchen bin, please.",
+   "context": "Everyday family conversation; job.bin.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bin.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you empty your bedroom bin? Tie the bag first, then take it to the kitchen bin.",
+   "context": "Everyday family conversation; job.bin.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bin.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your bedroom bin, love.",
+   "context": "Everyday family conversation; job.bin.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bin.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "That bin bag still needs bringing down.",
+   "context": "Everyday family conversation; job.bin.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bin.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Don't forget to tie the bag first.",
+   "context": "Everyday family conversation; job.bin.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bin"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.tidy.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Clothes in the basket, rubbish in the bin, magazines and discs put away, dishes down to the sink, please.",
+   "context": "Everyday family conversation; job.tidy.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.tidy.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Room tidy, love. Basket for clothes, bin for rubbish, magazines and discs away, and bring your dishes down.",
+   "context": "Everyday family conversation; job.tidy.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.tidy.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your room's still on the list.",
+   "context": "Everyday family conversation; job.tidy.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.tidy.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Basket, bin and dishes, love.",
+   "context": "Everyday family conversation; job.tidy.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.tidy.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "A little more tidying, please.",
+   "context": "Everyday family conversation; job.tidy.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-07",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "tidy"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.plant.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Water Gran's spider plant, take off the brown leaves and turn it towards the light.",
+   "context": "Everyday family conversation; job.plant.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.plant.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your spider plant needs a drink, the brown leaves picking off and a turn to the light.",
+   "context": "Everyday family conversation; job.plant.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.plant.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Gran's plant, love.",
+   "context": "Everyday family conversation; job.plant.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.plant.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "A drink and a turn for the spider plant.",
+   "context": "Everyday family conversation; job.plant.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.plant.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Don't forget those brown leaves.",
+   "context": "Everyday family conversation; job.plant.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "plant"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.washup.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Plug the sink, hot water and washing-up liquid, scrub the dishes and stand them in the rack.",
+   "context": "Everyday family conversation; job.washup.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.washup.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you wash up? Hot soapy water in the plugged sink, scrub everything, then into the rack.",
+   "context": "Everyday family conversation; job.washup.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.washup.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The dishes are still waiting.",
+   "context": "Everyday family conversation; job.washup.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.washup.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Sink and soapy water, love.",
+   "context": "Everyday family conversation; job.washup.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.washup.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Washing up next, please.",
+   "context": "Everyday family conversation; job.washup.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "washup"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.table.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Lay four places: plates, knives, forks and glasses. Ketchup in the middle for Dad.",
+   "context": "Everyday family conversation; job.table.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "table"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.table.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Table for four, please. A plate, knife, fork and glass each, and the ketchup in the middle.",
+   "context": "Everyday family conversation; job.table.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "table"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.table.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Four places for tea, love.",
+   "context": "Everyday family conversation; job.table.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-08",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "table"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.table.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Table still needs laying.",
+   "context": "Everyday family conversation; job.table.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "table"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.table.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Don't forget Dad's ketchup.",
+   "context": "Everyday family conversation; job.table.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "table"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.shopping.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Put the shopping in the fridge, freezer, cupboard or bread bin, then fold the carrier bags.",
+   "context": "Everyday family conversation; job.shopping.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "shopping"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.shopping.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Shopping away, please. Cold things cold, tins in the cupboard, bread in its bin. Fold the bags after.",
+   "context": "Everyday family conversation; job.shopping.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "shopping"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.shopping.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Shopping still needs putting away.",
+   "context": "Everyday family conversation; job.shopping.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "shopping"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.shopping.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cold things first, love.",
+   "context": "Everyday family conversation; job.shopping.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "shopping"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.shopping.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Find the right homes for that shopping.",
+   "context": "Everyday family conversation; job.shopping.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "shopping"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bins.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Tie up the kitchen bag, take it to the wheelie bin, then put a fresh bag in the kitchen bin.",
+   "context": "Everyday family conversation; job.bins.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bins"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bins.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Kitchen bin out, please. Tie the bag, into the wheelie bin, then fit a clean kitchen bag.",
+   "context": "Everyday family conversation; job.bins.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "bins"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bins.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Kitchen bin bag, love.",
+   "context": "Everyday family conversation; job.bins.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bins"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bins.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Out to the wheelie bin, please.",
+   "context": "Everyday family conversation; job.bins.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bins"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.bins.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Fresh bag afterwards, remember.",
+   "context": "Everyday family conversation; job.bins.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "bins"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.hoover.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The vacuum's in the hall. Plug it in, get the lounge crumbs and put it back when you're done.",
+   "context": "Everyday family conversation; job.hoover.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-09",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "hoover"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.hoover.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you vacuum the lounge? Hall vacuum, plug in, every crumb, then put it away.",
+   "context": "Everyday family conversation; job.hoover.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "hoover"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.hoover.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Lounge crumbs still waiting.",
+   "context": "Everyday family conversation; job.hoover.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "hoover"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.hoover.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Vacuum the lounge, please.",
+   "context": "Everyday family conversation; job.hoover.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "hoover"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.hoover.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Hall vacuum, love. Mind the cable.",
+   "context": "Everyday family conversation; job.hoover.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "hoover"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.videos.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Put each video back in its place in the tower beside the telly, please.",
+   "context": "Everyday family conversation; job.videos.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "videos"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.videos.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Videos back in the tower by the telly. All of them, love.",
+   "context": "Everyday family conversation; job.videos.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "videos"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.videos.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Video tower, remember?",
+   "context": "Everyday family conversation; job.videos.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "videos"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.videos.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Those tapes need putting back.",
+   "context": "Everyday family conversation; job.videos.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "videos"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.videos.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Videos away, please.",
+   "context": "Everyday family conversation; job.videos.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "videos"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cushions.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Cushions back on the settee, plumped and standing on their corners, please.",
+   "context": "Everyday family conversation; job.cushions.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cushions"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cushions.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you plump the settee cushions? Put them back on their corners when they're ready.",
+   "context": "Everyday family conversation; job.cushions.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "cushions"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cushions.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Settee cushions, love.",
+   "context": "Everyday family conversation; job.cushions.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cushions"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cushions.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "A plump and back on their corners.",
+   "context": "Everyday family conversation; job.cushions.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-10",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cushions"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.cushions.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Don't forget the cushions.",
+   "context": "Everyday family conversation; job.cushions.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "cushions"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.car.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Bucket and sponge, every muddy bit of Dad's car, then rinse it off.",
+   "context": "Everyday family conversation; job.car.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.car.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Could you wash Dad's car? Sponge all the mud off with the bucket, then give it a rinse.",
+   "context": "Everyday family conversation; job.car.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.car.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Dad's car still needs a wash.",
+   "context": "Everyday family conversation; job.car.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.car.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Bucket, sponge and a rinse, love.",
+   "context": "Everyday family conversation; job.car.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.car.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Every muddy bit of the car, please.",
+   "context": "Everyday family conversation; job.car.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "car"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.lawn.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Plug in the mower and cut the front lawn in stripes. Keep clear of the cable and the gnome.",
+   "context": "Everyday family conversation; job.lawn.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.lawn.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Front lawn, please. Nice straight stripes with the mower. Mind its cable and leave the gnome standing.",
+   "context": "Everyday family conversation; job.lawn.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.lawn.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Front lawn still needs doing.",
+   "context": "Everyday family conversation; job.lawn.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.lawn.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Stripes, love. Watch the cable.",
+   "context": "Everyday family conversation; job.lawn.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.lawn.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Mower and lawn, remember?",
+   "context": "Everyday family conversation; job.lawn.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "lawn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.sweep.give.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Sweep the leaf piles on the drive and tip them into the green garden sack by the hedge.",
+   "context": "Everyday family conversation; job.sweep.give.01",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "sweep"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.sweep.give.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Drive leaves, please. Sweep every pile, then empty them into the green sack by the hedge.",
+   "context": "Everyday family conversation; job.sweep.give.02",
+   "chapter": "all",
+   "batch": "mom-qa5-11",
+   "dialogue": {
+    "kind": "give",
+    "when": {
+     "job": "sweep"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.sweep.remind.01",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Drive leaves, love.",
+   "context": "Everyday family conversation; job.sweep.remind.01",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "sweep"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.sweep.remind.02",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Sweep them into the green sack.",
+   "context": "Everyday family conversation; job.sweep.remind.02",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "sweep"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.job.sweep.remind.03",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The leaves are still waiting.",
+   "context": "Everyday family conversation; job.sweep.remind.03",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "remind",
+    "when": {
+     "job": "sweep"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.ack.1",
+   "character": "mom",
+   "tag": "warm",
+   "line": "(A friendly nod.)",
+   "context": "Everyday family conversation; ack.1",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.mom.ack.2",
+   "character": "mom",
+   "tag": "warm",
+   "line": "(A little smile.)",
+   "context": "Everyday family conversation; ack.2",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.mom.ack.3",
+   "character": "mom",
+   "tag": "warm",
+   "line": "(A thoughtful nod.)",
+   "context": "Everyday family conversation; ack.3",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.dad.ack.1",
+   "character": "dad",
+   "tag": "warm",
+   "line": "(A friendly nod.)",
+   "context": "Everyday family conversation; ack.1",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.dad.ack.2",
+   "character": "dad",
+   "tag": "warm",
+   "line": "(A little smile.)",
+   "context": "Everyday family conversation; ack.2",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.dad.ack.3",
+   "character": "dad",
+   "tag": "warm",
+   "line": "(A thoughtful nod.)",
+   "context": "Everyday family conversation; ack.3",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.sister.ack.1",
+   "character": "sister",
+   "tag": "bright",
+   "line": "(A friendly nod.)",
+   "context": "Everyday family conversation; ack.1",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.sister.ack.2",
+   "character": "sister",
+   "tag": "bright",
+   "line": "(A little smile.)",
+   "context": "Everyday family conversation; ack.2",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.sister.ack.3",
+   "character": "sister",
+   "tag": "bright",
+   "line": "(A thoughtful nod.)",
+   "context": "Everyday family conversation; ack.3",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "gesture",
+    "when": {}
+   }
+  },
+  {
+   "id": "talk.mom.context.console.md",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your Segue looks very smart there. I hope you're pleased with it.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "md"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.console.dc",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Is that your Daydream? A lovely name. Don't start doing it through your homework.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "dc"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.console.sn",
+   "character": "mom",
+   "tag": "warm",
+   "line": "The Super Ultra's still going strong. Treat old things kindly; ask your Dad.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "sn"
+    }
+   }
+  },
+  {
+   "id": "talk.mom.context.console.gb",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Your Game Lad's handy for a quiet minute. Leave yourself a minute without it, too.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "mom-qa5-12",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "gb"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.md",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Your Segue's a good little machine. I like anything with a proper switch.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "md"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.dc",
+   "character": "dad",
+   "tag": "warm",
+   "line": "That Daydream looks rather clever. Does it come with somebody who understands the instructions?",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "dad-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "dc"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.sn",
+   "character": "dad",
+   "tag": "warm",
+   "line": "The Super Ultra's still got plenty of life in it. So have I, despite the noises.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "dad-qa5-06",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "sn"
+    }
+   }
+  },
+  {
+   "id": "talk.dad.context.console.gb",
+   "character": "dad",
+   "tag": "warm",
+   "line": "The Game Lad's a neat idea. All your buttons in one place, and no hunting for the remote.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "dad-qa5-06",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "gb"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.md",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Your Segue's got a very serious name. Will it mind if I laugh when I win?",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "md"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.dc",
+   "character": "sister",
+   "tag": "bright",
+   "line": "Can a Daydream play a game about dreaming? That would save a lot of drawing.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "sister-qa5-05",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "dc"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.sn",
+   "character": "sister",
+   "tag": "bright",
+   "line": "The Super Ultra looks little until you see how big its adventures are.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "sister-qa5-06",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "sn"
+    }
+   }
+  },
+  {
+   "id": "talk.sister.context.console.gb",
+   "character": "sister",
+   "tag": "bright",
+   "line": "The Game Lad fits in your hands. My best drawings need the whole table.",
+   "context": "Everyday conversation about an owned console",
+   "chapter": "all",
+   "batch": "sister-qa5-06",
+   "dialogue": {
+    "kind": "talk",
+    "when": {
+     "console": "gb"
+    }
+   }
   }
  ]
 }

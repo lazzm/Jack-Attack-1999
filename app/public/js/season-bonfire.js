@@ -19,11 +19,12 @@
     coal: M('#282725'), ash: M('#605d54'), ember: M({ c: '#a74b23', e: '#7d2308' }), flame: M({ c: '#ffac38', e: '#ff6518', basic: true }),
     yellow: M({ c: '#ffcc75', e: '#ff9c34', basic: true }), green: M('#3f5243'),
   };
-  const say = (id, who, text) => {
+  const say = (id, who, text, requested = false) => {
     const t = SE.cast(text), key = id.startsWith('c4.') ? id : 'bf.' + id, person = who === 'Mom' ? 'mom' : who === 'Dad' ? 'dad' : who === '{sister}' ? 'sister' : null;
-    if(window.st?.speakLine)return st.speakLine(key,person||who,t);
-    if (person && window.HouseFamily?.speak?.(person, key, t)) return;
-    if (window.st?.say) window.st.say(key, SE.cast(who), t); else H.say(SE.cast(who), t, 5200);
+    const phaseLine = ['lead','day','tail'].includes(id), stage = {wheel:'wheel',rocket:'rocket',finale:'finale',end:'over'}[id];
+    const context = phaseLine ? {kind:'seasonPhase',event:EID,phase:id} : stage ? {kind:'bonfireStage',stage} : {kind:'seasonPhase',event:EID,phase};
+    if(window.st?.speakLine)return st.speakLine(key,person||who,t,{once:phaseLine || !!stage || id === 'display.start',context,requested});
+    return false; // family announcements always use the shared memory, including text-only playback
   };
   const sound = {
     rustle: () => H.sfx.noise(.24, .035, 1800, 0, 'highpass', 3500),
@@ -736,11 +737,20 @@
   function displayEvening() { return phase === 'day' && SE.today().hour >= 17 && SE.today().hour < 22; }
   function talk(id) {
     if (!enabled()) return false;
-    if (phase === 'tail') { if (id === 'dad') { if (catchup()) startDisplay(); else say('tail.talk.times', 'Dad', 'Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten.'); return true; } return false; }
-    if (id === 'dad') say('dad.talk', 'Dad', done('bf-code') ? 'Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting.' : 'Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners.');
-    else if (id === 'mom' && phase === 'day' && SE.today().hour >= 22) say('mom.talk.late', 'Mom', 'It is getting late. Help me put the supper things away, then off to bed.');
-    else if (id === 'mom') displayEvening() ? say('mom.talk', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight.') : say('mom.talk.prep', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display.');
-    else say('sister.talk', '{sister}', done('bf-guy') ? 'Remember, remember, the fifth of November! I remembered. Dad forgot where he put his hat.' : "Will you help me stuff the Guy? Dad's old shirt is on the kitchen table. He says it was fashionable once.");
+    const reply = (topic,who,text) => {
+      // One seasonal explanation, then ordinary fresh conversation. Repeating
+      // Talk must not trap a whole week's family chat in the seasonal script.
+      if (showStart() && stageAt() && stageAt() !== 'over') return true;
+      const line = window.st?.lineId?.('bf.'+topic,who,text) || 'bf.'+topic;
+      const heard = window.HouseFamily?.heardAt?.(line) || 0;
+      if (heard && Date.now()-heard < 24*60*60000) return false;
+      say(topic,who,text,true); return true;
+    };
+    if (phase === 'tail') { if (id === 'dad') { if (catchup()) { startDisplay(); return true; } else return reply('tail.talk.times', 'Dad', 'Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten.'); return true; } return false; }
+    if (id === 'dad') return reply('dad.talk', 'Dad', done('bf-code') ? 'Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting.' : 'Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners.');
+    else if (id === 'mom' && phase === 'day' && SE.today().hour >= 22) return reply('mom.talk.late', 'Mom', 'It is getting late. Help me put the supper things away, then off to bed.');
+    else if (id === 'mom') return displayEvening() ? reply('mom.talk', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight.') : reply('mom.talk.prep', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display.');
+    else return reply('sister.talk', '{sister}', done('bf-guy') ? 'Remember, remember, the fifth of November! I remembered. Dad forgot where he put his hat.' : "Will you help me stuff the Guy? Dad's old shirt is on the kitchen table. He says it was fashionable once.");
     return true;
   }
   SE.on('state', sync);

@@ -38,14 +38,18 @@
     match() { sf.noise(.18, .06, 3200, 0, 'highpass', 1800); sf.noise(.5, .02, 900, .15, 'lowpass', 300); },
   };
   // family lines: on screen (with the recorded voice when its id exists in tools/audio/voice-lines.json)
-  const SAID_KEY = 'jhp_se_said';
-  const said = (() => { try { const s = JSON.parse(localStorage.getItem(SAID_KEY) || 'null'); return s && s.e === EID && s.ids ? s : { e: EID, ids: {} }; } catch (e) { return { e: EID, ids: {} }; } })();
+  // Shared per-account announcement memory also protects the subtitle fallback.
   function say(id, who, text, once) {
-    if (once) { if (said.ids[id]) return false; said.ids[id] = 1; try { localStorage.setItem(SAID_KEY, JSON.stringify(said)); } catch (e) {} }
-    const t = cast(text), w = cast(who);
-    if(window.st?.speakLine)window.st.speakLine(id,who,t);
-    else if (window.st?.say) window.st.say(id, w, t); else H.say(w, t, 4600);
-    return true;
+    if (once && window.Net?.me?.member) {
+      // Never inherit the old device-wide record: its owner cannot be known.
+      // New completions use st-voice's durable jhp_voice_once.<account> store.
+      try { const old = JSON.parse(localStorage.getItem('jhp_se_said.' + String(Net.me.nick || '').toLowerCase()) || 'null'); if (old?.e === EID && old.ids?.[id]) return false; } catch (e) {}
+    }
+    const announcementPhase = {'hw.mom.lead':'lead','c4.hal.mom':'day','hw.mom.clocks':'day','c4.hal.sis':'day','hw.mom.tail':'tail','c4.hal.night':'day','c4.hal.night2':'day','hw.mom.five':'day','hw.dad.safe':'day'}[id];
+    if (announcementPhase && phase !== announcementPhase) return false;
+    const t = cast(text), context = {kind:'seasonPhase',event:EID,phase:announcementPhase || phase};
+    if(window.st?.speakLine) { window.st.speakLine(id,who,t,{once:!!once,context}); return true; }
+    return false; // wait for the shared speech system rather than bypass its memory
   }
   const think = (title, text, ms) => H.say(cast(title), cast(text), ms || 4200);
 
@@ -1014,7 +1018,7 @@
     if (two) ask = 'Can ' + kidName(two.kid.k) + ' have two? It\'s ' + Cast.t('{hwkid' + two.kid.k + '.his}') + ' first time!';
     if (avoid) ask = 'One each, please. ' + kidName(avoid.kid.k) + (avoid.kid.avoid === 'nuts' ? ' can\'t have nuts.' : ' can\'t have chocolate, it melts in ' + Cast.t('{hwkid' + avoid.kid.k + '.his}') + ' gloves.');
     H.say(names.slice(0, 2).join(' and ') + (names.length > 2 ? ' and friends' : '') + ' (at the door)', esc(opener + ' ' + ask), 6000); kidsTalk(opener, ask);
-    if (!srv().treat?.n && !said.ids['hw.dad.safe']) setTimeout(() => say('hw.dad.safe', 'Dad', 'Only knock on doors with the lights on, and never go in anyone\'s house. Mom\'s rules. And mine.', true), 6500);
+    if (!srv().treat?.n && !window.HouseFamily?.heardAt?.('hw.dad.safe')) setTimeout(() => say('hw.dad.safe', 'Dad', 'Only knock on doors with the lights on, and never go in anyone\'s house. Mom\'s rules. And mine.', true), 6500);
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
@@ -1087,7 +1091,7 @@
   if (window.Net) {
     // keep the local copy of the server's view in step, so a later sync never sends a fresh group away
     Net.on('seGroup', m => { if (m.e !== EID || !on) return; const s = srv(); if (s.treat) s.treat.g = m.g; spawnKids(m.g, H.ROOMS.drive?.group.visible || H.here === 'hall'); });
-    Net.on('seKnock', m => { if (m.e !== EID) return; knockWait = false; if (m.wait === 'porch' && phase === 'day') say('hw.mom.porch', 'Mom', "Porch light on, love. No light, no trick-or-treaters. That's the rule.", true); if (m.wait === 'done') { if (!said.ids['c4.hal.night']) { say('c4.hal.night', 'Dad', "Everyone ready? Spooky telly, lights off. Who's brave enough?", true); setTimeout(() => say('c4.hal.night2', '{sister}', "I'm not scared. I'm just hiding. For fun.", true), 4200); } } if (m.g && !kids) spawnKids(m.g, false); });
+    Net.on('seKnock', m => { if (m.e !== EID) return; knockWait = false; if (m.wait === 'porch' && phase === 'day') say('hw.mom.porch', 'Mom', "Porch light on, love. No light, no trick-or-treaters. That's the rule.", true); if (m.wait === 'done') { if (!window.HouseFamily?.heardAt?.('c4.hal.night')) { say('c4.hal.night', 'Dad', "Everyone ready? Spooky telly, lights off. Who's brave enough?", true); setTimeout(() => say('c4.hal.night2', '{sister}', "I'm not scared. I'm just hiding. For fun.", true), 4200); } } if (m.g && !kids) spawnKids(m.g, false); });
     Net.on('seTreat', m => {
       if (m.e !== EID) return;
       if (!m.ok) { if (kids && m.why !== 'gone') { kids.list.forEach(k => { k.got = []; }); think('Hmm', m.why === 'stock' ? 'The bowl has run short. Try different sweets.' : 'They want something else.'); } else if (kids) leave('gone'); return; }

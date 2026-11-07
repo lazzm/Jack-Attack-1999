@@ -27,14 +27,13 @@
   const member = () => window.Net?.me?.member ? String(window.Net.me.nick || '').toLowerCase() : '';
   // What this player has heard, kept per account across refreshes, all year round: the family work through
   // everything they could say before repeating any of it, and the same line never comes back soon.
-  let heard = null, heardFor = null, heardSave = 0;
+  let heard = null, heardFor = null;
   const heardMap = () => { const k = 'np.heard.' + (member() || 'guest'); if (heardFor !== k) { heardFor = k; heard = ls.get(k) || {}; } return heard; };
   const heardAt = id => +heardMap()[id] || 0;
   function hear(id) {
     const m = heardMap(); m[id] = Date.now();
     const ids = Object.keys(m); if (ids.length > 600) ids.sort((a, b) => m[a] - m[b]).slice(0, ids.length - 500).forEach(k => delete m[k]);
-    if (typeof setTimeout !== 'function') return ls.set(heardFor, m);
-    if (typeof clearTimeout === 'function') clearTimeout(heardSave); heardSave = setTimeout(() => ls.set(heardFor, m), 400);
+    ls.set(heardFor, m);
   }
   // Least recently heard first; never-heard lines are picked at random among themselves.
   function freshest(list, key = x => x, avoid) {
@@ -146,6 +145,11 @@
   }
   ['mom', 'dad', 'sister'].forEach(makeChar);
   const label = c => c.id === 'mom' ? 'Mom' : c.id === 'dad' ? 'Dad' : sisName();
+  function talkLabel(c) {
+    if (speech.q.some(n=>n.c===c && n.talk)) return label(c) + ' is busy';
+    if (speech.cur?.c === c && speech.cur.talk) return label(c) + (speech.cur.gesture ? ' is listening' : ' is busy');
+    return 'Talk to ' + label(c) + (c.talking || speech.cur?.c === c ? ' (speaking)' : '');
+  }
 
   function build(c) {
     if (c.rig) return;
@@ -176,7 +180,7 @@
       contact.x = handle.x; contact.y = -handle.y; contact.z = handle.z;
       return contact;
     };
-    H.spot('np.' + c.id, { label: () => 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
+    H.spot('np.' + c.id, { label: () => talkLabel(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
     if (id !== 'dad') return null;
@@ -559,20 +563,21 @@
   function say(id, lineId, o) {
     // Unrecorded script variants use st.say's existing subtitle/bubble fallback.
     // Give them their own ids so an older, differently worded clip never plays.
-    o = o || {}; const c = C[id], l = L[lineId] || (o.text ? [id, o.text] : null); if (!c || !l) return false;
+    o = o || {}; const c = C[id], l = L[lineId] || (o.text ? [id, o.text] : null); if (!c || !l || !lineValid(c,lineId,o.displayText||l[1],o.context,o.requested || o.talk) || o.valid && !o.valid()) return false;
     const person = c.present && (o.force || inEarshot(c, o.range));
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
     if (o.once) { const k = 'np.once.' + member() + '.' + (o.onceId || lineId); if (ls.get(k)) return false; ls.set(k, 1); }
     // never the same line again within a minute (unless you asked for a story instruction again)
-    if (!o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
+    if (!o.resume && !o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
     // Shouts, chores and seasonal lines arrive with `again`; even so, the very same line stays quiet for a while.
-    if (o.again && !o.talk && !o.must && !/^c\d\./.test(lineId) && Date.now() - heardAt(lineId) < 150000) return false;
+    if (!o.resume && o.again && !o.talk && !o.must && !/^c\d\./.test(lineId) && Date.now() - heardAt(lineId) < 150000) return false;
     // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
-    if (/^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
-    c.said[lineId] = nowMs(); if (!/^c\d\./.test(lineId)) hear(lineId);
-    speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk });
+    if (!o.resume && /^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    c.said[lineId] = nowMs(); hear(lineId);
+    speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk, requested:!!o.requested, gesture:!!o.gesture || dialogue()[lineId]?.kind === 'gesture', valid:o.valid, context:o.context });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
+    save();
     try { window.st?.prefetch?.(lineId,o); } catch (e) {}
     return true;
   }
@@ -592,7 +597,10 @@
       if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // let the last speaker's comic panel linger through a reply
       if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
       speech.voice = speech.bub = null;
-      const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
+      const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; save(); if (f) try { f(); } catch (e) { console.error(e); }
+    }
+    while (speech.q.length && (!lineValid(speech.q[0].c,speech.q[0].lineId,speech.q[0].text,speech.q[0].context,speech.q[0].requested || speech.q[0].talk) || speech.q[0].valid && !speech.q[0].valid())) {
+      const stale = speech.q.shift(); stale.c.talking = false; stale.c.hold = 0; if(stale.talk && stale.c.present) acknowledge(stale.c); save();
     }
     const n0 = speech.q[0]; if (!n0) return;
     if (document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on')) return;
@@ -612,14 +620,15 @@
     if (!V3 && window.THREE) { V3 = new THREE.Vector3(); voiceDirection = new THREE.Vector3(); }
     let voice = null;
     try {
-      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, callout:n.callout, fx: L[n.lineId]?.[2],
+      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, callout:n.callout, fx: L[n.lineId]?.[2], audio:!n.gesture,
         pos: c.rig && V3 ? () => c.rig.mouthWorld(V3) : null,
         dir: c.rig && voiceDirection ? () => c.rig.bones.head.getWorldDirection(voiceDirection) : null,
         through: () => window.Sound?.occlusion ? Sound.occlusion(c.room) : !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
     } catch (e) { console.error(e); }
     if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
-    if (here) c.rig.talk(ms - 300, n.text, voice);
+    if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice);
+    if (here && n.gesture) c.rig.acknowledge(/smile/i.test(n.text)?'smile':'nod');
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
       if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
       speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
@@ -645,7 +654,7 @@
     // new walking intent may release this hold; an earlier encounter cannot.
     c.pass = null; c.pushN = 0; c.pushFrom = null;
     // Let a passing remark finish before starting the conversation.
-    if (window.Bonfire?.talk?.(id)) { c.hold = 3; return; }
+    if (window.Bonfire?.talk?.(id)) { c.hold = 3; if(!speech.q.some(n=>n.c===c) && speech.cur?.c!==c && !window.st?.voiceBusy) acknowledge(c); return; }
     const lines = talkLines(c);
     c.hold = 99;
     const p = player(), d = dist(c, p);
@@ -657,8 +666,8 @@
         c.backoff = { x: tx, z: tz }; c.backHome = c.backHome || { x: c.x, z: c.z }; break;
       }
     }
-    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l.id; return /^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000) && Date.now() - heardAt(lid) > 90000; });
-    if (!fresh.length) { c.hold = 1.2; return; } // (nothing new to say: they just turn to you)
+    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l?.id; return !!lid && (/^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000) && Date.now() - heardAt(lid) > 90000); });
+    if (!fresh.length) { acknowledge(c); return; }
     fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1) c.hold = 1.5; } }));
   }
   function talkLines(c) {
@@ -666,47 +675,101 @@
     if (c.id === 'mom') {
       if (story && cur === 'meetmom') return ['c1.mom.give', { id: 'c1.mom.give2', then: () => { window.st.event('meetmom'); say('mom', 'c1.mom.leave', { force: true }); } }];
       if (pendingHand.mom) { const p = pendingHand.mom; delete pendingHand.mom; return [p.done].concat(p.rate ? [p.rate] : []); }
-      if (story && s.ch === 1 && ['tidy', 'bed', 'bin'].includes(cur)) return [{ tidy: 'chore.tidy.give', bed: 'c1.bed.give', bin: 'c1.bin.give' }[cur]];
-      const g = momGive(); if (g) { try { window.ChoreKit.chip?.(g); } catch (e) {} return ['chore.' + g + '.give']; }
-      const K = window.ChoreKit; if (K && K.list().length && K.list().every(id => K.done(id))) return [pick(['chore.allfour', 'bark.mom.react.praise'], c)];
+      if (story && s.ch === 1 && ['tidy', 'bed', 'bin'].includes(cur)) return jobReply(c,cur);
+      const g = momGive(); if (g) { try { window.ChoreKit.chip?.(g); } catch (e) {} return jobReply(c,g); }
+      const K = window.ChoreKit; if (K && K.list().length && K.list().every(id => K.done(id))) return [pick(['chore.allfour', 'bark.mom.react.praise'].concat(barkPool(c,clock(),true)||[]), c)];
       return [pick(barkPool(c, clock(), true) || ['bark.mom.react.praise'], c)];
     }
     if (c.id === 'dad') {
-      if (story && s.ch === 1 && ['dad', 'boot'].includes(cur)) return s.done.boot ? ['c1.dad.brief'] : ['c1.dad.story', 'c1.dad.offer', 'c1.dad.yes', 'c1.dad.boot'];
+      if (story && s.ch === 1 && ['dad', 'boot'].includes(cur)) return s.done.boot || heardAt('c1.dad.story') ? ['c1.dad.brief'] : ['c1.dad.story', 'c1.dad.offer', 'c1.dad.yes', 'c1.dad.boot'];
       if (story && s.ch === 1 && /^part\./.test(cur)) return ['c1.dad.brief'];
       if (story && s.ch === 1 && /^lead\./.test(cur)) return [cur === 'lead.power' ? 'c1.lead.dad' : 'c1.lead.dad.power'];
       if (story && s.ch === 1 && cur === 'power') return ['c1.power.dad'];
       if (story && s.ch >= 2) { const k = 'np.pocket.' + member(); if (!ls.get(k)) { ls.set(k, 1); return ['c2.pocket.dad', 'c2.pocket.dad2', 'c2.pocket.dad3', 'c2.pocket.dad4']; } }
-      const clk = clock(); if (clk.dow === 6 && window.ChoreKit && !window.ChoreKit.done('car') && clk.t > 9 && clk.t < 17) return ['chore.weekly.give', 'c2.bigjob.give'];
+      const clk = clock();
       return [pick(barkPool(c, clk, true) || ['bark.dad.react.joke'], c)];
     }
     return [pick(barkPool(c, clock(), true) || ['bark.sis.react.console', 'bark.sis.react.drawing'], c)];
   }
-  function pick(list, c) { const L2 = list.filter(id => L[id]); const id = freshest(L2.length ? L2 : list, x => x, c.lastBarkId); c.lastBarkId = id; return id; }
+  function pick(list, c) { const L2 = list.filter(id => L[id] && !recent(id) && !speech.q.some(n=>n.lineId===id)); const id = freshest(L2, x => x, c.lastBarkId); if (id) c.lastBarkId = id; return id; }
+  // Authored conditions are data, never expressions. Re-evaluate before delivery
+  // as well as selection: a queued line must still describe the world now.
+  const dialogue = () => window.NPCDialogue || {};
+  const periodOf = t => t < 6 ? 'night' : t < 12 ? 'morning' : t < 18 ? 'afternoon' : 'evening';
+  function dialogueFits(c, when = {}, clk = clock()) {
+    const K = window.ChoreKit, s = window.st?.getState?.(), month = Math.floor(clk.md / 100);
+    const season = month === 12 || month < 3 ? 'winter' : month < 6 ? 'spring' : month < 9 ? 'summer' : 'autumn';
+    const forecast = window.TTXData?.weather?.[month - 1] || '';
+    const weather = /rain|shower|drizzle|wet|damp/i.test(forecast) ? 'wet' : /cold|frost|snow/i.test(forecast) ? 'cold' : /warm|hot/i.test(forecast) ? 'warm' : '';
+    return (!when.period || periodOf(clk.t) === when.period) && (when.dow === undefined || clk.dow === when.dow) &&
+      (!when.room || c.room === when.room) && (!when.season || season === when.season) && (!when.weather || weather === when.weather) &&
+      (!when.job || !!K?.avail(when.job) && (K.list().includes(when.job) || window.st?.current?.()?.id === when.job) && !K.done(when.job)) && (!when.jobDone || !!K?.done(when.jobDone)) &&
+      (!when.console || !!window.PM?.owns?.('hardware.' + when.console)) && (!when.chapter || (when.chapter === 1 ? s?.ch === 1 && !s.flags?.veteran : s?.ch >= when.chapter || s?.flags?.veteran));
+  }
+  function dialoguePool(c, kind = 'talk', clk = clock()) {
+    return Object.entries(dialogue()).filter(([,d]) => d.speaker === c.id && d.kind === kind && dialogueFits(c,d.when,clk)).map(([id]) => id);
+  }
+  const recent = id => Date.now() - heardAt(id) < 24 * 60 * 60000;
+  function jobReply(c, job) {
+    const entries = Object.entries(dialogue()).filter(([,d]) => d.speaker === c.id && d.when.job === job && dialogueFits(c,d.when));
+    const give = entries.filter(([,d]) => d.kind === 'give').map(([id]) => id);
+    const storyGive = {bed:'c1.bed.give',bin:'c1.bin.give'}[job];
+    const introduced = heardAt('chore.' + job + '.give') || give.some(id => heardAt(id)) || storyGive && ls.get('np.step.' + member() + '.' + (window.st?.current?.()?.id||'-') + '.' + storyGive);
+    const reminders = entries.filter(([,d]) => d.kind === 'remind').map(([id]) => id);
+    if (!introduced) return [pick(give,c)];
+    // A question about an unfinished job first earns a brief reminder. Once
+    // those are familiar, allow ordinary conversation instead of nagging again.
+    return [pick(reminders,c) || pick(barkPool(c,clock(),true) || [],c)];
+  }
+  function lineValid(c, id, text, context, requested) {
+    // Requested/story/phone speech describes the conversation, not an ambient
+    // guess about the room. Only unsolicited lines inherit ambient eligibility.
+    if (requested) return true;
+    const d = dialogue()[id];
+    if (d && !dialogueFits(c,d.when)) return false;
+    if (id === 'chore.allfour' && !window.ChoreKit?.list?.().every(k=>window.ChoreKit.done(k))) return false;
+    if (/^bark\./.test(id) && !(barkPool(c,clock(),true)||[]).includes(id)) return false;
+    if (context?.kind === 'seasonPhase') return !!window.Season?.active?.().some(x=>x.e.id===context.event && x.phase===context.phase);
+    if (context?.kind === 'bonfireStage') return window.Bonfire?._?.stageAt?.() === context.stage;
+    if (context?.kind === 'tvQuiet') return !!window.HouseLife?.quiet?.() && !!window.HouseTelly?.on && window.HouseTelly.volume >= 8;
+    if (context?.kind === 'moment') return !!window.HouseLife?.momentValid?.(context.text);
+    if (context?.kind === 'choreNag') return !!window.ChoreKit?.list?.().some(k=>!window.ChoreKit.done(k)) && (!context.pc || H.mode === 'monitor');
+    return true;
+  }
+  function acknowledge(c) {
+    const id = freshest(dialoguePool(c,'gesture'));
+    if (id) say(c.id,id,{force:true,talk:true,again:true,gesture:true,prio:5,then:()=>{c.hold=1.5;}});
+    c.hold = 2;
+  }
+
   const eyes = () => ({ x: H.P.x, y: H.P.y, z: H.P.z });
 
   // ================================================================ barks: the house talking to itself
   function barkPool(c, clk, talking) {
     const t = clk.t, room = c.room, p = player(), pr = H.here, act = c.goal?.act || c.goal?.spot?.act, pool = [];
+    const tv = window.HouseTelly, K = window.ChoreKit;
+    const date = new Date(1999,Math.floor(clk.md/100)-1,clk.md%100+1), tomorrow = mk((date.getMonth()+1)*100+date.getDate(),date.getDay(),8);
     const add = (cond, ids) => { if (cond) pool.push(...ids); };
     if (c.id === 'mom') {
-      add(t >= 17.5 && t < 18.5 && room === 'kitchen', pr === 'kitchen' ? ['bark.mom.tea4', 'bark.mom.tea5'] : ['bark.mom.tea1', 'bark.mom.tea2']);
+      add(t >= 17.5 && t < 18.5 && room === 'kitchen', pr === 'kitchen' ? ['bark.mom.tea4'] : ['bark.mom.tea1', 'bark.mom.tea2']);
       add(clk.school && t >= 7 && t < 8.5, pr === 'bedroom' || pr === 'landing' ? ['bark.mom.school1'] : ['bark.mom.school2', 'bark.mom.school3']);
       add(clk.dow === 6 && t >= 7.5 && t < 10.5 && room === 'kitchen', ['bark.mom.wknd1']);
       add(clk.dow === 0 && t >= 8 && t < 12.5, ['bark.mom.wknd2']);
       add(act === 'washup', ['bark.mom.mess4']);
-      add(room === 'lounge', ['bark.mom.mess3', 'bark.mom.tv2']);
+      add(room === 'lounge', ['bark.mom.mess3']); add(room === 'lounge' && tv?.on, ['bark.mom.tv2']);
       add(room === 'hall', ['bark.mom.mess2']);
-      add(t >= 21 && t < 21.5, ['bark.mom.bed1']); add(t >= 21.5 && t < 22, ['bark.mom.bed2']); add(t >= 22 && t < 22.5, ['bark.mom.bed3']);
-      add(t >= 12 && t < 17 && window.ChoreKit && window.ChoreKit.list().some(id => !window.ChoreKit.done(id)), ['bark.mom.react.nag']);
+      add(t >= 21 && t < 21.5, ['bark.mom.bed1']); add(t >= 21.5 && t < 22 && tomorrow.school, ['bark.mom.bed2']); add(t >= 22 && t < 22.5 && H.mode === 'monitor', ['bark.mom.bed3']);
+      add(t >= 12 && t < 17 && window.ChoreKit && window.ChoreKit.list().includes('washup') && !window.ChoreKit.done('washup'), ['bark.mom.react.nag']);
       add(act === 'phone', ['bark.mom.line1', 'bark.mom.line2']);
-      if (talking) add(true, ['bark.mom.react.praise']);
+      if (talking) add(!!K && K.list().some(id=>K.done(id)), ['bark.mom.react.praise']);
     } else if (c.id === 'dad') {
-      add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.dad.tea1', 'bark.dad.tea2', 'bark.dad.tea3']);
+      add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.dad.tea1']);
+      add(t >= 17.5 && t < 18.5 && room === 'kitchen' && !!K?.has?.('table','sauce'), ['bark.dad.tea2']);
       add(clk.work && t >= 6.7 && t < 7.8, ['bark.dad.school1']);
       add(clk.dow === 6, ['bark.dad.wknd1', 'bark.dad.wknd3']); add(clk.dow === 0 && room === 'lounge', ['bark.dad.wknd2']);
-      add(room === 'lounge' && (act === 'telly' || act === 'remote'), ['bark.dad.tv1', 'bark.dad.tv2', 'bark.dad.tv3']);
-      add(room === 'lounge', ['bark.dad.mess2']); add(room === 'hall', ['bark.dad.mess1', 'bark.dad.line3']);
+      add(room === 'lounge' && tv?.on && (act === 'telly' || act === 'remote'), ['bark.dad.tv2']);
+      add(room === 'lounge' && tv?.on && tv.st?.text, ['bark.dad.tv3']);
+      add(room === 'lounge' && c.seated, ['bark.dad.mess2']); add(room === 'hall', ['bark.dad.mess1', 'bark.dad.line3']);
       add(room === 'garden', ['bark.dad.react.garden', 'bark.dad.react.gnome']);
       add(t >= 21.5 && t < 22.5, ['bark.dad.bed1']);
       add(H.mode === 'monitor' && t >= 22, ['bark.dad.bed2']);
@@ -715,12 +778,13 @@
       add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.sis.tea1', 'bark.sis.tea2']);
       add(clk.school && t >= 7 && t < 8.4, ['bark.sis.school1', 'bark.sis.school2']);
       add(clk.dow === 6 && t >= 7 && t < 12, ['bark.sis.wknd1']); add(clk.dow === 0, ['bark.sis.wknd2']);
-      add(room === 'lounge' && act === 'telly', ['bark.sis.tv1', 'bark.sis.tv2']);
+      add(room === 'lounge' && act === 'telly' && tv?.on, ['bark.sis.tv1', 'bark.sis.tv2']);
       add(room === 'hall', ['bark.sis.react.lounge', 'bark.sis.mess2']);
       add(t >= 20 && t < 21, ['bark.sis.bed1', 'bark.sis.bed2']);
       add(!c.seated, ['bark.sis.react.peek']);
       add(true, ['bark.sis.react.drawing', 'bark.sis.react.console']);
     }
+    pool.push(...dialoguePool(c,'talk',clk));
     return pool.length ? pool : null;
   }
   let barkAt = nowMs() + 25000;
@@ -733,7 +797,7 @@
     for (const c of cands.sort(() => Math.random() - 0.5)) {
       const pool = barkPool(c, clk, false); if (!pool) continue;
       const near = inEarshot(c, 600);
-      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000) && Date.now() - heardAt(id) > 30 * 60000);
+      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000) && !recent(id));
       if (!ok.length) continue;
       const id = pick(ok, c);
       if (say(c.id, id, near ? {} : { call: true })) return;
@@ -1040,7 +1104,7 @@
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { motion:3, x:c.x, z:c.z, k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
-    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,callout:n.callout,legacyShout:n.legacyShout}))};
+    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,requested:n.requested,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
     ls.set(SKEY(), o);
   }
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q || SPOT[k].childSeat === q) || null;
@@ -1074,12 +1138,14 @@
       if (!want.away) maybeSpawn(c, want, clk, true);
     }
     const conversation=o&&Date.now()-o.t<10*60000&&o.conversation;
-    if(conversation && conversation.step===(window.st?.current?.()?.id||null) && Array.isArray(conversation.lines)) {
-      const lines=conversation.lines.filter(n=>C[n.id]?.present&&typeof n.line==='string'&&typeof n.text==='string');
+    if(conversation && Array.isArray(conversation.lines)) {
+      const lines=conversation.lines.filter(n=>C[n.id]&&typeof n.line==='string'&&typeof n.text==='string'&&(conversation.step===(window.st?.current?.()?.id||null)||!/^c\d\.|^st\.opening\./.test(n.line)));
+      const queued = new Set([speech.cur,...speech.q].filter(Boolean).map(n=>n.c.id+':'+n.lineId));
       lines.forEach((n,i)=>{
-        const c=C[n.id],script=n.talk!==false&&talkLines(c).find(l=>(typeof l==='string'?l:l.id)===n.line);
+        const key=n.id+':'+n.line; if(queued.has(key))return; queued.add(key);
+        const c=C[n.id],script=/^c\d\./.test(n.line)&&n.talk!==false&&talkLines(c).find(l=>(typeof l==='string'?l:l?.id)===n.line);
         c.hold=99;
-        say(n.id,n.line,{text:n.text,displayText:n.text,callout:n.callout,legacyShout:n.legacyShout,force:true,again:true,talk:true,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
+        say(n.id,n.line,{text:n.text,displayText:n.text,callout:n.callout,legacyShout:n.legacyShout,context:n.context,requested:n.requested,force:true,call:true,again:true,resume:true,talk:n.talk!==false,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
       });
     }
   }
@@ -1158,7 +1224,7 @@
   // ================================================================ the API
   window.HouseFamily = {
     // Other house speech (hs-life moments, chore shouts) picks through the same memory and marks what it chose.
-    freshest: (list, key = x => x) => { const x = freshest(list, key); if (x !== undefined) hear(key(x)); return x; }, heardAt,
+    freshest: (list, key = x => x) => { const x = freshest(list.filter(v=>!recent(key(v))), key); if (x !== undefined) hear(key(x)); return x; }, heardAt,
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     get speaking() { return !!speech.cur || speech.q.length > 0; },
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
@@ -1170,7 +1236,7 @@
       return !!s&&!openingHome&&!C.dad.present&&scheduled('dad',clock()).raw==='away:work'&&!storyDirectives().dad&&!manual.dad&&!sceneDbg.dad;
     },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text, o={}) => (speech.cur?.c?.id===id&&speech.cur.lineId===line)||speech.q.some(n=>n.c.id===id&&n.lineId===line)||say(id, line, { text, displayText:text, callout:o.callout, legacyShout:!!o.legacyShout, force: true, call: true, again: true, prio: 4 }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
+    talk, say: (id, line, o={}) => say(id, line, {...o,requested:o?.requested ?? !o?.context}), speak: (id, line, text, o={}) => (speech.cur?.c?.id===id&&speech.cur.lineId===line)||speech.q.some(n=>n.c.id===id&&n.lineId===line)||say(id, line, { text, displayText:text, callout:o.callout, legacyShout:!!o.legacyShout, force: true, call: true, again: true, prio: 4, requested:o.requested ?? !o.context, valid:o.valid, context:o.context }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {
