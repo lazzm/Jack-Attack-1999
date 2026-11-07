@@ -1,96 +1,135 @@
 # Bounce Quest 64 — scope and depth review
 
-Starting point: main 2.77.0, worktree `hop`. This is a focused depth pass on the original Ultra 64 cartridge. Original procedural models, textures, level layouts, compositions and sound effects only. Native rendering remains 320×240 with filtered low-resolution textures, vertex-lit forms and distance fog; no screen blur, post-processing blur or graphics menu.
+Pass 2 starts at `f913c7b` on branch `hop` (pass 1 was based on main 2.77.0). Original procedural models, textures, layouts, compositions and effects only. Native rendering remains 320×240, vertex-lit, with low-resolution textures and distance fog. No blur pass or graphics menu. No shared kit, account, economy or server code changed.
 
-## Scope against the 1996 genre reference
+## Scope against the 1996 reference
 
-The reference manual describes fifteen main courses, extra miniature courses, acrobatic jumps, adjustable camera distance and special caps ([official manual](https://www.nintendo.com/eu/media/downloads/games_8/emanuals/nintendo_8/Manual_Nintendo64_SuperMario64_EN.pdf)). The full collectible target is 120 ([official game page](https://www.nintendo.com/en-gb/Games/Nintendo-64/Super-Mario-64-269745.html)). These are depth targets, not a claim of commercial-scale completeness.
+The reference has fifteen main courses, miniature courses, 120 rewards, acrobatic movement, swimming and special caps ([official manual](https://www.nintendo.com/eu/media/downloads/games_8/emanuals/nintendo_8/Manual_Nintendo64_SuperMario64_EN.pdf), [official game page](https://www.nintendo.com/en-gb/Games/Nintendo-64/Super-Mario-64-269745.html)). Those are depth targets, not a claim that this cartridge is reference-scale.
 
-| Feature/content | Original has | Before | This pass / remaining gap |
+| Feature/content | Reference has | Before pass 2 | Current / remaining gap |
 | --- | --- | --- | --- |
-| Overall progression | Fifteen main courses, miniature courses, 120 rewards | Island hub, four six-acorn worlds, final arena; 33 acorns | Four seven-acorn worlds, hub and final arena; 37 acorns. The full campaign-volume gap remains high priority. Original door thresholds and all old IDs/saves survive. |
-| Hub | A place to explore, learn movement, discover secrets and reach courses | Eight acorns across lighthouse, hill, windmill, tree, pond, sea rocks, pier and enemy hunt | Same routes with repaired jump chaining, clearer slope shadows and reliable camera; a dedicated optional movement lesson remains absent. |
-| Beach | Exploration, vertical routes, distinctive challenges | Sandcastle, mast/chest, wall-kick chimney, clam, offshore rocks, crabs, red/100 coins | Adds Bell Buoy Dash: switch, countdown, ordered offshore hoops, time limit, retry and saved best. Swimming/diving and underwater exploration are still absent. |
-| Snow | Climbing, slippery ground, slides and a rival | Terraced mountain, penguin race, igloo plug, berg long jump, snowball throwers | Adds Flapjack Post Run: five downhill delivery hoops and saved best. Existing race remains separate. A dedicated enclosed slide/interior is still absent. |
-| Haunted world | Exploration, ghosts, puzzles and a boss | Exterior mansion/roof, maze, lanterns, shy ghosts, Big Boohoo | Adds Butler Bell Blues: four physical chimes and three increasingly long call-and-response tunes; wrong input repeats the current tune. A playable mansion interior remains absent. |
-| Clockwork world | Moving platforms, timing, route mastery | Gears, cable car, lifts, clock arms, conveyor, wall-kick shortcut and summit | Adds Clock Out Before Tea: base switch, temporary slow clockwork, four climbing hoops, deadline and best time. No alternate complete tower layout yet. |
-| Moves | Precise variable-height jumps, chaining, long/back/side jumps, wall kicks, attacks | Broad moveset, but repeated grounded landing reset the jump-chain window | Genuine touchdown events, 380 ms chain window, 100 ms ledge grace, 140 ms landing buffer, early wall-contact detection, wall-kick separation and crouch momentum memory. Side-flip, ledge grab, swimming and free flight remain absent. |
-| Camera | Player-controlled camera with scene-sensitive framing | Eight-point obstruction sampling; camera smoothed through walls; auto-follow turned steering axes | Continuous oriented-box/cylinder boom tests, decorative geometry rays, terrain clearance, immediate retraction, damped extension, close-quarters overhead pitch, stable lateral steering and manual 45° turns. Reward framing checks sixteen possible angles. Flatter and overhead alternatives preserve useful distance beside ceilings and posts. |
-| Rewards | Strong, readable victory pause and fanfare | Fanfare/pose, but sandcastle flagpole hid the hero | Safe reward-camera angle, forward-facing final pose, retained original music and short spin. The player can continue exploring without a level reset. |
-| Bosses/ending | Multiple milestone fights and an ending | Big Boohoo plus King Grumpus; Crown Acorn and scrolling credits | Existing encounters retained; full fight, shockwave/dizzy state, dialogue and credits can be suspended. Additional milestone bosses remain a content gap. |
-| Replay/secrets | Optional rewards and mastery routes | 100-coin/red-coin tasks, big-head cheat, local scores and secrets | Three timed trial bests and a memory puzzle; Cast-based seeded score rows and credit play testers. No cap-unlock ladder or substantial postgame yet. |
-| Saving | Persistent course rewards and progression | Acorns/lives and a coarse coordinate; boss and live course state discarded | Separate suspension retains player/camera, health, velocities, jump chain, pause, world clock, movers, coins, enemies, puzzles, trial phases, boss, dialogue, rewards, transitions and credits. Legacy v2 progress remains compatible. Texture randomness is independent from reproducible world generation, and the patrol random stream is checkpointed. |
-| Controls/devices | Controller-focused console play | Shared keyboard, standard pad and phone controller | Same shared actions, game-local radial deadzone and normalized movement. Arrows run; Z jump; X punch/talk/chime; C crouch/pound; U/E camera; Enter pause. Q/T/Esc remain house controls. |
+| Campaign | 15 main courses, miniature courses, 120 rewards | Hub, four seven-acorn courses, final arena; 37 rewards | Five seven-acorn courses, eight hub rewards and Crown Acorn: **44 total**. Existing five doors/indices/thresholds and every old acorn ID survive. New sixth door opens at five acorns. Campaign volume remains far below the reference. |
+| Hub | Exploration, movement lessons, discoveries, course entrances | Eight routes; five magic doors | Adds the Grotto painting at the end of the existing door order. Old routes and door positions stay intact. A dedicated movement school remains absent. |
+| Beach | Exploration, vertical routes, distinctive challenges | Sandcastle, mast/chest, chimney, clam, offshore rocks, red/100 coins, Bell Buoy Dash | Retained. Dedicated swimming is in the new Grotto; the legacy open sea still uses its original fallout rule. |
+| Snow | Mountain climbing, slippery routes, slides and rival | Summit, penguin race, igloo, berg, snowball enemies, Flapjack Post Run | Retained. An enclosed slide/interior remains absent. |
+| Haunted course | Mansion interior, ghosts, puzzles, boss | Exterior mansion/roof, hedge maze, four lanterns, ghosts, Big Boohoo, Butler Bell Blues | Real foyer, library, dining parlour, stairway and upper study/gallery. Solid reversible front door; two red coins moved indoors, two additional indoor ghosts. Outside lift/roof route and all seven reward IDs retained. More authored room puzzles remain useful. |
+| Swimming course | Water movement, breath management, underwater navigation | None | **Custard Grotto**: shore-to-water entry, held rise/dive, gentle float, surface breach, air/coin recovery, three bubble vents, physical wreck/chest, three pearls, ordered current hoops, jelly enemies, dry-roost jumps, red/100 coins. Seven rewards. |
+| Clockwork course | Moving platforms, timing, route mastery | Gears, lifts, hands, conveyor, shortcut, slow-clock trial | Retained. A second complete layout remains absent; the full natural timed ascent is not established by staged gate coverage. |
+| Movement/camera | Responsive jumps, wall kicks, swimming, scene-sensitive camera | Repaired triple/long/wall jumps, coyote/buffer, continuous obstruction solver | Adds buoyancy, drag, strokes, dive/ascent and breach poses. Reward camera/held trophy and two-character boss intro framing improved. Side flip, ledge grab and free flight remain absent. |
+| Rewards/HUD | Clear hierarchy, readable counters and celebration | Lives collided with reward heading; weak shadows lost text over scenery; trophy covered face | Opaque one-pixel ink around every cartridge pixel-font string and icon; separated lives/title/subtitle/total rows, raised side-held trophy, filled boss introduction, lettered solid signs on both sides. HUD remains a separate canvas composited after WebGL. |
+| Bosses/ending | Milestone encounters and ending | Big Boohoo, King Grumpus, Crown, credits | Retained; Boohoo's intro mesh now starts at its actual position. Ongoing manor fight music resumes correctly after pause/refresh. More milestone bosses remain absent. |
+| Power-ups/replay | Cap unlock ladder, secrets, postgame | Trials, memory puzzle, cheats, local scores | Retained. No original power-up progression yet. This is the next major mechanics chunk. |
+| Saving | Persistent rewards and course state | Legacy progress plus detailed run suspension | Adds air/stroke state, pearl mask/current progress, chest state, and reversible door phase/target. Old save keys, names, balances and acorns are preserved. No live data touched. |
+| Devices | Controller-first play | Keyboard, standard pad, phone/tablet controls | Uses the existing actions and radial deadzone. Swimming uses held jump to rise and held crouch to dive; a fresh jump at the surface breaches. Punch opens the submerged chest and manor door. No new device-specific options. |
 
-## Ranked baseline critique and fixes
+## Pass 2 art-direction critique and fixes
 
-1. **High: the camera could become the obstacle.** Eight samples missed thin/rotated geometry; cartesian smoothing could pass through a wall after a valid target had been chosen. Lateral running could cause automatic camera rotation, changing steering under the held direction. Replaced the boom solver, constrained the actual camera before rendering, limited automatic rotation to forward travel, and added overhead framing when the wall is too close for a normal boom.
-2. **High: the advertised triple jump was practically a one-frame trick.** `land()` ran on every grounded tick and erased `chain` on the tick after landing. Punch and pound recovery were also reset. Landing now means a real air-to-ground transition. Delayed double/triple jumps, crouch-to-long-jump, coyote and buffered landing jumps are regression cases.
-3. **High: ordinary hub/beach enemies had invalid heights.** Enemy construction indexed a scalar floor height as an array, leaving Grumpies and Snippers invisible/inactive and the hub enemy-hunt acorn unreachable. Heights are finite now; real punches, damage and enemy-drop coin budgets are tested. Exact-centre box/cylinder overlaps also get a definite escape direction.
-4. **High: refresh erased the run.** Health, coins, enemy defeats, moving-platform phase, open chest/plug, boss, dialogue, pause and reward presentation were missing. Added a compact suspension record while preserving legacy progress and independently retained title presentation. Cold-cache layout comparisons cover previously visited worlds; texture generation no longer consumes the world random stream.
-5. **Medium: the star-get moment hid the star of the game.** The sandcastle's flagpole stood between camera and hero. Reward framing evaluates clear angles and checks the interpolated view; the finished pose looks toward the viewer.
-6. **Medium: too much repetition within four worlds.** Half of many course goals were coin collection/enemy clearing. Added a platforming delivery, downhill route, musical memory puzzle and timed slow-clock climb, with distinct physical controls and feedback. Four courses are still far below the full reference's volume.
-7. **Medium: white beach/snow surfaces lost form.** Reduced overbright course lights; strengthened and slope-aligned the player's contact shadow. The model now flashes warm on damage instead of disappearing.
-8. **Medium: authored identities ignored the account Cast.** Seeded records, new signatures, course guides, the penguin rival, their dialogue/race labels and credits now resolve Cast roles. Original model/save IDs and existing player-written high-score strings are preserved. A real guide conversation and its suspended dialogue are regression cases.
+1. **High: reward layout collided with the lives display.** The old heading occupied the same rows as the long Bopper label. Lives now has its own short top-right row; the reward heading and full objective name start below all counters. The total and optional trial result have separate bottom rows.
+2. **High: scenery destroyed HUD readability.** The HUD was already drawn after WebGL, but one-sided shadows left bright glyphs apparently cut by tombstones/windows. Cartridge-local font ink now draws opaque outlines on all sides; acorn/coin silhouettes also have dark edging. Regression checks composite opaque HUD pixels over the world and preserve a transparent HUD-only capture.
+3. **High: the trophy hid the hero's face.** The smaller acorn is raised beside the head, above the extended mitten, rather than centred over it. Camera-facing pose and trophy placement use the current camera orientation, including on suspension restore.
+4. **High: Boohoo's intro lost its subject.** The ghost became visible at the world origin because its mesh position was only updated once fighting began. Intro now places the mesh correctly, chooses a clear two-character view and waits for typed text before capture. The test checks the actual boss mesh is framed.
+5. **Medium: the bell sign was a blank board.** Original solid wooden signs now carry bordered pixel lettering on both faces, using one shared atlas. Short headings use larger lettering; long headings wrap without abbreviation. The full instructions remain interactive.
+6. **High content gap: no swimming and no playable mansion.** This pass adds one distinct swimming course and opens the existing mansion into two furnished, navigable floors. The remaining volume and power-up gaps are explicit above.
 
-The retained HEAD baseline reproduces three ordinary `jump` states from delayed chaining, a `back` flip after a seven-frame running crouch, and 0.851 radians (48.8°) of unwanted camera rotation while holding sideways. The final regression requires the actual jump/double/triple chain, a long jump with that same crouch delay, and less than 0.01 radians of camera rotation on the strafe. See `before/movement.json`, `before/jump-attempt-*.png`, `after/jump3-rise.png`, `before/crouch-jump-grace.png`, `after/long-jump-rise.png`, `before/camera-strafe.png` and `after/stable-strafe.png`.
+The pass-1 fixes remain: real touchdown events preserve chained jumps and recovery; 100 ms coyote time, 140 ms input buffering and crouch momentum memory; stable sideways camera steering; continuous box/cylinder/decorative geometry obstruction tests; grounded hub/beach enemies; exact-centre collision escape; slope-aligned player shadows; Cast-derived authored identities; independent world/texture random streams.
 
-## Save design
+## New course objectives
 
-Existing `v2`, `got`, `ac`, `score`, `lives`, `opt`, `hs`, `boss`, `w`, `p` and `door` stay readable. `records` adds timed-course bests. `run.v=1` is a serializable suspension, separate from title-menu `ui`; returning to title or watching attract mode cannot overwrite the live run with title scenery. No meshes, callbacks, materials or renderer objects are serialized. Transient particle bursts and already sounding audio tails are presentation only and are not serialized. World geometry is reproducible from its own seed; texture painters use independent per-texture seeds so a warm cache cannot move scenery. The world random-stream position is saved for patrol continuation. Transition operations and dialogue completion are reconstructed by world/state. Native simulation time, rather than the host's wall clock, drives moving platforms; tower trial slowdown has a separately saved motion clock.
+| Custard Grotto reward | Route/mechanic |
+| --- | --- |
+| Your First Proper Dip | Leave the shore and dive to the first acorn. |
+| The Captain's Lost Lunch | Enter the solid wreck through its open end and open the physical chest with punch. |
+| Three Pearls for Tea | Visit three shells at distinct depths; bubble vents offer recovery points. |
+| Ride the Custard Current | Steer through three ordered hoops while the current helps toward the next. |
+| Up to the Dry Roost | Surface-breach onto the stepping rocks, then climb with normal jumps. |
+| Eight Red Sea Coins | Explore the basin, shelf and surface; breach for the reward. |
+| A Hundred Sunken Coins | Follow five depth-varying coin lanes. Coins restore some air and health. |
 
-File A is written periodically, on relevant input, pause, collection, puzzle changes and page lifecycle events. Lifecycle listeners are removed when the cartridge closes. The regression checks the record remains below the 20 KB roaming limit. Existing score submission still uses the shared server-held scoring window; no shared economy or account code changes.
+Coins, red coins, pearls, current hoops and reward positions are checked against the sloping seabed. The wreck has a keel/deck, ribs, broken side planks, mast and chest; coral/kelp have thickness; bubbles are instanced and driven by saved world time. The swim course's air clock pauses with the game. Swimming is restricted to Grotto so the old coastal challenges retain their existing rules.
 
-## Reproducible review and evidence
+## Save and compatibility design
 
-`node tests/games/hop.mjs http://localhost:PORT` requires a disposable localhost server. Files resolve relative to the test's own folder. `--native`, `--room-only`, `--before`, `--bench`, `--feel-only`, `--trials-only` and `--boss-only` support focused review. `--before` loads the committed HEAD cartridge. Only one browser is open at a time; native, authenticated house and touch fixtures run sequentially.
+Existing `v2`, `got`, `ac`, `score`, `lives`, `opt`, `hs`, `boss`, `w`, `p`, `door` and records stay readable. `run.v=1` remains separate from title-menu `ui`. Player suspension includes air, stroke and movement. `run.grotto` stores the pearl bitmask and current index; ordinary chest fields retain the wreck lid. `propTargets` accompanies existing numeric prop phases so a door can resume while opening or closing. Physical support is resolved at the saved feet position, allowing added course geometry without attaching an old save to an unrelated collider index.
 
-`tests/shots/games/hop/before/` and `after/` hold 1366×860 and native 320×240 captures. These include title, attract, menu, course cards/starts/midpoints, pickups, short jump/reward sequences, pause, camera angles, puzzles, boss/ending and physical-telly/device views. Scripted keys genuinely walk from the hub through the Cove and Peaks doors; pickups use collision. Branch tests stage the player at encounters, then use real movement, jump, punch and pound input. Staging does not award acorns or damage bosses. This is targeted regression coverage, not a claim of an unaided complete campaign run.
+The detailed suspension still covers camera/lens, health, coins/drops, enemies, platforms/world clock, puzzles, trials, boss/shockwaves, dialogue, rewards, transitions, results and credits. Procedural textures have independent seeds, and the world patrol RNG position is checkpointed. No meshes or callbacks are serialized. Already-sounding audio tails and cosmetic particle bursts are not serialized. Save listeners are removed when the cartridge closes. The regression checks the roaming record remains below 20 KB and production result refresh does not resubmit a score.
 
-### Visual review
+## Review and verification
 
-The scorecard uses the skill's three calibration images as anchors and the complete game/phone capture set. This remains a period 320×240 cartridge, not a modern showcase renderer. Scores are deliberately below the skill's 2.3 average premium threshold.
+Only disposable localhost servers on ports 18080–18099 and `/tmp` data are used. One browser is open at a time. Test paths resolve from `__dirname`. No dependencies, shared kits, version/changelog edits, deployment or commits.
 
-| Category | Before → after | Evidence |
-| --- | --- | --- |
-| Art direction | 2 → 2 | Cohesive biscuit island, beach, snow, gingerbread and brass-clock themes. |
-| Hero | 2 → 2.25 | Original cap/boots/rucksack silhouette; working chained poses, landing compression and visible damage flash. |
-| Obstacles/enemies | 1 → 2 | Grounded enemies work; bells have solid frames, hangers, bodies and readable note counts. |
-| Rewards | 2 → 2.5 | Clear reward framing, late victory pose, original fanfare, personal-best readout. |
-| World | 2 → 2 | Existing layered landscapes plus four physical trial layouts; campaign volume remains small. |
-| Materials | 2 → 2 | Low-resolution original textures and vertex-colour roles; stable per-texture noise. |
-| Lighting | 1.5 → 2 | Beach/snow retain surface detail; slope-aligned player shadow; manor deliberately uses a darker value range. |
-| VFX/motion | 1.5 → 2.5 | Reliable triple/long/wall jumps, dust, squash, ringing bell pivots and proportional impact shake. |
-| UI/HUD | 1.5 → 2.25 | Native objective cards, trial timers/records and Cast-based records; actual phone controls and rotation captured. |
-| Performance evidence | 1 → 2.5 | Native GPU-readback timings, update costs, draw/resource counts and scene pixel diagnostics. |
+Pass-2 baseline: `tests/shots/games/hop/pass2-before/` preserves the reviewed pass-1 Boohoo/reward/bell captures and HEAD timing JSON. Current captures go to `tests/shots/games/hop/pass2-after/`. Existing `before/` and `after/` pass-1 artifacts remain intact.
 
-Average: 1.65 → 2.2. The manor spawn's intentionally dark palette has lower measured luminance contrast; this pass does not claim cinematic lighting or full commercial art/content volume.
+The test uses actual browser keys, injected standard gamepad input and actual CDP touch. Branch encounters use explicitly staged positions; rewards are awarded only by real collision, never by the debug grant helper. Grotto entry is through its real unlocked hub door. The course regression swims the routes, opens the chest, collects pearls/red/100 coins and climbs the roost. Low-air edge setup accelerates only the resource clock. Manor coverage exercises the real door, room routes, stairs, study coin, camera turns and exit. This is targeted coverage, not an unaided full 44-acorn campaign.
 
-The game test's local canvas diagnostics inspect the native scene before HUD composition: 4-bit RGB histogram entropy/dominance, horizontal neighbour luminance edges above 20, and the 95th–5th percentile luminance range. They accompany renderer resource counts in the timing JSON; these are described measurements, not a claim that an external inspector package was executed. Reviewed reward poses, tower obstruction angles, front/side/back bells and switch models, physical-telly captures, phone portrait/landscape and tablet gameplay. `node tests/mobile.mjs http://localhost:18088 --only=gate` passed all five account-gate profiles (49 seconds); reviewed the phone/tablet captures in `tests/shots/mobile/`. The full mobile story/performance suite was not run; cartridge touch coverage is in the game test.
+### Test results
 
-### Verification log
+All results below are from disposable servers with `/tmp` data. Native test commands used `http://localhost:18088`; smoke started its own default throwaway fixture. Browser suites ran sequentially.
 
-Final cartridge syntax, test syntax, whitespace checks and `node --expose-internals tests/parody-audit.cjs` pass; the audit reports zero authored spans in zero files. No shared kit changed. The final `node tests/games/hop.mjs http://localhost:18088 --native` passes, including two genuinely entered courses, real collision pickups, all four new challenges, both boss encounters, pause/continue and cold-cache suspension comparisons. The combined `FIXTURE_RASTER_RATIO=0.45 node tests/games/hop.mjs http://localhost:18088` authenticated-room, injected standard-gamepad and actual CDP touch regression also passed. The final `FIXTURE_RASTER_RATIO=0.35 node tests/games/hop.mjs http://localhost:18088 --room-only` rerun passed physical case/telly, keyboard, injected pad, real production refresh/results without duplicate score submission, phone touch, rotation and tablet framing, with no server module failures. That rerun and the smoke checks preceded the final Cast-only NPC naming cleanup; the final native regression includes that cleanup. The baseline was regenerated with `FIXTURE_RASTER_RATIO=0.35 node /opt/stacks/landing-hop/tests/games/hop.mjs http://localhost:18088 --before`, launched from `/tmp`, and passed its native flow plus physical case/telly and LOCK IN checks.
+| Command | Actual result |
+| --- | --- |
+| `node --check app/public/js/rm-g-hop.js` | Exit 0. |
+| `node --check tests/games/hop.mjs` | Exit 0. |
+| `node --expose-internals tests/parody-audit.cjs` | Exit 0, zero authored violations. |
+| `node tests/games/hop.mjs http://localhost:18088 --native` | Exit 0: title/continue, real hub/Cove/Peaks doors, chained jumps/wall kicks, camera sweeps, four trials, both bosses/credits, all seven Grotto pickups, indoor routes/wall-jump/ceiling-backflip clearance, reward projection and HUD compositing, pause/refresh. Final capture rerun passed after the visual-pivot, low-ceiling camera and help-spacing adjustments. |
+| `node tests/games/hop.mjs http://localhost:18088 --native --manor-only` | Exit 0: focused solid door, library, real stairs/study, camera sectors, coasting wall jump and stationary ceiling backflip. |
+| `node tests/games/hop.mjs http://localhost:18088 --native --legacy-only` | Exit 0. Builds actual f913c7b saves, then restores the hub pier and moving manor lift with old pose, health, coins, flags, pause, world clock, RNG and camera intact. |
+| `FIXTURE_RASTER_RATIO=0.35 node tests/games/hop.mjs http://localhost:18088 --room-only` | Exit 0. Real physical cartridge/telly, LOCK IN, standard gamepad, underwater pause/production refresh, no result resubmission, Game Over, Q, CDP touch and phone/tablet rotation. Raster cap applies to the house fixture; native game remains 320×240. |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | Exit 0, 12/12. No URL and no fixture raster override. |
+| `node tests/mobile.mjs http://localhost:18088 --only=gate` | Exit 0. Phone/tablet portrait/landscape account gates. |
+| `node /opt/stacks/landing-hop/tests/games/hop.mjs http://localhost:18088 --before --bench` and the same command with `--bench` | Both exit 0, invoked from `/tmp` to verify folder-relative resource lookup. Paired timing JSON below. |
+| `git diff --check` | Exit 0. |
 
-Back-to-back `--before --bench` and `--bench` runs both passed. Each scene uses 60 warmup and 120 measured frames, native 320×240, DPR 1, SwiftShader, update + draw + synchronous GPU readback; no house, post passes or shadow maps. Exact resource/pixel counters are in `before/paired-performance.json` and `after/paired-performance.json`.
+The new camera-distance assertion initially exposed a coasting wall-jump squeeze. Matching the recovery probe and boom heights, with stick-released angle recovery, fixed it; focused and full native reruns passed.
 
-| World | Before median / p95 ms | After median / p95 ms |
-| --- | --- | --- |
-| Hub | 9.3 / 10.7 | 10.1 / 12.7 |
-| Cove | 10.9 / 12.8 | 11.9 / 13.7 |
-| Peaks | 11.4 / 13.2 | 12.4 / 14.1 |
-| Manor | 9.9 / 11.9 | 10.9 / 12.7 |
-| Tower | 7.0 / 8.9 | 6.6 / 7.4 |
-| Boss | 5.5 / 6.4 | 5.5 / 6.0 |
+No browser errors/warnings attributable to the cartridge and no server “mod failed to load” entries. GPU readback diagnostics are filtered by the harness. No shared kit changed, so no additional kit-dependent game regression was needed beyond smoke.
 
-The continuous camera and active enemies/new challenges add about 0.8–1.0 ms to the larger course medians in this pair. In the paired run, update p95 remained at or below 1.4 ms; maximum draw calls 43, triangles 48,274, geometries 44, textures 33. Host contention varied considerably during the run; an earlier contended capture is retained in `after/contended-performance.json`. The last full native run after Cast cleanup passed but measured higher median/p95 values: hub 15.8/20.3, Cove 17.1/22.8, Peaks 17.9/23.9, manor 15.5/19.9, tower 9.0/12.3 and boss 8.3/13.9 ms (`after/performance.json`, update p95 at most 2.0 ms). The paired samples are useful for relative cost, and the final contended samples prevent reading them as a guaranteed frame rate.
+### Measured frame cost
 
-Useful visual comparisons under `tests/shots/games/hop/`: `before/` versus `after/` for `title.png`, `hub-start.png`, `cove-start.png`, `peaks-start.png`, `manor-start.png`, `tower-start.png`, `boss-start.png` and `sandcastle-pose-native.png`. Final-only evidence includes `after/camera-tower-3-0-4-native.png`, `after/model-bell-{front,side,back}.png`, `after/model-switch-{front,side,back}.png`, the four trial reward sequences, `after/in-room-play.png`, `after/phone-touch-{portrait,landscape}.png` and `after/tablet-touch-game.png`. Native reward frames are deliberately copied immediately after drawing, before WebGL can discard its buffer.
+Paired baseline is committed f913c7b; after uses this working tree. Actual RoomTV RNG, identical 320×240 renderer/DPR 1, 60 warm-up and 120 measured frames per view, including update, draw/HUD and synchronous GPU readback. Chromium uses ANGLE/SwiftShader on this shared machine; these are software-renderer costs, **not hardware frame-rate guarantees**. The house is excluded. Raw results: `pass2-before/paired-performance.json` and `pass2-after/paired-performance.json` under `tests/shots/games/hop/`.
 
-The required uncapped `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` failed (exit 1): three of eleven checks passed before the 1,200-second watchdog. Signup, account-house and walk-refresh passed; PC controls and subsequent room fixtures timed out, with very few house frames on SwiftShader. These failures happened before this cartridge was selected. The separate diagnostic `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 FIXTURE_RASTER_RATIO=0.35 node smoke.mjs` passed all 12 checks (exit 0), including browser errors and server log. The existing fixture cap changes house raster cost, retaining CSS layout and input coordinates; the cartridge remains native 320×240. This does not turn the required uncapped run green.
+| View | Before median / p95 ms | After median / p95 ms | After update median / p95 ms | Calls / triangles |
+| --- | --- | --- | --- | --- |
+| Hub | 9.6 / 10.8 | 9.7 / 10.9 | 0.2 / 0.3 | 45 / 40,365 |
+| Cove | 10.4 / 11.2 | 10.7 / 12.0 | 0.9 / 1.1 | 37 / 44,222 |
+| Peaks | 11.2 / 12.7 | 11.3 / 13.1 | 1.1 / 1.2 | 35 / 48,854 |
+| Manor exterior | 9.9 / 11.5 | 11.9 / 12.9 | 1.3 / 1.5 | 58 / 47,110 |
+| Tower | 6.0 / 6.4 | 6.2 / 7.2 | 0.5 / 0.6 | 22 / 18,847 |
+| Final arena | 5.1 / 5.5 | 5.3 / 5.7 | 0.3 / 0.4 | 23 / 12,793 |
+| Grotto | — | 13.0 / 14.6 | 1.1 / 1.3 | 42 / 42,038 |
+| Manor interior | — | 10.3 / 11.3 | 1.4 / 1.6 | 25 / 37,444 |
+| Grotto wreck | — | 11.1 / 12.3 | 1.2 / 1.4 | 23 / 35,956 |
 
-Limits: no physical gamepad, real mobile GPU, audio listening session or unaided 37-acorn campaign marathon was performed. Native timing excludes the house and includes synchronous GPU readback; it is a repeatable software-renderer workload, not hardware FPS. Branch encounters use explicitly staged positions, including the final boss and tower-trial gate approaches; a natural full timed tower ascent and a natural eighteen-acorn unlock route are not verified. The game still has four main courses, no swimming/interior courses/power-up progression, and a deliberately modest visual scorecard. Camera coverage is extensive but cannot prove every arbitrary obstruction configuration. Already-sounding audio tails and cosmetic particles restart across suspension. The manor miniboss resumes the course soundtrack after pause/refresh; matching that encounter's ongoing music is a follow-up.
+The manor's extra geometry/lights increase cost. Timing tails vary between runs on this shared machine; the separate full-playthrough timing JSON is retained as well. Peak sampled resources: 58 draw calls, 48,854 triangles, 55 geometries and 36 textures. No post passes, blur or shadow maps. The sign atlas and instanced bubbles limit added resources.
+
+### Capture review and limits
+
+Before: `pass2-before/boohoo-sequence-0.png`, `boohoo-intro.png`, `bells-round-1.png`, `sandcastle-pose-native.png`. After: corresponding `pass2-after/boohoo-sequence-0-native.png`, `boohoo-intro-native.png`, `bells-round-1-native.png`, `sandcastle-pose-native.png`; enlarged browser captures accompany native images. `model-sign-front/back/side-native.png` prove the solid sign and both faces. New content: `grotto-start-native.png`, `grotto-dive-native.png`, `grotto-open-chest-native.png`, `grotto-bubble-vent-native.png`, `manor-library-native.png`, `manor-upper-study-native.png`. Device evidence: `phone-swimming.png`, `phone-touch-landscape.png`, `tablet-touch-game.png`, `tablet-in-room.png`.
+
+Reviewed native and enlarged reward/intro/bell/sign/interior/water views, plus phone/tablet framing. Reward checks cover first-get, three early frames and settled pose: trophy clears the head and remains between the title/footer bands. Dark indoor materials remain deliberately compressed and deserve richer environmental lighting in a future art pass. Camera checks cover the recorded routes and orbit sectors, rather than every possible obstruction/input combination. No physical controller, mobile GPU or listening session was available. Branch staging means an unaided full 44-acorn campaign, every cheat combination and a complete natural clockwork trial ascent are not verified. Power-up progression and swimming in the original coastal courses are not implemented.
 
 ## Next chunk
 
-Build more complete, distinct courses before describing the game as reference-scale: an underwater custard grotto with swimming/diving, a proper snow slide/interior, an explorable haunted mansion, and additional milestone encounters. Add an original power-up progression (gliding, weight and phase puzzles), side-flip/ledge-grab traversal and a hub movement school. Keep the current acorn/save IDs, all old thresholds and the suspension regression intact. Further courses should introduce mechanics and authored routes rather than increase the count with repeated coin rings.
+Build an original power-up unlock ladder with useful return visits: a glide badge, a heavy biscuit form for current/weight puzzles and a phase trick for authored ghost routes. Add distinct milestone bosses, a dedicated snow slide and further complete courses. Retune the original coast/hub challenges before extending swimming to them. Side flip and ledge grab remain valuable movement additions. Keep the current IDs, original door thresholds and suspension compatibility regression.
+
+### Visual review
+
+The pass-2 baseline is scored more strictly than pass 1's self-review: overlapping reward UI was a visible failure. This is a period cartridge, with intentionally simple polygonal forms; it is not being presented as a modern showcase renderer.
+
+| Category | Before → after | Evidence / limit |
+| --- | --- | --- |
+| Art direction | 2 → 2.25 | Biscuit, snow, gingerbread, brass and aquatic-limestone courses have distinct palettes and landmarks. |
+| Hero | 2.25 → 2.25 | Original cap/rucksack silhouette retained; swimming, treading and raised-mitten poses added. Somersaults turn around body height. |
+| Obstacles/enemies | 2 → 2 | Solid wreck, jelly silhouettes, furnishings, actual stairs and rotating door; still deliberately low-poly. |
+| Rewards | 1.75 → 2.5 | Trophy/face separation and playfield fit checked through the get sequence; clear fanfare/title/objective/total hierarchy. |
+| World | 2 → 2.25 | Complete swim basin and two furnished mansion floors add genuine traversable volume; five courses remain a modest campaign. |
+| Materials | 2 → 2 | Shared original low-res textures and one sign atlas; book bindings, timber, limestone and brass remain economical. |
+| Lighting/render | 1.75 → 2 | Warm practical lights indoors and blue depth fog underwater; manor still has a deliberately compressed night palette. |
+| Motion/feedback | 2.5 → 2.5 | Existing chained jumps plus strokes/breach, door reversal, bubbles, hits and trophy pose. |
+| UI/HUD | 1.5 → 2.5 | Opaque ink, separate reward bands, stacked activity prompts, filled dialogue and three help pages. |
+| Performance evidence | 2.5 → 2.5 | Baseline/after native readback timings, update costs, renderer/resource and pixel diagnostics, plus indoor/wreck views. |
+
+Average: 2.025 → 2.275. No whole-game premium/showcase claim. The remaining art work is richer environmental modelling and lighting, especially indoors, rather than extra post effects.
+
+The manor camera uses a wider, lower lens and limits rotation at obstructed room views; recovery with the stick released stops when directional input resumes. Projection/FOV is saved. Indoor ceiling collision covers the whole normal head. Coasting wall jumps and separate stationary backflips have captured clearance checks. The jump camera follows smoothed height so a ceiling contact cannot force the lens into a somersault; its clearance is asserted. The tree crown has a continuous swept support behind the standing platform and room for the victory jump. Hit flashes draw below the HUD. Boss bars, race/trial prompts and door/chest prompts occupy separate footer lanes; pause owns its HUD.
+
+The native harness now uses the actual RoomTV random algorithm and action-edge contract. Pixel-inspection canvases request frequent-readback contexts so the inspection itself emits no Canvas2D warnings. The geometry proof projects actual model vertices, rather than an excessively loose world-aligned bounding box.

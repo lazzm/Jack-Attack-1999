@@ -10,7 +10,7 @@ import {playCase} from '../case-actions.mjs';
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 const base=process.argv.find(a=>/^http:/.test(a));
 assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply throwaway localhost URL');
-const before=process.argv.includes('--before'),dir=path.join(__dirname,'../shots/games/hop',before?'before':'after');
+const before=process.argv.includes('--before'),dir=path.join(__dirname,'../shots/games/hop',before?'pass2-before':'pass2-after');
 await mkdir(dir,{recursive:true});
 const source=before?execFileSync('git',['show','HEAD:app/public/js/rm-g-hop.js'],{cwd:path.join(__dirname,'../..'),encoding:'utf8'}):await readFile(path.join(__dirname,'../../app/public/js/rm-g-hop.js'),'utf8');
 let browser,p;const errors=[];
@@ -20,33 +20,38 @@ const D=(fn,arg)=>p.evaluate(fn,arg),frames=n=>D(n=>review.step(n),n);
 const key=async k=>{await p.keyboard.down(k);await frames(1);await p.keyboard.up(k);await frames(1)};
 const hold=async(k,n)=>{await p.keyboard.down(k);await frames(n);await p.keyboard.up(k);await frames(1)};
 const state=()=>D(()=>{const d=__hopDbg;return{mode:d.mode,w:d.world,paused:d.paused,P:{x:d.P.x,y:d.P.y,z:d.P.z,st:d.P.st,gnd:d.P.gnd,hp:d.P.hp},count:Object.keys(d.prog.got).length+Object.values(d.prog.ac).reduce((n,a)=>n+Object.keys(a).length,0)}});
-async function shot(name){await D(()=>review.game.draw());await p.screenshot({path:path.join(dir,name+'.png')});const data=await D(()=>{review.game.draw();const c=document.createElement('canvas');c.width=320;c.height=240;const g=c.getContext('2d');g.drawImage(review.K.cv,0,0);g.drawImage(review.K.hud.canvas,0,0);return c.toDataURL().split(',')[1]});await writeFile(path.join(dir,name+'-native.png'),Buffer.from(data,'base64'));console.log('SHOT '+name)}
+async function shot(name){await D(()=>review.game.draw());await p.screenshot({path:path.join(dir,name+'.png')});const data=await D(()=>{review.game.draw();const c=document.createElement('canvas');c.width=320;c.height=240;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(review.K.cv,0,0);g.drawImage(review.K.hud.canvas,0,0);return c.toDataURL().split(',')[1]});await writeFile(path.join(dir,name+'-native.png'),Buffer.from(data,'base64'));console.log('SHOT '+name)}
 function runner(restoring){
  const cv=document.createElement('canvas'),hc=document.createElement('canvas');for(const c of [cv,hc]){c.width=320;c.height=240;Object.assign(c.style,{position:'absolute',width:'100%',height:'100%',imageRendering:'pixelated'});document.querySelector('#screen').append(c)}
  const held={},pressed={},map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',z:'a',x:'b',c:'c',Enter:'start',u:'l',e:'r'};
  addEventListener('keydown',e=>{const b=map[e.key];if(b){if(!held[b])pressed[b]=true;held[b]=true;e.preventDefault()}},true);addEventListener('keyup',e=>{if(map[e.key])held[map[e.key]]=false},true);
- const K={cv,hud:hc.getContext('2d'),W:320,H:240,font:RoomTV.font,t:0,frame:0,restoring,stick:()=>({x:(held.right?1:0)-(held.left?1:0),y:(held.down?1:0)-(held.up?1:0)}),label:b=>({a:'Z',b:'X',c:'C',l:'U',r:'E',start:'ENTER'}[b]||b.toUpperCase()),any:()=>Object.values(pressed).some(Boolean),held:b=>!!held[b],pressed:b=>!!pressed[b],rnd:seed=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296},load:()=>JSON.parse(localStorage.getItem('hop-review')||'null'),save:s=>{localStorage.setItem('hop-review',JSON.stringify(s));return true},resume:()=>{K.restoring=false},secret:()=>{},music:s=>{K.song=s},over:(score,options)=>{K.result={score,...options}},sfx:{tone(){},seq(){},noise(){}},three:o=>K._three||(K._three=RoomTV.make3d(K,o))};
+ const K={cv,hud:hc.getContext('2d',{willReadFrequently:true}),W:320,H:240,font:RoomTV.font,t:0,frame:0,restoring,stick:()=>({x:(held.right?1:0)-(held.left?1:0),y:(held.down?1:0)-(held.up?1:0)}),label:b=>({a:'Z',b:'X',c:'C',l:'U',r:'E',start:'ENTER'}[b]||b.toUpperCase()),any:()=>['a','b','c','x','y','start'].some(k=>pressed[k]),held:b=>!!held[b],pressed:b=>!!pressed[b],rnd(seed){let a=(seed>>>0)||1;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}},load:()=>JSON.parse(localStorage.getItem('hop-review')||'null'),save:s=>{localStorage.setItem('hop-review',JSON.stringify(s));return true},resume:()=>{K.restoring=false},secret:()=>{},music:s=>{K.song=s},over:(score,options)=>{K.result={score,...options}},sfx:{tone(){},seq(){},noise(){}},three:o=>K._three||(K._three=RoomTV.make3d(K,o))};
  window.review={K,game:RoomTV.defs['n64.hop'].make(K),step(n){for(let i=0;i<n;i++){this.game.update(1/60);K.frame++;K.t+=1/60;for(const k in pressed)delete pressed[k]}this.game.draw()}};
 }
-async function native(restoring=false){
+async function native(restoring=false,code=source){
  await p.goto(base+'/__hop-review');await D(()=>{window.Room={_:{esc:s=>s}}});
  for(const src of ['vendor/three.min.js','js/cast.js','js/rm-tv.js','js/rm-3d.js'])await p.addScriptTag({url:base+'/'+src});
- await D(()=>Cast.bind('hop-review',{first:'Robin',g:'f'}));await p.addScriptTag({content:source});await p.evaluate(runner,restoring);await frames(restoring?0:90);
+ await D(()=>Cast.bind('hop-review',{first:'Robin',g:'f'}));await p.addScriptTag({content:code});await p.evaluate(runner,restoring);await frames(restoring?0:90);
 }
 async function world(w){await D(w=>__hopDbg.go(w),w);await frames(1)}
 async function at(x,y,z){await D(a=>__hopDbg.tp(...a),[x,y,z]);await frames(1)}
 async function walkTo(x,z,max=450){
  for(let i=0;i<max;i++){
-  const v=await D(({x,z})=>{const P=__hopDbg.P,c=review.K._three.cam,a=c.matrixWorld.elements,dx=x-P.x,dz=z-P.z;return{d:Math.hypot(dx,dz),x:dx*a[0]+dz*a[2],y:-(dx*a[8]+dz*a[10]),mode:__hopDbg.mode}},{x,z});
+  const v=await D(({x,z})=>{const P=__hopDbg.P,c=review.K._three.cam,a=c.matrixWorld.elements,dx=x-P.x,dz=z-P.z;return{d:Math.hypot(dx,dz),x:dx*a[0]+dz*a[2],y:-(dx*a[8]+dz*a[10])/(Math.hypot(a[8],a[10])||1),mode:__hopDbg.mode}},{x,z});
   if(v.d<.45||v.mode!=='play')return;
   const keys=[];if(Math.abs(v.x)>.25*Math.abs(v.y))keys.push(v.x>0?'ArrowRight':'ArrowLeft');if(Math.abs(v.y)>.25*Math.abs(v.x))keys.push(v.y>0?'ArrowUp':'ArrowDown');
   for(const k of keys)await p.keyboard.down(k);await frames(3);for(const k of keys)await p.keyboard.up(k);
  }
  throw Error('Walk route blocked at '+JSON.stringify(await state())+' toward '+x+','+z);
 }
-async function win(name){assert.equal((await state()).mode,'win','Natural acorn pickup');await shot(name+'-get');for(let i=0;i<3;i++){await frames(8);await shot(name+'-sequence-'+i)}await frames(60);await shot(name+'-pose');await frames(150);assert.equal((await state()).mode,'play')}
+async function rewardProof(name){
+ const b=await D(()=>__hopDbg.presentation());assert(b.reward.right<b.head.left||b.reward.left>b.head.right||b.reward.bottom<b.head.top||b.reward.top>b.head.bottom,name+' acorn clears head '+JSON.stringify(b));assert(b.reward.left>1&&b.reward.right<319&&b.reward.top>88&&b.reward.bottom<200,name+' trophy fits native playfield '+JSON.stringify(b.reward));
+}
+async function win(name){
+ assert.equal((await state()).mode,'win','Natural acorn pickup');await shot(name+'-get');if(!before)await rewardProof(name+' get');for(let i=0;i<3;i++){await frames(8);await shot(name+'-sequence-'+i);if(!before)await rewardProof(name+' frame '+i)}await frames(60);await shot(name+'-pose');if(!before){await rewardProof(name+' pose');await hudProof(name)}await frames(150);assert.equal((await state()).mode,'play');
+}
 async function perf(w){return D(w=>{
- const d=__hopDbg,k=review.K;d.go(w);const t=k._three,gl=t.ren.getContext(),px=new Uint8Array(4),a=[],updates=[];
+ const d=__hopDbg,k=review.K,id=w==='manor-interior'?'manor':w==='grotto-wreck'?'grotto':w;d.go(id);if(w==='manor-interior')d.tp(-6.8,.2,-20);if(w==='grotto-wreck')d.air(-2,-8,-5);const t=k._three,gl=t.ren.getContext(),px=new Uint8Array(4),a=[],updates=[];
  for(let i=0;i<180;i++){const s=performance.now();review.game.update(1/60);k.t+=1/60;k.frame++;const u=performance.now();review.game.draw();gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);if(i>=60){a.push(performance.now()-s);updates.push(u-s)}}
  a.sort((a,b)=>a-b);updates.sort((a,b)=>a-b);
  const pixels=new Uint8Array(320*240*4);gl.readPixels(0,0,320,240,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
@@ -66,8 +71,8 @@ try{
   p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
   await p.route('**/__hop-review',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Jack Attack 1999</title><link rel="icon" href="data:,"><body style="margin:0;background:#10152a"><div id="screen" style="position:absolute;width:min(96vw,128vh);aspect-ratio:4/3;left:50%;top:50%;transform:translate(-50%,-50%)"></div>'}));
   await native();
-  if(!process.argv.includes('--bench')){if(process.argv.includes('--feel-only')||process.argv.includes('--boss-only')||process.argv.includes('--trials-only')||process.argv.includes('--edges-only')){await key('Enter');await key('z');await frames(45);await key('z');if(process.argv.includes('--boss-only'))await bossFight();else if(process.argv.includes('--trials-only'))await trials();else if(process.argv.includes('--edges-only')){await enemiesAndPuzzles();await doorAndTitleEdges();await gameOverEdge()}else await improvements()}else await playthrough()}
-  if(!['--feel-only','--trials-only','--boss-only','--edges-only'].some(a=>process.argv.includes(a))){const stats=[];for(const w of ['hub','cove','peaks','manor','tower','boss'])stats.push(await perf(w));await writeFile(path.join(dir,process.argv.includes('--bench')?'paired-performance.json':'performance.json'),JSON.stringify(stats,null,2));console.log('PERFORMANCE '+JSON.stringify(stats));}
+  if(!process.argv.includes('--bench')){if(process.argv.includes('--legacy-only')||process.argv.includes('--manor-only')||process.argv.includes('--swim-only')||process.argv.includes('--feel-only')||process.argv.includes('--boss-only')||process.argv.includes('--trials-only')||process.argv.includes('--edges-only')){await key('Enter');await key('z');await frames(45);await key('z');if(process.argv.includes('--legacy-only'))await legacySaves();else if(process.argv.includes('--manor-only'))await manorInside();else if(process.argv.includes('--swim-only'))await swimming();else if(process.argv.includes('--boss-only'))await bossFight();else if(process.argv.includes('--trials-only'))await trials();else if(process.argv.includes('--edges-only')){await enemiesAndPuzzles();await doorAndTitleEdges();await gameOverEdge()}else await improvements()}else await playthrough()}
+  if(!['--feel-only','--trials-only','--boss-only','--edges-only','--swim-only','--manor-only','--legacy-only'].some(a=>process.argv.includes(a))){const stats=[];for(const w of ['hub','cove','peaks','manor','tower','boss',...(!before?['grotto','manor-interior','grotto-wreck']:[])])stats.push(await perf(w));await writeFile(path.join(dir,process.argv.includes('--bench')?'paired-performance.json':'performance.json'),JSON.stringify(stats,null,2));console.log('PERFORMANCE '+JSON.stringify(stats));}
   await browser.close();browser=null;
  }
  if(!process.argv.includes('--native')&&!process.argv.includes('--bench')){if(process.argv.includes('--phone-only'))await phone();else await room();}
@@ -87,7 +92,7 @@ async function playthrough(){
  await at(-.8,3,3.8);await walkTo(.31,.1);await frames(70);assert.equal((await state()).w,'peaks');await shot('peaks-card');await frames(45);await key('z');await shot('peaks-start');await hold('ArrowUp',65);await shot('peaks-mid');
  for(const w of ['manor','tower','boss']){await world(w);await shot(w+'-start');await hold('ArrowUp',40);await shot(w+'-mid')}
  await world('cove');await at(12,2,-21);await p.keyboard.down('ArrowRight');await key('z');await frames(16);await shot('wall-contact');await key('z');await frames(5);await shot('wall-kick');await p.keyboard.up('ArrowRight');
- await world('hub');await key('Enter');await key('ArrowDown');await key('ArrowDown');await key('z');await frames(70);assert.equal((await state()).mode,'title');await key('Enter');await shot('continue-menu');await key('z');assert.equal((await state()).mode,before?'card':'play');if(before){await frames(45);await key('z')}assert.equal((await state()).count,3);await shot('continue-hub');
+ await world('hub');await key('Enter');await key('ArrowDown');await key('ArrowDown');await key('z');await frames(70);assert.equal((await state()).mode,'title');await key('Enter');await shot('continue-menu');await key('z');assert.equal((await state()).mode,'play');assert.equal((await state()).count,3);await shot('continue-hub');
  if(!before)await improvements();else await baselineFeel();
  console.log('FLOW PASS: title, attract, hub input, real Cove/Peaks doors, 3 pickups, pause, continue'+(!before?', refresh':''));
 }
@@ -107,7 +112,7 @@ async function suspend(name){
  const scenery=await layout();
  await D(()=>__hopDbg.save());const s=await D(()=>review.K.load().run),count=(await state()).count;
  await native(true);assert.deepEqual(await layout(),scenery,name+' restores cold-cache scenery');const r=await D(()=>__hopDbg.snapshot());
- for(const k of ['w','time','random','player','plat','visit','mode','paused','pauseI','card','win','winT','endT','overT','result','enemies','visuals','gotCoins','reds','lives','acorns','chestOpen','plugOut','bossDown','raceWon','props','lamps','trial','motionClock','mission','boss','boo','race','snow','dlg','fade'])assert.deepEqual(r[k],s[k],name+' restores '+k);
+ for(const k of ['w','time','random','player','plat','visit','mode','paused','pauseI','card','win','winT','endT','overT','result','enemies','visuals','gotCoins','reds','lives','acorns','chestOpen','plugOut','bossDown','raceWon','props','propTargets','lamps','trial','motionClock','mission','boss','boo','race','snow','grotto','dlg','fade'])assert.deepEqual(r[k],s[k],name+' restores '+k);
  assert.equal((await state()).count,count);await shot('refresh-'+name);
 }
 async function improvements(){
@@ -142,13 +147,13 @@ async function improvements(){
  await world('cove');await faceAt(-24,24);await p.keyboard.down('z');await frames(10);await p.keyboard.up('z');await suspend('mid-jump');
  await world('cove');await faceAt(24.8,12,0,14.35);await key('z');await frames(12);await key('c');await untilFrame(()=>__hopDbg.props()[0].open>0,120);await shot('chest-ground-pound');await suspend('open-chest');await at(24.8,14.8,12);await win('captain-chest');
  await world('peaks');const plug=await D(()=>{const p=__hopDbg.props().find(p=>p.kind==='plug');return{x:p.b.x,y:p.b.y+p.b.hh,z:p.b.z}});await faceAt(plug.x,plug.z,0,plug.y);await key('z');await frames(12);await key('c');await untilFrame(()=>!__hopDbg.props().find(p=>p.kind==='plug').m.visible,100);await shot('ice-plug-pound');await suspend('ice-plug');
- await enemiesAndPuzzles();await doorAndTitleEdges();await trials();await bossFight();await gameOverEdge();
+ await manorInside();await enemiesAndPuzzles();await doorAndTitleEdges();await trials();await swimming();await bossFight();await gameOverEdge();
  assert(await D(()=>JSON.stringify(review.K.load()).length<19500),'Suspension remains in roaming-save budget');
  await p.setViewportSize({width:1280,height:720});await shot('desktop-1280');await p.setViewportSize({width:1920,height:1080});await shot('desktop-1920');await p.setViewportSize({width:1366,height:860});
  console.log('DEPTH PASS: delayed triple jump, long jump, coyote, buffered jump, successive wall kicks, camera orbits, platform pause/refresh, chest, plug, boss, credits');
 }
 async function enemiesAndPuzzles(){
- await world('manor');await faceAt(0,-20,0,0);assert((await state()).P.z>-13.7,'Exact-centre box overlap escapes');
+ await world('manor');await faceAt(26,22,0,0);assert((await state()).P.x>28.4,'Exact-centre crypt overlap escapes');
  await world('hub');const centre=await D(()=>{const c=__hopDbg.solids().cyls.find(c=>Math.abs(c.x+3)<.01&&Math.abs(c.z-24)<.01);return{x:c.x,z:c.z,y:c.y0,r:c.r}});await faceAt(centre.x,centre.z,0,centre.y);assert(Math.hypot((await state()).P.x-centre.x,(await state()).P.z-centre.z)>=centre.r+.4,'Exact-centre cylinder overlap escapes');
  for(const w of ['hub','cove','peaks','manor','tower']){
   await world(w);assert(await D(()=>__hopDbg.ENS().every(e=>Number.isFinite(e.y)&&Number.isFinite(e.mesh.position.y))),'Enemy heights are finite in '+w);
@@ -160,9 +165,9 @@ async function enemiesAndPuzzles(){
  for(let i=0;i<lamps.length;i++){await faceAt(lamps[i].x,lamps[i].z);if(i===1){await key('Enter');await suspend('two-lanterns');await key('Enter')}}
  assert(await D(()=>__hopDbg.lamps().every(l=>l.lit)));const a=await D(()=>{const a=__hopDbg.ACS().find(a=>a.id==='lamps');return{x:a.x,y:a.y,z:a.z}});await at(a.x,a.y-.6,a.z);await win('four-lanterns');
  // The graveyard encounter is fought with real punches, including its shy/invulnerable phases.
- await world('manor');await faceAt(20,18);await untilFrame(()=>__hopDbg.mode==='dlg',30);await shot('boohoo-intro');for(let i=0;i<6;i++)await key('z');assert.equal(await D(()=>__hopDbg.BB.st),'fight');
+ await world('manor');await faceAt(20,18);await untilFrame(()=>__hopDbg.mode==='dlg',30);await frames(90);assert(await D(()=>{const b=__hopDbg.BB,c=review.K._three.cam;c.updateMatrixWorld(true);const v=new THREE.Box3().setFromObject(b.mesh).getCenter(new THREE.Vector3()).project(c);return Math.abs(v.x)<.75&&v.y>-.35&&v.y<.85&&v.z<1&&Math.hypot(b.mesh.position.x-b.x,b.mesh.position.z-b.z)<.01}),'Boss intro frames the actual boss mesh');assert(await D(()=>__hopDbg.snapshot().dlg.ch>40));await shot('boohoo-intro');for(let i=0;i<6;i++)await key('z');assert.equal(await D(()=>__hopDbg.BB.st),'fight');
  for(let i=0;i<3;i++){
-  await untilFrame(()=>__hopDbg.BB.inv<=0,180);const b=await D(()=>({x:__hopDbg.BB.x,z:__hopDbg.BB.z,hp:__hopDbg.BB.hp}));await faceAt(b.x,b.z+3,0,0);await key('x');assert.equal(await D(()=>__hopDbg.BB.hp),b.hp-1);await shot('boohoo-hit-'+i);if(i===0)await suspend('boohoo-fight');
+  await untilFrame(()=>__hopDbg.BB.inv<=0,180);const b=await D(()=>({x:__hopDbg.BB.x,z:__hopDbg.BB.z,hp:__hopDbg.BB.hp}));await faceAt(b.x,b.z+3,0,0);await key('x');assert.equal(await D(()=>__hopDbg.BB.hp),b.hp-1);await shot('boohoo-hit-'+i);if(i===0){await key('Enter');assert.equal(await D(()=>review.K.song),null);await key('Enter');assert.equal(await D(()=>review.K.song.bpm),168);await suspend('boohoo-fight');assert.equal(await D(()=>review.K.song.bpm),168,'Miniboss soundtrack survives refresh');}
  }
  await untilFrame(()=>__hopDbg.BB.st==='gone',100);await at(20,0,14);await win('boohoo');
 }
@@ -170,7 +175,7 @@ async function doorAndTitleEdges(){
  await world('hub');const d=await D(()=>{const d=__hopDbg.doors()[0];return{x:d.x,z:d.z,fx:d.fx,fz:d.fz,y:d.y}});await faceAt(d.x+d.fx*2,d.z+d.fz*2,Math.atan2(d.fx,d.fz),d.y);await p.keyboard.down('ArrowUp');await untilFrame(()=>!!__hopDbg.fading,100);await p.keyboard.up('ArrowUp');await suspend('door-closing');await untilFrame(()=>__hopDbg.fading?.done,40);await suspend('door-opening');await frames(60);assert.equal((await state()).w,'cove');assert.equal((await state()).mode,'card');await key('ArrowDown');await shot('objective-card');const sel=await D(()=>__hopDbg.ui.card.sel);await suspend('objective-card');assert.equal(await D(()=>__hopDbg.ui.card.sel),sel);await key('z');
  // Title options and attract scenery must leave the suspended course record intact.
  await key('Enter');await key('ArrowDown');await key('ArrowDown');await key('ArrowDown');await key('z');await frames(60);assert.equal((await state()).mode,'title');await key('Enter');const saved=await D(()=>review.K.load().run);await key('ArrowDown');await key('z');await shot('erase-confirmation');await suspendTitle('erase-menu');await key('x');assert.equal((await state()).count,Object.keys((await D(()=>__hopDbg.prog.got))).length+Object.values(await D(()=>__hopDbg.prog.ac)).reduce((n,a)=>n+Object.keys(a).length,0));await key('ArrowDown');await key('ArrowDown');await key('z');await shot('options');await key('z');await key('z');await key('x');assert.deepEqual(await D(()=>review.K.load().run),saved,'Options do not replace the suspended run');
- await key('ArrowUp');await key('z');await shot('how-to-1');await key('z');await shot('how-to-2');await key('x');await key('ArrowDown');await key('ArrowDown');await key('z');await shot('cast-high-scores');await key('x');
+ await key('ArrowUp');await key('z');await shot('how-to-1');await key('z');await shot('how-to-2');await key('z');await shot('how-to-3');await key('x');await key('ArrowDown');await key('ArrowDown');await key('z');await shot('cast-high-scores');await key('x');
  await D(()=>__hopDbg.title());const score=await D(()=>__hopDbg.prog.score);await frames(900);assert.equal((await state()).mode,'attract');await shot('saved-file-attract');await frames(1750);assert.equal(await D(()=>__hopDbg.prog.score),score,'Attract cannot earn score');assert.deepEqual(await D(()=>review.K.load().run),saved,'Attract does not replace run');
  await key('Enter');if(!await D(()=>__hopDbg.ui.started))await key('Enter');await key('z');assert.equal((await state()).w,'cove');assert.equal((await state()).mode,'play');
 }
@@ -222,10 +227,10 @@ async function trials(){
  await startTrial('manor');let bells=await D(()=>__hopDbg.trial.def.bells);
  await faceAt(bells[1][0],bells[1][1]+1.2);await key('x');assert.equal(await D(()=>__hopDbg.trial.st),'demo');assert.equal(await D(()=>__hopDbg.trial.round),0);await shot('bell-wrong-note');await suspend('bell-phrase');
  for(let round=0;round<3;round++){
-  await untilFrame(()=>__hopDbg.trial.st==='listen',500);const tune=await D(()=>__hopDbg.trial.def.tunes[__hopDbg.trial.round]);await shot('bells-round-'+round);
+  await untilFrame(()=>__hopDbg.trial.st==='listen',500);const tune=await D(()=>__hopDbg.trial.def.tunes[__hopDbg.trial.round]);await shot('bells-round-'+round);if(round===1){await faceAt(0,-12);await shot('bell-trial-at-door');}
   for(const i of tune){const [x,z]=bells[i];await faceAt(x,z+1.2);await key('x')}
  }
- assert.equal(await D(()=>__hopDbg.trial.st),'done');await faceAt(0,-9);await win('bell-blues');await inspectTrialModels('bell');
+ assert.equal(await D(()=>__hopDbg.trial.st),'done');await faceAt(0,-9);await win('bell-blues');await inspectTrialModels('bell');await inspectSign();
  // Clock slowdown is a saved motion phase, independent from the trial deadline.
  await startTrial('tower');const clock=await D(()=>({c:__hopDbg.clock,m:__hopDbg.snapshot().motionClock}));await frames(60);const later=await D(()=>({c:__hopDbg.clock,m:__hopDbg.snapshot().motionClock}));assert(Math.abs((later.m-clock.m)/(later.c-clock.c)-.35)<.001,'Trial slows clockwork only');
  const gates=await D(()=>__hopDbg.trial.route);
@@ -239,6 +244,81 @@ async function inspectTrialModels(kind){
   await D(({kind,a})=>{const q=__hopDbg.trial,at=kind==='bell'?q.def.bells[1]:[q.switch.x,q.switch.z],x=at[0],z=at[1],y=kind==='bell'?__hopDbg.WORLDS[__hopDbg.world].ground(x,z):q.switch.y-.57;__hopDbg.view('acorn');const c=review.K._three.cam,d=kind==='bell'?3.1:2.4;c.position.set(x+Math.sin(a)*d,y+(kind==='bell'?1.8:1.5),z+Math.cos(a)*d);c.lookAt(x,y+(kind==='bell'?.95:.3),z)},{kind,a});const framed=await D(kind=>{const q=__hopDbg.trial,c=review.K._three.cam;c.updateMatrixWorld(true);const v=kind==='bell'?new THREE.Box3().setFromObject(q.bells[1]).getCenter(new THREE.Vector3()):new THREE.Vector3(q.switch.x,q.switch.y,q.switch.z);v.project(c);return Math.abs(v.x)<.8&&Math.abs(v.y)<.8&&v.z<1&&v.z>-1},kind);assert(framed,'Model close-up contains '+kind);await shot('model-'+kind+'-'+name);
  }
  await D(s=>__hopDbg.restore(s),saved);
+}
+async function swimTo(x,y,z,max=900){
+ const active=new Set();try{for(let i=0;i<max;i++){
+  const v=await D(({x,y,z})=>{const P=__hopDbg.P,c=review.K._three.cam,a=c.matrixWorld.elements,dx=x-P.x,dz=z-P.z,yy=Math.max(y,__hopDbg.WORLDS.grotto.ground(x,z)+.03);return{d:Math.hypot(dx,dz),dy:yy-P.y,x:dx*a[0]+dz*a[2],z:-(dx*a[8]+dz*a[10])/(Math.hypot(a[8],a[10])||1),mode:__hopDbg.mode,st:P.st,p:[P.x,P.y,P.z]}},{x,y,z});
+  if(v.st==='dead')throw Error('Drowned on swim route '+[x,y,z]+' at '+v.p);if(v.mode==='win')return;if(v.d<.75&&Math.abs(v.dy)<.7)return;
+  if(v.st==='swim'&&v.p[1]>-1.35&&y>-.5&&active.has('z')){await p.keyboard.up('z');active.delete('z');await frames(1)}
+  const keys=[];if(v.d>.25){if(Math.abs(v.x)>.25*Math.abs(v.z))keys.push(v.x>0?'ArrowRight':'ArrowLeft');if(Math.abs(v.z)>.25*Math.abs(v.x))keys.push(v.z>0?'ArrowUp':'ArrowDown')}
+  if(v.dy<-.3)keys.push('c');else if(v.dy>.3)keys.push('z');
+  for(const k of active)if(!keys.includes(k)){await p.keyboard.up(k);active.delete(k)}for(const k of keys)if(!active.has(k)){await p.keyboard.down(k);active.add(k)}await frames(3);
+ }
+ throw Error('Swim route blocked: '+JSON.stringify(await state())+' target '+[x,y,z]);}finally{for(const k of active)await p.keyboard.up(k)}
+}
+async function swimming(){
+ await world('hub');
+ for(const id of ['hill','pond','light','tree','pier']){if((await state()).count>=5)break;if(await D(id=>!!__hopDbg.prog.got[id],id))continue;const a=await D(id=>{const a=__hopDbg.ACS().find(a=>a.id===id);return[a.x,a.y-.6,a.z]},id);await D(a=>__hopDbg.air(...a),a);await frames(1);await win('grotto-unlock-'+id)}
+ const d=await D(()=>__hopDbg.doors().find(d=>d.w==='grotto'));assert.equal(d.need,5);assert.equal(d.i,5,'Original door indices preserved');
+ await faceAt(d.x+d.fx*3,d.z+d.fz*3,Math.atan2(d.fx,d.fz),d.y);await p.keyboard.down('ArrowUp');await untilFrame(()=>!!__hopDbg.fading,100);await p.keyboard.up('ArrowUp');await frames(65);assert.equal((await state()).w,'grotto');assert.equal((await state()).mode,'card');assert.equal(await D(()=>__hopDbg.ACS().length),7);assert(await D(()=>[...__hopDbg.coins(),...__hopDbg.reds()].every(c=>c.y-__hopDbg.WORLDS.grotto.ground(c.x,c.z)>.7)),'No buried sea coins');await shot('grotto-card');await frames(45);await key('z');await shot('grotto-start');
+ await hold('ArrowUp',120);assert(await D(()=>__hopDbg.P.swimming),'Walked from the bank into swimming');await shot('grotto-surface');await hold('c',95);assert(await D(()=>__hopDbg.P.y<-5),'C dives');await shot('grotto-dive');
+ await key('Enter');const paused=await D(()=>__hopDbg.snapshot());await frames(120);assert.deepEqual(await D(()=>__hopDbg.snapshot()),paused,'Paused swimming including air stays fixed');await suspend('swimming-paused');await key('Enter');
+ await swimTo(-10,-3.6,19);await win('first-dip');
+ // Real held input reaches the surface, then a fresh jump press breaches it.
+ await swimTo(-8,-.9,18);await p.keyboard.down('z');await untilFrame(()=>__hopDbg.P.st==='jump'||__hopDbg.P.y>-.95,120);await p.keyboard.up('z');if(!await D(()=>__hopDbg.P.st==='jump')){await frames(2);await key('z')}assert(await D(()=>__hopDbg.P.st==='jump'&&__hopDbg.P.vy>8),'Surface breach');await frames(15);await shot('grotto-breach');await frames(95);
+ // Low-air and bubble recovery are accelerated by staging only the resource, never rewards.
+ await D(()=>{__hopDbg.air(-7,-6,-4);__hopDbg.P.air=3});await frames(60);assert(await D(()=>__hopDbg.P.air<2.1));await shot('grotto-low-air');await suspend('low-air');
+ await D(()=>__hopDbg.air(-13,-7,7));await frames(100);assert(await D(()=>__hopDbg.P.air>20),'Bubble vent restores air');await shot('grotto-bubble-vent');await suspend('bubble-vent');
+ // The wreck has real walls and an open end; B opens its physical chest underwater.
+ await swimTo(-5,-7,-4);await swimTo(0,-9.6,-4);await swimTo(0,-10.3,-6.8);await key('x');assert(await D(()=>__hopDbg.snapshot().chestOpen.grotto),'Underwater chest opens');await shot('grotto-open-chest');await suspend('sunken-chest');await swimTo(0,-9,-8);await win('sunken-lunch');
+ for(let i=0;i<3;i++){const a=await D(i=>__hopDbg.grotto.pearlMeshes[i].position.toArray(),i);await swimTo(a[0],a[1]-.6,a[2]);assert(await D(i=>!!(__hopDbg.grotto.pearls&(1<<i)),i),'Pearl collision '+i);await shot('grotto-pearl-'+i);if(i===0)await suspend('one-pearl')}
+ assert.equal(await D(()=>__hopDbg.grotto.pearls),7);await swimTo(0,-5.6,1);await win('three-pearls');
+ while(await D(()=>__hopDbg.grotto.gate)<3){const i=await D(()=>__hopDbg.grotto.gate),a=await D(()=>__hopDbg.grotto.route[__hopDbg.grotto.gate]);await swimTo(a[0],a[1]-.7,a[2]);assert(await D(i=>__hopDbg.grotto.gate>i,i),'Current hoop '+i);await shot('grotto-current-'+i);await suspend('current-'+i)}
+ await swimTo(10,-7.6,-16);await win('custard-current');
+ for(let i=0;i<8;i++){const r=await D(i=>__hopDbg.reds()[i],i);if(r.got)continue;await swimTo(r.x,r.y-.6,r.z);if((await state()).mode==='win')await win('unexpected-red-route-reward')}
+ assert.equal(await D(()=>__hopDbg.snapshot().visit.reds),8);await swimTo(0,.8,25);await win('red-sea-coins');
+ // Collect the 100-coin reward by swimming to actual uncollected coins.
+ for(let i=0;i<160&&await D(()=>__hopDbg.snapshot().visit.coins)<100;i++){const a=await D(()=>{const P=__hopDbg.P;return __hopDbg.coins().filter(c=>!c.got&&c.y<0&&!(c.pop>0)).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y,a.z-P.z)-Math.hypot(b.x-P.x,b.y-P.y,b.z-P.z))[0]});assert(a,'Enough underwater coins');await swimTo(a.x,a.y-.6,a.z);await frames(1)}
+ assert(await D(()=>__hopDbg.snapshot().visit.coins>=100));if(!await D(()=>__hopDbg.prog.ac.grotto.c100)){const hundred=await D(()=>{const a=__hopDbg.ACS().find(a=>a.id==='c100');return[a.x,a.y-.6,a.z]});await swimTo(...hundred);await win('sunken-hundred');}
+ // Climb the dry stepping rocks using real jumps from the water.
+ await swimTo(-14,-.9,9);await swimTo(-16,-.6,7);await untilFrame(()=>__hopDbg.P.gnd,180);
+ for(const [x,z] of [[-19,4],[-23,0]]){await p.keyboard.down('z');await frames(1);await walkTo(x,z,200);await p.keyboard.up('z');if((await state()).mode!=='win')await untilFrame(()=>__hopDbg.P.gnd,180);await shot('grotto-roost-step')}
+ await win('dry-roost');assert.equal(await D(()=>Object.keys(__hopDbg.prog.ac.grotto).length),7,'All seven course rewards are real pickups');await key('Enter');await suspend('grotto-complete');await key('Enter');
+ console.log('SWIM PASS: real hub door, bank entry, dive, breach, air/vents, wreck chest, three pearls, three current hoops, red/100 coins, natural roost jumps, all seven pickups and refresh');
+}
+async function hudProof(name){
+ const r=await D(()=>{review.game.draw();const c=document.createElement('canvas');c.width=320;c.height=240;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(review.K.cv,0,0);g.drawImage(review.K.hud.canvas,0,0);const a=g.getImageData(0,0,320,240).data,h=review.K.hud.getImageData(0,0,320,240).data;let opaque=0,dark=0;for(let i=0;i<h.length;i+=4)if(h[i+3]===255){opaque++;if(h[i]===16&&h[i+1]===16&&h[i+2]===28)dark++;if(a[i]!==h[i]||a[i+1]!==h[i+1]||a[i+2]!==h[i+2])return{bad:i/4}}return{opaque,dark,hud:review.K.hud.canvas.toDataURL().split(',')[1]}});
+ assert.equal(r.bad,undefined,'World never occludes opaque HUD pixels');assert(r.opaque>1000&&r.dark>300,'HUD has opaque contrast ink');await writeFile(path.join(dir,name+'-hud.png'),Buffer.from(r.hud,'base64'));
+}
+
+async function inspectSign(){
+ const saved=await D(()=>__hopDbg.snapshot());for(const [name,a] of [['front',0],['side',Math.PI/2],['back',Math.PI]]){await D(a=>{const n=__hopDbg.npcs().find(n=>n.kind==='sign'&&n.lines[0].startsWith('THE BUTLER'));__hopDbg.view('acorn');const c=review.K._three.cam;c.position.set(n.x+Math.sin(a)*3,n.y+1.4,n.z+Math.cos(a)*3);c.lookAt(n.x,n.y+1.25,n.z)},a);await shot('model-sign-'+name)}await D(s=>__hopDbg.restore(s),saved);
+}
+async function manorInside(){
+ await world('manor');await faceAt(0,-10.5,0,0);await hold('ArrowUp',70);assert((await state()).P.z>-13.4,'Closed front door is solid');await shot('manor-door-closed');
+ await key('x');await frames(7);const phase=await D(()=>__hopDbg.props().find(p=>p.kind==='manorDoor').open);assert(phase>0&&phase<1);await key('Enter');await suspend('manor-door-mid-open');await frames(60);assert.equal(await D(()=>__hopDbg.props().find(p=>p.kind==='manorDoor').open),phase);await key('Enter');await frames(50);assert.equal(await D(()=>__hopDbg.props().find(p=>p.kind==='manorDoor').open),1);await shot('manor-door-open');
+ await walkTo(0,-16);assert((await state()).P.z<-15,'Walked through the real doorway');await shot('manor-foyer');await walkTo(-2,-16);await walkTo(-2,-20);await walkTo(-6.8,-20);await shot('manor-library');await suspend('manor-library');await p.keyboard.down('c');await key('z');await untilFrame(()=>__hopDbg.P.vy<=0,100);assert((await state()).P.y<2.901,'The whole head fits below the library ceiling');assert(await D(()=>review.K._three.cam.position.distanceTo(new THREE.Vector3(__hopDbg.P.x,__hopDbg.P.y+1,__hopDbg.P.z))>2.5),'Coasting wall jump retains camera room '+JSON.stringify(await D(()=>({camera:__hopDbg.C,lens:review.K._three.cam.position,P:__hopDbg.P}))));await shot('manor-wall-long-jump');await p.keyboard.up('c');await untilFrame(()=>__hopDbg.P.gnd,120);await frames(30);await p.keyboard.down('c');await key('z');assert.equal((await state()).P.st,'back');await untilFrame(()=>__hopDbg.P.vy<=0,100);assert((await state()).P.y<2.901,'Backflip stays below the library ceiling');assert(await D(()=>review.K._three.cam.position.distanceTo(new THREE.Vector3(__hopDbg.P.x,__hopDbg.P.y+1,__hopDbg.P.z))>2.5),'Ceiling backflip retains camera room');await shot('manor-ceiling-clearance');await p.keyboard.up('c');await untilFrame(()=>__hopDbg.P.gnd,120);
+ await walkTo(-2,-20);await walkTo(-2,-16.3);await walkTo(0,-16.3);await walkTo(0,-24);assert((await state()).P.y>4.9,'Walked up the actual staircase');await shot('manor-upper-landing');await walkTo(-3.5,-24);await walkTo(-3.5,-21);await walkTo(-6.5,-21);assert(await D(()=>__hopDbg.reds()[7].got),'Upper study red coin is reachable');await shot('manor-upper-study');await suspend('manor-upper-study');
+ for(const [name,x,z,y] of [['library',-6.8,-20,.2],['dining',6.3,-18,.2],['study',-6.5,-21,5.1],['landing',0,-24,5.1]]){
+  await faceAt(x,z,0,y);for(let i=0;i<4;i++){await key('u');await frames(30);assert(await D(()=>{const P=__hopDbg.P,c=review.K._three.cam;c.updateMatrixWorld(true);const v=new THREE.Vector3(P.x,P.y+1,P.z).project(c);return Math.abs(v.x)<.8&&Math.abs(v.y)<.9&&v.z<1&&c.position.distanceTo(new THREE.Vector3(P.x,P.y+1,P.z))>2.5}),'Interior camera keeps Bopper visible: '+name);if(i%2===0)await shot('manor-'+name+'-camera-'+i)}
+ }
+ // The door works from inside too, including reversing a half-finished close.
+ await faceAt(0,-15.9,Math.PI,.2);await key('x');await frames(8);await key('x');await frames(45);assert.equal(await D(()=>__hopDbg.props().find(p=>p.kind==='manorDoor').open),1);await walkTo(0,-11);assert((await state()).P.z>-13,'Can leave the manor');await shot('manor-exit');
+ console.log('MANOR PASS: closed solid door, reversible opening/pause/refresh, actual entry/library/stairs/study, upstairs red coin, four-room camera orbits and exit');
+}
+
+async function legacySaves(){
+ const old=execFileSync('git',['show','f913c7b:app/public/js/rm-g-hop.js'],{cwd:path.join(__dirname,'../..'),encoding:'utf8'});
+ for(const w of ['hub','manor']){
+  // This clears only the native harness key, never a JackNet profile or server record.
+  await D(()=>{review.game.end();localStorage.removeItem('hop-review')});await native(false,old);await key('Enter');await key('z');await frames(45);await key('z');await world(w);
+  if(w==='hub')await at(-40.5,4,-6);else{await frames(93);await D(()=>{const m=__hopDbg.solids().movers[0];__hopDbg.tp(m.x,m.y+m.hh,m.z);__hopDbg.P.plat=m})}
+  await key('Enter');await D(()=>__hopDbg.save());const saved=await D(()=>review.K.load());await native(true);const r=await D(()=>__hopDbg.snapshot());
+  for(const [k,v] of Object.entries(saved.run.player))assert.deepEqual(r.player[k],v,'Legacy '+w+' player '+k);
+  for(const k of ['w','time','random','visit','paused','lens','camera','gotCoins','reds','lives','acorns','chestOpen','plugOut','bossDown','raceWon','boss','boo','race','snow','dlg','fade']){if(k==='lens')for(const [name,v]of Object.entries(saved.run[k]))assert.deepEqual(r[k][name],v,'Legacy '+w+' lens '+name);else assert.deepEqual(r[k],saved.run[k],'Legacy '+w+' '+k);}
+  assert(await D(()=>{const P=__hopDbg.P;return P.plat&&Math.abs((P.plat.k==='box'?P.plat.y+P.plat.hh:P.plat.y1)-P.y)<.04}),'Legacy support resolves to the actual platform');await shot('legacy-'+w+'-restored');
+ }
+ console.log('LEGACY PASS: actual f913c7b pier and moving-manor-lift saves retain pose, health, coins, flags, pause, world clock and camera after geometry changes');
 }
 async function room(){
  const account='Hop'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
@@ -254,13 +334,14 @@ async function room(){
    await p.evaluate(()=>{const buttons=Array.from({length:16},()=>({pressed:false,value:0}));window.hopPad={id:'Review standard pad',index:0,connected:true,mapping:'standard',buttons,axes:[1,0,0,0]};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[hopPad]});window.hopX=__hopDbg.P.x});
    await f.until(()=>GameInput.mode==='gamepad'&&__hopDbg.P.x>hopX+.3);await p.evaluate(()=>hopPad.axes=[.12,.08,0,0]);await f.until(()=>Math.hypot(__hopDbg.P.vx,__hopDbg.P.vz)<.01);const rest=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.z]);await p.waitForTimeout(500);assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.z]),rest,'Resting stick does not drift');
    await p.evaluate(()=>{hopPad.axes=[0,0,0,0];hopPad.buttons[0]={pressed:true,value:1}});await f.until(()=>!__hopDbg.P.gnd);await p.evaluate(()=>hopPad.buttons[0]={pressed:false,value:0});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await p.evaluate(()=>hopPad.buttons[4]={pressed:true,value:1});await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);await p.evaluate(()=>hopPad.buttons[4]={pressed:false,value:0});await f.until(()=>!RoomTV.dbg().held('l'));await p.screenshot({path:path.join(dir,'gamepad-camera.png')});
+   await p.evaluate(()=>{__hopDbg.go('grotto');hopPad.axes=[0,-1,0,0]});await f.until(()=>__hopDbg.P.swimming);await p.evaluate(()=>{hopPad.axes=[0,0,0,0];hopPad.buttons[2]={pressed:true,value:1}});await f.until(()=>__hopDbg.P.y<-3);await p.evaluate(()=>hopPad.buttons[2]={pressed:false,value:0});await f.until(()=>!RoomTV.dbg().held('c'));await p.screenshot({path:path.join(dir,'gamepad-swimming.png')});
    await p.evaluate(()=>hopPad.buttons[9]={pressed:true,value:1});await f.until(()=>__hopDbg.paused);await p.evaluate(()=>hopPad.buttons[9]={pressed:false,value:0});await f.until(()=>!RoomTV.dbg().held('start'));const time=await p.evaluate(()=>__hopDbg.clock);await p.waitForTimeout(500);assert.equal(await p.evaluate(()=>__hopDbg.clock),time);await p.screenshot({path:path.join(dir,'gamepad-pause.png')});
-   await p.evaluate(()=>{hopPad.connected=false;__hopDbg.save()});const pose=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z,__hopDbg.P.hp]);
+   await p.evaluate(()=>{hopPad.connected=false;__hopDbg.save()});const pose=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z,__hopDbg.P.hp,__hopDbg.P.air]);
    await p.reload({waitUntil:'domcontentloaded'});await f.until(()=>window.AccountGate?.allowed&&window.House?.live&&window.RoomTV?._dbg()?.st==='game'&&window.__hopDbg&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
-   assert(await p.evaluate(()=>RoomTV.lockIn()&&__hopDbg.paused),'Production refresh preserves LOCK IN and pause');assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z,__hopDbg.P.hp]),pose);await p.screenshot({path:path.join(dir,'production-refresh.png')});
+   assert(await p.evaluate(()=>RoomTV.lockIn()&&__hopDbg.paused),'Production refresh preserves LOCK IN and pause');assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z,__hopDbg.P.hp,__hopDbg.P.air]),pose);await p.screenshot({path:path.join(dir,'production-refresh.png')});
    await p.keyboard.press('Escape');await f.until(()=>HousePause.open);const frame=await p.evaluate(()=>RoomTV.dbg().frame);await p.waitForTimeout(400);assert.equal(await p.evaluate(()=>RoomTV.dbg().frame),frame,'House Esc menu freezes cartridge');await p.screenshot({path:path.join(dir,'house-pause.png')});await p.keyboard.press('Escape');await f.until(()=>!HousePause.open);
    await p.keyboard.press('Enter');await f.until(()=>!__hopDbg.paused);
-   await p.evaluate(()=>{__hopDbg.prog.lives=0;__hopDbg.P.hp=1;__hopDbg.air(65,-2,0)});await f.until(()=>RoomTV.dbg().done);await p.evaluate(()=>__hopDbg.save());await p.screenshot({path:path.join(dir,'production-game-over.png')});
+   await p.evaluate(()=>{__hopDbg.go('hub');__hopDbg.prog.lives=0;__hopDbg.P.hp=1;__hopDbg.air(65,-2,0)});await f.until(()=>RoomTV.dbg().done);await p.evaluate(()=>__hopDbg.save());await p.screenshot({path:path.join(dir,'production-game-over.png')});
    const submitted=[];p.on('websocket',ws=>ws.on('framesent',e=>{try{const m=JSON.parse(e.payload);if(m.t==='rmDone')submitted.push(m)}catch{}}));
    await p.reload({waitUntil:'domcontentloaded'});await f.until(()=>window.__hopDbg?.mode==='over'&&RoomTV.dbg()?.done&&!document.querySelector('.hs-loading,#houseEntry'));assert.equal(submitted.length,0,'Refresh does not submit another score');await p.screenshot({path:path.join(dir,'production-game-over-refresh.png')});
    await p.keyboard.press('Enter');await f.until(()=>__hopDbg.mode==='title'&&!__hopDbg.ui.started);await p.keyboard.press('Enter');await f.until(()=>__hopDbg.ui.started);await p.keyboard.press('z');await f.until(()=>__hopDbg.mode==='card'&&__hopDbg.ui.card.t>.7);await p.keyboard.press('z');await f.until(()=>__hopDbg.mode==='play');
@@ -279,7 +360,10 @@ async function phone(){
   await press('.rm-tools .rm-lock');await f.until(()=>RoomTV.lockIn());await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.ui.started);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='card');await f.until(()=>__hopDbg.ui.card.t>.7);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='play');
   const r=await p.locator('.rm-pad .rm-stick').boundingBox();assert(r,'Phone movement pad');const x=await p.evaluate(()=>__hopDbg.P.x);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:r.x+r.width*.85,y:r.y+r.height*.5,id:1}]});await f.until(x=>__hopDbg.P.x>x+.3,x);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await f.until(()=>Math.hypot(__hopDbg.P.vx,__hopDbg.P.vz)<.1);
   await press('.rm-pad [data-b="a"]');await f.until(()=>!__hopDbg.P.gnd);await p.screenshot({path:path.join(dir,'phone-touch-jump.png')});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await press('.rm-pad [data-b="l"]');await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);
+  await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);
+  await p.evaluate(()=>__hopDbg.go('grotto'));const waterStick=await p.locator('.rm-pad .rm-stick').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:waterStick.x+waterStick.width*.5,y:waterStick.y+waterStick.height*.12,id:1}]});await f.until(()=>__hopDbg.P.swimming);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  const dive=await p.locator('.rm-pad [data-b="c"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:dive.x+dive.width/2,y:dive.y+dive.height/2,id:2}]});await f.until(()=>__hopDbg.P.y<-3);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.screenshot({path:path.join(dir,'phone-swimming.png')});
   await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.paused);await p.screenshot({path:path.join(dir,'phone-touch-portrait.png')});const pose=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]);await p.setViewportSize({width:844,height:390});await p.waitForTimeout(800);assert(await p.evaluate(()=>__hopDbg.paused));assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]),pose,'Rotation preserves player');await p.screenshot({path:path.join(dir,'phone-touch-landscape.png')});
-  await press('.rm-pad [data-b="start"]');await f.until(()=>!__hopDbg.paused);await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);await p.screenshot({path:path.join(dir,'phone-touch-play.png')});await p.setViewportSize({width:768,height:1024});await p.waitForTimeout(800);await p.screenshot({path:path.join(dir,'tablet-touch-game.png')});await press('.rm-tools .rm-lock');await f.until(()=>!RoomTV.lockIn()&&!House.gliding);await p.screenshot({path:path.join(dir,'tablet-in-room.png')});await cdp.detach();assert.deepEqual(f.errors,[]);console.log('PHONE PASS: actual touch title/card, thumb movement, jump, camera, pause, rotation, punch and tablet framing');
+  await press('.rm-pad [data-b="start"]');await f.until(()=>!__hopDbg.paused);await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);await p.screenshot({path:path.join(dir,'phone-touch-play.png')});await p.setViewportSize({width:768,height:1024});await p.waitForTimeout(800);await p.screenshot({path:path.join(dir,'tablet-touch-game.png')});await press('.rm-tools .rm-lock');await f.until(()=>!RoomTV.lockIn()&&!House.gliding);await p.screenshot({path:path.join(dir,'tablet-in-room.png')});await cdp.detach();assert.deepEqual(f.errors,[]);console.log('PHONE PASS: actual touch title/card, thumb movement, jump, camera, Grotto entry/dive, pause, rotation, punch and tablet framing');
  }finally{await browser.close();browser=null}
 }
