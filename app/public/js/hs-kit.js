@@ -61,12 +61,14 @@
   const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
   // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
   function interiorUniforms(){const uniform=v=>({value:v});return {houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
-  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()}}},interiorDark=new T.Color('#000');
+  let interiorCheap=false;
+  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
   const interiorViewProjectors=[new T.Matrix4(),new T.Matrix4()],interiorViewTransform=new T.Matrix4(),interiorPlane=new T.Vector4();
   function interiorFor(r,camera){
     const state=INTERIOR_BAKES.get(r?.id),shared=INTERIOR_SHADER.uniforms;
     if(!state){shared.houseSun.value=interiorDark;return}
     for(const key in state.uniforms)shared[key].value=state.uniforms[key].value;
+    shared.houseBounds0.value=state.uniforms.houseAperture.value[0];shared.houseBounds1.value=state.uniforms.houseAperture.value[1];
     // Phong already normalises its view-space normal. Transform the sun once
     // per room pass instead of a second normal transform on every vertex.
     const d=shared.houseSunDir.value;shared.houseSunViewDir.value.set(d.x,-d.y,d.z);
@@ -128,8 +130,54 @@
       shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
     }
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
+    if(interiorCheap&&this.userData.interiorShell)interiorDiffuse(shader);
   }
-  function phongKey(){return 'house-interior-r3-'+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
+  // The last adaptation rungs use diffuse-only shell lighting and vertex
+  // window coordinates. Per-pixel lamp pools and the authored atlases remain.
+  // No material identity, map, geometry or batch is changed by a step.
+  function interiorAdapt(level,scene){
+    const cheap=level>=4;if(cheap===interiorCheap)return;
+    interiorCheap=cheap;
+    scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.userData.interiorShell&&m.onBeforeCompile===phongShader)m.needsUpdate=true});
+  }
+  function interiorDiffuse(shader){
+    // Projector coordinates are affine in position: perspective interpolation
+    // preserves the exact window shape, including its soft edges and mullion.
+    // The fragment path needs seven scalars, not two matrices and a normal.
+    const varyings='varying vec4 houseWindowUV;varying vec2 houseWindowSide;varying float houseWindowFacing;';
+    shader.vertexShader=shader.vertexShader
+      .replace('#include <common>',`#include <common>
+        ${varyings}uniform mat4 houseProjector0,houseProjector1;uniform vec3 houseSunViewDir;`)
+      .replace('#include <project_vertex>',`#include <project_vertex>
+        vec4 houseP=vec4(mvPosition.xyz,1.0);
+        houseWindowUV=vec4(dot(houseProjector0[0],houseP),dot(houseProjector0[1],houseP),dot(houseProjector1[0],houseP),dot(houseProjector1[1],houseP));
+        houseWindowSide=vec2(dot(houseProjector0[3],houseP),dot(houseProjector1[3],houseP));
+        houseWindowFacing=dot(normalize(transformedNormal),-houseSunViewDir);`);
+    shader.fragmentShader=(shader.fragmentShader.slice(0,shader.fragmentShader.indexOf('uniform vec3 houseSky'))+shader.fragmentShader.slice(shader.fragmentShader.indexOf('#include <packing>')))
+      .replace('#include <common>',`#include <common>
+        ${varyings}uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun;uniform vec4 houseBounds0,houseBounds1;
+        float houseMask(vec4 a,vec2 uv,float side){
+          if(a.y<=a.x||side<.5)return 0.0;
+          float u=uv.x,v=uv.y;
+          if(u<a.x-4.0||u>a.y+4.0||v<a.z-4.0||v>a.w+4.0)return 0.0;
+          float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
+          return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
+        }
+        vec3 houseWindowLight(){
+          if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
+          float facing=houseWindowFacing;
+          #ifdef DOUBLE_SIDED
+            facing*=gl_FrontFacing?1.0:-1.0;
+          #endif
+          if(facing<=0.0)return vec3(0.0);
+          float mask=houseMask(houseBounds0,houseWindowUV.xy,houseWindowSide.x)+houseMask(houseBounds1,houseWindowUV.zw,houseWindowSide.y);
+          return houseSun*min(1.0,mask)*facing;
+        }`)
+      .replace('#include <lights_phong_pars_fragment>',T.ShaderChunk.lights_phong_pars_fragment.replace(/reflectedLight\.directSpecular \+= irradiance[^;]+;/,''))
+      .replace('#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )','#if 0')
+      .replace('houseWindowLight(normal,vViewPosition)','houseWindowLight()');
+  }
+  function phongKey(){return 'house-interior-r4-'+(interiorCheap&&this.userData.interiorShell?'diffuse-':'pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
@@ -805,5 +853,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

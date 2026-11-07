@@ -423,11 +423,13 @@
   // (the outdoor-fog variant is only drawn outside: compiled now when there, otherwise in idle time shortly after)
   function compileVariants(level){
     const a=ADAPT[level]||ADAPT[0];
-    const one=f=>{const key=a.lamps+':'+(f?1:0);if(compiled.has(key))return;compiled.add(key);const vis=PL.map(l=>l.visible),fog=scene.fog;
+    K.interiorAdapt?.(level,scene);
+    const one=f=>{const key=a.lamps+':'+(f?1:0)+':'+(level>=4?'vertex':'pixel');if(compiled.has(key))return;compiled.add(key);const vis=PL.map(l=>l.visible),fog=scene.fog;
       try{scene.fog=f;for(let i=0;i<PL.length;i++)PL[i].visible=i<a.lamps;ren.compile(scene,camera)}catch(e){}
       scene.fog=fog;for(let i=0;i<PL.length;i++)PL[i].visible=vis[i]};
     one(null);
-    if(a.far){if(cur?.outside)one(outdoorFog);else setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>one(outdoorFog)),3000)}
+    if(a.far){if(cur?.outside)one(outdoorFog);else setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>{K.interiorAdapt?.(level,scene);one(outdoorFog);K.interiorAdapt?.(Q.adapt,scene)}),3000)}
+    K.interiorAdapt?.(Q.adapt,scene);
   }
   // Keep the merge fresh in idle time: re-batch a room once a scripted change has settled, adopt late additions.
   setInterval(()=>{if(!live||document.hidden||!window.HouseStatic)return;(window.requestIdleCallback||setTimeout)(()=>{const now=performance.now();for(const id of visSet){const r=ROOMS[id];if(r&&r.built)try{HouseStatic.maintain(r.group,now)}catch(e){console.error('hs merge',id,e)}}for(const g of staticRoot)if(g.visible)try{HouseStatic.maintain(g,now)}catch(e){}})},2000);
@@ -2776,7 +2778,9 @@
     const f=Q.f;
     if(!continuous||backgroundCovered()){lastR=0;f.n=0;f.t=0;return}
     const d=lastR?(now-lastR)/1000:0;lastR=now;
-    if(d>0&&d<.75){f.n++;f.t+=d}
+    // Very slow visible frames must still count: excluding 750 ms frames
+    // strands precisely the devices that need the cheaper lighting path.
+    if(d>0&&d<5){f.n++;f.t+=Math.min(d,1)}
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
@@ -2792,7 +2796,7 @@
       if(++slowBudget>=2&&Q.adapt<ADAPT.length-1&&now-lastStep>4000){slowBudget=0;lastDown=lastStep=now;adaptTo(Q.adapt+1)}
     }else if(Q.fps>=55&&Q.adapt>0){
       slowBudget=0;
-      if(++goodBudget>=12&&now-lastDown>20000&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
+      if(++goodBudget>=12&&now-lastDown>(Q.adapt===4?60000:20000)&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
     }else{goodBudget=0;slowBudget=0}
   }
   function adaptTo(level,o){
@@ -2808,7 +2812,7 @@
     if(level<ADAPT.length-1)(window.requestIdleCallback||setTimeout)(()=>compileVariants(level+1));
     return Q.adapt;
   }
-  function graphicsGet(){return{tier:Q.tier,adapt:Q.adapt,pinned:Q.pinned,showFps:graphics.showFps,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:Q.renderScale,pixelRatioActual:Q.pixelRatio}}
+  function graphicsGet(){return{tier:Q.tier,adapt:Q.adapt,lighting:Q.adapt>=4?'diffuse':'pixel',pinned:Q.pinned,showFps:graphics.showFps,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:Q.renderScale,pixelRatioActual:Q.pixelRatio}}
   function showFps(on){graphics.showFps=!!on;ls.set('jhp_hs_fps',graphics.showFps);return graphics.showFps}
   // Scratch records survive frames. New records are only made when a model or
   // material first appears (building, pickup highlight or an editor change).

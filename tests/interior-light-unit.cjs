@@ -39,6 +39,19 @@ console.log('INTERIOR LIGHT PASS: yielding bake, neutral fallback, one completed
  for(const point of [[10,-40,100],[-120,20,-20],[200,-80,200]]){const view=new T.Vector4(point[0],-point[1],point[2],1).applyMatrix4(camera.matrixWorldInverse),world=new T.Vector4(...point,1);for(const column of [0,1,3]){const a=new T.Vector4().fromArray(original.elements,column*4).dot(world),b=new T.Vector4().fromArray(sh.uniforms.houseProjector0.value.elements,column*4).dot(view);assert(Math.abs(a-b)<1e-8,'Window plane changed with camera')}}
  console.log('INTERIOR PROJECTOR PASS: CPU view planes preserve world aperture at every camera angle; no added vertex work');
 }
+// Automatic adaptation keeps the authored maps and batch/material identity.
+{
+ const compile=()=>{const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);return sh};
+ K.interiorAdapt(0,r.group);const full=compile(),fullKey=material.customProgramCacheKey(),version=material.version;
+ K.interiorAdapt(4,r.group);const cheap=compile(),cheapVersion=material.version;
+ assert(cheap.vertexShader.includes('houseWindowUV'),'Weak devices must project sun coordinates at vertices');assert(!cheap.fragmentShader.includes('reflectedLight.directSpecular += irradiance'),'Weak shells must skip per-pixel specular work');assert(cheap.fragmentShader.includes('reflectedLight.directDiffuse += irradiance'),'Lamp pools must retain per-pixel diffuse falloff');
+ for(const ink of ['lightMapTexel.r*houseSky','lightMapTexel.g*houseMain','lightMapTexel.b*houseAccent','houseWindowLight','lightMapTexel.a'])assert(cheap.fragmentShader.includes(ink),'Fallback lost '+ink);
+ assert.notEqual(material.customProgramCacheKey(),fullKey);assert(cheapVersion>version);
+ K.interiorAdapt(5,r.group);assert.equal(material.version,cheapVersion,'Moving between cheap rungs must not recompile');
+ K.interiorAdapt(0,r.group);assert.equal(compile().vertexShader,full.vertexShader);assert.equal(compile().fragmentShader,full.fragmentShader,'Full look must return byte for byte');
+ assert.equal(mesh.geometry,geometry);assert.equal(mesh.material,material);assert.equal(material.lightMap,b.gpuLight);assert.equal(material.aoMap,b.gpuSpill);
+ console.log('INTERIOR ADAPT SHADER PASS: full shader restored exactly; diffuse fallback preserves per-pixel lamp pools, sun and AO without batch mutation');
+}
 // Failed, blocked, silent and suspended workers cannot strand a room's atlas.
 for(const failure of ['constructor','post','post-second','error','message','payload','old-worker','timeout','pagehide']){
  const pending=new Map(),listeners={},workers=[];let serial=0,terminations=0;
