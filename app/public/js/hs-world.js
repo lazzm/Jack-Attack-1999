@@ -2285,7 +2285,8 @@
   });
   // first-person mouse lock (desktop only): click in the room to lock, Esc lets go (the browser does that), drag-to-look still works unlocked
   const locked = () => !!cv && document.pointerLockElement === cv;
-  function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
+  let expectedUnlock = false;
+  function unlock() { try { if (locked()) { expectedUnlock = true; document.exitPointerLock(); } } catch (e) { expectedUnlock = false; } }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
   function plOK() { return !window.GameInput?.touch && !controlsPaused && !worldLoading && live && (mode === 'walk'||mode==='focus'&&focusS?.o.seatId) && !viewOpen() && !ui.modalOpen(); }
   let lockTry = 0, lockPending = false;
@@ -2299,8 +2300,11 @@
   const freeIfPC = () => { if (!inRoom() && locked()) unlock(); }; // sitting down or leaving the room always gives the desktop mouse back
   setInterval(freeIfPC, 300);
   document.addEventListener('mousedown', freeIfPC, true);
-  document.addEventListener('pointerlockchange', () => {
+  document.addEventListener('pointerlockchange', ev => {
     const on = locked(); lockPending = false; clearTimeout(lockHintT); PT.clear();
+    // The browser may deliver our focus/inspection release after walking has
+    // resumed. It is still our release, not the player's Esc pause request.
+    ev.houseIntentionalUnlock = !on && expectedUnlock; expectedUnlock = false;
     if (!on) for (const k in keys) keys[k] = false;
     ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && inRoom());
     if (on) { lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; setHot(null); ui.tip(null); }

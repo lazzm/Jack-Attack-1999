@@ -116,11 +116,11 @@
   if(!handleEscape(ev))ev.stopImmediatePropagation()
  }},true);
  let owned=false;
- document.addEventListener('pointerlockchange',()=>{
+ document.addEventListener('pointerlockchange',ev=>{
   const now=!!document.pointerLockElement?.classList.contains('hs-gl'),was=owned;owned=now;
   // Browsers can consume Esc themselves to release pointer lock, without
   // delivering a keydown. Opening the menu here handles that path as well.
-  if(was&&!now&&!el.open&&(H.mode==='walk'||H.mode==='focus'&&H._.focusS?.o.seatId)&&!document.hidden&&document.hasFocus())openMenu();
+  if(was&&!now&&!ev.houseIntentionalUnlock&&!el.open&&(H.mode==='walk'||H.mode==='focus'&&H._.focusS?.o.seatId)&&!document.hidden&&document.hasFocus())openMenu();
  });
  window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return'main'}};
 })();

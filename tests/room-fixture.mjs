@@ -61,7 +61,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
   await page.evaluate(({eye,target,roomPoint,level})=>{House.hush();House.setWalkFrom({x:roomPoint[0],y:roomPoint[1],z:roomPoint[2],lvl:level,seat:0});const[x,y,z]=eye,[tx,ty,tz]=target;Object.assign(House.P,{x,y,z,rx:Math.atan2(-(ty-y),Math.hypot(tx-x,tz-z))*180/Math.PI,ry:Math.atan2(tx-x,-(tz-z))*180/Math.PI,seat:0,lvl:level});House._.setMode('focus');House.dirty()},{eye,target,roomPoint,level});
   // This artificial focus releases mouse lock. Wait for its event while still
   // focused: a late release after a caller resumes walking opens the pause menu.
-  await page.evaluate(async()=>{if(document.pointerLockElement)await new Promise(resolve=>{document.addEventListener('pointerlockchange',resolve,{once:true});document.exitPointerLock()})});
+  await page.evaluate(async()=>{if(document.pointerLockElement)await new Promise(resolve=>{document.addEventListener('pointerlockchange',resolve,{once:true});if(document.pointerLockElement===House.ren.domElement)House._.setMode('focus');else document.exitPointerLock()})});
   await page.waitForTimeout(500)}
  return{browser,page,errors,until,view};
 }
