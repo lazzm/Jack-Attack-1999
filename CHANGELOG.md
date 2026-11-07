@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.77.0 - 2026-11-07
+- Better light indoors. In the day, sunlight comes through the windows and lands in warm patches on the floors and stair runners. At night each room is lit by its own ceiling light and lamps, with the light falling off into the corners, and furniture sits on soft contact shadows instead of floating. If a computer or phone struggles, the game quietly switches to a cheaper version of the same lighting that looks almost the same, and switches back when it can.
+- Looking closely at something and then walking on no longer sometimes opens the pause menu and hides the outline for putting things down.
+
 ## 2.76.0 - 2026-11-07
 - The house reacts. The kettle sends up a plume of steam when it boils and a hot mug curls steam. At night the telly lights up the walls, ceiling and anyone in front of it in the programme's colours. Putting something down gives a little puff of dust or a hard clack, timed with the sound. Picking something up gives it a little squash, and switches and door handles move when you use them. Phone frame times are unchanged.
 - The Talk prompt and other action labels no longer go missing for a second or two when the game is running slowly: what you are looking at is checked on time, not only every few frames.
