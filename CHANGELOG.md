@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.75.1 - 2026-11-07
+- 156 more recorded lines, 658 in all. Most of the family's new chat from 2.75.0 now has a voice, recorded in a standard Southern English accent and checked for the right words. About 150 lines are still text-only and are being recorded over the next few days.
+- Verified: all unit checks, the release-hash and recording checks for every clip, voices 9/9, smoke 12/12.
+
 ## 2.75.0 - 2026-11-06
 - The family have far more to say. Each of them has at least a dozen new things to chat about in the morning, afternoon and evening, depending on the day, the weather, the season and what you've been up to: 287 new lines in all. In testing, 90 conversations across a day gave no repeats at all, where before a third of them were repeats. When they've genuinely got nothing new, they nod, smile or say "Mm?" instead of repeating themselves. Mom's job reminders come in different words each time. The new lines appear as text until they're recorded.
 - A refresh no longer replays an announcement you've already heard, such as Dad's after-Bonfire one.
