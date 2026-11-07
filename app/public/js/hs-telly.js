@@ -458,7 +458,7 @@
     const r = room();if(st.on&&st.vcr&&now-lastSave>2000){lastSave=now;savePlayback()}
     if(!r||!st.on)return false;
     const visible=H.screenBudget(r.tvScreen,true)?.visible;
-    if(!visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return false;}
+    if(!visible&&!surf){if(window.HouseVFX?.wantsTVFrame?.(now)){frame(now);H.dirty();return true;}if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return false;}
     if (surf) return false; // the watching loop owns this canvas
     if (now - lastSlow > 1000/H.screenRate(true)) { lastSlow = now; frame(now); H.dirty();return true; }
     return false;
