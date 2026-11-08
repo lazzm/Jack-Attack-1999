@@ -47,13 +47,13 @@ after.cup.group.traverse(m=>{
  }
 });
 console.log('CUPBOARD PROP FIT PASS: '+vertices+' solid prop vertices inside lining, above carpet and below soffit');
-// Review round 2 keeps the approved layout; pendant batching saves one hall submission.
+// Keep the approved layout and reviewed hall budget: the pendant saving funds a lit woven runner.
 const reviewed=build(execFileSync('git',['show','52ce5e1:app/public/js/hs-house.js'],{encoding:'utf8'}));
-assert.equal(after.draws.hall,reviewed.draws.hall-1,'Pendant batching saves one hall submission');
+assert(after.draws.hall<=reviewed.draws.hall,'Pendant batching funds the non-emissive woven runner without increasing the reviewed hall budget');
 assert(after.draws.cupboard<=reviewed.draws.cupboard,'Shared vacuum finish must not increase cupboard submissions');
 const floorRay=new T.Raycaster(new T.Vector3(200,340,190),new T.Vector3(0,1,0));
 for(const r of [reviewed.hall,after.hall])r.group.updateMatrixWorld(true);
 const floorHits=r=>floorRay.intersectObject(r.group,true).filter(h=>h.object.material.visible!==false&&!h.object.material.transparent);
 assert.equal(floorHits(reviewed.hall).length,0,'Approved baseline already had a threshold surface');
 assert(floorHits(after.hall).some(h=>Math.abs(h.point.y-353)<.01),'Hall carpet must fill the missing threshold');
-console.log('ROUND 2 PASS: approved 52ce5e1 geometry, one fewer hall draw; missing 10 cm doorway floor strip now closed');
+console.log('ROUND 2 PASS: approved 52ce5e1 geometry and reviewed hall budget; missing 10 cm doorway floor strip now closed');

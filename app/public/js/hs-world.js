@@ -408,7 +408,7 @@
       for (const o of root.children) if (STATIC_ROOT.includes(o.name)) { if (!staticRoot.includes(o)) staticRoot.push(o); try { HouseStatic?.merge(o); } catch (e) { console.error('hs merge', o.name, e); } }
       K.setQuality?.('high',scene);
       compileVariants(Q.adapt);
-      scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
+      scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && !tx.isCubeTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
       // Upload every room's geometry without shading a whole invisible house.
       // The textures and shader variants above are still warmed before play.
       const previousScissor = ren.getScissor(new T.Vector4()), previousScissorTest = ren.getScissorTest();

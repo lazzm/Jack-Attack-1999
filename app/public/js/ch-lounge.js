@@ -24,19 +24,41 @@
   let hv = null, patches = [], socketObj = null, hoovering = false;
   const V = () => (CK.S.v.hoover = CK.S.v.hoover || {});
   function hooverModel() {
-    const g = new T.Group(), G = K.into(g), red = mat('#c41c2a', { family: 'plastic' }), grey = mat('#9a9ca4', { family: 'metal' }), dk = mat('#222226', { family: 'plastic' });
-    G.rbox(0, -4.5, 3, 32, 9, 22, 2.4, red); G.box(0, -1.4, 14.2, 32, 2.6, 1.2, dk); G.box(0, -0.4, 4, 28, 0.6, 16, dk);
-    [-13, 13].forEach(x => G.cyl(x, -3, -7, 3.2, 3.2, 2.4, 14, dk, { rz: 90 }));
-    G.box(0, -9.4, 9, 20, 0.6, 6, M({ c: '#fff', map: K.tex('ch.hvlogo', 128, 32, (q, w, h) => { q.fillStyle = '#c41c2a'; q.fillRect(0, 0, w, h); A.text(q, 'TURBO 2000', 64, 23, '700 18px ' + A.FONT, '#fff', 'center'); }) }));
-    G.shadow(0, 0, 2, 40, 30, 0.6, { sq: true });
-    const pv = new T.Group(); pv.position.set(0, -7, -4); g.add(pv); g.userData.pivot = pv; const P = K.into(pv);
-    P.rbox(0, -38, -2, 22, 62, 13, 6, mat('#b8b8be', { family: 'fabric' })); // the bag
-    P.rbox(0, -72, -2, 21, 10, 14, 3, red); P.rbox(0, -6, -2, 23, 12, 15, 3, red);
-    P.cyl(0, -96, -2, 1.5, 1.5, 40, 10, grey); P.rbox(0, -118, -2, 15, 3.4, 4, 1.4, dk);
-    P.box(6.5, -60, -9.6, 2, 3, 3, dk); P.box(6.5, -26, -9.6, 2, 3, 3, dk); // cable hooks
-    for (let i = 0; i < 6; i++) P.cyl(6.5, -30 - i * 5.4, -10.5, 0.6, 0.6, 2.6, 6, mat('#e8e4dc'), { rz: 90 }); // the cable wound round them
-    P.box(-12, -40, -2, 0.6, 30, 8, mat('#e8e4dc')); // the zip
-    return g;
+    const g=new T.Group(),foot=K.batch(),G=K.into(foot);
+    const shell=K.tex('ch.hvshell',256,256,(q,w,h)=>{
+      q.fillStyle='#b82635';q.fillRect(0,0,w,h);const r=K.rnd(501);
+      for(let i=0;i<45;i++){const x=r()*w,y=h*.68+r()*h*.3;q.strokeStyle=i%3?'rgba(38,18,16,.28)':'rgba(240,208,170,.23)';q.lineWidth=.6+r();q.beginPath();q.moveTo(x,y);q.lineTo(x+3+r()*12,y-1-r()*3);q.stroke()}
+      q.fillStyle='rgba(25,12,12,.17)';q.fillRect(0,0,w,3);q.fillRect(0,h-4,w,4);
+    },{world:32,family:'plastic'});
+    const red=M({c:'#fff',map:shell}),head=mat('#bc2633',{family:'plastic'}),grey=mat('#9a9ca4',{family:'metal'}),dk=mat('#222226',{family:'plastic'});
+    G.rbox(0,-4.5,3,32,9,22,2.4,red);G.box(0,-1.4,14.2,32,2.6,1.2,dk);G.box(0,-.4,4,28,.6,16,dk);
+    // The two halves of the moulding meet at a recessed waist, with a rubber bumper.
+    for(const x of [-15.6,15.6])G.box(x,-4.7,3,.35,.45,17,dk);
+    for(const x of [-13,13]){G.cyl(x,-3,-7,3.2,3.2,2.4,12,dk,{rz:90});G.cyl(x+(x<0?-1.3:1.3),-3,-7,1.3,1.3,.35,8,grey,{rz:90})}
+    const badge=M({c:'#fff',map:K.tex('ch.hvlogo',256,128,(q,w,h)=>{q.save();q.scale(1,4/3);h=96;q.fillStyle='#eee0b9';q.fillRect(0,0,w,h);q.fillStyle='#263845';q.fillRect(5,5,w-10,h-10);A.text(q,'DUST GOBLIN',128,43,'700 29px '+A.UIF,'#eee5cd','center');A.text(q,'TURBO 2000',128,75,'700 23px '+A.UIF,'#e9b85b','center');q.restore()},{clamp:true,family:'plastic'})});
+    G.box(0,-9.25,8,20,.5,7.5,badge);G.shadow(0,0,2,40,30,.6,{sq:true});foot.build(g);
+    const pv=new T.Group();pv.position.set(0,-7,-4);g.add(pv);g.userData.pivot=pv;const bagBatch=K.batch(),P=K.into(bagBatch);
+    const cloth=M({c:'#fff',family:'fabric',map:K.tex('ch.hvbag',512,1024,(q,w,h)=>{
+      q.fillStyle='#857d69';q.fillRect(0,0,w,h);const r=K.rnd(502);
+      for(let x=0;x<w;x++){const v=Math.sin(x*.16)*.5+.5;q.fillStyle='rgba(35,29,22,'+(.08+v*.2)+')';q.fillRect(x,0,1,h)}
+      for(let y=0;y<h;y+=2)for(let x=y%4?0:1;x<w;x+=2){q.fillStyle=(x+y)%2?'rgba(246,232,194,.14)':'rgba(33,28,22,.13)';q.fillRect(x,y,1,1)}
+      for(let i=0;i<1600;i++){q.fillStyle='rgba(35,30,22,.08)';q.fillRect(r()*w,r()*h,1,2)}
+      q.fillStyle='rgba(34,27,18,.24)';q.fillRect(0,0,w,24);q.fillRect(0,h-24,w,24);
+      for(const y of [25,h-26]){q.fillStyle='#c8b897';for(let x=0;x<w;x+=6)q.fillRect(x,y,3,1)}
+    },{clamp:true})});
+    // Closed, softly sagging cloth bag: folds change the silhouette and normals.
+    const pos=[],uv=[],ix=[],N=16,R=10;
+    for(let j=0;j<=R;j++){const t=j/R,bulge=Math.sin(t*Math.PI);for(let i=0;i<=N;i++){const a=i/N*Math.PI*2,c=Math.cos(a),sn=Math.sin(a),f=Math.sin(a*5+t*4)*.7*bulge;pos.push(Math.sign(c)*Math.pow(Math.abs(c),.6)*(9.6+bulge+f),-9-t*58,-2+Math.sign(sn)*Math.pow(Math.abs(sn),.6)*(5.4+bulge+f));uv.push(i/N,t)}}
+    for(let j=0;j<R;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+N+1;ix.push(a,a+1,b,a+1,b+1,b)}
+    for(const j of [0,R])for(let i=1;i<N-1;i++){const o=j*(N+1);if(j)ix.push(o,o+i,o+i+1);else ix.push(o,o+i+1,o+i)}
+    const bg=new T.BufferGeometry();bg.setAttribute('position',new T.Float32BufferAttribute(pos,3));bg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));bg.setIndex(ix);bg.computeVertexNormals();P.geo(bg,0,0,0,cloth);
+    P.rbox(0,-72,-2,21,10,14,3,head);P.rbox(0,-6,-2,23,12,15,3,head);for(const side of [-1,1])P.box(side*10.45,-72,-2,.25,.35,8,dk);
+    P.box(0,-72,5.15,14,4,.22,badge);P.box(-10.56,-72,-2,.18,3,8,badge);P.cyl(0,-96,-2,1.5,1.5,40,10,grey);P.rbox(0,-118,-2,15,3.4,4,1.4,dk);
+    for(const y of [-60,-26])P.box(6.5,y,-9.6,2,3,3,dk);
+    const cord=[];for(let n=0;n<4;n++)for(const [x,y]of [[4,-61],[9,-61],[9,-25],[4,-25],[4,-61]])cord.push(new T.Vector3(x+n*.6,y,-11-n*.45));
+    P.geo(new T.TubeGeometry(new T.CatmullRomCurve3(cord),56,.5,4,false),0,0,0,dk);
+    P.box(-10.4,-38,-2,.5,46,1.3,dk);P.box(-10.75,-38,-2,.25,44,.35,grey);P.box(-11,-53,-2,.7,3,1.2,grey);
+    bagBatch.build(pv);return g;
   }
   function crumbPatch(kind, seed) {
     const g = new T.Group(), G = K.into(g), r = K.rnd(seed);

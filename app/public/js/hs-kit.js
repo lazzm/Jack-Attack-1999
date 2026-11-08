@@ -44,11 +44,17 @@
   // lights, passes or geometry.
   // Values are paired: a broad, very faint lobe for cloth; a tighter, coloured
   // one for metal; almost no specular for porous paper and emulsion.
+  let reflectionCube=null;
+  function roomReflection(){
+    if(reflectionCube)return reflectionCube;
+    const faces=[];for(let face=0;face<6;face++){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),shade=g.createLinearGradient(0,0,0,64);shade.addColorStop(0,'#777f7e');shade.addColorStop(.38,'#a2aaa7');shade.addColorStop(.6,'#4d5556');shade.addColorStop(1,'#343c3c');g.fillStyle=shade;g.fillRect(0,0,64,64);if(face!==3){g.fillStyle='#d1d5c8';g.fillRect(13+face%2*8,6,14,37);g.fillStyle='#687271';g.fillRect(20+face%2*8,6,1.5,37);g.fillRect(13+face%2*8,24,14,1.5)}faces.push(c)}
+    reflectionCube=new T.CubeTexture(faces);reflectionCube.needsUpdate=true;return reflectionCube;
+  }
   const FINISH = Object.freeze({
     plaster: { sh: 1, sp: '#020202' }, paper: { sh: 1, sp: '#000000', tile: 12 },
     carpet: { sh: 2, sp: '#040404' }, fabric: { sh: 3, sp: '#090909', tile: 8 },
     rawWood: { sh: 3, sp: '#090806' }, wood: { sh: 26, sp: '#29241d' },
-    glossPaint: { sh: 32, sp: '#30302c' }, lino: { sh: 18, sp: '#1b1915' },
+    glossPaint: { sh: 38, sp: '#353129', tile:32 }, lino: { sh: 18, sp: '#1b1915' },
     plastic: { sh: 13, sp: '#1c1d1e', tile: 16 },
     outdoorPlastic: { sh: 8, sp: '#141813', tile: 40 },
     glossPlastic: { sh: 28, sp: '#292a2c', tile: 16 },
@@ -66,7 +72,7 @@
     duvet:'fabric', pillow:'fabric', sheet:'fabric', beanbag:'fabric', curtain:'fabric',
     'hs.sofa':'fabric', 'hs.curt':'fabric', 'hs.ironing.cover':'fabric',
     'hs.cupboard.plaster':'plaster', radiator:'glossPaint',
-    n64top:'plastic', pstop:'plastic', mdtop:'plastic', dctop:'plastic',
+    n64top:'glossPlastic', pstop:'glossPlastic', mdtop:'glossPlastic', dctop:'glossPlastic',
     'hs.fence.grain':'rawWood', 'hs.shed.boards':'rawWood', 'hs.worktop':'lino', 'hs.kitchen-plain-tiles':'ceramic',
     'pc.monfront':'plastic', 'pc.towfront':'plastic', 'pc.keyboard':'plastic',
     'pc.keys':'plastic', 'pc.kbd':'plastic', 'rm.chair.fabric':'fabric',
@@ -109,6 +115,33 @@
     }
     g.restore();
   }
+  // Authored meso detail survives a walking view; the fine finish sits on top.
+  function authoredDetail(g,w,h,key) {
+    const r=rnd(7301+key.length*67);g.save();
+    if(/carpet(?:Blue|Beige|Red)$/.test(key)){
+      for(let y=0;y<h;y+=3)for(let x=(y%6?1:0);x<w;x+=3){const xx=x+r(),yy=y+r();g.fillStyle='rgba(20,17,13,.18)';g.fillRect(xx,yy,2,2);g.fillStyle='rgba(242,229,201,.19)';g.fillRect(xx,yy,1,1)}
+    }
+    if(/wallpaper(?:Hall|Lounge)$|wallKitchen$/.test(key)){
+      const step=w*53/128;for(let x=step*.3;x<w;x+=step){g.fillStyle='rgba(94,82,57,.18)';g.fillRect(x,0,.8,h);g.fillStyle='rgba(255,249,221,.3)';g.fillRect(x+1,0,.8,h)}
+      for(let n=0;n<w*h/13;n++){const x=r()*w,y=r()*h;g.fillStyle=n%2?'rgba(255,251,233,.14)':'rgba(91,76,53,.09)';g.fillRect(x,y,1,2+r()*3)}
+    }
+    if(/whiteGloss$|finish:glossPaint$/.test(key)){
+      g.fillStyle='rgba(166,128,49,.065)';g.fillRect(0,0,w,h);
+      for(let x=0;x<w;x+=2){g.fillStyle='rgba(85,66,36,'+(.025+r()*.065)+')';const y=r()*h*.2;g.fillRect(x,y,.6,h*(.5+r()*.5))}
+    }
+    if(/pc\.(?:monfront|towfront)$/.test(key)){
+      const shade=g.createLinearGradient(0,0,w,0);shade.addColorStop(0,'rgba(149,109,27,.22)');shade.addColorStop(.2,'rgba(186,145,63,.03)');shade.addColorStop(.83,'rgba(165,117,30,.08)');shade.addColorStop(1,'rgba(135,95,23,.25)');g.fillStyle=shade;g.fillRect(0,0,w,h);
+      for(const x of [w*.025,w*.975])for(const y of [h*.03,h*.97]){g.fillStyle='#97876a';g.beginPath();g.arc(x,y,w*.009,0,7);g.fill();g.strokeStyle='#514b3e';g.lineWidth=.7;g.beginPath();g.moveTo(x-w*.006,y);g.lineTo(x+w*.006,y);g.stroke()}
+    }
+    if(/art:(?:n64top|pstop|mdtop|dctop)$/.test(key)){
+      for(let n=0;n<80;n++){const x=r()*w,y=r()*h;g.strokeStyle=n%4?'rgba(12,12,15,.19)':'rgba(245,238,209,.23)';g.beginPath();g.moveTo(x,y);g.lineTo(x+3+r()*12,y+1);g.stroke()}
+      g.strokeStyle='rgba(8,9,12,.35)';g.lineWidth=2;g.strokeRect(4,4,w-8,h-8);
+    }
+    if(key==='art:duvet'){
+      const step=w/7;g.lineWidth=1.2;for(let n=-8;n<16;n++){g.strokeStyle='rgba(3,8,25,.25)';g.beginPath();g.moveTo(n*step,0);g.lineTo(n*step+h,h);g.stroke();g.beginPath();g.moveTo(n*step,0);g.lineTo(n*step-h,h);g.stroke();g.strokeStyle='rgba(231,232,214,.17)';g.setLineDash([3,3]);g.beginPath();g.moveTo(n*step+2,0);g.lineTo(n*step+h+2,h);g.stroke();g.beginPath();g.moveTo(n*step+2,0);g.lineTo(n*step-h+2,h);g.stroke();g.setLineDash([])}
+    }
+    g.restore();
+  }
   function edgeWear(g,w,h,seed) {
     // Only full-object artwork gets perimeter wear; tiling walls/wood never
     // acquire a false dark seam every time their tile repeats.
@@ -126,11 +159,11 @@
     // Six small shared tiles, independently sized in centimetres. Brass and
     // steel share their brushed finish; colours come from the material.
     const kind=family==='brass'?'metal':family;
-    const size=kind==='metal'?256:128;
+    const size=kind==='metal'||kind==='glossPaint'?256:128;
     return tex('finish:'+kind,size,size,(g,w,h)=>{
       g.fillStyle=kind==='metal'?'#e4e5e4':'#fafaf8';g.fillRect(0,0,w,h);
       if(kind==='metal'){
-        const band=g.createLinearGradient(0,0,0,h);band.addColorStop(0,'rgba(255,255,255,.03)');band.addColorStop(.28,'rgba(255,255,255,.1)');band.addColorStop(.52,'rgba(35,42,48,.05)');band.addColorStop(.8,'rgba(255,255,255,.06)');band.addColorStop(1,'rgba(255,255,255,.03)');g.fillStyle=band;g.fillRect(0,0,w,h);
+        const band=g.createLinearGradient(0,0,0,h);band.addColorStop(0,'rgba(38,55,65,.26)');band.addColorStop(.2,'rgba(210,226,230,.4)');band.addColorStop(.34,'rgba(255,255,250,.65)');band.addColorStop(.47,'rgba(32,47,58,.35)');band.addColorStop(.72,'rgba(165,193,207,.3)');band.addColorStop(1,'rgba(255,255,248,.3)');g.fillStyle=band;g.fillRect(0,0,w,h);
       }
       finishPaint(g,w,h,kind,681);
     },{world:f.tile,grain:kind==='metal'});
@@ -269,7 +302,7 @@
   function interiorAdapt(level,scene){
     const cheap=level>=4;if(cheap===interiorCheap)return;
     interiorCheap=cheap;
-    scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.onBeforeCompile===phongShader)m.needsUpdate=true});
+    scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.onBeforeCompile===phongShader){if(m.userData.spec?.reflect)m.envMap=cheap?null:roomReflection();m.needsUpdate=true}});
   }
   function interiorSun(shader){
     // Projector coordinates are affine in position: perspective interpolation
@@ -311,6 +344,7 @@
   function phongKey(){return (interiorCheap?'house-interior-r9-diffuse-':'house-interior-r7-pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
+    if(m.userData.spec?.reflect){m.envMap=interiorCheap?null:roomReflection();m.reflectivity=m.userData.spec.reflect;m.combine=T.MixOperation;}
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
   }
   function cloneSurface(){const m=new T.MeshPhongMaterial().copy(this);m.clone=cloneSurface;surfaceQuality(m);if(this.userData.print)PRINTS.add(m);return m}
@@ -332,7 +366,7 @@
     o = o || {};
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     const g = c.getContext('2d');
-    try { paint(g, w, h); const family=o.family||SURFACE_FINISH[key.replace(/^art:/,'')]; if(family)finishPaint(g,w,h,family,key.length*7919); if(/^(?:pc\.(?:monfront|towfront)|art:(?:n64top|pstop|mdtop|dctop))$/.test(key))edgeWear(g,w,h,key.length*997); } catch (e) { console.error('hs tex', key, e); }
+    try { paint(g, w, h); authoredDetail(g,w,h,key); const family=o.family||SURFACE_FINISH[key.replace(/^art:/,'')]; if(family)finishPaint(g,w,h,family,key.length*7919); if(/^(?:pc\.(?:monfront|towfront)|art:(?:n64top|pstop|mdtop|dctop))$/.test(key))edgeWear(g,w,h,key.length*997); } catch (e) { console.error('hs tex', key, e); }
     const t = new T.CanvasTexture(c);
     if (o.clamp) t.wrapS = t.wrapT = T.ClampToEdgeWrapping; else t.wrapS = t.wrapT = T.RepeatWrapping;
     if (o.rep) t.repeat.set(o.rep[0], o.rep[1]);
@@ -964,6 +998,8 @@
         for(const y of [-1,1])B.rbox(0,g.y+y*(g.h/2+.5),z,g.w,1.4,1,.25,bead);
       }
     }
+    const exposed=o.hinge||o.brass; // warm exposed undercoat shares the existing hardware batch
+    for(const side of [-1,1])for(const face of [-1,1]){const shape=new T.Shape();shape.moveTo(-.8,-1.2);shape.lineTo(.3,-1.5);shape.lineTo(.9,.3);shape.lineTo(.2,1.5);shape.lineTo(-.7,.8);shape.closePath();B.geo(new T.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false,curveSegments:1}),side*(w/2-1.05),h/2-2.2,face>0?t2-.015:-t2-.105,exposed);}
     const vfxLevers=[];
     for (const s of [-1, 1]) {
       for (const [pu, pv2] of panels) {

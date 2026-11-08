@@ -449,13 +449,14 @@
     H.spot('books', { label: 'GCSE revision guides', act: () => { secret('hs.revise'); say('GCSE revision guides', ['MATHS, SCIENCE, ENGLISH, FRENCH. Exams in June. The spines aren\'t even cracked yet.', 'I opened the Maths one. Simultaneous equations. I closed the Maths one.', 'Mom bought these. She checks if they\'ve moved. I move them a bit every week.'][(S.bk = ((S.bk | 0) + 1) % 3)]); save(); } });
     loose('books',books,{room:'bedroom',x:-40,y:0,z:-38,ry:8},'GCSE revision guides');
     const mugObj=new T.Group(),mugBatch=K.batch(),mug=K.into(mugBatch);
-    const glaze=M({c:'#c54132',family:'ceramic'});
+    const glaze=M({c:'#c54132',family:'ceramic',reflect:.12});
     mug.lathe(0,0,0,[[0,-.8],[3,-.8],[3.1,-8.7],[3.35,-9.4],[3.8,-9.5],[3.95,-9.2],[3.95,-.8],[3.4,0],[0,0]],32,glaze);
+    mug.box(-2.4,-9.15,2.8,.75,.55,.6,M({c:'#d9c1a0',family:'plaster'}),{ry:-35});
     mug.disc(0,-7.6,0,3.07,M({c:'#62432a',sh:28}),28);mug.geo(new T.TorusGeometry(2.6,.6,8,24,Math.PI),4.2,-4.6,0,glaze,{rz:-90});
     // Ceramic mounting pads bury both open tube ends into the cup wall.
     for(const y of [-2,-7.2])mug.ball(3.85,y,0,1,.75,.75,glaze,14);
     const mugLabel=K.tex('rm.mugprint',128,112,(g,w,h)=>{g.fillStyle='#c54132';g.fillRect(0,0,w,h);g.translate(0,h);g.scale(1,-1);A.text(g,"WORLD'S",64,32,'700 19px '+A.UIF,'#f6e8c9','center');g.font='700 18px '+A.UIF;g.fillText(Cast.t('BEST {me.son}').toUpperCase(),64,65,116);A.text(g,'from Gran',64,91,'italic 14px '+A.UIF,'#f6e8c9','center')},{clamp:true,identity:true});
-    mug.geo(new T.CylinderGeometry(3.98,3.98,4.5,24,1,true,-.66,1.32),0,-4.8,0,M({c:'#fff',map:mugLabel,sh:40}));
+    mug.geo(new T.CylinderGeometry(3.98,3.98,4.5,24,1,true,-.66,1.32),0,-4.8,0,M({c:'#fff',map:mugLabel,family:'ceramic',reflect:.12}));
     mug.shadow(0, 0, 0, 11, 11, 0.6);
     mugBatch.build(mugObj);
     H.spot('mug', { label: 'Mug of tea', act: () => say('Mug of tea', ['Stone cold. Mom made it at four o\'clock. There\'s a skin on it.', 'It says WORLD\'S BEST {me?SON|DAUGHTER} on it. Gran got it. Gran is biased.'][(S.mg = ((S.mg | 0) + 1) % 2)]) });
@@ -813,7 +814,8 @@
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
     if(!hasConsole(id)||R.consoles?.[id])return;
     const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const cb = K.batch(), C = K.into(cb); // (static parts merged per material)
-    C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, family: 'plastic' }));
+    const shellColour=id==='n64'?'#46484b':id==='md'?'#303137':col;
+    C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: shellColour, family: 'plastic' }));
     // power and reset on the front, a red power light, a parting line round the case
     const trimM = M('#17181a'); // (the same plastic as the controller ports: no extra draw calls)
     C.rbox(w * 0.06, -h * 0.5, d / 2 + 0.12, 2.4, 1.3, 0.5, 0.18, trimM); C.rbox(w * 0.16, -h * 0.5, d / 2 + 0.1, 1.6, 1.1, 0.4, 0.15, trimM);
@@ -833,6 +835,7 @@
       C.box(0, -h - 0.43, -1, 10.4, 0.12, 2.3, M('#0c0d0e'));
     }
     for (const xx of [-w * 0.29, w * 0.29]) C.rbox(xx, -2.1, d / 2 + 0.08, 3.2, 1.5, 0.4, 0.15, M('#17181a'));
+    for(const side of [-1,1])for(let n=0;n<6;n++)C.box(side*(w/2+.02),-h*.45,-4+n*1.4,.12,.5,.7,trimM);
     C.shadow(0, 0, 0, w + 4, d + 4, 0.55, { sq: true });
     cb.build(g);
     if (extra) extra(g);
@@ -960,7 +963,7 @@
     const dg = new T.PlaneGeometry(bw + 14, bl - 34, 18, 24); const p = dg.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const u=p.getX(i)/(bw+14)+.5,v=p.getY(i)/(bl-34)+.5;
-      let y=-Math.sin(u*Math.PI)*6-Math.sin(v*9+u*5)*1.6-Math.sin(u*13-v*4)*1.2;
+      let y=-Math.sin(u*Math.PI)*6-Math.sin(v*9+u*5)*1.6-Math.sin(u*13-v*4)*1.2; y-=Math.pow(Math.sin((u+v)*Math.PI*7)*Math.sin((u-v)*Math.PI*7),2)*.65;
       if(u<.08)y+=(.08-u)*190;if(u>.94)y+=(u-.94)*140;
       // The reading patch is compressed flat by the magazine. Include a mesh
       // cell around it so no triangle leaves the solid cover hovering on a fold.
@@ -1541,6 +1544,7 @@
   const carry = { id: null, d: 0 };
   function gbModel() { const g = new T.Group(); const G = K.into(g); const m = M({ c: '#6a3fb0', family: 'glossPlastic' });
     G.rbox(0, -1.3, 0, 7.8, 2.6, 13.3, 0.9, m); // the body (7.8 x 13.3 cm, 2.6 thick)
+    const grip=M({c:'#81738f',family:'plastic'});for(const side of [-1,1])G.rbox(side*2.9,-2.66,0,1.15,.22,6.6,.18,grip);
     G.rbox(0, -2.7, -3.25, 6.8, 0.38, 6, 0.18, M({ c: '#2a2a34', family:'glossPlastic' }));
     R.gbScreen = G.geo(crtGlass(4.6, 4.14, 0.05, 0.025), 0, -2.97, -3.5, new T.MeshBasicMaterial({ color: '#83956c' }), { rx: 90 });
     G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 512, 64, (gg) => { A.text(gg, 'GAME LAD COLOR', 256, 48, '700 44px ' + A.UIF, '#c8c8d8', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
@@ -1731,7 +1735,8 @@
     const g = new T.Group(); g.name = 'pcGL';
     const parts = {}; const section = id => { const part = parts[id] = new T.Group(); part.name = 'pc-' + id; g.add(part); return K.into(part); };
     let P = section('monitor');
-    const BEI = M({ c: '#ece5cf', e: '#2e2a20', family: 'plastic' }), BEI2 = M({ c: '#e0d8be', e: '#26221a', family: 'plastic' }) /* (a touch of glow: the beige reads as bright as boot.js's CSS PC) */, DK = M({ c: '#9a9070', sh: 8 });
+    const agedShell=K.tex('pc.aged-shell',256,256,(q,w,h)=>{const grad=q.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#dfd2a8');grad.addColorStop(.38,'#f1e6c7');grad.addColorStop(1,'#bbac7c');q.fillStyle=grad;q.fillRect(0,0,w,h);const r=K.rnd(1701);for(let n=0;n<12000;n++){q.fillStyle=n%2?'rgba(91,74,38,.08)':'rgba(255,246,208,.15)';q.fillRect(r()*w,r()*h,1,1)}},{world:48,family:'plastic'});
+    const BEI = M({ c: '#e8dfbc', e: '#211e15', family: 'plastic' }), BEI2 = M({ c: '#fff', map:agedShell, e: '#17140e', family: 'plastic' }) /* (a touch of glow: the beige reads as bright as boot.js's CSS PC) */, DK = M({ c: '#9a9070', sh: 8 });
     const monTex = K.tex('pc.monfront', 512, 448, (c, w, h) => {
       const s = w / 38; c.fillStyle = '#e8e0c8'; c.fillRect(0, 0, w, h);
       const gr = c.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,255,255,.18)'); gr.addColorStop(1, 'rgba(90,80,50,.16)'); c.fillStyle = gr; c.fillRect(0, 0, w, h);
@@ -1784,6 +1789,7 @@
         bp.setXYZ(i, x * k, y * k, z); const mx = nx / k, my = ny / k, mz = nz - (x * nx + y * ny) * dk / k, l = Math.hypot(mx, my, mz) || 1; bn.setXYZ(i, mx / l, my / l, mz / l); } // (normals follow the taper)
       P.geo(bell, L.mx, -23, -16.1, BEI2); }
     P.rbox(L.mx, -22.6, -23.2, 22.8, 19.2, 2.6, 1.2, BEI2);
+    for(const side of [-1,1])for(let j=0;j<6;j++)P.box(L.mx+side*(13.3+j*.16),-24+j*1.5,-16,.2,.55,5,M('#4a4436'));
     for (let i = 0; i < 6; i++) P.box(L.mx - 6.25 + i * 2.5, -27.5, -24.55, 1.1, 7.4, 0.25, M('#4a4436'));
     P.box(L.mx, -4.4, -7.5, 13, 5, 10, DK);
     P.rbox(L.mx, -1, -8.5, 22, 2, 19, 0.8, BEI);
@@ -1794,6 +1800,13 @@
     P.rbox(L.tx, -21.6, L.tz + 17.65, 20, 42, 1.3, 0.45, BEI); P.plane(L.tx, -21.6, L.tz + 18.32, 19.4, 41.4, M({ c: '#fff', map: towTex, e: '#262218', sh: 16, sp: '#222' }));
     const btn = P.rbox(L.tx, -19.7, L.tz + 18.55, 4.6, 4.6, 0.9, 0.7, BEI);
     for (const dx of [-7, 7]) for (const dz of [-14, 14]) P.box(L.tx + dx, -0.3, L.tz + dz, 3.2, 0.6, 2, M('#1c1814'));
+    // Removable side-panel seams, steel screw heads and real recessed vent lips.
+    const caseDark=M('#1c1814');
+    for(const side of [-1,1]){
+      for(const y of [-35,-33.4,-31.8,-30.2,-28.6,-27])P.box(L.tx+side*9.78,y,L.tz+4,.18,.55,11,caseDark);
+      for(const z of [-14,14])P.box(L.tx+side*9.77,-22,L.tz+z,.15,33,.16,caseDark);
+      for(const y of [-39,-4])P.cyl(L.tx+side*9.82,y,L.tz-13,.45,.45,.22,6,caseDark,{rz:90});
+    }
     P.shadow(L.tx, 0, L.tz, 26, 40, 0.6, { sq: true });
     // the keyboard and the mouse on its mat
     P = section('keys');

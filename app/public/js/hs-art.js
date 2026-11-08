@@ -107,7 +107,7 @@
   P.deskWood = [256, 256, K.PAINT.wood('#5b3e26', '25,14,6', 110)];
   P.oak = [256, 256, K.PAINT.wood('#8a6036', '50,30,12', 100)];
   P.mdf = [128, 128, (g, w, h) => { g.fillStyle = '#e8e2d4'; g.fillRect(0, 0, w, h); grain(g, w, h, 800, 0.03, 61); }];
-  P.whiteGloss = [128, 128, (g, w, h) => { g.fillStyle = '#ebe7dc'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 2) { g.fillStyle = `rgba(0,0,0,${0.01 + (y % 7) * 0.002})`; g.fillRect(0, y, w, 1); } grain(g, w, h, 300, 0.03, 62); }];
+  P.whiteGloss = [256,256,(g,w,h)=>{g.fillStyle='#e7dfcb';g.fillRect(0,0,w,h);const r=rnd(62);for(let x=0;x<w;x++){g.fillStyle='rgba(117,98,58,'+(.015+r()*.035)+')';const y=r()*h*.3;g.fillRect(x,y,.6,h*.7)}grain(g,w,h,600,.025,62);}];
   // ================================================================ fabrics
   P.duvet = [512, 512, (g, w, h) => { // a space duvet (Mom says he is too old for it; he is NOT)
     g.fillStyle = lin(g, 0, 0, w, h, [[0, '#13265a'], [1, '#0d1c46']]); g.fillRect(0, 0, w, h);
