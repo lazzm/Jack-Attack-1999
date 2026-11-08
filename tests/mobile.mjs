@@ -72,6 +72,10 @@ const launchBrowser=()=>chromium.launch({executablePath:'/usr/bin/chromium',args
 async function phone(profile, { tier = null, hour = 14 } = {}) {
   const ctx = await browser.newContext({ ...PROFILES[profile] });
   const page = await ctx.newPage(), errors = [];
+  if(process.env.MODELS_BASELINE_REF){
+    const ref=process.env.MODELS_BASELINE_REF;assert(/^[a-zA-Z0-9_.\/-]+$/.test(ref));
+    for(const file of ['js/np-rig.js','js/st-voice.js','js/np-life.js','js/np-bubble.js','js/hs-world.js','css/hs-captions.css'])await page.route('**/'+file+'*',route=>route.fulfill({body:execFileSync('git',['show',ref+':app/public/'+file],{cwd:root,encoding:'utf8'}),contentType:file.endsWith('.css')?'text/css':'application/javascript'}));
+  }
   if(process.env.MATERIAL_BASELINE==='1')for(const file of ['hs-kit.js','hs-art.js','hs-house.js','rm-room.js','ch-kitchen.js','ch-lounge.js'])await page.route('**/js/'+file+'*',route=>route.fulfill({body:execFileSync('git',['show','HEAD:app/public/js/'+file],{cwd:root,encoding:'utf8'}),contentType:'application/javascript'}));
   // Diagnostic ablation only; the normal performance gate keeps the live code.
   if(process.env.LIGHT5_WATCHDOG)await page.route('**/js/hs-world.js*',async route=>{

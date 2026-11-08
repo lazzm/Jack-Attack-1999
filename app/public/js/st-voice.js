@@ -99,7 +99,32 @@
   const cacheKey = (id,o) => { const n = nameInfo(id,o); return n ? id + '@' + n.id : id; };
 
   // ---------------------------------------------------------------- decoded clips (a small cache)
-  const cache = new Map();
+  const cache = new Map(), envelopes = new WeakMap();
+  // Once per decoded buffer: 100 Hz amplitude and cumulative audible time.
+  // Source PCM, before distance/volume/occlusion, keeps the actor's articulation
+  // independent of the listener. Joined name clips include their real gap.
+  function speechEnvelope(buf) {
+    if (envelopes.has(buf)) return envelopes.get(buf);
+    const hz = 100, count = Math.max(1, Math.ceil(buf.duration * hz)), rms = new Float32Array(count);
+    const stride = Math.max(1, Math.floor(buf.sampleRate / 12000));
+    for (let channel = 0; channel < buf.numberOfChannels; channel++) {
+      const pcm = buf.getChannelData(channel);
+      for (let n = 0; n < count; n++) {
+        const a = Math.floor(n * buf.sampleRate / hz), b = Math.min(pcm.length, Math.floor((n + 1) * buf.sampleRate / hz));
+        let energy = 0, samples = 0;
+        for (let j = a; j < b; j += stride) { energy += pcm[j] * pcm[j]; samples++; }
+        rms[n] = Math.max(rms[n], Math.sqrt(energy / Math.max(1, samples)));
+      }
+    }
+    const sorted = rms.slice().sort(), reference = Math.max(.025, sorted[Math.floor((count - 1) * .9)]), floor = Math.max(.003, reference * .035);
+    const levels = new Uint8Array(count), voiced = new Uint32Array(count + 1);
+    for (let n = 0; n < count; n++) {
+      levels[n] = Math.round(255 * Math.sqrt(Math.max(0, Math.min(1, (rms[n] - floor) / (reference - floor)))));
+      voiced[n + 1] = voiced[n] + (levels[n] > 28 ? 1 : 0);
+    }
+    const envelope = { hz, levels, voiced, total: voiced[count] };
+    envelopes.set(buf, envelope); return envelope;
+  }
   function decoded(ctx, key, file) {
     let p = cache.get(key);
     if (!p) {
@@ -110,7 +135,7 @@
     return p;
   }
   function remember(key, p) {
-    p.then(() => { p.ready = true; }, () => cache.delete(key)); cache.set(key, p);
+    p.then(buf => { speechEnvelope(buf); p.ready = true; }, () => cache.delete(key)); cache.set(key, p);
     while (cache.size > 24) cache.delete(cache.keys().next().value);
     return p;
   }
@@ -202,11 +227,18 @@
     const n = nameInfo(id,o);
     const h = { lineId: id, nameId: n?.id || null, nameDur: n?.dur || 0, dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
       level() {
-        if (!h.started || h.ended || !h.an) return 0;
-        const d = h.data || (h.data = new Float32Array(h.an.fftSize)); h.an.getFloatTimeDomainData(d);
-        let s = 0; for (let i = 0; i < d.length; i++) s += d[i] * d[i];
-        const rms = Math.sqrt(s / d.length); h.peak = Math.max(h.peak * 0.995, rms, 0.06);
-        return Math.max(0, Math.min(1, (rms / h.peak - 0.12) * 1.35));
+        if (!h.started || h.ended || !h.envelope || c.state !== 'running') return 0;
+        const t = c.currentTime - h.t0; if (t < 0 || t >= h.dur) return 0;
+        const e = h.envelope, p = t * e.hz, i = Math.min(e.levels.length - 1, Math.floor(p)), k = p - i;
+        return (e.levels[i] + ((e.levels[i + 1] ?? e.levels[i]) - e.levels[i]) * k) / 255;
+      },
+      // Approximate text articulation advances over audible time, not pauses.
+      // This is not phoneme recognition; the rig still authors the lip shapes.
+      speechProgress() {
+        if (!h.started) return 0; if (h.ended) return 1;
+        const e = h.envelope; if (!e?.total) return h.progress();
+        const p = Math.max(0, Math.min(e.levels.length, (c.currentTime - h.t0) * e.hz)), i = Math.floor(p);
+        return (e.voiced[i] + ((e.voiced[i + 1] ?? e.voiced[i]) - e.voiced[i]) * (p - i)) / e.total;
       },
       progress() { if (!h.started) return 0; if (h.ended) return 1; return h.dur ? Math.max(0, Math.min(1, (c.currentTime - h.t0) / h.dur)) : 0; },
       stop() { h.cancelled = true; if (h.src) try { const t = c.currentTime; if (h.out) { h.out.gain.cancelScheduledValues(t); h.out.gain.setValueAtTime(h.out.gain.value, t); h.out.gain.linearRampToValueAtTime(0, t + 0.015); } h.src.stop(t + 0.02); } catch (e) {} done(); }, // (a short fade: stopping mid-wave clicks)
@@ -218,7 +250,7 @@
     p.then(buf => {
       if (h.cancelled || !on()) { done('cancelled'); return; }
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
-      const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0;
+      const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0; h.envelope = speechEnvelope(buf);
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
       const g = c.createGain(); g.gain.value = o.gain ?? 1; h.out = g;
       let node = src;

@@ -2702,7 +2702,9 @@
         else if(g){mode="WON'T FIT";cls='blocked';keys=[['X','Drop'],['F',f],['R','Turn'],['Q','Return']];help=whyText(g.why)+'. Aim somewhere clear.';}
         else{keys=[['E','Place'],['F',f],['R','Turn'],['Q','Return']];help='Wheel: turn · Right click / Q: return · Esc: menu';}
         keys=keys.filter(Boolean);
-        if(a)this.tip('<kbd>F</kbd> '+esc(a.label),vw/2,vh/2,false,true);else if(tipEl.classList.contains('carry'))this.tip(null);
+        // A family reply already owns the face caption, including while an
+        // object is held. Keep F available in the carry controls below it.
+        if(a&&!a.s?.hideTip?.())this.tip('<kbd>F</kbd> '+esc(a.label),vw/2,vh/2,false,true);else if(tipEl.classList.contains('carry'))this.tip(null);
         const key=[t.id,label,mode,cls,help,keys.map(k=>k.join(':')).join(',')].join('|');
         if(key===holdKey)return;holdKey=key;snapKey=cls==='snap'?key:'';
         for(const c of ['snap','fit','blocked','drag'])hold.classList.toggle(c,c===cls);
