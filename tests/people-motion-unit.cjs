@@ -1,0 +1,15 @@
+'use strict';
+const assert = require('node:assert/strict');
+const {personJump} = require('./people-motion.cjs');
+const pose = (t,cx,extra={}) => ({t,cx,cz:0,...extra});
+assert(personJump([pose(0,0),pose(150,22.75)]), 'The original limit must still catch a visible 22.75 cm jump in 150 ms');
+assert.equal(personJump([pose(0,0),pose(300,22.75)]),null,'A missing render must use the time since the preceding actual draw');
+assert.equal(personJump([pose(150,22.75)]),null,'A first appearance has no preceding rendered pose');
+assert(personJump([pose(150,22.75),pose(166.7,35)]),'A jump immediately after reappearance remains a failure');
+assert.equal(personJump([pose(0,0),pose(150,9.75),pose(300,19.5)]),null,'Ordinary 65 cm/s shuffles pass');
+assert.equal(personJump([pose(0,0),pose(0,0)]),null,'Repeated draws without movement are safe');
+assert(personJump([pose(0,0),pose(0,2)]),'A moved pose with no elapsed time must fail');
+assert(personJump([pose(0,0),pose(100,NaN)]),'Invalid poses cannot silently pass');
+assert.equal(personJump([pose(0,0),pose(16,100,{capture:true}),pose(32,0),pose(48,1)]),null,'Screenshot boundaries retain their existing exclusion');
+assert(personJump([pose(0,0,{capture:true}),pose(16,0),pose(32,10)]),'Screenshot exclusion must end on the next ordinary pair');
+console.log('PASS people-motion: real visible jumps, hidden render gaps, reappearance, timestamps and capture boundaries');
