@@ -8,9 +8,10 @@ const K=k.HouseKit,map=new T.Texture();K.TEX.wallBlue=map;
 const mesh=new T.Mesh(new T.BoxGeometry(300,200,250),K.mat({map}));mesh.updateMatrix();
 const r={id:'bedroom',group:new T.Group(),lights:()=>[]};r.group.add(mesh);k.House.ROOMS.bedroom=r;
 K.bakeInterior(r);const b=r.lightBake,geometry=mesh.geometry,uv=geometry.attributes.uv2,material=mesh.material;
+const readiness=()=>{K.interiorFor(r);const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);return sh.uniforms.houseBakeReady.value};assert.equal(readiness(),0,'Pending atlas must retain vertex lamp fill');
 assert(!b.stats.ready,'Bake must return before scanning the atlas');assert(timers.length,'Work was queued');assert(b.ao.image.data.every(v=>v===255),'Pending AO must be neutral, never black');assert.equal(b.ao.image.data.length,b.width*b.height,'AO stores one lossless greyscale channel');
 const versions=[b.light.version,b.ao.version];let slices=0;while(timers.length){timers.shift()();if(!b.stats.ready){assert(b.ao.image.data.every(v=>v===255),'A pending atlas exposed partially baked AO before its first GPU upload');assert(b.light.image.data.every(v=>v===0),'A pending atlas exposed partially baked bounce')}assert(++slices<10000)}
-assert(slices>1,'Large atlas must span several tasks');assert(b.stats.ready);assert.equal(b.light.version,versions[0]+1,'Upload once on completion');assert.equal(b.ao.version,versions[1]+1);
+assert(slices>1,'Large atlas must span several tasks');assert(b.stats.ready);assert.equal(readiness(),1,'Publication must switch off temporary vertex fill atomically');assert.equal(b.light.version,versions[0]+1,'Upload once on completion');assert.equal(b.ao.version,versions[1]+1);
 assert.equal(mesh.material.lightMap,b.gpuLight);assert.equal(mesh.material.aoMap,b.gpuSpill);
 for(let i=0;i<b.ao.image.data.length;i++){const p=i*4;for(let c=0;c<3;c++)assert.equal(b.gpuLight.image.data[p+c],b.light.image.data[p+c]);assert.equal(b.gpuLight.image.data[p+3],b.ao.image.data[i]);assert.equal(b.gpuSpill.image.data[i],b.light.image.data[p+3])}
 assert.equal(mesh.geometry,geometry);assert.equal(geometry.attributes.uv2,uv);assert.equal(mesh.material,material,'Background work cannot invalidate static batches');
@@ -45,16 +46,19 @@ console.log('INTERIOR LIGHT PASS: yielding bake, neutral fallback, one completed
 }
 // Automatic adaptation keeps the authored maps and batch/material identity.
 {
- const compile=()=>{const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);return sh};
- K.interiorAdapt(0,r.group);const full=compile(),fullKey=material.customProgramCacheKey(),version=material.version;
+ const prop=K.mat({c:'#acdfee'}),pendant=K.mat({c:'#eedfac',map});pendant.userData.pendant=true;
+ r.group.add(new T.Mesh(new T.BoxGeometry(),prop),new T.Mesh(new T.BoxGeometry(),pendant));
+ const compile=(m=material)=>{const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};m.onBeforeCompile(sh);return sh};
+ K.interiorAdapt(0,r.group);const full=compile(),fullProp=compile(prop),fullKey=material.customProgramCacheKey(),version=material.version,propVersion=prop.version;
  K.interiorAdapt(4,r.group);const cheap=compile(),cheapVersion=material.version;
- assert(cheap.vertexShader.includes('houseWindowUV'),'Weak devices must project sun coordinates at vertices');assert(!cheap.fragmentShader.includes('reflectedLight.directSpecular += irradiance'),'Weak shells must skip per-pixel specular work');assert(cheap.fragmentShader.includes('reflectedLight.directDiffuse += irradiance'),'Lamp pools must retain per-pixel diffuse falloff');
- for(const ink of ['lightMapTexel.r*houseSky','lightMapTexel.g*houseMain','lightMapTexel.b*houseAccent','houseWindowLight','lightMapTexel.a'])assert(cheap.fragmentShader.includes(ink),'Fallback lost '+ink);
+ assert(!cheap.vertexShader.includes('houseWindowUV'),'Fallback must not keep projecting unused sun coordinates');assert(!cheap.fragmentShader.includes('lights_phong'),'Weak shells must not retain Phong fragment lighting');assert(cheap.vertexShader.includes('if(houseBakeReady<.5)'),'Shells must retain vertex lamp fill only until their baked pools are ready');assert(!cheap.fragmentShader.includes('getPointDirectLightIrradiance'),'Fallback shell lamps must never return to fragment lighting');
+ for(const ink of ['lightMapTexel.r*houseSky','lightMapTexel.g*houseMain','lightMapTexel.b*houseAccent','houseDoorIrradiance','lightMapTexel.a'])assert(cheap.fragmentShader.includes(ink),'Fallback lost '+ink);
+ const cheapProp=compile(prop);assert(cheapProp.vertexShader.includes('if(any(notEqual(pointLights[ i ].color,vec3(0.0))))'));assert(!cheapProp.fragmentShader.includes('houseWindowLight'));assert(prop.version>propVersion,'Props must also invalidate their old pixel program');assert(compile(pendant).fragmentShader.includes('totalEmissiveRadiance*=1.0-houseCord'),'Low pendant must not turn its cord into a glowing shade');
  assert.notEqual(material.customProgramCacheKey(),fullKey);assert(cheapVersion>version);
- K.interiorAdapt(5,r.group);assert.equal(material.version,cheapVersion,'Moving between cheap rungs must not recompile');
- K.interiorAdapt(0,r.group);assert.equal(compile().vertexShader,full.vertexShader);assert.equal(compile().fragmentShader,full.fragmentShader,'Full look must return byte for byte');
+ K.interiorAdapt(5,r.group);assert.equal(material.version,cheapVersion,'Moving between cheap rungs must not invalidate materials');
+ K.interiorAdapt(0,r.group);assert.equal(compile().vertexShader,full.vertexShader);assert.equal(compile().fragmentShader,full.fragmentShader,'Full look must return byte for byte');assert.equal(compile(prop).fragmentShader,fullProp.fragmentShader,'Full prop highlights and sunlight must return exactly');
  assert.equal(mesh.geometry,geometry);assert.equal(mesh.material,material);assert.equal(material.lightMap,b.gpuLight);assert.equal(material.aoMap,b.gpuSpill);
- console.log('INTERIOR ADAPT SHADER PASS: full shader restored exactly; diffuse fallback preserves per-pixel lamp pools, sun and AO without batch mutation');
+ console.log('INTERIOR ADAPT SHADER PASS: full shader restored exactly; low vertex props, baked pools, spill, AO and pendant ink without batch mutation');
 }
 // Failed, blocked, silent and suspended workers cannot strand a room's atlas.
 for(const failure of ['constructor','post','post-second','error','message','payload','old-worker','timeout','pagehide']){

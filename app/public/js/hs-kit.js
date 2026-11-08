@@ -59,8 +59,8 @@
     if(t.anisotropy!==next){t.anisotropy=next;t.needsUpdate=true;}
   }
   const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
-  // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
-  function interiorUniforms(){const uniform=v=>({value:v});return {houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
+  // Keep material identity for switches, props and batches. The full path is r128 Phong; low rungs reuse its material interface for vertex diffuse.
+  function interiorUniforms(){const uniform=v=>({value:v});return {houseBakeReady:uniform(0),houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
   let interiorCheap=false;
   const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()},houseClip0:{value:new T.Vector4()},houseClip1:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
   const interiorViewProjectors=[new T.Matrix4(),new T.Matrix4()],interiorViewTransform=new T.Matrix4(),interiorPlane=new T.Vector4();
@@ -69,6 +69,7 @@
     if(!state){shared.houseSun.value=interiorDark;return}
     for(const key in state.uniforms)shared[key].value=state.uniforms[key].value;
     shared.houseBounds0.value=state.uniforms.houseAperture.value[0];shared.houseBounds1.value=state.uniforms.houseAperture.value[1];
+    if(interiorCheap)return; // the diffuse programs use colours/weights, never window projectors
     // Phong already normalises its view-space normal. Transform the sun once
     // per room pass instead of a second normal transform on every vertex.
     const d=shared.houseSunDir.value;shared.houseSunViewDir.value.set(d.x,-d.y,d.z);
@@ -87,6 +88,7 @@
   function phongShader(shader){
     const state=INTERIOR_SHADER;
     Object.assign(shader.uniforms,state.uniforms);
+    if(interiorCheap){diffuseShader.call(this,shader);return}
     shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
       uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;
       uniform mat4 houseProjector0,houseProjector1;
@@ -113,11 +115,7 @@
     if(this.userData.pendant){
       // One material for the cord and shade, with the original cord's exact
       // diffuse/specular/shininess and no emission. Constant U selects the part.
-      shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-        float houseCord=1.0-step(.125,vUv.x);
-        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.9333333333333333),houseCord);`);
-      shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
-        totalEmissiveRadiance*=1.0-houseCord;`);
+      pendantTint(shader);
       shader.fragmentShader=shader.fragmentShader.replace('#include <lights_phong_fragment>',T.ShaderChunk.lights_phong_fragment
         .replace('material.specularColor = specular;', 'material.specularColor = mix(specular,vec3(0.047058823529411764),houseCord);')
         .replace('material.specularShininess = shininess;','material.specularShininess = mix(shininess,6.0,houseCord);'));
@@ -132,17 +130,51 @@
       shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
     }
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
-    interiorSun(shader,interiorCheap&&this.userData.interiorShell);
+    interiorSun(shader);
   }
-  // All house surfaces project window coordinates at vertices. The last
-  // adaptation rungs also skip shell specular work; lamp falloff stays per pixel.
-  // No material identity, map, geometry or batch is changed by a step.
+  function pendantTint(shader){
+    shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+        float houseCord=1.0-step(.125,vUv.x);
+        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.9333333333333333),houseCord);`);
+    shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+        totalEmissiveRadiance*=1.0-houseCord;`);
+  }
+  // Low rungs use vertex diffuse on props. The shell already has spatial lamp
+  // weights: use those pools instead of evaluating the same lamp rig
+  // again on every fragment. Keep full-resolution ink, bounce, door spill and
+  // contact AO; omit specular and the analytic sun patch until recovery.
+  // Material identity, textures, geometry and static batches never change.
+  function diffuseShader(shader){
+    // Empty rig slots are still present to keep programs stable. In particular
+    // the garden must not evaluate three black lamps on every leaf vertex.
+    const lighting=T.ShaderChunk.lights_lambert_vertex.replace(
+      /(getPointDirectLightIrradiance\([\s\S]*?)(\n\t\}\n\t#pragma unroll_loop_end)/,
+      'if(any(notEqual(pointLights[ i ].color,vec3(0.0)))){\n$1\n\t\t}$2');
+    shader.vertexShader=T.ShaderLib.lambert.vertexShader.replace('#include <lights_lambert_vertex>',lighting);
+    shader.fragmentShader=T.ShaderLib.lambert.fragmentShader;
+    if(this.userData.pendant)pendantTint(shader);
+    if(!this.userData.interiorShell)return;
+    // While weights load, retain vertex lamp fill so a night-time refresh is
+    // readable. Publication replaces it with the finished pools in one frame.
+    shader.vertexShader=shader.vertexShader
+      .replace('#include <common>','#include <common>\nuniform float houseBakeReady;')
+      .replace(lighting,lighting.replace(/#if NUM_POINT_LIGHTS > 0[\s\S]*?(?=#if NUM_HEMI_LIGHTS > 0)/,'if(houseBakeReady<.5){\n$&\n}\n'));
+    shader.fragmentShader=shader.fragmentShader
+      .replace('#include <common>',`#include <common>
+        uniform vec3 houseSky,houseMain,houseAccent,houseSpill;`)
+      .replace('#include <lightmap_fragment>',`#ifdef USE_LIGHTMAP
+        vec4 lightMapTexel=texture2D(lightMap,vUv2);
+        vec3 houseDoorIrradiance=texture2D(aoMap,vUv2).r*houseSpill;
+        reflectedLight.indirectDiffuse += PI*(lightMapTexel.r*houseSky+1.5*(lightMapTexel.g*houseMain+lightMapTexel.b*houseAccent+houseDoorIrradiance));
+        #endif`)
+      .replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
+  }
   function interiorAdapt(level,scene){
     const cheap=level>=4;if(cheap===interiorCheap)return;
     interiorCheap=cheap;
-    scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.userData.interiorShell&&m.onBeforeCompile===phongShader)m.needsUpdate=true});
+    scene?.traverse(o=>{for(const m of [].concat(o.material||[]))if(m.onBeforeCompile===phongShader)m.needsUpdate=true});
   }
-  function interiorSun(shader,diffuse){
+  function interiorSun(shader){
     // Projector coordinates are affine in position: perspective interpolation
     // preserves the exact window shape, including its soft edges and mullion.
     // Four interpolated scalars replace both fragment-stage matrices. Keep the
@@ -178,11 +210,8 @@
           float mask=houseMask(houseBounds0,houseWindowUV.xy,dot(houseClip0,p))+houseMask(houseBounds1,houseWindowUV.zw,dot(houseClip1,p));
           return houseSun*min(1.0,mask)*facing;
         }`);
-    if(diffuse)shader.fragmentShader=shader.fragmentShader
-      .replace('#include <lights_phong_pars_fragment>',T.ShaderChunk.lights_phong_pars_fragment.replace(/reflectedLight\.directSpecular \+= irradiance[^;]+;/,''))
-      .replace('#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )','#if 0');
   }
-  function phongKey(){return 'house-interior-r7-'+(interiorCheap&&this.userData.interiorShell?'diffuse-':'pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
+  function phongKey(){return (interiorCheap?'house-interior-r9-diffuse-':'house-interior-r7-pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
@@ -495,7 +524,7 @@
     const work=weights(),job={stats,bytes:lightData.length,complete(data){
       const publishStart=performance.now();
       if(data){lightData.set(data.light);packedData.set(data.packed);spillData.set(data.spill);for(let i=0;i<aoData.length;i++)aoData[i]=data.ao[i*4]}
-      light.needsUpdate=true;ao.needsUpdate=true;gpuLight.needsUpdate=true;gpuSpill.needsUpdate=true;stats.publishMs=performance.now()-publishStart;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
+      light.needsUpdate=true;ao.needsUpdate=true;gpuLight.needsUpdate=true;gpuSpill.needsUpdate=true;uniforms.houseBakeReady.value=1;stats.publishMs=performance.now()-publishStart;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
     },step(){const result=work.next();if(!result.done)return false;this.complete(result.value);return true}};
     const ceiling=r.ceilingAt?[r.ceilingAt(0,0),r.ceilingAt(1,0)-r.ceilingAt(0,0),r.ceilingAt(0,1)-r.ceilingAt(0,0)]:null;
     stats.worker=workerInterior(job,{id:r.id,charts:charts.map(c=>({...c,n:c.n.toArray()})),w,h,bounds,windows,main,bluePoints,alphaPoints,accent:!!accent.length,footprints,ceiling});
