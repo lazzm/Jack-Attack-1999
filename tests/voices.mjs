@@ -498,9 +498,10 @@ await check('phone', async () => {
       Cast.bind('voice-phone',{first:'Jaque',g:'m'});S.freeze=false;
       return HouseFamily.say('dad','bark.dad.bed2',{force:true,prio:9,again:true});
     }),'Requested phone line accepted');
-    await waitFor(page, () => NPCBubble.live.some(b => b.key === 'dad' && b.mode === 'head' && b.said.length > 20), 15000 * SCALE);
-    await page.evaluate(() => { HouseFamily.debug.speech.freeze = true; });
-    const b = (await live(page)).find(b=>b.key==='dad'&&!b.out);
+    // Match the requested live utterance and hold/sample it in one evaluation;
+    // a fading previous balloon must not satisfy the wait on a slow renderer.
+    await waitFor(page, () => {const b=NPCBubble.live.find(b=>!b.out&&b.key==='dad'&&b.mode==='head'&&b.text.startsWith('JAQUE!')&&b.said.length>20);if(!b)return false;HouseFamily.debug.speech.freeze=true;window.__phoneVoiceBubble=b;return true;}, 15000 * SCALE);
+    const b = await page.evaluate(()=>window.__phoneVoiceBubble);
     console.log('PHONE REQUEST PROOF',JSON.stringify({bubble:b,identity:await page.evaluate(()=>({first:Cast.me().first,current:HouseFamily.debug.speech.cur?.lineId,name:HouseFamily.debug.speech.voice?.nameId}))}));
     assert(b.text.startsWith('JAQUE!'),'Sound-alike name is shown on phone: '+JSON.stringify(b));
     for(const file of ['/bark.dad.bed2.mp3','/names/dad-shout/jack.mp3'])assert(resources.some(u=>new URL(u).pathname.endsWith(file)&&new URL(u).searchParams.get('v')===stamp),'Recording uses current build token: '+file);
