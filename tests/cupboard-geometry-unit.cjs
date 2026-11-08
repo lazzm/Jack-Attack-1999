@@ -49,7 +49,8 @@ after.cup.group.traverse(m=>{
 console.log('CUPBOARD PROP FIT PASS: '+vertices+' solid prop vertices inside lining, above carpet and below soffit');
 // Review round 2 keeps the approved layout; pendant batching saves one hall submission.
 const reviewed=build(execFileSync('git',['show','52ce5e1:app/public/js/hs-house.js'],{encoding:'utf8'}));
-assert.deepEqual(after.draws,{hall:reviewed.draws.hall-1,cupboard:reviewed.draws.cupboard},'Pendant batching saves exactly one hall submission; cupboard budget is unchanged');
+assert.equal(after.draws.hall,reviewed.draws.hall-1,'Pendant batching saves one hall submission');
+assert(after.draws.cupboard<=reviewed.draws.cupboard,'Shared vacuum finish must not increase cupboard submissions');
 const floorRay=new T.Raycaster(new T.Vector3(200,340,190),new T.Vector3(0,1,0));
 for(const r of [reviewed.hall,after.hall])r.group.updateMatrixWorld(true);
 const floorHits=r=>floorRay.intersectObject(r.group,true).filter(h=>h.object.material.visible!==false&&!h.object.material.transparent);

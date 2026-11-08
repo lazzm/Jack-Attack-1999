@@ -30,10 +30,10 @@
   const cast = s => { try { return window.Cast ? Cast.t(s) : s; } catch (e) { return s; } };
   const sis = () => { try { return Cast.n('sister'); } catch (e) { return 'my sister'; } };
   const secret = id => { try { R._.secret(id); } catch (e) {} };
-  const mWhite = M({ c: '#efece4', sh: 20, sp: '#222' }), mSkirt = M({ c: '#efebe0', map: tex('whiteGloss'), sh: 30, sp: '#333' });
-  const mBrass = M({ c: '#c8a040', sh: 70, sp: '#a08040' }), mMetal = M({ c: '#9a9aa0', sh: 60, sp: '#888' }), mDark = M({ c: '#1b1b1e', sh: 20, sp: '#222' });
+  const mWhite = M({ c: '#efece4', family: 'plastic' }), mSkirt = M({ c: '#efebe0', map: tex('whiteGloss'), sh: 30, sp: '#333' });
+  const mBrass = M({ c: '#c8a040', family: 'brass' }), mMetal = M({ c: '#9a9aa0', family: 'metal' }), mDark = M({ c: '#1b1b1e', family: 'plastic' });
   // Same gloss class as the casings: static batching shares their draw calls.
-  const mSpindle = M({ c: '#f5f1e7', sh: 20, sp: '#222' });
+  const mSpindle = M({ c: '#f5f1e7', family: 'glossPaint' });
   const PICK = new T.MeshBasicMaterial({ visible: false });
   const SECRETS = [
     ['hs.downstairs', 'Downstairs', 'Leave your room and go downstairs.'],
@@ -73,7 +73,7 @@
     side('n', x0, x1, z0, 0); side('s', x0, x1, z1, 180); side('w', z0, z1, x0, 90); side('e', z0, z1, x1, -90);
     if (d.floor) B.panel((x0 + x1) / 2, fy, (z0 + z1) / 2, x1 - x0, z1 - z0, 2, d.floor, { rx: 90, uv: d.fuv || 90 });
     // plaster coving: a solid 45-degree bar run into the wall/ceiling angle, so the corner reads as a moulding
-    if (d.cove) { const cm = M({ c: '#f1ede2', sh: 10 }); B.box((x0 + x1) / 2, cy, z0, x1 - x0, 7, 7, cm, { rx: 45 }); B.box((x0 + x1) / 2, cy, z1, x1 - x0, 7, 7, cm, { rx: 45 }); B.box(x0, cy, (z0 + z1) / 2, 7, 7, z1 - z0, cm, { rz: 45 }); B.box(x1, cy, (z0 + z1) / 2, 7, 7, z1 - z0, cm, { rz: 45 }); }
+    if (d.cove) { const cm = M({ c: '#f1ede2', family: 'plaster' }); B.box((x0 + x1) / 2, cy, z0, x1 - x0, 7, 7, cm, { rx: 45 }); B.box((x0 + x1) / 2, cy, z1, x1 - x0, 7, 7, cm, { rx: 45 }); B.box(x0, cy, (z0 + z1) / 2, 7, 7, z1 - z0, cm, { rz: 45 }); B.box(x1, cy, (z0 + z1) / 2, 7, 7, z1 - z0, cm, { rz: 45 }); }
     if (d.ceil !== false) B.panel((x0 + x1) / 2, cy, (z0 + z1) / 2, x1 - x0, z1 - z0, 2, d.ceil || M({ c: '#fff', map: tex('artex') }), { rx: -90, uv: 110 });
     // darkness in the corners: where the walls meet the floor and the ceiling
     for(const [k,a0,a1,fixed,ry,fry]of [['n',x0,x1,z0,0,180],['s',x0,x1,z1,180,0],['w',z0,z1,x0,90,-90],['e',z0,z1,x1,-90,90]]){
@@ -151,7 +151,7 @@
     const cx = along ? sgnA * dw / 2 : 0, cz = along ? 0 : sgnA * dw / 2;
     // A low cupboard needs its own latch height, measured from its floor.
     const ha = sgnA * (dw - 7), hy = fy - Math.min(103, hgt * 0.55);
-    K.doorLeaf(pv, { cx, cy: top + 0.3 + (hgt - 0.2) / 2, cz, w: dw, h: hgt - 0.2, t: 3.6, along, leaf: lm, mould: o.panel ? lm : M({ c: '#ece8de', sh: 18, sp: '#2a2a2a' }), field: o.panel || M('#dcd7cb'),
+    K.doorLeaf(pv, { cx, cy: top + 0.3 + (hgt - 0.2) / 2, cz, w: dw, h: hgt - 0.2, t: 3.6, along, leaf: lm, mould: o.panel ? lm : M({ c: '#ece8de', family: 'glossPaint' }), field: o.panel || M({c:'#dcd7cb',family:'glossPaint'}),
       brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }), handleA: ha, handleY: hy, leverDir: -sgnA, hingeA: -sgnA * 0.4, hingeSide: o.inside ? 1 : -1, glass: !!o.glass,
       glazing: o.glass ? { w: o.glass.w || 44, h: 78, y: top + 58 - (top + .3 + (hgt - .2)/2), material: doorGlass() } : null });
     if (o.deco) o.deco(D, { along, sgnA, dw, top, hgt, fy });
@@ -572,7 +572,7 @@
     const ht = B.at(222, GY, 110); ht.box(0, -76, 0, 30, 3, 60, M({ c: '#fff', map: tex('oak') })); [[-12, -26], [12, -26], [-12, 26], [12, 26]].forEach(([x, z]) => ht.box(x, -37, z, 3, 74, 3, M({ c: '#fff', map: tex('oak') })));
     // A closed ceramic bowl with a rounded lip and inner basin, not an open
     // cone whose back faces vanished when seen from above.
-    ht.lathe(0,-78,-10,[[0,-.5],[3,-.5],[5,-1.4],[7.2,-4.6],[7.8,-4.8],[8.2,-4.5],[7.7,-3],[5,0],[2.8,.2],[0,.2]],24,M({c:'#b68b59',sh:35,sp:'#333',side:2}));ht.shadow(0,-77.5,-10,18,18,.25);
+    ht.lathe(0,-78,-10,[[0,-.5],[3,-.5],[5,-1.4],[7.2,-4.6],[7.8,-4.8],[8.2,-4.5],[7.7,-3],[5,0],[2.8,.2],[0,.2]],24,M({c:'#b68b59',family:'ceramic',side:2}));ht.shadow(0,-77.5,-10,18,18,.25);
     const keys=ht.at(4,-77.9,12,22);keys.geo(new T.TorusGeometry(1.7,.3,6,18),0,0,0,mMetal,{rx:90});
     for(const [x,ry,material]of [[-1,-20,mMetal],[1,30,mBrass]]){const key=keys.at(x,0,1,ry);key.cyl(0,.1,0,1.05,1.05,.4,12,material);key.box(0,.1,3,.75,.4,4.3,material);for(const z of [3.6,4.7])key.box(.55,.1,z,.7,.4,.65,material)}
     const book=ht.at(0,-77.5,-23);book.rbox(0,-1,0,16,2,11,.4,M('#e3d9b9'));printBlock(book,0,-2.15,0,17,12,.3,5,{rx:90});book.shadow(0,0,0,19,14,.25,{sq:true});
@@ -675,14 +675,14 @@
       const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(p,3));g.setIndex(idx);g.computeVertexNormals();return g;
     };
     const tube=(P,points,r,material,segments=20)=>{const curve=new T.CatmullRomCurve3(points.map(v=>new T.Vector3(...v)));P.geo(new T.TubeGeometry(curve,segments,r,6),0,0,0,material);return curve};
-    const hv=B.at(345,GY,450),red=M({c:'#d02a2a',sh:40,sp:'#444'}),black=M('#222'),hose=M('#444');
+    const hv=B.at(345,GY,450),red=M({c:'#d02a2a',family:'plastic'}),black=M('#222'),hose=M('#444');
     // Late-90s cylinder vacuum: low wheeled chassis, clipped lid, carrying
     // handle, ribbed hose, parked floor head and the cable wound on its back.
     hv.rbox(0,-5,0,21,5,21,2,black);
     for(const x of [-9.5,9.5]){hv.cyl(x,-4,0,4,4,2.5,12,black,{rz:90});hv.cyl(x+(x<0?-1.3:1.3),-4,0,1.7,1.7,.25,10,mMetal,{rz:90})}
     hv.cyl(0,-16,0,9.2,10,22,16,red);
     hv.cyl(0,-27.5,0,10,10,1.4,16,black);
-    hv.lathe(0,-28.2,0,[[9.8,0],[9.7,-2],[8.5,-5],[6,-7],[0,-7]],16,M('#d02a2a'));
+    hv.lathe(0,-28.2,0,[[9.8,0],[9.7,-2],[8.5,-5],[6,-7],[0,-7]],16,red);
     for(const x of [-7,7]){hv.rbox(x,-28,6.8,2.3,6,1.2,.4,mMetal);hv.box(x,-28,7.5,1,2,.5,black)}
     for(const x of [-4.5,4.5])hv.rbox(x,-38,0,2,7,2,.7,black);
     hv.rbox(0,-41.2,0,10.5,2,2.6,.8,black);hv.rbox(3,-35,4,3,1.2,3,.4,mWhite);
@@ -725,7 +725,7 @@
     for(const x of [-17,16]){tb.box(x,-4,-9.04,2,.45,.12,mMetal);tb.box(x,-10,-9.04,.6,1.8,.12,mMetal)}
     for(const z of [-6,6])tb.rbox(0,-.7,z,28,1.4,2,.4,toolDark);
     tb.shadow(0,0,0,46,26,.6,{sq:true});
-    const bg=B.at(393,GY,508),canvas=M({c:'#e8e4dc',sh:2,sp:'#080808'}),toyBlue=M('#5a8ad0'),toyYellow=M('#f0c000');
+    const bg=B.at(393,GY,508),canvas=M({c:'#e8e4dc',family:'fabric'}),toyBlue=M('#5a8ad0'),toyYellow=M('#f0c000');
     // Heavy folded sack, with a thick rolled mouth and a real inner bowl.
     bg.geo(rings([[0,8,6],[-3,11.5,9],[-11,12.5,10.3],[-21,11.8,9.8],[-28,7,6],[-31,7.6,6.4],[-31,6.5,5.3],[-26,6,4.8],[-25,0,0]],20,.055),0,0,0,canvas);
     for(const side of [-1,1])tube(bg,[[side*6,-29,-3],[side*8,-37,-2],[side*7,-38,1],[side*6,-29,3]],.65,canvas,10);
@@ -756,7 +756,7 @@
       boot.cyl(-9.1,-20,0,.2,.2,20,6,rubber);
       boot.shadow(0,0,0,25,14,.35,{sq:true});
     }
-    const tree=B.at(383,GY,533),carton=M('#a07a4a');
+    const tree=B.at(383,GY,533),carton=M({c:'#a07a4a',family:'paper'});
     tree.box(0,-9,0,42,18,24,{all:carton,t:M({c:'#fff',map:boxTex('XMAS TREE','#a07a4a')})});
     for(const x of [-12,12]){tree.box(x,-18.2,0,1.5,.4,24,mDark);tree.box(x,-9,12.15,1.5,18,.3,mDark)}
     tree.shadow(0,0,0,46,28,.45,{sq:true});
@@ -858,7 +858,7 @@
       fp.cyl(47.6, -10.5, 24.5, 1.7, 1.7, 1.4, 14, brass, { rz: 90 }); }
     for (let i = 0; i < 9; i++) fp.ball(44 + (i % 3) * 1.5, -8 - Math.floor(i / 3) * 5, -16 + (i % 5) * 8 + Math.floor(i / 5) * 3, 4, 3, 4, M({ c: ['#2a2220', '#3a2a24', '#201a18'][i % 3], sh: 20 }), 7); // the fake coals
     [-18, -6, 6, 18].forEach(z => fp.box(46, -14, z, 1, 1, 1.2, M('#444'), { rz: 0 })); fp.box(46, -17, 0, 1.2, 1.2, 40, M({ c: '#c8a040', sh: 60 })); // the grate bars and brass trim
-    fp.box(58, -4, 0, 30, 8, 1.6, M({ c: '#c8a040', sh: 70, sp: '#a08040' }), { ry: 90 }); [-1, 1].forEach(sd => fp.box(50, -4, sd * 55, 16, 8, 1.6, M({ c: '#c8a040', sh: 70, sp: '#a08040' }))); // the brass fender
+    fp.box(58, -4, 0, 30, 8, 1.6, M({ c: '#c8a040', family: 'brass' }), { ry: 90 }); [-1, 1].forEach(sd => fp.box(50, -4, sd * 55, 16, 8, 1.6, M({ c: '#c8a040', family: 'brass' }))); // the brass fender
     r.flames = []; for (let i = 0; i < 5; i++) { const f = new T.Mesh(new T.PlaneGeometry(9, 14), new T.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0.0, depthWrite: false })); f.position.set(-280 + 45.5, GY - 22, 500 - 20 + i * 10); f.rotation.y = 90 * D2R; r.group.add(f); r.flames.push(f); }
     // on the mantelpiece: a carriage clock, photos, cards
     const mp = B.at(-280 + 44, GY - 114, 500);
@@ -919,7 +919,7 @@
     for(let side=0;side<2;side++){
       const door=new T.Group(),base=-222+side*42;door.position.set(base,GY,336+side*2.3);r.group.add(door);const D=K.into(door);
       for(const x of [1,41])D.box(x,-60,0,2,116,2,oak,{uv:50});for(const y of [-117,-3])D.box(21,y,0,40,2,2,oak,{uv:50});
-      D.box(21,-60,-0.2,38,110,0.4,M({c:'#d4e0e5',o:0.15,tr:true,sh:90,sp:'#bbb'}));D.rbox(side?34:8,-64,1.4,1.2,7,1.2,0.3,mBrass);
+      D.box(21,-60,-0.2,38,110,0.4,M({c:'#d4e0e5',o:0.15,tr:true,family:'glass'}));D.rbox(side?34:8,-64,1.4,1.2,7,1.2,0.3,mBrass);
       H.openable('hs.display.'+side,{label:()=>H.OPEN['hs.display.'+side].open?'Slide the glass door shut':'Slide the glass door open',pivot:door,type:'slide',axis:'x',base,amt:side?-38:38});
     }
     [[-25,'#f4f0f8'],[0,'#d8b880'],[24,'#a8d8c8']].forEach(([x,c])=>{dc.lathe(x,-93,8,[[0,-11],[2,-11],[3,-10],[5,-4],[2.5,0],[0,0]],24,M({c,sh:65,sp:'#777'}));dc.cyl(x,-104.5,8,2,2,1,16,mBrass)});
@@ -979,7 +979,7 @@
     curve.add(new T.LineCurve3(from,points[points.length-1]));B.geo(new T.TubeGeometry(curve,72,0.25,6),0,0,0,M({c:col,sh:10}));return curve.getSpacedPoints(160).map(p=>p.toArray());
   }
   function sofa(B, x, z, ry, w, m, room) {
-    const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', sh: 2 });
+    const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', family:'fabric' });
     // All upholstered faces use the same centimetres-per-repeat. Stretching
     // one floral tile over each box made the plinth flowers enormous and
     // flattened them into stripes along the arms and cushion edges.
@@ -1001,7 +1001,7 @@
       S.rbox(s * (w / 2 - 9), -36, 4, 18, 40, 78, 8, m, fabric);
       S.rbox(s * (w / 2 - 9), -58, 4, 20, 8, 80, 4, m, fabric);
     });
-    if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',sh:8}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',sh:8}),{ry:-18,rx:12,rz:-4})}
+    if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',family:'fabric'}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',family:'fabric'}),{ry:-18,rx:12,rz:-4})}
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => S.cyl(a * (w / 2 - 10), -3, 4 + b * 34, 3, 3.6, 6, 10, M('#3a2414'))); // feet
     if (n === 1) {
       // Keep the walking footprint, but let carried objects reach the real seat
@@ -1030,8 +1030,8 @@
     for(let i=0;i<8;i++){const p=v(...points[i]),q=v(...points[(i+1)%8]);path.add(i%2?new T.CubicBezierCurve3(p,p.clone().lerp(v(...corners[(i-1)/2]),.55228475),q.clone().lerp(v(...corners[(i-1)/2]),.55228475),q):new T.LineCurve3(p,q))}
     B.geo(new T.TubeGeometry(path,56,0.18,5,true),x,y,z,m);
   }
-  function curtainG(B, x, y, z, w, h, m) { const g = new T.BoxGeometry(w, h, .5, 40, 1, 1), p = g.attributes.position, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { const px = p.getX(i); p.setZ(i, p.getZ(i) + Math.sin(px / w * Math.PI * 10) * 3.2 + 3); u.setY(i, 1 - u.getY(i)); } g.computeVertexNormals(); B.geo(g, x, y + h / 2, z, m, { ry: 180 }); }
-  function sofaTex() { return K.tex('hs.sofa', 256, 256, (g, w, h) => { g.fillStyle = '#c8b898'; g.fillRect(0, 0, w, h); const r = K.rnd(8); for (let i = 0; i < 26; i++) { const x = r() * w, y = r() * h; g.fillStyle = ['#b04a4a', '#c86a5a', '#a03a4a'][i % 3]; for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(x + Math.cos(k * 1.26) * 7, y + Math.sin(k * 1.26) * 7, 6, 4, k * 1.26, 0, 7); g.fill(); } g.fillStyle = '#e8c860'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); g.fillStyle = '#5a7a4a'; g.beginPath(); g.ellipse(x + 14, y + 10, 8, 3, 0.6, 0, 7); g.fill(); } A.grain(g, w, h, 4000, 0.06, 9); }); }
+  function curtainG(B, x, y, z, w, h, m) { const g = new T.BoxGeometry(w, h, .5, 40, 1, 1), p = g.attributes.position, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { const px = p.getX(i); p.setZ(i, p.getZ(i) + Math.sin(px / w * Math.PI * 10) * 3.2 + 3); u.setX(i,u.getX(i)*w*1.6/64);u.setY(i,(1-u.getY(i))*h/64); } g.computeVertexNormals(); B.geo(g, x, y + h / 2, z, m, { ry: 180 }); }
+  function sofaTex() { return K.tex('hs.sofa', 256, 256, (g, w, h) => { g.fillStyle = '#c8b898'; g.fillRect(0, 0, w, h); const r = K.rnd(8); for (let i = 0; i < 26; i++) { const x = r() * w, y = r() * h; g.fillStyle = ['#b04a4a', '#c86a5a', '#a03a4a'][i % 3]; for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(x + Math.cos(k * 1.26) * 7, y + Math.sin(k * 1.26) * 7, 6, 4, k * 1.26, 0, 7); g.fill(); } g.fillStyle = '#e8c860'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); g.fillStyle = '#5a7a4a'; g.beginPath(); g.ellipse(x + 14, y + 10, 8, 3, 0.6, 0, 7); g.fill(); } A.grain(g, w, h, 4000, 0.06, 9); }, {world:60}); }
   function curtTex() { return K.tex('hs.curt', 128, 128, (g, w, h) => { g.fillStyle = '#6a2a2e'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 16) { g.fillStyle = 'rgba(220,180,100,.2)'; g.fillRect(x, 0, 2, h); } A.grain(g, w, h, 1500, 0.06, 10); }); }
   function netTex() { return K.tex('hs.net.voile', 256, 128, (g,w,h) => {
     // Broad, low-contrast folds survive minification without moire.
@@ -1105,7 +1105,7 @@
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
     winFrame(B, -160, -40, 143, 253, REAR.z1);
     // Real side casement in the extension: shared geometry is visible from the side garden.
-    const sideFrame=M({c:'#f2f0ea',sh:40,sp:'#444'});
+    const sideFrame=M({c:'#f2f0ea',family:'glossPaint'});
     for(const y of [146,232])B.box(202,y,-120,8,6,80,sideFrame);
     for(const z of [-157,-120,-83])B.box(202,189,z,8,86,z===-120?5:6,sideFrame);
     for(const y of [143,235])B.box(198,y,-120,10,.8,80,M('#d8d4c8'));
@@ -1139,12 +1139,12 @@
       for(let i=0;i<=16;i++){g.beginPath();g.moveTo(i*16,0);g.lineTo(i*16,h);g.stroke();g.beginPath();g.moveTo(0,i*16);g.lineTo(w,i*16);g.stroke()}
       A.mottle(g,w,h,20,'rgba(255,255,255,.2)',20,56);
     },{world:192});
-    for(const [x0,x1]of [[-280,-160],[-40,73.5]])WB.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,sh:22}),{uv:192});
+    for(const [x0,x1]of [[-280,-160],[-40,73.5]])WB.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,family:'ceramic'}),{uv:192});
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; WB.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: M({ c: '#d9cba6', sh: 18, sp: '#222' }), all: M('#e8e2d0') }); unitDoors(WB, cx, GC + 80, -24, x1 - x0, 69, 1, true); };
     wu(-214.5,-166);wu(20,71.5); // 2.2 cm clear of the door casing
     WB.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
     // the sink (stainless steel), the taps, the washing-up
-    const sk=WB.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',sh:70,sp:'#aab4bd'});
+    const sk=WB.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',family:'metal'});
     for(const x of [-24,24])sk.rbox(x,-0.3,0,2,0.6,40,0.25,steel);
     for(const z of [-19,19])sk.rbox(0,-0.3,z,46,0.6,2,0.25,steel);
     sk.box(0,13,0,46,2,36,steel);for(const x of [-22.5,22.5])sk.box(x,6,0,1,12,36,steel);for(const z of [-17.5,17.5])sk.box(0,6,z,44,12,1,steel);
@@ -1156,7 +1156,7 @@
     const ck = WB.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
     // Wall-mounted enamel extractor, with a solid flue to the ceiling. Its
     // underside clears the window head; nothing stands down in the hob rings.
-    const hood=M({c:'#e1ded5',sh:32,sp:'#555'});
+    const hood=M({c:'#e1ded5',family:'ceramic'});
     ck.rbox(0,-184,-12,58,12,36,1.2,hood);
     ck.box(0,(GC+GY-190)/2-GY,-22,24,GY-190-GC,16,hood);
     ck.box(0,-177.7,-12,49,.6,25,M('#595d59'));
@@ -1170,7 +1170,7 @@
     // the fridge-freezer (the magnets and notes are the fridge door: js/hs-life.js)
     r.fridgeFrame={x:-247.5,z:-140,w:60,h:170,d:64};
     // warm white enamel (pure white blew out under the window light), a dark door seal line, and a busy door
-    const fr = WB.at(r.fridgeFrame.x,GY,-20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', sh: 30, sp: '#4a4a48' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
+    const fr = WB.at(r.fridgeFrame.x,GY,-20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', family: 'ceramic' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
     for (const [x, y, c] of [[-18, -128, '#d02a2a'], [-9, -131, '#2a5ad0'], [3, -126, '#e8c020'], [-12, -98.5, '#2a8a3a'], [6, -101, '#d02a2a'], [-4, -64, '#e8c020'], [10, -60, '#2a5ad0']]) fr.rbox(x, y, 32.6, 2.6, 2.2, 1, 0.4, M(c)); // (same plastics as the notice-board pins: one draw each)
     fr.box(-12, -88, 32.15, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: -3 }); fr.box(6, -92, 32.2, 13, 17, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: 4 });
     fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 2 });
@@ -1179,12 +1179,12 @@
     fr.box(0, -2.1, 20, 56, 4, 24, M('#1a1a1a')); // the plinth (a hair off the floor plane the cabinet stands on)
     fr.shadow(0, 0, 0, 68, 70, 0.7, { sq: true });
     // things on the worktop: the kettle, the toaster, the bread bin, the microwave, the radio (the biscuit tin is its own)
-    const kt=WB.at(-200,GY-93,-36),enamel=M({c:'#ecece5',sh:35,sp:'#666'}),handle=M({c:'#343638',sh:24});
+    const kt=WB.at(-200,GY-93,-36),enamel=M({c:'#ecece5',family:'ceramic'}),handle=M({c:'#343638',family:'plastic'});
     kt.lathe(0,0,0,[[0,-22],[6,-22],[8,-20],[10,-14],[9.6,-2],[9,-1],[0,-1]],28,enamel);kt.cyl(0,-0.5,0,10.8,10.8,1,28,handle);
     kt.cyl(0,-22.3,0,5.6,5.6,0.6,24,handle);kt.rbox(0,-23.4,0,3.2,1.8,2,0.5,handle);
     kt.geo(new T.TorusGeometry(7.3,1.15,8,24,Math.PI),-8.8,-12,0,handle,{rz:90});
     kt.cyl(10,-18,0,2.2,3,8,18,enamel,{rz:45});kt.cyl(12.83,-20.83,0,1.5,1.5,0.4,16,M('#4b4f50'),{rz:45});kt.rbox(-9,-3,0,2,1,3,0.3,handle);kt.shadow(0,0,0,26,24,0.5);
-    const ts = WB.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
+    const ts = WB.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', family: 'metal' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
     const bb = WB.at(63, GY - 93, -36); bb.rbox(0, -12, 0, 30, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 34, 28, 0.6, { sq: true });
     const rd = WB.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
     // the microwave: the clock is flashing 12:00
@@ -1196,7 +1196,7 @@
     MW.rbox(9.5,-16,18,1.1,15,1.5,0.4,M('#9b9b96'));for(let i=0;i<7;i++)MW.box(-23.1,-21+i*1.3,0,0.2,0.5,19,M('#666964'));
     MW.shadow(0,-1,0,48,36,0.45,{sq:true});
     const kb = new T.Group(); kb.position.set(170, GY, 20); r.group.add(kb); const KB = K.into(kb);
-    KB.cyl(0, -30, 0, 15, 14, 60, 20, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); KB.cyl(0, -61, 0, 15.6, 15.6, 2.4, 20, M({ c: '#c8c8c4', sh: 80, sp: '#999' })); KB.box(0, -1.5, 15, 8, 3, 6, M('#333')); KB.shadow(0, 0, 0, 36, 36, 0.6);
+    KB.cyl(0, -30, 0, 15, 14, 60, 20, M({ c: '#d8d8d4', family: 'metal' })); KB.cyl(0, -61, 0, 15.6, 15.6, 2.4, 20, M({ c: '#c8c8c4', family: 'metal' })); KB.box(0, -1.5, 15, 8, 3, 6, M('#333')); KB.shadow(0, 0, 0, 36, 36, 0.6);
     H.spot('hs.bin', { label: 'Kitchen bin', obj: kb, act: () => life('bin') }); H.block('G', 152, 2, 188, 38);
     H.spot('hs.micro', { label: 'Microwave', obj: mw, act: () => life('micro') });
     // the kitchen table and chairs, a fruit bowl, the newspaper
@@ -1209,8 +1209,8 @@
     // the fruit bowl: a glazed stoneware bowl on a foot ring, with real fruit in it (it is never eaten)
     const tprops = new T.Group(); tprops.position.set(-60, GY, 110); r.group.add(tprops); r.tableProps = tprops; /* (a group of its own so the Halloween carving can clear the table) */ const KT = K.into(tprops);
     const bowl = KT.at(-20, -76, -8);
-    bowl.lathe(0, 0, 0, [[12.2, -6.6], [12.4, -6.2], [11.6, -3.4], [9, -1.6], [6.2, -0.9], [6, 0], [0.05, 0], [0.05, -1.4], [4.6, -1.6], [8.4, -2.6], [10.8, -4.6], [11.7, -6.4], [12.2, -6.6]], 28, M({ c: '#c9b48c', sh: 40, sp: '#555' }));
-    bowl.lathe(0, 0, 0, [[12.25, -6.7], [12.45, -6.3]], 28, M({ c: '#6b4a2a', sh: 40 }));
+    bowl.lathe(0, 0, 0, [[12.2, -6.6], [12.4, -6.2], [11.6, -3.4], [9, -1.6], [6.2, -0.9], [6, 0], [0.05, 0], [0.05, -1.4], [4.6, -1.6], [8.4, -2.6], [10.8, -4.6], [11.7, -6.4], [12.2, -6.6]], 28, M({ c: '#c9b48c', family:'ceramic' }));
+    bowl.lathe(0, 0, 0, [[12.25, -6.7], [12.45, -6.3]], 28, M({ c: '#6b4a2a', family:'ceramic' }));
     [[-3.6, -4.2, 1.5, '#e8901a', 3.6], [3.2, -4.4, -2.4, '#e8901a', 3.5], [1.2, -4.6, 3.8, '#b9241e', 3.4], [-1.4, -7.6, -0.6, '#7ab03a', 3.3]].forEach(([x, y, z, c, r]) => {
       bowl.ball(x, y, z, r, r * 0.93, r, M({ c, sh: 30, sp: '#444' }), 14);
       if (c !== '#e8901a') bowl.cyl(x, y - r * 0.93 - 0.6, z, 0.18, 0.25, 1.4, 5, M('#4a4424'), { rz: 12 });
@@ -1278,7 +1278,7 @@
     H.support('kitchen',-39,-175,19,-117,GY-94);H.support('kitchen',20,-176,80,-110,GY-93);H.support('kitchen',-277.5,-172,-217.5,-108,GY-170);H.support('kitchen',-120,70,0,150,GY-76);
     for(const x of [-24,4])for(const z of [-158,-134])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
   }
-  function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, sh: 120, sp: '#fff' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
+  function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', family: 'glossPaint' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, family:'glass' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   // a lathe-turned table/chair leg with a square top block (for the aprons) and a turned lower part
   function turnedLeg(B, x, yTop, z, h, w, m) {
     const blk = Math.min(14, h * 0.2), f = t => yTop + blk + (h - blk) * t;
@@ -1310,7 +1310,7 @@
     C.shadow(0, 0, 0, 46, 46, 0.5, { sq: true });
   }
   function unitTex() { return K.tex('hs.unit', 256, 256, (g, w, h) => { g.fillStyle = '#e8dfc4'; g.fillRect(0, 0, w, h); g.strokeStyle = '#b8a888'; g.lineWidth = 3; g.strokeRect(10, 10, w / 2 - 15, h - 20); g.strokeRect(w / 2 + 5, 10, w / 2 - 15, h - 20); g.strokeStyle = '#d8ccae'; g.lineWidth = 6; g.strokeRect(22, 22, w / 2 - 39, h - 44); g.strokeRect(w / 2 + 17, 22, w / 2 - 39, h - 44); g.fillStyle = '#a8883a'; g.fillRect(w / 2 - 22, h / 2 - 20, 6, 40); g.fillRect(w / 2 + 16, h / 2 - 20, 6, 40); A.grain(g, w, h, 1200, 0.04, 33); }); }
-  function worktopTex() { return K.tex('hs.worktop', 256, 64, (g, w, h) => { g.fillStyle = '#c8b898'; g.fillRect(0, 0, w, h); const r = K.rnd(7); for (let i = 0; i < 2500; i++) { g.fillStyle = r() < 0.5 ? 'rgba(90,70,40,.3)' : 'rgba(255,250,230,.3)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }); }
+  function worktopTex() { return K.tex('hs.worktop', 256, 256, (g, w, h) => { g.fillStyle = '#aea087'; g.fillRect(0, 0, w, h); const r = K.rnd(7); for (let i = 0; i < 10000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(90,70,40,.24)' : 'rgba(255,250,230,.24)'; g.fillRect(r() * w, r() * h, 1.2, 1.2); } }, {world:64}); }
   function cookerTex() { return K.tex('hs.cooker', 256, 256, (g, w, h) => { g.fillStyle = '#ecebe6'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a2a2a'; g.fillRect(24, 70, 208, 160); g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(30, 76, 90, 30); g.fillStyle = '#c8c8c4'; g.fillRect(40, 60, 176, 6); for (let i = 0; i < 5; i++) { g.fillStyle = '#333'; g.beginPath(); g.arc(40 + i * 44, 30, 11, 0, 7); g.fill(); g.fillStyle = '#ddd'; g.fillRect(38 + i * 44, 20, 4, 10); } }); }
   function tinTex() { return K.tex('hs.tin', 256, 64, (g, w, h) => { g.fillStyle = '#2a5ab0'; g.fillRect(0, 0, w, h); for (let i = 0; i < 8; i++) { g.fillStyle = ['#e8c040', '#d02a2a', '#f4f0e0'][i % 3]; g.beginPath(); g.arc(16 + i * 32, 32, 10, 0, 7); g.fill(); } g.fillStyle = '#e8c040'; g.fillRect(0, 0, w, 4); g.fillRect(0, h - 4, w, 4); A.text(g, 'ASSORTED', 128, 36, '700 12px ' + A.UIF, '#fff', 'center'); }); }
   // newsprint: tiny grey "words" in justified columns read as text at any distance without a font
@@ -1373,7 +1373,7 @@
   const mBrick=()=>M({c:'#fff',map:K.tex('hs.brick.v2',256,256,(g,w,h)=>{g.fillStyle='#a69b87';g.fillRect(0,0,w,h);const r=K.rnd(66);for(let y=0;y<24;y++)for(let x=-1;x<9;x++){g.fillStyle=['#98664e','#a26d51','#936049','#ac7859'][(r()*4)|0];g.fillRect(x*32+(y%2)*16+.7,y*h/24+.7,30.6,h/24-1.4)}A.grain(g,w,h,1500,.06,66)})});
   const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.07)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }) });
   function tree(B, x, z, hgt, spread) {
-    const trunk=M({c:'#fff',map:tex('oak')}),leaf=M({c:'#436d35',vc:true,sh:2});leaf.userData.nature='leaf';
+    const trunk=M({c:'#fff',map:tex('oak'),family:'rawWood'}),leaf=M({c:'#436d35',vc:true,sh:2});leaf.userData.nature='leaf';
     // Flared roots and a tapered trunk that forks into the overlapping crown.
     const roots=new T.LatheGeometry([[0,-hgt*.65],[6,-hgt*.63],[9,-35],[12,-8],[16,0],[0,0]].map(([r,y])=>new T.Vector2(r,y)),10);
     B.geo(roots,x,GY,z,trunk,{uv:45});
@@ -1401,7 +1401,7 @@
     // straight into a brick wall ten centimetres behind its frosted pane.
     solidWall(B,420,319.2,90,[[-381.8,-205],[381.8,-205],[381.8,GY],[-381.8,GY]],mBrick(),2,[[[80.8,-80],[160.8,-80],[160.8,60],[80.8,60]]]);
     // Side gates close both passages beside the house a metre behind the front, so you never see through to the back.
-    { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark')}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
+    { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark'),family:'rawWood'}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
       const run=(a,b,gate)=>{ // a..b along x at gz; gate: [x0,x1] for a ledged leaf hung on its own posts
         const posts=[a+4,b-4];if(gate)for(const x of [gate[0]-4,gate[1]+4])if(posts.every(q=>Math.abs(q-x)>1))posts.push(x);
         for(const x of posts){B.box(x,GY-95,gz,8,190,8,post,{uv:60});B.rbox(x,GY-191,gz,9.4,2,9.4,.5,post,{uv:60})}
@@ -1470,7 +1470,7 @@
     {const a=new T.Vector3(207,218,-193),b=new T.Vector3(REAR.butt.x,GY-92,REAR.butt.z),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),pipe=new T.CylinderGeometry(2.2,2.2,d.length(),8);pipe.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));B.geo(pipe,mid.x,mid.y,mid.z,M('#414842'));}
     // The rooms behind the east rear wall are not walkable: deep closed curtains seal their reveals.
     const closedRearWindow=(cx,y0,y1,z)=>{
-      const w=110,h=y1-y0,cy=(y0+y1)/2,frame=M({c:'#f2f0ea',sh:40,sp:'#444'}),fabric=M('#d9d1bb');
+      const w=110,h=y1-y0,cy=(y0+y1)/2,frame=M({c:'#f2f0ea',family:'glossPaint'}),fabric=M('#d9d1bb');
       B.box(cx,cy,z+7,w-4,h-4,2,M('#827b70'));
       for(let i=0;i<16;i++)B.rbox(cx-w/2+5+i*(w-10)/15,cy,z+3+(i%2)*1.3,8,h-7,3,1,fabric);
       for(const x of [cx-w/2+3,cx,cx+w/2-3])B.box(x,cy,z-3,6,h,9,frame);
@@ -1491,7 +1491,7 @@
     // One post per corner; panel ends butt against post shoulders. The old
     // full-length panels and two offset corner posts shared exposed faces.
     const left = x0 + 4, right = x1 - 4, rear = z0 + 4, front = z1 - 4;
-    const postM = M({ c: '#fff', map: tex('pineDark') }), zs = Array.from({length:9},(_,i)=>rear+(front-rear)*i/8);
+    const postM = M({ c: '#fff', map: tex('pineDark'), family:'rawWood' }), zs = Array.from({length:9},(_,i)=>rear+(front-rear)*i/8);
     const post = (x,z) => { B.box(x,GY-94,z,8,188,8,postM,{uv:60}); B.rbox(x,GY-189,z,9.2,2,9.2,.5,postM,{uv:60}); };
     for (const x of [left, right]) {
       const run=x===right?zs.map((z,i)=>z+120*i/(zs.length-1)):zs;
@@ -1542,7 +1542,7 @@
     // Peg actual garments to the third line; the old painted blocks floated
     // below the wires. Fabric has a closed edge and a gently uneven drape.
     [['#ece9de',46,65,'sheet'],['#31588e',26,30,'shorts'],['#cb8b97',34,40,'shirt'],['#c6c6bb',30,45,'sheet']].forEach(([colour,w,h,kind],i)=>{
-      const angle=i*Math.PI/2+.4,peg=kind==='shirt'?8:w/2-5,radius=Math.sqrt(96*96-peg*peg),C=wl.at(Math.cos(angle)*radius,-188,Math.sin(angle)*radius,(-angle-Math.PI/2)/D2R),fabric=M({c:colour,sh:3,sp:'#050505'});
+      const angle=i*Math.PI/2+.4,peg=kind==='shirt'?8:w/2-5,radius=Math.sqrt(96*96-peg*peg),C=wl.at(Math.cos(angle)*radius,-188,Math.sin(angle)*radius,(-angle-Math.PI/2)/D2R),fabric=M({c:colour,family:'fabric'});
       if(kind==='sheet'){
         const cloth=new T.PlaneGeometry(w,h,8,10),a=cloth.attributes.position;
         for(let j=0;j<a.count;j++){const down=a.getY(j)+h/2;a.setY(j,down);a.setZ(j,Math.sin(a.getX(j)*.4+i)*.7*Math.min(1,down/8)+Math.sin(down*.13)*.35)}cloth.computeVertexNormals();C.geo(K.thicken(cloth,.55),0,0,0,fabric);
@@ -1556,17 +1556,17 @@
     });
     wl.shadow(0, 0, 0, 40, 40, 0.5);
     r.washingLine=new T.Group();r.washingLine.name='garden:washing-line';washingBatch.build(r.washingLine);r.group.add(r.washingLine);
-    const wb=B.at(r.wheelie.x,GY,r.wheelie.z),green=M({c:'#2a5a2a',sh:20,sp:'#333'});
-    wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
+    const wb=B.at(r.wheelie.x,GY,r.wheelie.z),green=M({c:'#2a5a2a',family:'outdoorPlastic'});
+    wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M({c:'#245024',family:'outdoorPlastic'}));
     for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}
-    wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M('#245024'));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
+    wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M({c:'#245024',family:'outdoorPlastic'}));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
     const fb=B.at(REAR.flowers.x,GY,REAR.flowers.z);
     // Soil meets the inner faces; end boards fit BETWEEN the side boards.
     fb.box(0,-4,0,106,8,56,M('#3a2a1a'));
     for(const x of [-55,55])fb.box(x,-5,0,4,10,64,M('#725437'));
     for(const z of [-30,30])fb.box(0,-5,z,106,10,4,M('#725437'));
     for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
-    const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',sh:15}));wbt.cyl(0,-91,0,27,27,2,28,M('#24482c'));
+    const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',family:'outdoorPlastic'}));wbt.cyl(0,-91,0,27,27,2,28,M({c:'#24482c',family:'outdoorPlastic'}));
     for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);
     tree(B,330,-1335,250,58); tree(B,90,-1400,240,55);
     B.box(-10,GY-1,-181,410,2,2,M('#6a6a62')); // grounded edging, not a floating bar
@@ -1657,7 +1657,7 @@
       for (const y of [-12, -46, -80]) gt.box(-40, y, 0, 78, 3, 3, iron);
       for (let x = -76; x <= -4; x += 9) gt.box(x, -46, 0, 1.8, 70, 1.8, iron);
       gt.box(-2, -46, 0, 3.4, 74, 3.4, iron); gt.box(-78, -46, 0, 3.4, 74, 3.4, iron); for (const y of [-20, -72]) gt.cyl(-.5, y, 0, 2, 2, 5, 8, iron);
-      gt.box(-74, -52, 2.5, 3, 6, 2, M({ c: '#c8a040', sh: 70, sp: '#a08040' })); gt.shadow(-40, 0, 0, 84, 14, .35, { sq: true }); }
+      gt.box(-74, -52, 2.5, 3, 6, 2, M({ c: '#c8a040', family: 'brass' })); gt.shadow(-40, 0, 0, 84, 14, .35, { sq: true }); }
     const clippedHedge=M({c:'#fff',vc:true,sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves',128,128,(g,w,h)=>{const r=K.rnd(812);g.fillStyle='#3e5934';g.fillRect(0,0,w,h);for(let i=0;i<1900;i++){g.fillStyle=['#405a34','#48653a','#344e2d','#516d40'][(r()*4)|0];g.beginPath();g.ellipse(r()*w,r()*h,1.5+r(),.7+r()*.6,r()*Math.PI,0,Math.PI*2);g.fill()}})});
     clippedHedge.userData.nature='leaf';
     // One closed clipped hedge: a softly rounded continuous body, with small leaf-scale undulations rather than separate balls.
@@ -1950,7 +1950,7 @@
         // Seat the shut leaf inside the shallow exterior casing. The default
         // inside hinge offset left its outer face nearly 5 cm behind that
         // casing, exposing a dark, apparently skewed gap in the pitched view.
-        const bd = doorway(kit, KB, 'backdoor', 'n', REAR.z1, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: {w:50}, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }) });
+        const bd = doorway(kit, KB, 'backdoor', 'n', REAR.z1, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: {w:50}, mat: M({ c: '#f2f0ea', family: 'glossPaint' }) });
         kb.build(kit.group);
         const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: {w:42}, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
           for (const sg of [-1, 1]) { Dd.box(cx, g2.fy - 100, sg * 2.1, 24, 4, 0.8, mBrass); Dd.box(cx, g2.fy - 100, sg * 2.5, 20, 1.2, 0.4, M('#3a2a10')); Dd.box(cx, g2.fy - 80, sg * 2.2, 4, 8, 1, mBrass); } } });

@@ -39,6 +39,103 @@
     return null;
   }
 
+  // Material families use r128 Phong, including the unchanged vertex/baked
+  // fallback. Wear occupies the base colour map: no separate detail sampler,
+  // lights, passes or geometry.
+  // Values are paired: a broad, very faint lobe for cloth; a tighter, coloured
+  // one for metal; almost no specular for porous paper and emulsion.
+  const FINISH = Object.freeze({
+    plaster: { sh: 1, sp: '#020202' }, paper: { sh: 1, sp: '#000000', tile: 12 },
+    carpet: { sh: 2, sp: '#040404' }, fabric: { sh: 3, sp: '#090909', tile: 8 },
+    rawWood: { sh: 3, sp: '#090806' }, wood: { sh: 26, sp: '#29241d' },
+    glossPaint: { sh: 32, sp: '#30302c' }, lino: { sh: 18, sp: '#1b1915' },
+    plastic: { sh: 13, sp: '#1c1d1e', tile: 16 },
+    outdoorPlastic: { sh: 8, sp: '#141813', tile: 40 },
+    glossPlastic: { sh: 28, sp: '#292a2c', tile: 16 },
+    metal: { sh: 54, sp: '#78828a', tile: 24 }, brass: { sh: 48, sp: '#806539', tile: 24 },
+    ceramic: { sh: 52, sp: '#45433e' }, glass: { sh: 100, sp: '#82949b' }
+  });
+  // Only named authored surfaces opt in. Never infer a person's skin, a live
+  // display, a transparent decal or a player's picture from its colour.
+  const SURFACE_FINISH = {
+    wallBlue:'plaster', wallWarm:'plaster', wallKitchen:'plaster', artex:'plaster',
+    wallpaperHall:'plaster', wallpaperLounge:'plaster',
+    carpetBlue:'carpet', carpetBeige:'carpet', carpetRed:'carpet', rug:'carpet',
+    pine:'wood', pineDark:'wood', deskWood:'wood', oak:'wood', mdf:'rawWood',
+    whiteGloss:'glossPaint', lino:'lino', tiles:'ceramic',
+    duvet:'fabric', pillow:'fabric', sheet:'fabric', beanbag:'fabric', curtain:'fabric',
+    'hs.sofa':'fabric', 'hs.curt':'fabric', 'hs.ironing.cover':'fabric',
+    'hs.cupboard.plaster':'plaster', radiator:'glossPaint',
+    n64top:'plastic', pstop:'plastic', mdtop:'plastic', dctop:'plastic',
+    'hs.fence.grain':'rawWood', 'hs.shed.boards':'rawWood', 'hs.worktop':'lino', 'hs.kitchen-plain-tiles':'ceramic',
+    'pc.monfront':'plastic', 'pc.towfront':'plastic', 'pc.keyboard':'plastic',
+    'pc.keys':'plastic', 'pc.kbd':'plastic', 'rm.chair.fabric':'fabric',
+    'hs.paper2':'paper', 'hs.paperB':'paper', 'ch.hvlogo':'plastic'
+  };
+  // Canvas-only microstructure. Detail is drawn at the existing resolution;
+  // nothing is enlarged, blurred or added to the fragment shader. Marks are
+  // deliberately low contrast so they read as wear rather than camouflage.
+  function finishPaint(g,w,h,kind,seed) {
+    const r=rnd(seed||9307);g.save();
+    const fabric=kind==='fabric',metal=kind==='metal'||kind==='brass';
+    for(let i=0,n=Math.floor(w*h/(fabric?5:12));i<n;i++){
+      const x=Math.floor(r()*w),y=Math.floor(r()*h),light=r()>.5;
+      g.fillStyle=light?'rgba(255,255,245,.035)':'rgba(20,18,14,.045)';
+      g.fillRect(x,y,metal?1+r()*3:1,1);
+    }
+    if(fabric){
+      for(let y=0;y<h;y+=2)for(let x=(y%4?1:0);x<w;x+=2){
+        g.fillStyle=(x+y)%2?'rgba(255,250,230,.025)':'rgba(12,10,8,.028)';g.fillRect(x,y,1,1);
+      }
+    }
+    if(/Plastic|plastic|lino/.test(kind)){
+      g.lineWidth=.6;
+      for(let i=0;i<16;i++){
+        const x=r()*w,y=r()*h,dx=2+r()*w*.055,dy=(r()-.5)*3;
+        g.strokeStyle=i%3?'rgba(30,27,22,.07)':'rgba(255,250,232,.10)';
+        g.beginPath();g.moveTo(x,y);g.lineTo(x+dx,y+dy);g.stroke();
+      }
+      // An occasional rubbed thumbprint, not a repeating white gloss streak.
+      if(kind==='glossPlastic')for(let i=0;i<6;i++){
+        g.strokeStyle='rgba(80,72,55,.025)';g.beginPath();g.ellipse(w*.68,h*.38,3+i*1.25,5+i*1.5,-.4,.3,2.5);g.stroke();
+      }
+    }
+    if(kind==='outdoorPlastic'){
+      // Sun-faded polymer with rain-run dirt, never an opaque painted decal.
+      for(let i=0;i<12;i++){g.fillStyle='rgba(42,48,30,.055)';g.fillRect(r()*w,r()*h,3+r()*8,12+r()*38)}
+      for(let i=0;i<18;i++){
+        const x=r()*w,y=r()*h;g.fillStyle=i%3?'rgba(15,24,12,.07)':'rgba(225,225,190,.055)';g.fillRect(x,y,.6+r()*1.2,4+r()*13);
+      }
+    }
+    g.restore();
+  }
+  function edgeWear(g,w,h,seed) {
+    // Only full-object artwork gets perimeter wear; tiling walls/wood never
+    // acquire a false dark seam every time their tile repeats.
+    const r=rnd(seed),border=Math.max(1,Math.min(w,h)*.012);g.save();
+    g.strokeStyle='rgba(42,35,22,.12)';g.lineWidth=border;g.strokeRect(border/2,border/2,w-border,h-border);
+    for(let i=0;i<100;i++){
+      const side=i%4,along=r(),inset=r()*r()*border*4;
+      const x=side<2?along*w:side===2?inset:w-inset,y=side>=2?along*h:side===0?inset:h-inset;
+      g.fillStyle=i%4?'rgba(50,42,28,.10)':'rgba(255,250,230,.18)';g.fillRect(x,y,1+r()*2,1);
+    }
+    g.restore();
+  }
+  function finishTexture(family) {
+    const f=FINISH[family];if(!f?.tile)return null;
+    // Six small shared tiles, independently sized in centimetres. Brass and
+    // steel share their brushed finish; colours come from the material.
+    const kind=family==='brass'?'metal':family;
+    const size=kind==='metal'?256:128;
+    return tex('finish:'+kind,size,size,(g,w,h)=>{
+      g.fillStyle=kind==='metal'?'#e4e5e4':'#fafaf8';g.fillRect(0,0,w,h);
+      if(kind==='metal'){
+        const band=g.createLinearGradient(0,0,0,h);band.addColorStop(0,'rgba(255,255,255,.03)');band.addColorStop(.28,'rgba(255,255,255,.1)');band.addColorStop(.52,'rgba(35,42,48,.05)');band.addColorStop(.8,'rgba(255,255,255,.06)');band.addColorStop(1,'rgba(255,255,255,.03)');g.fillStyle=band;g.fillRect(0,0,w,h);
+      }
+      finishPaint(g,w,h,kind,681);
+    },{world:f.tile,grain:kind==='metal'});
+  }
+
   // ================================================================ textures (canvas, cached by key)
   const TEX = {}, identityPaints = new Map();
   // Personal print can be built behind the account gate. Repaint only that ink
@@ -235,13 +332,13 @@
     o = o || {};
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     const g = c.getContext('2d');
-    try { paint(g, w, h); } catch (e) { console.error('hs tex', key, e); }
+    try { paint(g, w, h); const family=o.family||SURFACE_FINISH[key.replace(/^art:/,'')]; if(family)finishPaint(g,w,h,family,key.length*7919); if(/^(?:pc\.(?:monfront|towfront)|art:(?:n64top|pstop|mdtop|dctop))$/.test(key))edgeWear(g,w,h,key.length*997); } catch (e) { console.error('hs tex', key, e); }
     const t = new T.CanvasTexture(c);
     if (o.clamp) t.wrapS = t.wrapT = T.ClampToEdgeWrapping; else t.wrapS = t.wrapT = T.RepeatWrapping;
     if (o.rep) t.repeat.set(o.rep[0], o.rep[1]);
     if (o.near) { t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.generateMipmaps = false; }
     else { t.anisotropy = aniso; t.minFilter = T.LinearMipmapLinearFilter; }
-    if (!t.userData) t.userData = {}; t.userData.canvas = c; t.userData.g = g;
+    if (!t.userData) t.userData = {}; t.userData.canvas = c; t.userData.g = g; t.userData.family = o.family || SURFACE_FINISH[key.replace(/^art:/,'')] || null;
     if (o.world) t.userData.worldUV = o.world; if (o.grain) t.userData.grain = true;
     if (o.identity) identityPaints.set(t, () => {
       c.width = w; c.height = h;
@@ -540,7 +637,9 @@
     const key = JSON.stringify(spec, (k, v) => (v && v.isTexture) ? 'tex:' + v.uuid : v);
     if (MATS[key]) return MATS[key];
     const P = { color: new T.Color(spec.c != null ? spec.c : '#ffffff') };
+    const family = spec.family || spec.map?.userData?.family, finish = FINISH[family];
     if (spec.map) P.map = spec.map;
+    else if (finish?.tile && !spec.basic) P.map = finishTexture(family);
     if (spec.o != null && spec.o < 1) { P.transparent = true; P.opacity = spec.o; }
     if (spec.tr) P.transparent = true;
     if (spec.side) P.side = spec.side === 2 ? T.DoubleSide : T.BackSide;
@@ -549,7 +648,7 @@
     let m;
     if (spec.basic) m = new T.MeshBasicMaterial(P);
     else {
-      P.shininess = spec.sh != null ? spec.sh : 6; P.specular = new T.Color(spec.sp != null ? spec.sp : '#0c0c0c');
+      P.shininess = finish ? finish.sh : spec.sh != null ? spec.sh : 6; P.specular = new T.Color(finish ? finish.sp : spec.sp != null ? spec.sp : '#0c0c0c');
       if (spec.e) P.emissive = new T.Color(spec.e);
       if (spec.em) { P.emissiveMap = spec.em; if (!spec.e) P.emissive = new T.Color('#ffffff'); }
       if (spec.flat) P.flatShading = true;
@@ -560,7 +659,7 @@
     }
     if (spec.dw === false) m.depthWrite = false;
     if (spec.po) { m.polygonOffset = true; m.polygonOffsetFactor = spec.po; m.polygonOffsetUnits = spec.po; }
-    m.userData.spec = spec;surfaceQuality(m);
+    m.userData.spec = spec;if(finish)m.userData.family=family;surfaceQuality(m);
     if (spec.pr && spec.map && m.isMeshPhongMaterial) { m.userData.print = true; PRINTS.add(m); }
     return MATS[key] = m;
   }
@@ -891,5 +990,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

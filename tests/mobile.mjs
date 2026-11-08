@@ -5,7 +5,7 @@
 //   node tests/mobile.mjs [http://localhost:PORT] [--only=gate,story,full,tablet,perf,owner] [--throttle=4]
 // Without a URL it starts and stops its own throwaway server (fresh DATA_DIR under /tmp, ADMIN_TOKEN=testtoken).
 import assert from 'node:assert/strict';
-import {spawn} from 'node:child_process';
+import {spawn, execFileSync} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import net from 'node:net';
@@ -68,9 +68,11 @@ async function register(name, pass = 'Throwaway-1999') {
 
 // ---------------------------------------------------------------- browser, fingers, waiting
 let browser;
+const launchBrowser=()=>chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
 async function phone(profile, { tier = null, hour = 14 } = {}) {
   const ctx = await browser.newContext({ ...PROFILES[profile] });
   const page = await ctx.newPage(), errors = [];
+  if(process.env.MATERIAL_BASELINE==='1')for(const file of ['hs-kit.js','hs-art.js','hs-house.js','rm-room.js','ch-kitchen.js','ch-lounge.js'])await page.route('**/js/'+file+'*',route=>route.fulfill({body:execFileSync('git',['show','HEAD:app/public/js/'+file],{cwd:root,encoding:'utf8'}),contentType:'application/javascript'}));
   // Diagnostic ablation only; the normal performance gate keeps the live code.
   if(process.env.LIGHT5_WATCHDOG)await page.route('**/js/hs-world.js*',async route=>{
     const response=await route.fetch();let body=await response.text();
@@ -337,7 +339,13 @@ const phases = {
         report.sizes[prof] = { gate: bad };
         assert.deepEqual(bad, [], prof + ' account gate');
         assert.deepEqual(p.errors, [], prof + ' gate errors');
-      } finally { await p.ctx.close(); }
+      } finally {
+        // Some software WebGL hosts stall while recycling several device
+        // contexts in one process. This diagnostic keeps every real gate/input
+        // assertion, with one complete browser lifetime per device profile.
+        if(process.env.MOBILE_GATE_FRESH_BROWSER==='1'){await browser.close();browser=await launchBrowser();}
+        else await p.ctx.close();
+      }
     }
   },
 
@@ -778,7 +786,7 @@ const phases = {
 try {
   if (!base) await start();
   await mkdir(shots, { recursive: true });
-  browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--enable-unsafe-swiftshader'] });
+  browser = await launchBrowser();
   for (const [name, fn] of Object.entries(phases)) {
     if (only && !only.includes(name)) continue;
     const t0 = Date.now();
