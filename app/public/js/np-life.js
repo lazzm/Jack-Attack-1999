@@ -667,7 +667,7 @@
     const lines = talkLines(c);
     c.hold = 99; conversationHud();
     const p = player(), d = dist(c, p);
-    H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0);
+    H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0, 'np.' + c.id);
     if (!c.seated && d < 82 && sameFloor(c, p)) { // (half a pace back if there's room: never into the worktop)
       const a0 = Math.atan2(c.x - p.x, c.z - p.z); c.backoff = null;
       for (const da of [0, 0.5, -0.5, 0.9, -0.9]) {

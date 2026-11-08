@@ -1809,7 +1809,11 @@
       update(dt, near) {
         update(Math.min(dt, 0.1), near);
         shadows();
-        const sitK = smooth(st.sitK); proxy.scale.set(1, lerp(1, 0.78, sitK), lerp(1, 2.2, sitK)); proxy.position.set(0, lerp(S.H * 0.48, S.H * 0.38, sitK), lerp(0, 6, sitK));
+        const sitK = smooth(st.sitK), centre = lerp(S.H * 0.48, S.H * 0.38, sitK), half = S.H * 0.46 * lerp(1, 0.78, sitK);
+        // Seating lowers the torso proxy, but the solved head can remain above
+        // it. Keep the whole face inside Talk, including during the camera ease.
+        const bottom = centre - half, top = Math.max(centre + half, W.head.p.y + S.H * 0.12);
+        proxy.scale.set(1, (top-bottom)/(S.H * 0.92), lerp(1, 2.2, sitK)); proxy.position.set(0, (top+bottom)/2, lerp(0, 6, sitK));
       },
       headWorld(out) { // house coords of the face (for look-at from others)
         const p = W.head.p, c = Math.cos(st.h), s = Math.sin(st.h);

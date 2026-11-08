@@ -361,24 +361,32 @@
 
   // ---------------------------------------------------------------- the PC: phones LOCK IN on sitting down, so JackOS is finger-sized
   let autoLocked = false, preserveFirstPCView = window.JHPBoot === 'wake' && ls.get('jhp_hs_desktop_full', null) !== null;
-  let pcViewVersion = 0, pcFull = H.desktopDisplay();
+  let pcViewVersion = 0, pcVisitVersion = 0, pcFull = H.desktopDisplay();
   addEventListener('resize', () => { const full = H.desktopDisplay(); if (full !== pcFull) { pcFull = full; pcViewVersion++; } });
   // Explicit logon enters the PC. A token resume keeps the saved screen view.
   window.Net?.on('loginOk', () => { preserveFirstPCView = false; });
-  function pcArrived() {
-    if (!phone()) return;
-    if (preserveFirstPCView) { preserveFirstPCView = false; return; }
+  function pcArrived(recovery = false) {
+    if (!touchOn()) return;
+    if (!recovery) pcVisitVersion = pcViewVersion;
+    if (recovery && pcVisitVersion !== pcViewVersion) return;
+    if (!phone() && !recovery) return;
+    if (preserveFirstPCView) { preserveFirstPCView = false; pcVisitVersion = -1; return; }
     let tries = 0; const version = pcViewVersion;
     const go = () => {
       // A player may choose In room while the cold boot is still settling.
       // Its delayed automatic lock must not overwrite that newer choice.
       if (version !== pcViewVersion) return;
       if (st !== 'pc') { if (['monitor','pcboot','sit'].includes(H.mode) && ++tries < 600) setTimeout(go,150); return; }
-      if (H.mode !== 'monitor' || H.gliding || !window.DesktopSurface?.ready?.()) { if (++tries < 600) setTimeout(go, 150); return; } // (a cold boot can take a while)
+      const recovering = recovery && !!document.querySelector('#monitorSurface.st-recovering');
+      if (H.gliding || !(recovering && ['pcboot','monitor'].includes(H.mode)) && (H.mode !== 'monitor' || !window.DesktopSurface?.ready?.())) { if (++tries < 600) setTimeout(go, 150); return; } // (a cold boot can take a while)
       if (!H.desktopDisplay()) { H.desktopDisplay(true); autoLocked = true; }
     };
     setTimeout(go, 200);
   }
+  // Setup precedes DesktopSurface readiness on a first boot. Give its mandatory
+  // instructions the same readable view, including on tablets, without restarting it.
+  H.on('pc-recovery', () => pcArrived(true));
+  if (document.querySelector('#monitorSurface.st-recovering')) pcArrived(true);
 
   // ---------------------------------------------------------------- the game menu: touch settings and the JackOS-only choice
   function menuSettings() {

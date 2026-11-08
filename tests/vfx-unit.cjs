@@ -34,6 +34,17 @@ window.HouseTelly.on=false;for(let i=0;i<40;i++){now+=50;tick(now)}assert(fx.sta
 // At low quality a contact burst can evict atmosphere, never another contact.
 rung=4;fire('gfx');Object.assign(H.P,{x:-100,y:210,z:0});fire('click','hs.kettle');for(let i=0;i<55;i++){now+=50;tick(now)}fire('place','mug');fire('rest','mug');fire('place','mug');fire('rest','mug');assert(fx.stats().sources.contact>=8);now+=50;tick(now);assert(fx.stats().active<=16);
 
+// Night breath is a mouth effect for other people, never camera-local fog.
+window.HouseEnvironment.phase='night';H.here='garden';rung=0;fire('gfx');
+Object.assign(H.P,{x:-180,y:210,z:-1120,ry:0});
+for(let i=0;i<100;i++){now+=50;tick(now)}assert.equal(fx.stats().sources.breath||0,0,'First-person player emits breath');
+const mouth=new T.Vector3(-180,-200,-1320);root.updateMatrixWorld(true);
+window.HouseFamily.chars.sister={present:true,room:'garden',h:Math.PI,rig:{mouthWorld:out=>out.copy(mouth)}};
+let mouthPuffs=0;for(let i=0;i<100;i++){now+=50;tick(now);mouthPuffs=Math.max(mouthPuffs,fx.stats().sources.breath||0)}assert(mouthPuffs>0,'Outdoor family mouth has no breath');
+Object.assign(H.P,{x:-180,y:200,z:-1320});
+for(let i=0;i<100;i++){now+=50;tick(now)}assert.equal(fx.stats().sources.breath||0,0,'Close mouth puff becomes camera blob');
+window.HouseFamily.chars={};H.here='bedroom';
+
 H.motion.reduce=true;fire('grab','mug');now+=50;fx.beforeRender();assert(mug.scale.equals(before.scale));fx.afterRender();
 H.paused=true;tick(now+100);assert.equal(fx.stats().draws,0);H.paused=false;H.stood=false;tick(now+200);assert.equal(fx.stats().draws,0);assert.equal(saved,0);
 const source=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/hs-world.js'),'utf8'),classify=vm.runInNewContext('('+source.match(/function softThing\(t\)\{[^}]+\}/)[0]+')');for(const kind of ['clothing','mess.clothes','pjs','pillow'])assert(classify({id:'test',kind}));assert(!classify({id:'mug',kind:'dish'}));

@@ -13,6 +13,13 @@ for(const person of ['mom','dad','sister'])for(const seat of ['armchair','sofaL'
  const rest={L:bone(r,'handL'),R:bone(r,'handR')};r.set({engage:true,action:'paper'});r.talk(10000,'How was your day? Come and tell me!');
  let worstContact=0,worstDrop=0;
  for(let i=0;i<360;i++){now+=1000/60;r.update(1/60,true);if(i<60)continue;const left=bone(r,'handL'),right=bone(r,'handR');worstContact=Math.max(worstContact,left.distanceTo(rest.L));worstDrop=Math.max(worstDrop,right.y-rest.R.y);for(const v of [...left.toArray(),...right.toArray()])assert(Number.isFinite(v));}
+ // The eased view aims at the solved eyes, including a seated child's head.
+ // Its next real F must still ray-hit the person's production Talk proxy.
+ r.group.updateMatrixWorld(true);
+ const eye=r.eyeWorld(new T.Vector3()),bounds=new T.Box3().setFromObject(r.proxy);
+ assert(bounds.containsPoint(eye),person+'/'+seat+' solved face outside Talk proxy');
+ const origin=eye.clone().add(new T.Vector3(0,-35,-205));
+ assert(new T.Raycaster(origin,eye.clone().sub(origin).normalize()).intersectObject(r.proxy).length,person+'/'+seat+' face ray misses Talk');
  assert(worstContact<1.2,person+'/'+seat+' supporting hand left thigh: '+worstContact);assert(worstDrop<1.2,person+'/'+seat+' talking hand dropped into seat: '+worstDrop);
 }
 console.log('SEATED TALK PASS: three residents x four seats; supporting-hand contact and no downward arm gesture through six seconds of speech');

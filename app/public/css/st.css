@@ -54,3 +54,9 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 
 /* A dismissed note yields its reading space immediately, before its opacity fade. */
 .hs-ui .hs-note:not(.on){visibility:hidden}
+
+/* Recovery is a mandatory first-run screen: full-size JackOS lettering and
+   finger-sized disk buttons in the touch close-up, in either orientation. */
+html[data-game-touch="true"].pc-desktop-full .st-recovery .appbody{font:16px/1.4 Tahoma,Arial,sans-serif}
+html[data-game-touch="true"].pc-desktop-full .st-recovery .btn{min-width:44px;min-height:44px;padding:8px 14px;font:16px Tahoma,Arial,sans-serif}
+html[data-game-touch="true"].pc-desktop-full .st-recovery .pg-dlgbtns{flex-wrap:wrap}

@@ -96,7 +96,7 @@
     const st = getComputedStyle(H.ui.el); return st.display !== 'none' && st.visibility !== 'hidden';
   }
   // what to keep clear of (refreshed a few times a second)
-  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tin,.ch-jobs,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach-card,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on,.rm-note.on,.rm-toast.on';
+  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tin,.ch-jobs,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach-card,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.ch-bed-note,.hs-voice.on,.rm-note.on,.rm-toast.on';
   let keep = [], keepAt = 0, view = null;
   function refreshKeep(now) {
     if (now - keepAt < 300 && view) return; keepAt = now;

@@ -129,13 +129,24 @@
     if(now>=nextEmit){nextEmit=now+(rung>=3?160:100);if(shown('kitchen')&&near(-187,235,-156,rung>=3?400:650))steam('kitchen',-187.2,238.8,-36-H.REAR.extension,now<boilingUntil?1.4:.65);}
     if(now>=nextMug){nextMug=now+(rung>=3?450:250);for(const c of Object.values(window.HouseFamily?.chars||{})){const bone=c.rig?.bones?.p_mug;if(!c.present||!bone||bone.scale.x<.8||!shown(c.room||'kitchen'))continue;bone.updateWorldMatrix(true,false);point.set(3.2,4.8,0).applyMatrix4(bone.matrixWorld);inverse.copy(H.root.matrixWorld).invert();point.applyMatrix4(inverse);if(near(point.x,point.y,point.z,300))steam(c.room||H.here,point.x,point.y,point.z,.5);}}
     if(now>=nextDust){nextDust=now+(rung>=3?500:220);if(ph==='day'&&rung<4&&!H.motion.reduce){if(shown('bedroom')){const windows=H.REAR.bedroomWindows,w=windows[(random()*windows.length)|0];emit('bedroom',w.x0+15+random()*(w.x1-w.x0-30),w.y0+random()*(w.y1-w.y0),-35+random()*90,.6,-.6,.4,.65+random()*.55,4,.65,'#f0dfb0',1);}if(shown('kitchen'))emit('kitchen',-150+random()*95,155+random()*95,-150+random()*80,.6,-.4,.3,.9,4,.6,'#eadbbb',1);}}
-    if(now>=nextBreath){nextBreath=now+3400;if(cold&&ph!=='day'&&H.ROOMS[H.here]?.outside&&!H.motion.reduce){const a=H.P.ry*Math.PI/180;for(let i=0;i<(rung>=3?3:5);i++)emit(H.here,H.P.x+Math.sin(a)*(32+i*3),H.P.y+10,H.P.z-Math.cos(a)*(32+i*3),Math.sin(a)*19+(random()-.5)*5,-7, -Math.cos(a)*19,7+i*1.5,1.3,.32,'#b8c8ce',0,'breath');}}
+    if(now>=nextBreath){
+      nextBreath=now+3400;
+      // Only other people's mouths emit breath. A puff in front of the player's
+      // own camera grows into a white disc, however subtle it looks in world space.
+      if(cold&&ph!=='day'&&!H.motion.reduce)for(const c of Object.values(window.HouseFamily?.chars||{})){
+        const rid=c.room;if(!c.present||!H.ROOMS[rid]?.outside||!c.rig?.mouthWorld)continue;
+        c.rig.mouthWorld(point);inverse.copy(H.root.matrixWorld).invert();point.applyMatrix4(inverse);
+        if(near(point.x,point.y,point.z,90))continue;
+        const x=Math.sin(c.h),z=Math.cos(c.h);
+        for(let i=0;i<(rung>=3?2:3);i++)emit(rid,point.x+x*(2+i),point.y,point.z+z*(2+i),x*12+(random()-.5)*3,-4,z*12,3+i*.6,.9,.12,'#b8c8ce',0,'breath');
+      }
+    }
     if(now>=nextLeaf){nextLeaf=now+(rung>=3?1300:700);if(shown('garden')&&month>=8&&!H.motion.reduce)emit('garden',-230+random()*500,315-random()*35,-330-random()*400,14+random()*13,-3,5,6+random()*3,4,.95,random()>.5?'#927044':'#a1542c',2);}
     return updateParticles(now,ph)||surfaces.visible&&su.gain.value>.002;
   }
   function updateParticles(now,ph){
     active=0;
-    for(let i=0;i<cap;i++){const p=pool[i];if(p.life<=0)continue;if(p.kind===1&&ph!=='day'){p.life=0;continue;}const step=Math.max(0,p.total-p.life),elapsed=Math.max(step,(now-p.born)/1000);p.life=p.total-elapsed;if(p.life<=0)continue;if(!shown(p.rid)){p.life=0;continue;}
+    for(let i=0;i<cap;i++){const p=pool[i];if(p.life<=0)continue;if(p.kind===1&&ph!=='day'){p.life=0;continue;}const step=Math.max(0,p.total-p.life),elapsed=Math.max(step,(now-p.born)/1000);p.life=p.total-elapsed;if(p.life<=0)continue;if(!shown(p.rid)||p.effect==='breath'&&near(p.x,p.y,p.z,90)){p.life=0;continue;}
       const advance=Math.max(0,elapsed-step);p.x+=p.vx*advance;p.y+=p.vy*advance;p.z+=p.vz*advance;const age=1-p.life/p.total,j=active*3,s=active*4;
       pos[j]=p.x+Math.sin(age*6+p.seed)*(p.kind===2?5:p.effect==='steam'?3:.8);pos[j+1]=p.y;pos[j+2]=p.z;
       colors[j]=p.r;colors[j+1]=p.g;colors[j+2]=p.b;style[s]=p.size*(p.kind===0?1+age*2:1);style[s+1]=p.alpha*(p.effect==='contact'?Math.pow(1-age,1.7):Math.sin(age*Math.PI));style[s+2]=p.kind;style[s+3]=p.seed+age*(p.kind===2?5:1);active++;

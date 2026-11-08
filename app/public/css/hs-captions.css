@@ -403,3 +403,11 @@ html.hs-live :is(.hs-pause, .st-quests) {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 }
+
+/* Portrait conversations need the same clear face as landscape. Keep the
+   temporary job strip in the centre gap below the thumb controls. */
+html[data-game-touch="true"] .hs-ui.np-conversation .ch-chip,
+html[data-game-touch="true"] .hs-ui:has(.np-bub:not(.np-out)) .ch-chip {
+  top: auto;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+}

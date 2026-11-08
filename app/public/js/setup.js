@@ -691,6 +691,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
       return dl;
     };
     next();
+    window.House?.emit('pc-recovery');
   }
   // Add/Remove > Install...: CD-ROMs in the drive, floppies, and setup files you downloaded
   function installFromDisk() {

@@ -494,7 +494,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       duvBase = new Float32Array(geo.attributes.position.count * 2);
       for (let i = 0; i < geo.attributes.position.count; i++) { duvBase[i * 2] = geo.attributes.position.getX(i); duvBase[i * 2 + 1] = geo.attributes.position.getY(i); }
       const g = new T.Group(); r.group.add(g);
-      duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
+      duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; duv.userData.spot = 'bed'; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
       // The bed's only pillow starts on the floor, beside the pyjamas.
       const pil = grp(G => { G.rbox(0, -5.5, 0, 75, 11, 50, 5.2, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -8, 0, 33, 4.1, 21, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 81, 56, 0.5, { sq: true }); });
       pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: () => CK.has('bed','pillow') || V().pillowDocked ? 'Pillow' : 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
@@ -521,11 +521,14 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         const docked=CK.has('bed','pillow')||v.pillowDocked;
         if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-24,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37||pillowT.at.z!==-24||pillowT.at.ry!==0)CK.home('ch.pillow');}
         else CK.lock('ch.pillow',false);
+        // A docked pillow is part of the bed; the loose one keeps its pickup action.
+        pillowT.obj.traverse(o=>{if(o.isMesh)o.userData.spot=docked?'bed':pillowT.id;});
         if(pillowT.fixed!==docked){pillowT.fixed=docked;H.physics.sync(pillowT.id);}
         if(!making?.gesture)pillowT.obj.scale.set(1,1,1);
       }
       if (pjsT) {
         const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;pjsT.fixed=folded;
+        pjsT.obj.traverse(o=>{if(o.isMesh)o.userData.spot=folded?'bed':pjsT.id;});
         if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?24.9:37;pjsT.home={room:'bedroom',x:190,y,z:-24,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y||pjsT.at.z!==-24||pjsT.at.ry!==0)CK.home('ch.pjs');}
         else CK.lock('ch.pjs',false);
         // Folding changes the real support footprint as well as the visible mesh.

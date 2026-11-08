@@ -250,7 +250,7 @@ try {
   assert.equal(await p.evaluate(()=>st.current().id),'power');
   assert.equal(await p.evaluate(()=>House.pcGL.visible),false);await shot('12b-assembled-refresh');
   await aim([40,-55,85],[17,-20,-11]);
-  await p.evaluate(()=>House.interact('st.pc.tower'));await waitStep('power');
+  await p.keyboard.press('f');await waitStep('power');
   await until(()=>House.mode==='monitor'||House.mode==='pcboot');await shot('13-first-boot');
   for(let disk=1;disk<=3;disk++){
     const button=p.getByRole('button',{name:'Insert Disk '+disk,exact:true});

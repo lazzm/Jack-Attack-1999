@@ -2053,9 +2053,9 @@
   // Real look/movement input immediately takes ownership.
   let conversationAim = null;
   function cancelConversationAim() { conversationAim = null; }
-  function frameConversation(face, active) {
+  function frameConversation(face, active, spot) {
     if (mode !== 'walk' || controlsPaused || viewOpen()) return;
-    conversationAim = { face, active, start: performance.now(), rx: P.rx, ry: P.ry, x: W.x, z: W.z, done: false };
+    conversationAim = { face, active, spot, start: performance.now(), rx: P.rx, ry: P.ry, x: W.x, z: W.z, done: false };
     dirty();
   }
   function tickConversationAim(now) {
@@ -2382,6 +2382,9 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
+    // Direct replies own the hover during their view ease and speech. Real
+    // look/movement cancels this hold immediately, as it cancels the ease.
+    if (!held && conversationAim?.spot && conversationAim.active() && sid !== conversationAim.spot) { setHot(null); ui.tip(null); pb.classList.remove('hs-hot'); return; }
     if (!held) ui.tip(s && !s.hideTip?.() ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab&&!held&&h.dist<=s.range?' <i><span><kbd>E</kbd> Pick up</span>'+'<span><kbd>F</kbd> '+esc(actionLabel(THINGS[sid]))+'</span>'+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
@@ -2389,7 +2392,8 @@
   // explicit camera transitions; a distant door is not a travel command.
   function useAt(sx, sy, center,action) {
     if (!canAct()) return;
-    const h = pick(sx, sy);
+    const a = conversationAim, face = !held && center && a?.spot && !a.done && a.active() ? a.face() : null;
+    const h = face ? {spot:a.spot,dist:Math.hypot(P.x-face.x,P.y-face.y,P.z-face.z)} : pick(sx, sy);
     if (!h || !h.spot) { if (!center && h && h.dist < 1200) emit('miss', h); return; }
     const s = SPOTS[h.spot];
     const perform=()=>{const item=THINGS[s.id];if(action==='use'&&s.grab&&item){if(s.use&&s.act&&!item.use)act(s);else interact(item.id);}else if(action!=='use'&&s.remove)s.remove();else act(s);};
