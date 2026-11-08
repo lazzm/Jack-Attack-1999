@@ -1,5 +1,5 @@
 // Unit tests (no browser): js/st-voice.js plays a recorded line through Sound's voice bus (buffer source started,
-// positional panner, ducking on/off, level from the analyser), stays silent and fetches nothing with sound off or muted,
+// positional panner, ducking on/off, level from source PCM), stays silent and fetches nothing with sound off or muted,
 // falls back (null) for lines with no recording; js/sound.js gives voices their own bus; js/np-bubble.js layout maths.
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm'), {createHash} = require('node:crypto');
 const js = f => fs.readFileSync(path.join(__dirname, '../app/public/js', f), 'utf8');
@@ -48,7 +48,7 @@ class Ctx {
   createBufferSource() { const n = new Node('source'); this.sources.push(n); return n; }
   createPanner() { const n = new Node('panner'); n.setPosition = (x, y, z) => { n.pos = [x, y, z]; }; return n; }
   createAnalyser() { const n = new Node('analyser'); n.fftSize = 512; n.getFloatTimeDomainData = d => { for (let i = 0; i < d.length; i++) d[i] = Math.sin(i / 3) * 0.3; }; return n; }
-  decodeAudioData(b, ok) { const buf = this.createBuffer(1, 60000, this.sampleRate); ok(buf); return Promise.resolve(buf); }
+  decodeAudioData(b, ok) { const buf = this.createBuffer(1, 60000, this.sampleRate), pcm=buf.getChannelData(0);for(let i=0;i<pcm.length;i++){const t=i/this.sampleRate;pcm[i]=t>=.7&&t<1.1?0:Math.sin(i/8)*.3;}ok(buf); return Promise.resolve(buf); }
   resume() {}
 }
 function world(storage) {
@@ -86,7 +86,14 @@ const tick = () => new Promise(r => setImmediate(r));
     assert.equal(n, bus, 'routed to the voice bus');
     assert.equal(bus.gain.value, 1.8, 'voice bus boosted');assert.equal(bus.connections[0].connections[0].connections[0].gain.value,.8,'Saved volume follows limiter');
     assert(w.Sound.ducked, 'ducked while talking'); assert(w.Sound.output(c, 'music').gain.value < 0.8, 'music dips');
-    assert(h.level() > 0.3, 'level from the analyser: ' + h.level());
+    assert.equal(h.level(),0,'scheduled audio has not reached its source start');
+    c.currentTime=h.t0+.2;const sourceLevel=h.level();assert(sourceLevel>.3,'source PCM envelope has no amplitude');
+    h.out.gain.value=.01;assert.equal(h.level(),sourceLevel,'listener/output gain changes facial articulation');h.out.gain.value=1;
+    c.state='suspended';assert.equal(h.level(),0,'suspended audio keeps articulating');c.state='running';
+    c.currentTime=h.t0+.8;const pausedProgress=h.speechProgress();assert.equal(h.level(),0,'real PCM silence not closed');
+    c.currentTime=h.t0+1.0;assert.equal(h.speechProgress(),pausedProgress,'text shape clock consumes an actual pause');
+    c.currentTime=h.t0+1.3;assert(h.level()>.3&&h.speechProgress()>pausedProgress,'speech does not resume after silence');
+    assert(h.envelope.levels.byteLength<=Math.ceil(h.dur*100),'envelope exceeds 100 bytes per second');
     assert.deepEqual([...w.st.voicesPlaying], [id]);
     src.stop(); assert(h.ended && !w.Sound.ducked, 'ended: ducking released'); assert.equal(w.Sound.output(c, 'music').gain.value, 1);
     // muting mid-line stops it
@@ -196,5 +203,5 @@ const tick = () => new Promise(r => setImmediate(r));
     const e = L.edge({ x: 0, y: 1 }, 220, 60, view, []); assert(e.y + 60 >= 844 - 44 && e.x >= 10, 'bottom edge ' + JSON.stringify(e));
     const e2 = L.edge({ x: 1, y: 0 }, 220, 60, view, []); assert(e2.x + 220 <= 390 - 10 && e2.x + 220 >= 390 - 44, 'right edge ' + JSON.stringify(e2));
     const t = L.tail({ x: 10, y: 10, w: 200, h: 50 }, { x: 400, y: 30 }, 22, 14); assert(t.side === 'r' && t.tx - t.bx <= 22.01, 'edge arrow points right ' + JSON.stringify(t)); }
-  console.log('VOICES UNIT PASS: release hashes + withheld assets, speakers, lazy fetch, positional voice bus, ducking, analyser, name/alias selection, combined playback/cancellation, mute/volume 0/no-gesture silence, generic fallback, subtitles, bubble layout');
+  console.log('VOICES UNIT PASS: release hashes + withheld assets, speakers, lazy fetch, positional voice bus, ducking, PCM envelope/pause clock/suspend/size, name/alias selection, combined playback/cancellation, mute/volume 0/no-gesture silence, generic fallback, subtitles, bubble layout');
 })().catch(e => { console.error(e); process.exit(1); });
