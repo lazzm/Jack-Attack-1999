@@ -126,10 +126,10 @@
   const mSkirt = M({ c: '#efebe0', map: tex('whiteGloss'), sh: 30, sp: '#333' });
   const mPine = () => M({ c: '#ffffff', map: tex('pine') });
   const mDesk = () => M({ c: '#ffffff', map: tex('deskWood') });
-  const mDark = M({ c: '#1b1b1e', sh: 20, sp: '#222' });
-  const mMetal = M({ c: '#9a9aa0', sh: 60, sp: '#888' });
-  const mBrass = M({ c: '#c8a040', sh: 70, sp: '#a08040' });
-  const mWhite = M({ c: '#efece4', sh: 20, sp: '#222' });
+  const mDark = M({ c: '#1b1b1e', family: 'plastic' });
+  const mMetal = M({ c: '#9a9aa0', family: 'metal' });
+  const mBrass = M({ c: '#c8a040', family: 'brass' });
+  const mWhite = M({ c: '#efece4', family: 'plastic' });
   const mBluTack = M({ c: '#4a7ad8', sh: 10 });
 
   // a poster on a wall: paper with a slight curl at the bottom, Blu-Tack at the corners, a soft shadow behind
@@ -312,12 +312,12 @@
     B.panel(W.x1, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: -90 });
     // Outside is shared with the kitchen: never stack two sky cards here.
     // UPVC frame: outer frame, mullion, transom with a top opener
-    const fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = BZ - dep + 3;
+    const fm = M({ c: '#f2f0ea', family: 'glossPaint' }), fz = BZ - dep + 3;
     B.box(cx, W.y0 + 3, fz, w, 6, 6, fm); B.box(cx, W.y1 - 3, fz, w, 6, 6, fm);
     B.box(W.x0 + 3, cy, fz, 6, h, 6, fm); B.box(W.x1 - 3, cy, fz, 6, h, 6, fm);
     B.box(cx, cy, fz, 5, h, 6, fm); if(!high)B.box(cx, W.y0 + 30, fz, w, 5, 6, fm);
     B.box(cx + 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite); B.box(cx - 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite);
-    B.box(cx, cy, fz - 1, w - 6, h - 6, .35, M({ c: '#c8d8f0', o: 0.12, sh: 120, sp: '#ffffff', tr: true }), {});
+    B.box(cx, cy, fz - 1, w - 6, h - 6, .35, M({ c: '#c8d8f0', o: 0.12, family:'glass', tr: true }), {});
     // the sill: a dead cactus on it
     B.rbox(cx, W.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
     B.shadow(cx, W.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
@@ -438,7 +438,7 @@
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
     const books=new T.Group(),bookBatch=K.batch(),bk=K.into(bookBatch);
     ['MATHS','SCIENCE','ENGLISH','FRENCH'].forEach((subject,i)=>{const c=['#a73732','#355a91','#c59b36','#4b7552'][i],x=i*.6-1,y=-1.1-i*2.2,z=i*.4,cover=M(c);
-      bk.box(x,y,z,20.4,1.6,28.4,M('#dedace'));bk.box(x-10.25,y,z,.5,2,29,cover);
+      bk.box(x,y,z,20.4,1.6,28.4,M({c:'#dedace',family:'paper'}));bk.box(x-10.25,y,z,.5,2,29,cover);
       for(const yy of [y-.9,y+.9])bk.box(x,yy,z,21,.2,29,cover);
       const print=K.tex('rm.revision.'+subject,128,180,(g,w,h)=>{g.fillStyle=c;g.fillRect(0,0,w,h);g.fillStyle='#e9e4d5';g.fillRect(8,10,w-16,3);A.text(g,'GCSE',14,42,'700 22px '+A.UIF,'#eee9da');A.text(g,subject,14,72,'700 15px '+A.UIF,'#eee9da');A.text(g,'REVISION GUIDE',14,91,'10px '+A.UIF,'#eee9da');for(let k=0;k<5;k++){g.fillStyle='rgba(245,240,220,.2)';g.fillRect(14,113+k*7,80-k*8,2)}A.text(g,'1999 EDITION',14,163,'9px '+A.UIF,'#eee9da')},{clamp:true});
       bk.decal(x,y-1.01,z,20.5,28.5,M({c:'#fff',map:print}),{rx:90});
@@ -449,7 +449,7 @@
     H.spot('books', { label: 'GCSE revision guides', act: () => { secret('hs.revise'); say('GCSE revision guides', ['MATHS, SCIENCE, ENGLISH, FRENCH. Exams in June. The spines aren\'t even cracked yet.', 'I opened the Maths one. Simultaneous equations. I closed the Maths one.', 'Mom bought these. She checks if they\'ve moved. I move them a bit every week.'][(S.bk = ((S.bk | 0) + 1) % 3)]); save(); } });
     loose('books',books,{room:'bedroom',x:-40,y:0,z:-38,ry:8},'GCSE revision guides');
     const mugObj=new T.Group(),mugBatch=K.batch(),mug=K.into(mugBatch);
-    const glaze=M({c:'#c54132',sh:40,sp:'#777'});
+    const glaze=M({c:'#c54132',family:'ceramic'});
     mug.lathe(0,0,0,[[0,-.8],[3,-.8],[3.1,-8.7],[3.35,-9.4],[3.8,-9.5],[3.95,-9.2],[3.95,-.8],[3.4,0],[0,0]],32,glaze);
     mug.disc(0,-7.6,0,3.07,M({c:'#62432a',sh:28}),28);mug.geo(new T.TorusGeometry(2.6,.6,8,24,Math.PI),4.2,-4.6,0,glaze,{rz:-90});
     // Ceramic mounting pads bury both open tube ends into the cup wall.
@@ -461,7 +461,7 @@
     H.spot('mug', { label: 'Mug of tea', act: () => say('Mug of tea', ['Stone cold. Mom made it at four o\'clock. There\'s a skin on it.', 'It says WORLD\'S BEST {me?SON|DAUGHTER} on it. Gran got it. Gran is biased.'][(S.mg = ((S.mg | 0) + 1) % 2)]) });
     loose('mug',mugObj,{room:'bedroom',x:46,y:0,z:-8,ry:0},'Mug of tea');
     const potObj=new T.Group(),potBatch=K.batch(),pot=K.into(potBatch);
-    pot.lathe(0,0,0,[[0,-.5],[2.7,-.5],[2.7,-9.7],[2.9,-10],[3.2,-9.8],[3.2,0],[0,0]],24,M({c:'#355a91',sh:24}));pot.shadow(0,0,0,10,10,.5);
+    pot.lathe(0,0,0,[[0,-.5],[2.7,-.5],[2.7,-9.7],[2.9,-10],[3.2,-9.8],[3.2,0],[0,0]],24,M({c:'#355a91',family:'ceramic'}));pot.shadow(0,0,0,10,10,.5);
     [[-1,'#c6a347',8],[1,'#a9443a',-6],[0,'#34363a',3]].forEach(([dx,c,a])=>{const pen=pot.at(dx,-12,0,0,{rz:a});pen.cyl(0,0,0,.35,.35,14,6,M(c));pen.cyl(0,-7.5,0,.12,.35,1,6,M('#bca079'));pen.cyl(0,-8.1,0,.04,.12,.3,6,M('#252525'))});
     potBatch.build(potObj);
     loose('pencilpot',potObj,{room:'bedroom',x:35,y:0,z:-42,ry:0},'Pencil pot');
@@ -477,7 +477,7 @@
     CK.box(0, 0, 0, 60, 45, 1.6, M({ c: '#ffffff', map: tex('cork'), pr: 1 }));
     CK.box(0, -23, 0.4, 62, 1.6, 2.4, mPine()); CK.box(0, 23, 0.4, 62, 1.6, 2.4, mPine()); CK.box(-30.5, 0, 0.4, 1.6, 47, 2.4, mPine()); CK.box(30.5, 0, 0.4, 1.6, 47, 2.4, mPine());
     // Papers have real paper thickness (a card's edge, not a flat sticker), layered a hair apart, pinned through.
-    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t), pr: 1 }), all: M('#e8e3d4') }, { rz });
+    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t), pr: 1 }), all: M({c:'#e8e3d4',family:'paper'}) }, { rz });
     paper(-16, 0, 0.9, 21, 30, 'calendar', -2); paper(6, -9, 1.02, 9, 8, 'note', 5); paper(20, -8, 1.14, 9, 9, 'noteBlue', -4); paper(13, 11, 1.26, 15, 10, 'photo', -3);
     [[-16, -13.5], [6, -12.5], [20, -12], [13, 6.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
@@ -615,7 +615,7 @@
     cab.shadow(0, FY, 0, 80, 50, 0.7, { sq: true });
     // the telly: a 14-inch portable, with a proper deep back
     const tv = new T.Group(); tv.position.set(TX, 27.4, -28); r.group.add(tv); const tvBatch=K.batch(),TV=K.into(tvBatch);
-    TV.rbox(0, -16.5, 4, 38, 33, 14, 1.6, M({ c: '#4a4c52', sh: 25, sp: '#333' }));
+    TV.rbox(0, -16.5, 4, 38, 33, 14, 1.6, M({ c: '#4a4c52', family: 'plastic' }));
     TV.geo(taper(33, 27, 22, 0.62), 0, -16.5, -14, M('#36383d')); // 36 cm deep CRT; neck clears the rear wall by 3 cm
     TV.box(0, -2.5, 10.9, 34, 4, 0.4, M('#2a2c30'));
     TV.rbox(-2.8, -19, 11.12, 30.2, 23.2, 0.72, 0.34, M({ c: '#111619', sh: 25, sp: '#333' }));
@@ -748,7 +748,7 @@
   // Ordinary belongings stay behind the reserved console bays, clear of every
   // future machine and cartridge slot. These are props, never inventory grants.
   function buildStarterClutter(r) {
-    const batch=K.batch(),C=K.into(batch),dark=M('#282b30'),paper=M('#e7dfca');
+    const batch=K.batch(),C=K.into(batch),dark=M('#282b30'),paper=M({c:'#e7dfca',family:'paper'});
     const lettering=(key,lines,col='#eee5cc',ink='#27303a')=>M({c:'#fff',map:K.tex('starter.'+key,512,256,(c,w,h)=>{
       c.fillStyle=col;c.fillRect(0,0,w,h);c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(12,12,w-24,h-24);
       lines.forEach((line,i)=>{line=Cast.t(line);let size=35;do{c.font='700 '+size+'px '+(key==='dad-note'?'"Comic Sans MS","Z003","URW Chancery L",cursive':A.UIF);if(c.measureText(line).width<=w-40)break;size--}while(size>16);A.text(c,line,w/2,64+i*57,c.font,ink,'center')});
@@ -813,7 +813,7 @@
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
     if(!hasConsole(id)||R.consoles?.[id])return;
     const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const cb = K.batch(), C = K.into(cb); // (static parts merged per material)
-    C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, sh: 18, sp: '#222' }));
+    C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, family: 'plastic' }));
     // power and reset on the front, a red power light, a parting line round the case
     const trimM = M('#17181a'); // (the same plastic as the controller ports: no extra draw calls)
     C.rbox(w * 0.06, -h * 0.5, d / 2 + 0.12, 2.4, 1.3, 0.5, 0.18, trimM); C.rbox(w * 0.16, -h * 0.5, d / 2 + 0.1, 1.6, 1.1, 0.4, 0.15, trimM);
@@ -826,7 +826,7 @@
       C.cyl(0, -h - 0.14, -1, 6.8, 6.8, 0.2, 40, M('#292a2d'));
       C.cyl(0, -h - 0.28, -1, 0.7, 0.7, 0.4, 12, M('#777b80'));
       const lid = new T.Group(); lid.position.set(0, -h - 0.3, -7.5); g.add(lid);
-      K.into(lid).cyl(0, 0, 6.5, 6.8, 6.8, 0.45, 40, M({ c: col, sh: 28, sp: '#555' }));
+      K.into(lid).cyl(0, 0, 6.5, 6.8, 6.8, 0.45, 40, M({ c: col, family: 'plastic' }));
       machine.lid = lid; lid.rotation.x = 72 * D2R;
     } else {
       C.rbox(0, -h - 0.18, -1, 11.4, 0.45, 3.4, 0.18, M('#4b4b50'));
@@ -887,7 +887,7 @@
   function padShell(P,shape,col) {
     const shell=(depth,y,scale,m)=>{const g=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSize:0.16,bevelThickness:0.16,bevelSegments:2,curveSegments:6,steps:1});g.rotateX(Math.PI/2);g.scale(scale,1,scale);P.geo(g,0,y,0,m)};
     shell(1.2,-0.2,1,M({c:'#33353a',sh:15}));
-    shell(1.35,-1.4,0.985,M({c:col,sh:19,sp:'#303136'}));
+    shell(1.35,-1.4,0.985,M({c:col,family:'plastic'}));
     // Rear strain relief and shoulder buttons, all separate solids.
     P.cyl(0,-1.8,-6.65,0.43,0.43,1.3,10,M('#26272a'),{rx:90});
     [-5.3,5.3].forEach(x=>P.rbox(x,-2.45,-4.7,3.7,0.95,1.7,0.3,M('#44464c')));
@@ -1023,7 +1023,7 @@
     }});
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
-    const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
+    const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M({c:'#c8a070',family:'paper'})); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
     PO.box(0, -10.1, 0, 24.2, 0.2, 3, M('#c8b890')); PO.shadow(0, 0, 0, 28, 22, 0.6, { sq: true });
     H.spot('post', { label: 'A parcel!', obj: post }); post.visible = false;
     // a school jumper on the floor at the end of the bed
@@ -1051,7 +1051,7 @@
     B.shadow((x0 + x1) / 2, FY, (z0 + z1) / 2, x1 - x0 + 12, z1 - z0 + 14, 0.75, { sq: true });
     const rail = B.at(x0 + 30, top + 12, (z0 + z1) / 2); rail.cyl(0, 0, 0, 0.8, 0.8, z1 - z0 - 6, 8, mMetal, { rx: 90 });
     [['#2a2a3a',-38],['#e8e8e8',-25],['#1a2a5a',-12],['#7a1a1a',1],['#3a5a2a',14],['#c8a060',27],['#1a1a1a',39]].forEach(([c,z],i)=>{
-      const cloth=M({c,sh:2}), coat=rail.at(0,0,z);
+      const cloth=M({c,family:'fabric'}), coat=rail.at(0,0,z);
       coat.geo(new T.TorusGeometry(1.7,.27,5,12,Math.PI*1.55),0,2,0,mMetal,{rz:-25});
       coat.box(0,7,0,.55,7,.6,mMetal);
       [-1,1].forEach(side=>{coat.rbox(side*7.2,12,0,16,1.1,1, .4,M('#a77d45'),{rz:side*17});coat.rbox(side*16,33,0,8,37,5,1.9,cloth,{rz:-side*12})});
@@ -1348,12 +1348,12 @@
     const dp = new T.Group(); dp.position.set(x + 3, 0, z1); r.group.add(dp); const DP = K.into(dp);
     const dw = z1 - z0 - 1 - K.SURFACE_LIFT * 2, dh = FY - y0 - 1, dc = -dw / 2 - K.SURFACE_LIFT;
     K.doorLeaf(dp, { cx: 0, cy: y0 + 0.5 + dh / 2, cz: dc, w: dw, h: dh, t: 3.6, along: false, leaf: M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' }),
-      mould: M({ c: '#ece8de', sh: 18, sp: '#2a2a2a' }), field: M('#dcd7cb'), brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }),
+      mould: M({ c: '#ece8de', family: 'glossPaint' }), field: M({c:'#dcd7cb',family:'glossPaint'}), brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }),
       handleA: dc - dw / 2 + 7, handleY: -30, leverDir: 1, hingeA: 0.3, hingeSide: -1 });
     // A soft towelling dressing gown, gathered at its brass hook. Closed
     // rounded volumes give the hem, sleeves and belt thickness from either side.
     const gown=new T.Group(),robeBatch=K.batch();gown.name='door-dressing-gown';dp.add(gown);
-    const robe=K.into(robeBatch).at(-2.4,-78,dc+18,-90),terry=M({c:'#85404a',sh:2}),fold=M({c:'#71323f',sh:2});
+    const robe=K.into(robeBatch).at(-2.4,-78,dc+18,-90),terry=M({c:'#85404a',family:'fabric'}),fold=M({c:'#71323f',family:'fabric'});
     robe.box(0,-2,-.2,5,8,1.3,mBrass);
     robe.geo(new T.TorusGeometry(2.4,.55,6,14),0,.4,1.2,mBrass,{rz:155});
     robe.rbox(0,10,2.5,15,21,6,3,terry);
@@ -1539,13 +1539,13 @@
     H.on('place', () => { carry.id = null; });
   }
   const carry = { id: null, d: 0 };
-  function gbModel() { const g = new T.Group(); const G = K.into(g); const m = M({ c: '#6a3fb0', sh: 36, sp: '#444' });
+  function gbModel() { const g = new T.Group(); const G = K.into(g); const m = M({ c: '#6a3fb0', family: 'glossPlastic' });
     G.rbox(0, -1.3, 0, 7.8, 2.6, 13.3, 0.9, m); // the body (7.8 x 13.3 cm, 2.6 thick)
-    G.rbox(0, -2.7, -3.25, 6.8, 0.38, 6, 0.18, M({ c: '#2a2a34', sh: 70, sp: '#666' }));
+    G.rbox(0, -2.7, -3.25, 6.8, 0.38, 6, 0.18, M({ c: '#2a2a34', family:'glossPlastic' }));
     R.gbScreen = G.geo(crtGlass(4.6, 4.14, 0.05, 0.025), 0, -2.97, -3.5, new T.MeshBasicMaterial({ color: '#83956c' }), { rx: 90 });
     G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 512, 64, (gg) => { A.text(gg, 'GAME LAD COLOR', 256, 48, '700 44px ' + A.UIF, '#c8c8d8', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     G.box(-2.2, -2.9, 2.4, 2.2, 0.5, 0.7, M({ c: '#222', sh: 20 })); G.box(-2.2, -2.9, 2.4, 0.7, 0.5, 2.2, M({ c: '#222', sh: 20 })); // the D-pad cross
-    G.cyl(1.6, -2.95, 2.9, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); G.cyl(3.0, -2.95, 2.2, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); // B and A
+    G.cyl(1.6, -2.95, 2.9, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', family:'glossPlastic' })); G.cyl(3.0, -2.95, 2.2, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', family:'glossPlastic' })); // B and A
     for (const [letter,x,z] of [['B',1.6,3.82],['A',3,3.12]]) G.plane(x, -2.65, z, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gb'+letter, 64, 64, (gg) => { A.text(gg, letter, 32, 52, '700 48px ' + A.UIF, '#ddd', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     [-1, 0.2].forEach((x, i) => G.rbox(x, -2.75, 5.1, 1.4, 0.3, 0.5, 0.2, M('#4a2a88'), { ry: -25 })); // select / start, slanted
     for (let r = 0; r < 5; r++) for (let c = 0; c < 2; c++) G.cyl(2.3 + c * 0.6 - r * 0.25, -2.65, 4.3 + r * 0.42, 0.14, 0.14, 0.2, 6, M('#3a1a68')); // the speaker holes
@@ -1623,7 +1623,7 @@
     draw(); K.into(g).shadow(0,0,0,7,7,.4,{sq:true}); return g;
   }
   function vpetModel(){
-    const g=new T.Group();g.name='eggbert-keyring';const chassis=new T.Group();chassis.position.y=.35;g.add(chassis);const V=K.into(chassis),pink=M({c:'#cf5492',sh:32,sp:'#684455'}),dark=M('#713454'),metal=M({c:'#b7b7b2',sh:70});
+    const g=new T.Group();g.name='eggbert-keyring';const chassis=new T.Group();chassis.position.y=.35;g.add(chassis);const V=K.into(chassis),pink=M({c:'#cf5492',family:'glossPlastic'}),dark=M('#713454'),metal=M({c:'#b7b7b2',family:'metal'});
     const shell=V.ball(0,-1.8,0,3.05,1.6,3.6,pink,24),sp=shell.geometry.attributes.position;for(let i=0;i<sp.count;i++)sp.setY(i,Math.min(.75,Math.max(sp.getY(i),-.56)));shell.geometry.computeVertexNormals();V.cyl(0,-.56,.1,1.7,1.7,.3,24,M('#ae477c'));
     for(const x of [-1.1,1.1]){V.cyl(x,-.39,.1,.19,.19,.08,10,metal);V.box(x,-.344,.1,.22,.02,.035,M('#414342'))}
     V.rbox(0,-1.7,-3.5,1.25,1,1.5,.35,pink);V.geo(new T.TorusGeometry(1.15,.16,8,24),0,-1.65,-4.95,metal,{rx:90});
@@ -1731,7 +1731,7 @@
     const g = new T.Group(); g.name = 'pcGL';
     const parts = {}; const section = id => { const part = parts[id] = new T.Group(); part.name = 'pc-' + id; g.add(part); return K.into(part); };
     let P = section('monitor');
-    const BEI = M({ c: '#ece5cf', e: '#2e2a20', sh: 18, sp: '#222' }), BEI2 = M({ c: '#e0d8be', e: '#26221a', sh: 12, sp: '#1a1a1a' }) /* (a touch of glow: the beige reads as bright as boot.js's CSS PC) */, DK = M({ c: '#9a9070', sh: 8 });
+    const BEI = M({ c: '#ece5cf', e: '#2e2a20', family: 'plastic' }), BEI2 = M({ c: '#e0d8be', e: '#26221a', family: 'plastic' }) /* (a touch of glow: the beige reads as bright as boot.js's CSS PC) */, DK = M({ c: '#9a9070', sh: 8 });
     const monTex = K.tex('pc.monfront', 512, 448, (c, w, h) => {
       const s = w / 38; c.fillStyle = '#e8e0c8'; c.fillRect(0, 0, w, h);
       const gr = c.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,255,255,.18)'); gr.addColorStop(1, 'rgba(90,80,50,.16)'); c.fillStyle = gr; c.fillRect(0, 0, w, h);
@@ -1772,7 +1772,7 @@
     const matTex = K.tex('pc.mat', 256, 218, (c, w, h) => { const gr = c.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#23306b'); gr.addColorStop(1, '#141c45'); c.fillStyle = gr; c.fillRect(0, 0, w, h); c.font = '26px Impact,"Arial Black",sans-serif'; c.textAlign = 'center'; c.fillStyle = 'rgba(255,207,42,.85)'; c.fillText('JACK ATTACK!', w / 2, h - 18); }, { clamp: true });
     // the monitor (the glass's centre is (L.mx, -24.55, 0.02): the same place as boot.js's)
     P.rbox(L.mx, -22.5, -1.75, 38, 33, 3.5, 1.1, BEI); P.plane(L.mx, -22.5, 0.02, 36.6, 31.6, M({ c: '#fff', map: monTex, e: '#262218', sh: 16, sp: '#222' }));
-    const glassM = M({ c: '#101a1b', sh: 110, sp: '#667d81' });
+    const glassM = M({ c: '#101a1b', family:'glass' });
     const glass = { x: L.mx, y: -24.55, z: 0.70, w: 29.6, h: 22.2, depth: 0.3, bow: 0.28 };
     P.rbox(glass.x, glass.y, 0.1, 31.1, 23.7, 0.5, 0.24, M({ c: '#242b29', sh: 28, sp: '#46534f' }));
     P.geo(crtGlass(glass.w, glass.h, glass.depth, glass.bow), glass.x, glass.y, 0.25, glassM);
@@ -2250,7 +2250,7 @@
       B.geo(new T.TorusGeometry(1.14, 0.04, 6, 32), 0, -6, 0.12, M({ c: '#dfe4e8', sh: 100 }));
     } else {
       const small = g.con === 'gb', w = small ? 5.4 : 10, h = small ? 5.8 : 8, d = small ? 0.85 : 2.5;
-      const shell = M({ c: g.con === 'md' ? '#28282c' : small ? '#97979c' : '#8b8c90', sh: 28, sp: '#45464c' });
+      const shell = M({ c: g.con === 'md' ? '#28282c' : small ? '#97979c' : '#8b8c90', family:'plastic' });
       B.rbox(0, -h / 2, 0, w, h, d, small ? 0.2 : 0.5, shell);
       B.rbox(0, -h / 2, -d / 2 - 0.04, w - 0.5, h - 0.7, 0.16, 0.07, M('#5e6064'));
       B.rbox(0, -h * 0.52, d / 2 + 0.02, w * 0.78, h * 0.67, 0.12, 0.05, M('#36383c'));
@@ -2329,7 +2329,7 @@
   }
   function mediaCaseModel(g,con){
     const obj=new T.Group(),batch=K.batch(),B=K.into(batch),disc=con.media==='disc',w=disc?14.2:13,h=12.6,d=disc?1.5:3.2;
-    const shell=M({c:disc?'#292c30':'#e4ddc8',sh:disc?65:8,sp:disc?'#666':'#222'}),paper=M('#e7dfc7');
+    const shell=M({c:disc?'#292c30':'#e4ddc8',sh:disc?65:8,sp:disc?'#666':'#222'}),paper=M({c:'#e7dfc7',family:'paper'});
     // Recessed tray/liner with solid edge walls, rather than a painted slab.
     B.rbox(0,-h/2,-d/2+.2,w,h,.4,.12,shell);
     for(const x of [-w/2+.18,w/2-.18])B.box(x,-h/2,0,.36,h,d,shell);

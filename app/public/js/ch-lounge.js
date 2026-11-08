@@ -24,13 +24,13 @@
   let hv = null, patches = [], socketObj = null, hoovering = false;
   const V = () => (CK.S.v.hoover = CK.S.v.hoover || {});
   function hooverModel() {
-    const g = new T.Group(), G = K.into(g), red = mat('#c41c2a', { sh: 60, sp: '#777' }), grey = mat('#9a9ca4', { sh: 30, sp: '#444' }), dk = mat('#222226', { sh: 30 });
+    const g = new T.Group(), G = K.into(g), red = mat('#c41c2a', { family: 'plastic' }), grey = mat('#9a9ca4', { family: 'metal' }), dk = mat('#222226', { family: 'plastic' });
     G.rbox(0, -4.5, 3, 32, 9, 22, 2.4, red); G.box(0, -1.4, 14.2, 32, 2.6, 1.2, dk); G.box(0, -0.4, 4, 28, 0.6, 16, dk);
     [-13, 13].forEach(x => G.cyl(x, -3, -7, 3.2, 3.2, 2.4, 14, dk, { rz: 90 }));
     G.box(0, -9.4, 9, 20, 0.6, 6, M({ c: '#fff', map: K.tex('ch.hvlogo', 128, 32, (q, w, h) => { q.fillStyle = '#c41c2a'; q.fillRect(0, 0, w, h); A.text(q, 'TURBO 2000', 64, 23, '700 18px ' + A.FONT, '#fff', 'center'); }) }));
     G.shadow(0, 0, 2, 40, 30, 0.6, { sq: true });
     const pv = new T.Group(); pv.position.set(0, -7, -4); g.add(pv); g.userData.pivot = pv; const P = K.into(pv);
-    P.rbox(0, -38, -2, 22, 62, 13, 6, mat('#b8b8be', { sh: 8 })); // the bag
+    P.rbox(0, -38, -2, 22, 62, 13, 6, mat('#b8b8be', { family: 'fabric' })); // the bag
     P.rbox(0, -72, -2, 21, 10, 14, 3, red); P.rbox(0, -6, -2, 23, 12, 15, 3, red);
     P.cyl(0, -96, -2, 1.5, 1.5, 40, 10, grey); P.rbox(0, -118, -2, 15, 3.4, 4, 1.4, dk);
     P.box(6.5, -60, -9.6, 2, 3, 3, dk); P.box(6.5, -26, -9.6, 2, 3, 3, dk); // cable hooks

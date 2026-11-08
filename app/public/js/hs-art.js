@@ -296,7 +296,9 @@
     wallWarm: [128], wallKitchen: [48], wallpaperHall: [128], wallpaperLounge: [128], tiles: [192], mdf: [60],
     pine: [60, 'grain'], pineDark: [60, 'grain'], deskWood: [60, 'grain'], oak: [60, 'grain'] };
   const paintMs = { surfaces: 0 }; // (diagnostic: time spent painting the 2x surfaces)
-  const HI = new Set(['timetable', 'calendar', 'note', 'noteBlue', 'photo', 'floppyLabel', 'labelLost']);
+  // The duvet is a close-up cotton print: 1K keeps its fine weave in the
+  // same millimetre range as the shared fabric tile, without enlarging walls.
+  const HI = new Set(['duvet', 'timetable', 'calendar', 'note', 'noteBlue', 'photo', 'floppyLabel', 'labelLost']);
   // Full-resolution detail on top of a 2x surface, in one pass over the pixels. The noise is generated once
   // and shared (each texture reads it from its own offset), so the pass costs a few milliseconds per texture.
   let NOISE = null, STREAK = null;
@@ -335,7 +337,7 @@
         detail(g, p[0] * 2, p[1] * 2, surf[1], name.length * 977 + p[0]); paintMs.surfaces += performance.now() - t0; };
       return cache[name] = K.tex('art:' + name, p[0] * 2, p[1] * 2, paint, Object.assign({}, o, { world: surf[0], grain: surf[1] === 'grain' }));
     }
-    const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({},o,{identity:name==='photo'}));
+    const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({},o,{identity:name==='photo',world:name==='whiteGloss'?32:o?.world}));
     return cache[name] = tx;
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
