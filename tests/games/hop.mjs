@@ -115,6 +115,26 @@ async function suspend(name){
  for(const k of ['w','time','random','player','plat','visit','mode','paused','pauseI','card','win','winT','endT','overT','result','enemies','visuals','gotCoins','reds','lives','acorns','chestOpen','plugOut','bossDown','raceWon','props','propTargets','lamps','trial','motionClock','mission','boss','boo','race','snow','grotto','powerRun','dlg','fade'])assert.deepEqual(r[k],s[k],name+' restores '+k);
  assert.equal((await state()).count,count);await shot('refresh-'+name);
 }
+// Exercise real key edges below the old clearance threshold. Releasing C before
+// stepping also proves that a held button is not required to retain the request.
+async function groundPoundInputs(){
+ await world('cove');
+ for(const delay of [1,2,3,4,5,6,12]){
+  await faceAt(-27,25);await p.keyboard.down('z');await frames(delay);
+  assert.equal((await state()).P.gnd,false,'Pound request starts airborne');
+  await p.keyboard.down('c');await p.keyboard.up('c');await frames(1);
+  if(delay===1)await suspend('buffered-ground-pound');
+  await frames(8);assert.equal((await state()).P.st,'pound','Airborne C retained at takeoff frame '+delay);
+  if(delay===1)await shot('buffered-ground-pound');
+  await p.keyboard.up('z');await untilFrame(()=>__hopDbg.P.gnd,100);await frames(20);
+  assert.notEqual((await state()).P.st,'pound','One request produces one pound');
+ }
+ // Grounded crouch+jump remains a backflip, without queuing an unwanted pound.
+ await faceAt(-27,25);await p.keyboard.down('c');await key('z');await frames(10);
+ assert.equal((await state()).P.st,'back','Grounded crouch+jump keeps its meaning');
+ await p.keyboard.up('c');await untilFrame(()=>__hopDbg.P.gnd,120);
+ console.log('POUND INPUT PASS: airborne frames 1–6/12, released-before-step C, buffered refresh, single consumption and grounded backflip');
+}
 async function improvements(feelOnly=false){
  await world('cove');await faceAt(-7,25);await key('x');assert.equal((await state()).mode,'dlg');assert(await D(()=>__hopDbg.snapshot().dlg.name===Cast.n('sister').toUpperCase()),'Course guide uses the account Cast');await frames(90);await shot('cast-course-dialogue');await suspend('cast-dialogue');
  // Each takeoff uses real keys; an eight-frame landing gap is deliberate.
@@ -128,6 +148,7 @@ async function improvements(feelOnly=false){
  // A true ledge departure gets 100 ms grace; pressing early on descent is buffered.
  await faceAt(-.5,-6,0,9.2);await p.keyboard.down('ArrowRight');await untilFrame(()=>!__hopDbg.P.gnd,60);await frames(3);await key('z');assert.equal((await state()).P.st,'jump','Coyote jump, not an aerial twirl');await p.keyboard.up('ArrowRight');await shot('coyote-jump');
  await faceAt(-25,22);await D(()=>{__hopDbg.air(-25,__hopDbg.WORLDS.cove.ground(-25,22)+.45,22);__hopDbg.P.vy=-5;__hopDbg.P.coyote=0});await key('z');await untilFrame(()=>__hopDbg.P.st==='jump',30);await shot('buffered-landing-jump');
+ await groundPoundInputs();
  // Turn-free strafe: the camera cannot rotate camera-relative axes under a held direction.
  await faceAt(-20,25);const yaw=await D(()=>__hopDbg.C.yaw);await hold('ArrowRight',45);assert(Math.abs(await D(()=>__hopDbg.C.yaw)-yaw)<.01,'Strafing does not steer the camera');await shot('stable-strafe');
  // Wall kicks are possible on both sides of the original narrow chimney.
@@ -376,6 +397,22 @@ async function legacySaves(){
  console.log('LEGACY PASS '+revision+': actual pier and moving-manor-lift saves retain pose, health, coins, flags, pause, world clock and camera after geometry changes');}
 
 }
+async function runtimeShortPress(){
+ const proof=await p.evaluate(async()=>{
+  const d=__hopDbg,k=RoomTV.dbg();d.go('cove');d.tp(-27,99,25);const floor=d.P.y;d.air(d.P.x,floor+1.5,d.P.z);
+  const original=k.pressed;let read;
+  k.pressed=b=>{const hit=original(b);if(hit&&b==='c')read={frame:k.frame,held:k.held('c'),clearance:d.P.y-floor,gnd:d.P.gnd};return hit};
+  try{
+   const start=performance.now();
+   for(const type of ['keydown','keyup'])document.body.dispatchEvent(new KeyboardEvent(type,{key:'c',code:'KeyC',bubbles:true,cancelable:true}));
+   const duration=performance.now()-start,heldAfterRelease=k.held('c');
+   await new Promise((resolve,reject)=>{const poll=()=>{if(d.P.st==='pound')resolve();else if(performance.now()-start>5000)reject(Error('Same-task C edge lost by production runtime'));else requestAnimationFrame(poll)};requestAnimationFrame(poll)});
+   return{duration,heldAfterRelease,read,state:d.P.st};
+  }finally{k.pressed=original;d.go('hub')}
+ });
+ assert.equal(proof.heldAfterRelease,false);assert.equal(proof.read?.held,false);assert.equal(proof.read.gnd,false);assert(proof.read.clearance>.9);assert.equal(proof.state,'pound');
+ await writeFile(path.join(dir,'input-queue-room.json'),JSON.stringify(proof,null,2));console.log('RUNTIME INPUT PASS '+JSON.stringify(proof));
+}
 async function room(){
  const account='Hop'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
  const f=await roomFixture(base,{account,password,signup:false,onPage:async page=>{if(before)await page.route('**/js/rm-g-hop.js*',r=>r.fulfill({body:source,contentType:'application/javascript'}))}});browser=f.browser;p=f.page;
@@ -387,6 +424,7 @@ async function room(){
   assert(await p.evaluate(()=>{let yes=false;House.scene.traverse(o=>{if(o.material?.map?.userData?.jackLive&&o.material.map.image===RoomTV.dbg().cv)yes=true});return yes}),'Telly shows live game canvas');
   assert(await p.evaluate(()=>RoomTV.dbg().cv.width===320&&RoomTV.dbg().cv.height===240),'Native cartridge resolution');
   if(!before){
+   await runtimeShortPress();
    await p.evaluate(()=>{const buttons=Array.from({length:16},()=>({pressed:false,value:0}));window.hopPad={id:'Review standard pad',index:0,connected:true,mapping:'standard',buttons,axes:[1,0,0,0]};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[hopPad]});window.hopX=__hopDbg.P.x});
    await f.until(()=>GameInput.mode==='gamepad'&&__hopDbg.P.x>hopX+.3);await p.evaluate(()=>hopPad.axes=[.12,.08,0,0]);await f.until(()=>Math.hypot(__hopDbg.P.vx,__hopDbg.P.vz)<.01);const rest=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.z]);await p.waitForTimeout(500);assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.z]),rest,'Resting stick does not drift');
    await p.evaluate(()=>{hopPad.axes=[0,0,0,0];hopPad.buttons[0]={pressed:true,value:1}});await f.until(()=>!__hopDbg.P.gnd);await p.evaluate(()=>hopPad.buttons[0]={pressed:false,value:0});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await p.evaluate(()=>hopPad.buttons[4]={pressed:true,value:1});await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);await p.evaluate(()=>hopPad.buttons[4]={pressed:false,value:0});await f.until(()=>!RoomTV.dbg().held('l'));await p.screenshot({path:path.join(dir,'gamepad-camera.png')});
@@ -432,7 +470,16 @@ async function phone(){
   const r=await p.locator('.rm-pad .rm-stick').boundingBox();assert(r,'Phone movement pad');const x=await p.evaluate(()=>__hopDbg.P.x);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:r.x+r.width*.85,y:r.y+r.height*.5,id:1}]});await f.until(x=>__hopDbg.P.x>x+.3,x);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await f.until(()=>Math.hypot(__hopDbg.P.vx,__hopDbg.P.vz)<.1);
   await press('.rm-pad [data-b="a"]');await f.until(()=>!__hopDbg.P.gnd);await p.screenshot({path:path.join(dir,'phone-touch-jump.png')});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await press('.rm-pad [data-b="l"]');await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);
   await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);
-  await p.evaluate(()=>{__hopDbg.go('brolly');const s=__hopDbg.powerSwitch;__hopDbg.tp(s.x,s.y,s.z);window.hopFloor=__hopDbg.P.y});const jumpA=await p.locator('.rm-pad [data-b="a"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:jumpA.x+jumpA.width/2,y:jumpA.y+jumpA.height/2,id:2}]});await f.until(()=>__hopDbg.P.y>hopFloor+1.8);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});const poundC=await p.locator('.rm-pad [data-b="c"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:poundC.x+poundC.width/2,y:poundC.y+poundC.height/2,id:2}]});await f.until(()=>__hopDbg.P.st==='pound'||!!__hopDbg.prog.powers.brolly);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await f.until(()=>!!__hopDbg.prog.powers.brolly);await p.evaluate(()=>{const b=__hopDbg.powerBoxes()[0];__hopDbg.tp(b.x-1.1,b.y,b.z)});await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.power==='brolly');console.log('PHONE BROLLY: switch and box passed');const flyStick=await p.locator('.rm-pad .rm-stick').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:flyStick.x+flyStick.width*.5,y:flyStick.y+flyStick.height*.12,id:1}]});await f.until(()=>__hopDbg.P.y>14);console.log('PHONE BROLLY: reached launch');await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});const flyA=await p.locator('.rm-pad [data-b="a"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:flyA.x+flyA.width/2,y:flyA.y+flyA.height/2,id:2}]});await f.until(()=>__hopDbg.P.gliding&&__hopDbg.P.vy<0);await p.screenshot({path:path.join(dir,'phone-brolly-glide.png')});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await p.evaluate(()=>{__hopDbg.go('brolly');const s=__hopDbg.powerSwitch;__hopDbg.tp(s.x,s.y,s.z);window.hopFloor=__hopDbg.P.y});
+  const buttons=await p.evaluate(()=>Object.fromEntries(['a','c'].map(b=>{const r=document.querySelector('.rm-pad [data-b="'+b+'"]').getBoundingClientRect();return[b,{x:r.x+r.width/2,y:r.y+r.height/2,id:2}]})));
+  await p.evaluate(()=>{window.hopPoundTouch=null;const onC=e=>{if(!e.target.closest('[data-b="c"]'))return;const d=__hopDbg;window.hopPoundTouch={y:d.P.y,clearance:d.P.y-hopFloor,vy:d.P.vy,gnd:d.P.gnd,st:d.P.st,frame:RoomTV.dbg().frame};document.removeEventListener('pointerdown',onC,true)};document.addEventListener('pointerdown',onC,true)});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[buttons.a]});
+  await p.evaluate(()=>new Promise((resolve,reject)=>{const start=performance.now(),poll=()=>{const P=__hopDbg.P;if(!P.gnd&&P.y>hopFloor+1.1&&P.vy>0)resolve();else if(performance.now()-start>5000)reject(Error('Touch jump never reached rising pound clearance'));else requestAnimationFrame(poll)};requestAnimationFrame(poll)}));
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[buttons.c]});
+  const poundTouch=await p.evaluate(()=>hopPoundTouch);assert(poundTouch&&!poundTouch.gnd&&poundTouch.clearance>.9,'C must actually arrive airborne with clearance: '+JSON.stringify(poundTouch));
+  console.log('PHONE POUND INPUT '+JSON.stringify(poundTouch));await writeFile(path.join(dir,'input-touch-phone.json'),JSON.stringify(poundTouch,null,2));
+  await f.until(()=>__hopDbg.P.st==='pound'||!!__hopDbg.prog.powers.brolly);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await f.until(()=>!!__hopDbg.prog.powers.brolly);await p.evaluate(()=>{const b=__hopDbg.powerBoxes()[0];__hopDbg.tp(b.x-1.1,b.y,b.z)});await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.power==='brolly');console.log('PHONE BROLLY: switch and box passed');const flyStick=await p.locator('.rm-pad .rm-stick').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:flyStick.x+flyStick.width*.5,y:flyStick.y+flyStick.height*.12,id:1}]});await f.until(()=>__hopDbg.P.y>14);console.log('PHONE BROLLY: reached launch');await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});const flyA=await p.locator('.rm-pad [data-b="a"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:flyA.x+flyA.width/2,y:flyA.y+flyA.height/2,id:2}]});await f.until(()=>__hopDbg.P.gliding&&__hopDbg.P.vy<0);await p.screenshot({path:path.join(dir,'phone-brolly-glide.png')});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   await p.evaluate(()=>__hopDbg.go('grotto'));const waterStick=await p.locator('.rm-pad .rm-stick').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:waterStick.x+waterStick.width*.5,y:waterStick.y+waterStick.height*.12,id:1}]});await f.until(()=>__hopDbg.P.swimming);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   const dive=await p.locator('.rm-pad [data-b="c"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:dive.x+dive.width/2,y:dive.y+dive.height/2,id:2}]});await f.until(()=>__hopDbg.P.y<-3);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.screenshot({path:path.join(dir,'phone-swimming.png')});
   await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.paused);await p.screenshot({path:path.join(dir,'phone-touch-portrait.png')});const pose=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]);await p.setViewportSize({width:844,height:390});await p.waitForTimeout(800);assert(await p.evaluate(()=>__hopDbg.paused));assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]),pose,'Rotation preserves player');await p.screenshot({path:path.join(dir,'phone-touch-landscape.png')});
