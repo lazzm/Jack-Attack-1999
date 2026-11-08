@@ -69,9 +69,9 @@ await withTestServer(async base=>{
    return tx&&{width:tx.image.width,mips:tx.generateMipmaps,aniso:tx.anisotropy,hudMips:tx.userData.hud.generateMipmaps,hudAniso:tx.userData.hud.anisotropy,throttled:!Room._.tvLive(cv,hud,'n64')};
   });assert(live,'Visible CRT did not upload');assert(live.width<=2048);assert.equal(live.mips,false);assert.equal(live.aniso,1);assert.equal(live.hudMips,false);assert.equal(live.hudAniso,1);assert(live.throttled);
   await view([-120,-55,160],[100,-55,250]);assert.equal(await p.evaluate(()=>Room._.tvLive(...stage0Live,'n64')),null,'Off-camera CRT uploaded');
-  // The invisible ladder: lamps, screen rate and resolution only step on dense displays (1x here keeps 1).
+  // The invisible ladder: lamps, screen rate and resolution only step on dense displays (1x here keeps 1). The lowest level keeps one lamp (2.79.0: the genuinely cheap floor).
   const ladder=await p.evaluate(()=>{const out=[];for(const level of [0,2,5]){House.adapt(level,{pin:true});House._.renderForBenchmark();out.push({level,lamps:House.root.children.filter(o=>o.isPointLight&&o.visible).length,rate:House.screenRate(false),pr:House.Q.pixelRatio})}House.adapt(0,{pin:true});return out});
-  assert.deepEqual(ladder.map(l=>[l.lamps,l.rate,l.pr]),[[5,60,1],[3,30,1],[3,20,1]],JSON.stringify(ladder));
+  assert.deepEqual(ladder.map(l=>[l.lamps,l.rate,l.pr]),[[5,60,1],[3,30,1],[1,20,1]],JSON.stringify(ladder));
   // The hidden counter (migrated above) survives a refresh.
   await p.waitForTimeout(700);assert(await p.locator('.hs-perf').isVisible());assert.match(await p.locator('.hs-perf').innerText(),/ms/);
   await p.screenshot({path:shots+'graphics-counter.png'});
