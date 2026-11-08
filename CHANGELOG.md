@@ -3,6 +3,7 @@
 ## 2.79.0 - 2026-11-08
 - New players are always welcomed by name. Mom's first greeting could be used up while the house was still hidden behind sign-up, so some new players never heard it. Now she calls out within a few seconds of you arriving, and it still never replays after a refresh. She also no longer says your name twice ("Sarah? SARAH!").
 - Slower computers and phones run faster. When a device struggles, the game's simplest lighting now really is simple: in testing it runs faster than before the new lighting arrived, while the full lighting looks exactly as it did.
+- Verified: all unit checks, Chapter 1, owner tools, Halloween (now passing in the full check too), door walking, Zeldo, Bonfire end to end and its art check, phones (walking frames about twice as fast as 2.78.0 in software rendering, same draw calls), voices 9/9, characters, zero, Bounce Quest 64, cupboard, voice recordings, identity with the welcome arriving within 2 seconds, people pass 3 of 3, smoke.
 
 ## 2.78.0 - 2026-11-07
 - Talking to the family feels personal. When you walk up and talk, Mom, Dad and your sister look down at you, and the view eases up to their face (move the mouse or your thumb and it lets go at once). If you're standing right on top of them, they take a small half-step back. Nothing covers their face while they talk to you, and on phones the objective note moves down out of the way.
