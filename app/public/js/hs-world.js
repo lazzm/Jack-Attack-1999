@@ -34,7 +34,7 @@
   // No options and no tiers: full-resolution mipmapped textures with anisotropy, Phong, the 5-lamp rig, MSAA and a sharp
   // drawing buffer (device pixels up to 2, 1.75 on handhelds). Speed comes from merging static geometry (js/hs-static.js),
   // culling and pacing. A device that still can't keep up is adapted INVISIBLY, one rung at a time (Q.adapt, ADAPT below):
-  // draw distance, then per-pixel lamps, then screen refresh, then a small sharp resolution step (never below 0.85, and
+  // draw distance, then per-pixel lamps and screen refresh, then baked/vertex diffuse and a small sharp resolution step (never below 0.85, and
   // only on dense displays where 0.85 is still more than one pixel per CSS pixel). Never the blurry low-resolution look.
   // Old per-device graphics settings (jhp_hs_gfx / jhp_hs_graphics) are dropped; the FPS counter survives as a hidden
   // debug option (localStorage jhp_hs_fps, or House.showFps(true)).
@@ -43,8 +43,8 @@
     { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: outdoor atmosphere, fewer portal routes, screens 30 Hz
     { far: 1, lamps: 3, screenHz: 30, scale: 1 },     // 2: the three strongest lamps light per pixel
     { far: 1, lamps: 3, screenHz: 20, scale: 1 },     // 3: screens 20 Hz
-    { far: 1, lamps: 3, screenHz: 20, scale: .925 },  // 4: a small resolution step (dense displays only)
-    { far: 1, lamps: 3, screenHz: 20, scale: .85 },   // 5: the floor
+    { far: 1, lamps: 3, screenHz: 20, scale: .925 },  // 4: baked/vertex diffuse; resolution step on dense displays only
+    { far: 1, lamps: 1, screenHz: 20, scale: .85 },   // 5: one vertex lamp; baked pools and doorway spill remain
   ];
   const Q = (function () {
     const old = ls.get('jhp_hs_graphics', null);
@@ -151,6 +151,7 @@
     if (!sized) try { if (live && !rendering && mode !== 'off') render(); } catch (e) { if (!(e instanceof ReferenceError)) console.error(e); }
   }
   let rendering = false;
+  var wdPending = null; // a low-rung watchdog transfer attached to the next real room draw
   // the lens: P.zm 1 is the PC's lens (boot.js's CSS stage, perspective PERSP em: about 41 degrees vertical), used at the
   // desk and for the fly-in. Walking uses a wider lens, WZ: about 60 degrees vertical in landscape, at least 50 degrees
   // across in portrait (so a phone held upright still sees a room, not a slot), never wider than 95 degrees across.
@@ -2817,7 +2818,8 @@
   },500);
   // Invisible adaptation. Only consecutive demanded frames count (ambient animation deliberately runs at 20 Hz and must
   // not be mistaken for a struggling device). Down a rung after two slow windows (< 40 FPS), at most every 4 s; back up
-  // after 12 s at full pace and never within 20 s of a step down. The level is remembered per device and GPU.
+  // after 12 good windows, never within 20 s of a step down (60 s for either lighting rung).
+  // The level is remembered per device and GPU.
   let lastR=0,goodBudget=0,slowBudget=0,lastDown=0,lastStep=0;
   function fpsTick(now,continuous){
     const f=Q.f;
@@ -2841,7 +2843,7 @@
       if(++slowBudget>=2&&Q.adapt<ADAPT.length-1&&now-lastStep>4000){slowBudget=0;lastDown=lastStep=now;adaptTo(Q.adapt+1)}
     }else if(Q.fps>=55&&Q.adapt>0){
       slowBudget=0;
-      if(++goodBudget>=12&&now-lastDown>(Q.adapt===4?60000:20000)&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
+      if(++goodBudget>=12&&now-lastDown>(Q.adapt>=4?60000:20000)&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
     }else{goodBudget=0;slowBudget=0}
   }
   function adaptTo(level,o){
@@ -2927,7 +2929,7 @@
   }
   function backgroundCovered(){if(monitor&&desktopFull&&!glass.lockAnim||window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
-  function render() { rendering = true; try { renderNow(); } finally { try { window.HouseVFX?.afterRender(); } finally { rendering = false; } } }
+  function render() { rendering = true; try { renderNow(); } finally { try { window.HouseVFX?.afterRender(); } finally { rendering = false; wdPending?.(false); } } }
   function renderNow() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
@@ -3421,6 +3423,24 @@
     }catch(e){cleanup();return false}
   }
   let wdReading=false;
+  // A struggling device must not render the entire house a second time just
+  // to test eleven pixels. Queue the same nonblocking transfer at the end of
+  // its next normal draw. Idle/stalled loops still get the original watchdog
+  // draw after one check interval; covered/lost contexts are never read.
+  function wdQueueSample(sampled){
+    const gl=ren.getContext();
+    if(Q.adapt<4||!gl.fenceSync||!gl.getBufferSubData)return false;
+    wdReading=true;
+    const pending=force=>{
+      if(wdPending!==pending)return;
+      wdPending=null;
+      if(!live||document.hidden||window.AccountGate?.blocked||backgroundCovered()||glLost()||viewOpen()||['off','follow','pcboot','shutdown'].includes(mode)){sampled(null);return}
+      wdReading=wdAsyncSample(gl,force?render:()=>{},sampled);
+      if(!wdReading)sampled(wdSample());
+    };
+    wdPending=pending;setTimeout(()=>pending(true),1500);
+    return true;
+  }
   function wdCheck() {
     if (!live || document.hidden || window.AccountGate?.blocked || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
@@ -3448,7 +3468,7 @@
         if (lit2) visCalc();
       }
       };
-      wdReading=wdAsyncSample(ren.getContext(),render,sampled);if(!wdReading)sampled(wdSample());
+      if(!wdQueueSample(sampled)){wdReading=wdAsyncSample(ren.getContext(),render,sampled);if(!wdReading)sampled(wdSample());}
       const e = document.elementFromPoint(innerWidth / 2, innerHeight / 2);
       if (e && e !== cv && e !== cv2 && e.id && /^(boot|crt|saver)/i.test(e.id) && getComputedStyle(e).backgroundColor !== 'rgba(0, 0, 0, 0)') wdDiag('overdraw', e.id + '.' + e.className);
     } catch (e) { console.error(e); }
