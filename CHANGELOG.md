@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.81.0 - 2026-11-08
+- The family's mouths follow their recorded voices: they open with the loudness of the actual recording, take the shape of the sounds being said (closed for M and B, round for O, wide for E), and close on pauses. Lines without a recording still move in time with the words.
+- Faces show how they feel. Brows and eyes carry happy, cross, tired, cheeky, sad and thinking looks from what they're saying, blinks fall on pauses, and whoever is listening smiles at a joke.
+- Things look like what they're made of, round 2: the hoover has a stitched dust bag with a zip, seams, a cord wrap and a Dust Goblin badge; the wheelie bin has ribs and a painted house number; the kitchen worktop is speckled laminate with a trim; the stair runner is woven; the PC is yellowed beige with vents; the Game Lad has grippy panels; the sofa, quilt and curtains have weave and folds; taps are chrome, pans are brushed and heat-stained, mugs are glazed with the odd chip; the fence and shed are weathered. Slow devices skip the new reflections.
+
 ## 2.80.0 - 2026-11-08
 - Making the bed works wherever you press on the duvet or pillow, not just its edge.
 - On phones and tablets, fixing Dad's office PC is readable straight away: the recovery screen fills the screen with big buttons, no need to find the close-up view first.
