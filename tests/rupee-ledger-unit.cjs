@@ -15,5 +15,15 @@ const assert=require('node:assert/strict');
  const evaluate=fn=>vm.runInContext('('+fn.toString()+')()',doc),c={page:{evaluate},until:async fn=>assert(evaluate(fn),'Observer did not receive the snapshot')};vm.createContext(c);vm.runInContext(code,c);
  fresh();assert.equal((await c.economy()).bal,174);assert.equal(doc.listeners.length,1);
  fresh();assert.equal((await c.economy()).bal,174,'Reload lost the money observer');await c.economy();assert.equal(doc.listeners.length,1,'Repeated reads duplicated observers');
+ // apps-econ keeps the received ecMe object, then ecEarn changes its bal in
+ // place. An earning can arrive between the observer's wait and its read.
+ fresh();const snapshot={t:'ecMe',bal:174,earned:174,spent:0,log:[]};
+ doc.Net.send=()=>doc.listeners.forEach(fn=>fn(snapshot));
+ c.until=async fn=>{assert(evaluate(fn));snapshot.bal=177;};
+ const captured=await c.economy();assert.equal(captured.bal,174,'A later ecEarn mutated the captured server snapshot');
+ const play={t:'ecMe',bal:177,earned:177,spent:0,log:[[Date.now(),3,'play','Playing on the PC',177]]};
+ doc.Net.send=()=>doc.listeners.forEach(fn=>fn(play));c.until=async fn=>assert(evaluate(fn));
+ const recorded=await c.economy();assert.equal(reconcileRupees(captured,recorded,0,'concurrent play')[0][2],'play');
+ assert.throws(()=>reconcileRupees(captured,{...recorded,log:captured.log},0,'missing play record'),/without a server record/);
  console.log('RUPEE LEDGER PASS: incidental credits identified; duplicate seasonal payments, missing rows, wrong balances and earned counters rejected');
 })().catch(e=>{console.error(e);process.exitCode=1});

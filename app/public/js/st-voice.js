@@ -83,7 +83,13 @@
       if(display.includes('{')&&window.Cast?.t)display=window.Cast.t(display);
       if(String(text).includes(display))return text;
       const plain=(window.VoiceLines||window.NPCLines)?.[id]?.[1];
-      return plain && String(text).includes(plain) ? String(text).replace(plain,display) : display;
+      const at=plain ? String(text).indexOf(plain) : -1;
+      if(at<0)return display;
+      const prefix=String(text).slice(0,at),suffix=String(text).slice(at+plain.length);
+      // hs-life already addresses the player. Replace that address along with
+      // the plain line, so "Sarah?" never becomes "Sarah? SARAH!".
+      const addressed=prefix.trim().replace(/[!?,.…:]+$/,'').trim().toLowerCase()===first.toLowerCase();
+      return (addressed?'':prefix)+display+suffix;
     }
     const n=nameInfo(id,o), source=String(text);
     // Dynamic writing may already address Sarah with different punctuation.

@@ -608,11 +608,15 @@
       const stale = speech.q.shift(); stale.c.talking = false; stale.c.hold = 0; if(stale.talk && stale.c.present) acknowledge(stale.c); save();
     }
     const n0 = speech.q[0]; if (!n0) return;
-    if (document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on')) return;
+    const welcome=n0.context?.kind==='welcome';
+    // The first greeting needn't wait for the two startup instruction cards.
+    // Its off-screen bubble uses the existing layout's keep-out rectangles.
+    const busyNote=document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on');
+    if (busyNote && (!welcome || document.querySelector('.hs-voice.on,.hs-call.on') || [...document.querySelectorAll('.rm-note.on')].some(n=>!['Have a look round','My room'].includes(n.querySelector('b')?.textContent)))) return;
     n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
     n0.text = window.st?.voiceText?.(n0.lineId, n0.base,n0) || n0.base;
     const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId,n0);
-    if (rec && !window.st.voiceReady?.(n0.lineId,n0)) { // (give the recording a moment to arrive, so the words and the voice start together)
+    if (!welcome && rec && !window.st.voiceReady?.(n0.lineId,n0)) { // (the first welcome shows its name promptly even while audio is loading)
       if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId,n0); } catch (e) {} }
       if (t - n0.waitFrom < 4000) return;
     }
@@ -621,7 +625,7 @@
     const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
     const who = label(n.c) + (place ? ' ' + place : '');
     const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
-    const bubble = !!(anchor && window.NPCBubble?.ok());
+    const bubble = !!((anchor || welcome) && window.NPCBubble?.ok());
     if (!V3 && window.THREE) { V3 = new THREE.Vector3(); voiceDirection = new THREE.Vector3(); }
     let voice = null;
     try {
@@ -631,7 +635,7 @@
         through: () => window.Sound?.occlusion ? Sound.occlusion(c.room) : !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
     } catch (e) { console.error(e); }
     if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
-    if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
+    if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice:welcome&&!voice?.started?null:voice, shout: !n.person });
     if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice);
     if (here && n.gesture) c.rig.acknowledge(/smile/i.test(n.text)?'smile':'nod');
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
@@ -1114,7 +1118,7 @@
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { motion:3, x:c.x, z:c.z, k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
-    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,requested:n.requested,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
+    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (n!==speech.cur || !speech.voice?.ended && n.context?.kind!=='welcome')).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,requested:n.requested,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
     ls.set(SKEY(), o);
   }
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q || SPOT[k].childSeat === q) || null;
@@ -1179,7 +1183,10 @@
   const still = () => ['focus', 'inspect', 'monitor', 'pcboot', 'shutdown'].includes(H.mode);
   function kick() { if (ready && H.live && !H.anims.has('np') && !still() && chars.some(visible)) H.anims.set('np', frame); }
   setInterval(() => {
-    if (!ready || !H.live || document.hidden) return;
+    if (!H.live || document.hidden) return;
+    // Shouting from downstairs needs no rig. Deliver the first welcome while
+    // the rest of the house/people are still being built on a slow device.
+    if (!ready) { if (window.AccountGate?.allowed && (speech.cur?.context?.kind==='welcome' || speech.q[0]?.context?.kind==='welcome')) speechTick(); return; }
     const now = nowMs();
     if (H.anims.has('np') && now - lastFrame < 300) return;
     const dt = Math.min(0.25, (now - (lastT || now)) / 1000); lastT = now;

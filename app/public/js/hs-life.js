@@ -385,16 +385,17 @@
     get S() { return S; }, save,
   };
   // the life starts: a welcome, then the shouting and the phone
-  // Mom greets by name, so wait (briefly) for the signed-in identity; never say "you? Is that you".
+  // A starter profile can reload this document after signup. Never consume the
+  // welcome behind that gate: its queued line would be lost, but np-life's
+  // account-scoped heard memory would correctly refuse it in the next document.
   const named = () => { try { return window.Cast && Cast.me().first !== 'you'; } catch (e) { return false; } };
-  const hello = tries => {
+  const hello = () => {
     if (S.hello) return;
-    if (!named() && tries < 30) return setTimeout(() => hello(tries + 1), 500);
+    if (!H.live || !window.AccountGate?.allowed || document.hidden || document.querySelector('.hs-loading,#houseEntry') || !named()) return setTimeout(hello, 500);
     S.hello = 1; save(); const tea = part() === 'tea';
-    voice('MOM', named() ? (tea ? "{me}! Is that you? Tea's nearly ready!" : "{me}? Is that you coming down? Put the kettle on, love!")
-      : tea ? 'Is that you? Tea\'s nearly ready!' : 'Is that you coming down? Put the kettle on, love!');
+    voice('MOM', tea ? "{me}! Is that you? Tea's nearly ready!" : "{me}? Is that you coming down? Put the kettle on, love!", undefined, {kind:'welcome'});
   };
-  setTimeout(() => hello(0), 2500);
+  setTimeout(hello, 2500);
   shoutLoop(); ringLoop();
   if (now99().dow === 6) setTimeout(pocket, 6000);
 })();

@@ -18,7 +18,11 @@ const password='Throwaway-1999',GY=353,EID='halloween99';
 const t0=Date.now(),log=(...a)=>console.log(((Date.now()-t0)/1000).toFixed(1).padStart(6)+'s',...a);
 const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
 assert(reg.ok||reg.status===409||reg.status===400,'admin register '+reg.status);
-const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:true,opening:true,storageState:await loginFixture(base,password,'Jack',{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0})});
+const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:true,opening:true,storageState:await loginFixture(base,password,'Jack',{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),onPage:page=>{
+ // Keep wire evidence of incidental rewards, including the five-minute play
+ // earning which often lands during this test on a loaded software renderer.
+ page.on('websocket',socket=>socket.on('framereceived',({payload})=>{let m;try{m=JSON.parse(String(payload))}catch{return}if(m.t==='ecEarn')log('server earning',JSON.stringify(m));}));
+}});
 const {page,until,view,errors}=f;
 const EYE=await page.evaluate(()=>House.STAND||128); // (the live standing eye height)
 let failed=null;
@@ -28,7 +32,10 @@ try{
  let rid=0;
  async function owner(action,args={}){const id='t'+(++rid)+'-'+Date.now();await page.evaluate(([id,action,args])=>Net.send({t:'ownerAction',rid:id,action,...args}),[id,action,args]);await until(`!!window.__own['${id}']`);const r=await page.evaluate(id=>window.__own[id],id);assert(r.ok,'owner '+action+': '+r.msg);await page.waitForTimeout(300);return r;}
  async function clock(date,hour){await owner('clock',{date,hour});await until(`OwnerTools.clock?.date==='${date}'&&OwnerTools.clock.hour===${hour}`);await page.waitForTimeout(600);}
- async function economy(){await page.evaluate(()=>{window.__ec=null;if(!window.__halloweenECBound){Net.on('ecMe',m=>window.__ec=m);window.__halloweenECBound=true;}Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec);}
+ // Econ's UI retains m and updates m.bal on ecEarn. Capture the complete wire
+ // snapshot now, before a later play/discovery earning can pair a new balance
+ // with this snapshot's older ledger and counters. The next read includes it.
+ async function economy(){await page.evaluate(()=>{window.__ec=null;if(!window.__halloweenECBound){Net.on('ecMe',m=>window.__ec=JSON.parse(JSON.stringify(m)));window.__halloweenECBound=true;}Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec);}
  let moneyCheckpoint;
  function auditMoney(current,expected,label){const rows=reconcileRupees(moneyCheckpoint,current,expected,label);for(const [at,amount,source,note,balance]of rows)log('balance change',JSON.stringify({at,amount,source,note,balance}));moneyCheckpoint=current;return rows;}
  const st=()=>page.evaluate(id=>Season.st(id),EID);

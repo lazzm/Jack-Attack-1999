@@ -9,6 +9,7 @@ import {chromium} from 'playwright';
 import {fixtureRaster} from './room-fixture.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url)), shots=root+'tests/shots/identity-house/';
 const selection=process.argv.find(a=>a.startsWith('--case='))?.slice(7)||'all';
+const welcomeOnly=process.argv.includes('--welcome-only');
 assert(['all','sarah','nonowner','owner'].includes(selection));
 // Release each software-WebGL renderer completely before building the next house.
 if(selection==='all'){
@@ -25,7 +26,7 @@ const delay=ms=>new Promise(r=>setTimeout(r,ms));
 async function freePort(){for(let port=18080;port<=18099;port++){const s=net.createServer();try{await new Promise((resolve,reject)=>{s.once('error',reject);s.listen(port,resolve)});await new Promise(r=>s.close(r));return port}catch{}}throw Error('No free test port')}
 const port=await freePort(), base='http://127.0.0.1:'+port;
 async function until(page,fn,timeout=90000){const end=Date.now()+timeout;while(Date.now()<end){let timer;try{const value=await Promise.race([page.evaluate('Boolean(('+String(fn)+')())'),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Browser stopped responding: '+fn)),30000)})]);if(value)return}catch(e){if(!/context was destroyed/.test(e.message))throw e}finally{clearTimeout(timer)}await delay(150)}console.log('Browser errors',errors);throw Error('Timeout: '+fn+' '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,allowed:window.AccountGate?.allowed,loading:!!document.querySelector('.hs-loading,#houseEntry'),gate:document.querySelector('#accountGate')?.textContent}))))}
-function observe(page){page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});page.setDefaultTimeout(20000);page.setDefaultNavigationTimeout(90000)}
+function observe(page){page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.text()==='IDENTITY_WELCOME_VISIBLE')page.identityWelcomeCapture=page.screenshot({path:shots+'sarah-welcome-live.png'}).catch(e=>errors.push(e.message));if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});page.setDefaultTimeout(20000);page.setDefaultNavigationTimeout(90000)}
 async function credentials(page,account,first,g,signup=true){
  await fixtureRaster(page);
  await page.addInitScript(()=>{
@@ -33,7 +34,24 @@ async function credentials(page,account,first,g,signup=true){
   // Observe the actual canvas ink and SVG raster jobs, rather than duplicating production wording.
   window.identityInk=[];window.identitySVG=[];
   // Every family line spoken, so a later shout can't hide the welcome under load.
-  window.identityVoices=[];setInterval(()=>{for(const e of document.querySelectorAll('.hs-note.on,.np-bub')){const t=e.textContent;if(t&&window.identityVoices.at(-1)!==t)window.identityVoices.push(t)}},50);
+  window.identityVoices=[];window.identityHouseAt=0;
+  setInterval(()=>{
+   if(!window.AccountGate?.allowed||!window.House?.live||document.querySelector('.hs-loading,#houseEntry'))return;
+   if(!identityHouseAt)identityHouseAt=Date.now();
+   for(const e of document.querySelectorAll('.hs-note.on,.np-bub')){const t=e.textContent;if(t&&window.identityVoices.at(-1)!==t)window.identityVoices.push(t);if(/\bSarah[!?].*Is that you/i.test(t)&&!window.identityWelcomeNotified){window.identityWelcomeNotified=true;console.log('IDENTITY_WELCOME_VISIBLE');}}
+  },50);
+  // Keep delivery evidence separate from the assertion: captions can use the
+  // bedroom's note as well as the house note or an in-person bubble.
+  window.identityDelivery=JSON.parse(sessionStorage.getItem('identityDelivery')||'[]');window.identityCaptions=JSON.parse(sessionStorage.getItem('identityCaptions')||'[]');
+  addEventListener('pagehide',()=>{sessionStorage.setItem('identityDelivery',JSON.stringify(identityDelivery));sessionStorage.setItem('identityCaptions',JSON.stringify(identityCaptions));});
+  const observed=new Set();
+  setInterval(()=>{
+   for(const e of document.querySelectorAll('.rm-note.on,.np-bub')){const text=e.textContent;if(text&&identityCaptions.at(-1)?.text!==text)identityCaptions.push({at:Date.now(),text});}
+   for(const [owner,key] of [[window.st,'speakLine'],[window.st,'say'],[window.Room,'say'],[window.HouseFamily,'speak']]){
+    if(!owner?.[key]||observed.has(owner[key]))continue;
+    const original=owner[key];owner[key]=function(...args){const before=key==='speak'?{now:Date.now(),heard:owner.heardAt(args[1]),said:owner.chars[args[0]]?.said[args[1]],allowed:window.AccountGate?.allowed,live:window.House?.live,loading:!!document.querySelector('.hs-loading,#houseEntry'),options:args[3],line:window.NPCLines?.[args[1]],character:!!owner.chars[args[0]]}:undefined;const result=original.apply(this,args);identityDelivery.push({at:Math.round(performance.now()),via:key,args:args.slice(0,3),before,result:typeof result==='boolean'?result:undefined});return result};observed.add(owner[key]);
+   }
+  },50);
   const fill=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,...args){const s=String(text);if(window.identityInk.length<30000)window.identityInk.push(s);return fill.call(this,text,...args)};
   const url=URL.createObjectURL;
@@ -81,9 +99,23 @@ try{
  browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  if(chosen('sarah')){
  const context=await browser.newContext({viewport:{width:1366,height:860}}),page=await context.newPage();observe(page);
- await credentials(page,'Sarah','Sarah','f');console.log('Sarah account ready');await house(page);console.log('Sarah house ready');
+ await credentials(page,'Sarah','Sarah','f');console.log('Sarah account ready');await house(page);console.log('Sarah house ready',await page.evaluate(()=>({at:Math.round(performance.now()),hello:HouseLife.S.hello,familyReady:HouseFamily?.ready})));
  // Observe the natural welcome before the gallery's House.hush clears queued notes.
- await until(page,()=>identityVoices.some(t=>t.includes('Sarah')),30000).catch(async e=>{throw Error(e.message+' voices='+JSON.stringify(await page.evaluate(()=>identityVoices)))});
+ await until(page,()=>identityVoices.some(t=>/\bSarah[!?].*Is that you/i.test(t)),10000).catch(async e=>{console.log('WELCOME DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({delivery:identityDelivery,captions:identityCaptions,hello:HouseLife.S.hello,voiceBusy:st.voiceBusy,savedCues:localStorage.getItem('jhp_voice_queue.sarah'),queue:HouseFamily?.debug?.speech.q.map(n=>({id:n.lineId,text:n.text})),current:HouseFamily?.debug?.speech.cur?.text,notes:[...document.querySelectorAll('.rm-note,.np-bub')].map(e=>({cls:e.className,text:e.textContent}))}))));await shot(page,'sarah-welcome-failure');throw Error(e.message+' voices='+JSON.stringify(await page.evaluate(()=>identityVoices)))});
+ console.log('WELCOME DELIVERY',JSON.stringify(await page.evaluate(()=>identityDelivery.filter(n=>n.args.some(a=>typeof a==='string'&&a.includes('kettle'))))));
+ const welcomeDelay=await page.evaluate(()=>identityCaptions.find(n=>/\bSarah[!?].*Is that you/i.test(n.text))?.at-identityHouseAt);
+ console.log('WELCOME TIMING',JSON.stringify({fromVisibleHouse:welcomeDelay}));assert(welcomeDelay>=-250&&welcomeDelay<=8000,'Welcome took '+welcomeDelay+'ms after the visible house');
+ assert(await page.evaluate(()=>identityDelivery.filter(n=>n.via==='speak'&&n.args[1]==='house.voice.1pe2qdm').every(n=>n.before.allowed&&n.before.live&&!n.before.loading&&n.result)),'Welcome was consumed behind the loading gate or refused by repeat memory');
+ await page.identityWelcomeCapture;
+ await shot(page,'sarah-welcome');
+ if(welcomeOnly){
+  const spoken=()=>identityDelivery.filter(n=>n.via==='say'&&n.args[0]==='house.voice.1pe2qdm').length;
+  const count=await page.evaluate(spoken);
+  await page.reload({waitUntil:'domcontentloaded'});await until(page,()=>window.AccountGate?.allowed&&window.HouseFamily?.ready&&!document.querySelector('.hs-loading,#houseEntry'));await page.waitForTimeout(3000);
+  assert.equal(await page.evaluate(spoken),count,'Refresh replayed Mom\'s welcome');
+  await context.close();console.log('PASS Sarah welcome and immediate refresh');
+ }
+ else {
  sarah=await checkRoom(page,'Sarah');
  await until(page,()=>!!House.THINGS['st.diary']);
  assert.equal(await page.evaluate(()=>House.THINGS['st.diary'].label),"Sarah's diary");
@@ -111,8 +143,11 @@ try{
  const parcelInk=await page.evaluate(()=>{let image;House.SPOTS['pm.parcel.pm.mag.03'].obj.traverse(o=>{for(const m of Array.isArray(o.material)?o.material:[o.material]){const c=m?.map?.image;if(c?.toDataURL&&c.width>=256&&Math.abs(c.width/c.height-1024/616)<0.02)image=c}});return image?.toDataURL()});assert(parcelInk);await writeFile(shots+'sarah-parcel-art.png',Buffer.from(parcelInk.split(',')[1],'base64'));
  await view(page,[-15,205,285],[-40,260,210],'G');await page.evaluate(()=>{House._.setMode('walk');HouseLife.use('fridge')});await until(page,()=>!House.gliding&&!!document.querySelector('.hs-fdoor'));await shot(page,'sarah-fridge');await page.keyboard.press('q');
  await view(page,[205,-55,210],[0,-15,10]);await page.setViewportSize({width:1024,height:768});await shot(page,'sarah-bedroom-1024');
- await page.evaluate(()=>House._.setMode('walk'));await page.waitForTimeout(800);const before=await page.evaluate(()=>({mode:House.mode,power:House.stood,first:Cast.me().first}));await page.reload({waitUntil:'domcontentloaded'});await until(page,()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));assert.deepEqual(await page.evaluate(()=>({mode:House.mode,power:House.stood,first:Cast.me().first})),before);assert.deepEqual(await cast(page),sarah);await shot(page,'sarah-refresh');await context.close();
+ await page.evaluate(()=>House._.setMode('walk'));await page.waitForTimeout(800);const before=await page.evaluate(()=>({mode:House.mode,power:House.stood,first:Cast.me().first}));await page.reload({waitUntil:'domcontentloaded'});await until(page,()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));assert.deepEqual(await page.evaluate(()=>({mode:House.mode,power:House.stood,first:Cast.me().first})),before);assert.deepEqual(await cast(page),sarah);await shot(page,'sarah-refresh');
+ await until(page,()=>window.HouseFamily?.ready);await page.waitForTimeout(3000);
+ assert.equal(await page.evaluate(()=>identityDelivery.filter(n=>n.via==='say'&&n.args[0]==='house.voice.1pe2qdm').length),1,'Refresh replayed Mom\'s welcome');await context.close();
  console.log('PASS Sarah: named HUD, welcome/Mom, her in family files, physical diary/fund/parcel, phone, refresh and two desktop sizes');
+ }
  }
  if(chosen('nonowner')){console.log('Starting non-owner Jack');
  const nonowner=await browser.newContext({viewport:{width:1366,height:860}}),np=await nonowner.newPage();observe(np);await credentials(np,'AnotherJack','Jack','m');await house(np);await checkRoom(np,'Jack');assert.equal(await np.evaluate(()=>House.THINGS['st.diary'].label),"Jack's diary");await nonowner.close();console.log('PASS fresh Jack-named non-owner: Jack at home, random family/mates, fixed online cast');
@@ -121,7 +156,7 @@ try{
  const registration=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});assert(registration.ok);
  const owner=await browser.newContext({viewport:{width:1366,height:860}}),op=await owner.newPage();observe(op);await credentials(op,'Jack','Jack','m',false);await house(op);await checkRoom(op,'Jack',true);await owner.close();console.log('PASS owner Jack: Crystal/Dave/Luke/Callum/JackK');
  }
- if(chosen('sarah')){
+ if(chosen('sarah')&&!welcomeOnly){
  const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'}),mp=await mobile.newPage();observe(mp);await credentials(mp,'Sarah','Sarah','f',false);
  // Phones play the whole game (device policy, 2026-10-26): Sarah's own house, her name and family on the phone too.
  await until(mp,()=>window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!sessionStorage.getItem('jhp_login_seat')&&!document.querySelector('.hs-loading,#houseEntry'));
