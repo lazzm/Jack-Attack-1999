@@ -1,0 +1,1150 @@
+{
+ "created": "2026-11-08",
+ "why": "Fifth batch: the rest of the 2.75.0 talk lines, recorded three lines per request with Received Pronunciation asked for. Each clip passed voice-qa (after repair), a transcript check (spelling and number differences only allowed) and an accent check.",
+ "accepted": {
+  "talk.dad.afternoon.04": {
+   "file": "talk.dad.afternoon.04.mp3",
+   "character": "dad",
+   "dur": 4.968,
+   "sha256": "f2dd3efbafa67a6048df2547be6827fb93c3674ba8ff87c38350800002de106d",
+   "heard": "I fixed a little thing earlier. Now I'm waiting to see what else stops working.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.afternoon.08": {
+   "file": "talk.dad.afternoon.08.mp3",
+   "character": "dad",
+   "dur": 5.328,
+   "sha256": "19169bfa407b0f8af4999f4db02f60be8ab12ad10c162b635bf3b6c771ecdc18",
+   "heard": "I've spent 10 minutes looking for something I was holding. Don't tell mom.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.context.chapter.1": {
+   "file": "talk.dad.context.chapter.1.mp3",
+   "character": "dad",
+   "dur": 4.416,
+   "sha256": "6677062386281f0d32117f431799af5cdc50cefff7674539fa57ea0aa5231aba",
+   "heard": "If something's fiddly, take your time. That goes for me as well, mind.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.context.console.u64": {
+   "file": "talk.dad.context.console.u64.mp3",
+   "character": "dad",
+   "dur": 6.168,
+   "sha256": "f938ee09dd81a122ae62b9314ecf66c3e8692130c7ddf7b80c3bc284911729ce",
+   "heard": "That Ultra 64's quite a machine. I still think the controller looks surprised.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.context.dow.1": {
+   "file": "talk.dad.context.dow.1.mp3",
+   "character": "dad",
+   "dur": 3.408,
+   "sha256": "bc89a011153bbffee7dd1bb1a9d0fe77603aae6012c090e1fad59b7250909875",
+   "heard": "Tuesday is an underrated day. Quietly gets on with it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.evening.02": {
+   "file": "talk.dad.evening.02.mp3",
+   "character": "dad",
+   "dur": 4.848,
+   "sha256": "14042a42eca5195816a036cd5e4edcea25d69a5afeded025dd8be695ad1fe05f",
+   "heard": "I've decided the rest of the evening needs very little supervision from me.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.console.dc": {
+   "file": "talk.mom.context.console.dc.mp3",
+   "character": "mom",
+   "dur": 4.944,
+   "sha256": "646e97d3221aae55cbf87fef96bb05e5f93e9884352d790a98ed2928575093d2",
+   "heard": "Is that your day dream? A lovely name. Don't start doing it through your homework.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.season.winter": {
+   "file": "talk.mom.context.season.winter.mp3",
+   "character": "mom",
+   "dur": 4.632,
+   "sha256": "608fee3e409edf9b83f78614558f0140da45fa17ef75307b10ea749473e20bcd",
+   "heard": "Winter does make the house feel cosy, apart from the cold bit by the door.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.evening.02": {
+   "file": "talk.mom.evening.02.mp3",
+   "character": "mom",
+   "dur": 4.968,
+   "sha256": "ecb260fcab1814ef62f2e4f58829636fcb3cf41f63901cd852381f6535eb5a6c",
+   "heard": "I'll put the kettle on in a minute. I'm letting it think it's retired.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.evening.04": {
+   "file": "talk.mom.evening.04.mp3",
+   "character": "mom",
+   "dur": 5.928,
+   "sha256": "5819d3147651dcc51b57b13809a292fa6db5162b6a71ed57ed1163ec8ff4e138",
+   "heard": "I like this time of day. Everything can wait until I've finished my tea.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.evening.07": {
+   "file": "talk.mom.evening.07.mp3",
+   "character": "mom",
+   "dur": 5.16,
+   "sha256": "d689ec5daa29cb0dc791e3138659fb0004862e3032da2843416117894caab868",
+   "heard": "I meant to mend that loose button tonight. It survived another dramatic episode.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.bins.remind.03": {
+   "file": "talk.mom.job.bins.remind.03.mp3",
+   "character": "mom",
+   "dur": 1.584,
+   "sha256": "342c33501953f823a9a5256041499d83e1361fb01e7a101c51a385e4a2ba564f",
+   "heard": "fresh bag afterwards, remember?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cushions.give.01": {
+   "file": "talk.mom.job.cushions.give.01.mp3",
+   "character": "mom",
+   "dur": 3.984,
+   "sha256": "69540453978860c1169412c3b93217b2ba73d30bcc7b4424fd9214b7a6988dba",
+   "heard": "Cushions back on the settee, plumped and standing on their corners, please.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cushions.give.02": {
+   "file": "talk.mom.job.cushions.give.02.mp3",
+   "character": "mom",
+   "dur": 3.72,
+   "sha256": "9cd9f8519092d491728ae76d7c858f0101e3af8a759fdc69d00927ec91bf3183",
+   "heard": "Could you plump the settee cushions? Put them back on their corners when they're ready.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cushions.remind.02": {
+   "file": "talk.mom.job.cushions.remind.02.mp3",
+   "character": "mom",
+   "dur": 1.968,
+   "sha256": "a670621a9f56c838760900d9fdcdcf23bc89d36df804f20c5c7e54706fd6541e",
+   "heard": "plump and back on their corners",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.hoover.give.01": {
+   "file": "talk.mom.job.hoover.give.01.mp3",
+   "character": "mom",
+   "dur": 4.536,
+   "sha256": "f137304484b2c51e4c03b37c55d5461e66a9ba5a6f03e3c7483691036ed99d4e",
+   "heard": "The vacuum's in the hall, plug it in, get the lounge crumbs, and put it back when you're done.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.hoover.remind.03": {
+   "file": "talk.mom.job.hoover.remind.03.mp3",
+   "character": "mom",
+   "dur": 2.496,
+   "sha256": "9b53a46a329d04788c9b071cc3eebc11a243b5b582b310b6058e77c8265b50c9",
+   "heard": "Hall vacuum love. Mind the cable.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.lawn.remind.01": {
+   "file": "talk.mom.job.lawn.remind.01.mp3",
+   "character": "mom",
+   "dur": 2.184,
+   "sha256": "9a910eed18a0ae828f9d3bf337edb02747a08a608c7825e85e58f55900c74f50",
+   "heard": "front lawn still needs doing",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.lawn.remind.02": {
+   "file": "talk.mom.job.lawn.remind.02.mp3",
+   "character": "mom",
+   "dur": 2.184,
+   "sha256": "e8e059610d0e7e2e4811eb9ad21d3b9ce4d2a00894544d40e68287efaeeafc14",
+   "heard": "Stripes love watch the cable",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.lawn.remind.03": {
+   "file": "talk.mom.job.lawn.remind.03.mp3",
+   "character": "mom",
+   "dur": 2.04,
+   "sha256": "3d8a0c6be744ab4eef905037e5b41b720faea83ef602bbef27fe487c74eaa435",
+   "heard": "Mower and lawn, remember?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.plant.give.01": {
+   "file": "talk.mom.job.plant.give.01.mp3",
+   "character": "mom",
+   "dur": 5.064,
+   "sha256": "a63115c8e514ebf7462bf8ff4969a40a7a3add958b4c890058bb98549be2fd6f",
+   "heard": "Water Gran's spider plant, take off the brown leaves, and turn it towards the light.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.plant.remind.02": {
+   "file": "talk.mom.job.plant.remind.02.mp3",
+   "character": "mom",
+   "dur": 2.376,
+   "sha256": "7d174cc1727ab470a6e647c7c5134ead4847e332436f44551cab24d5bccf91e8",
+   "heard": "A drink and a turn for the spider plant.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.sweep.give.01": {
+   "file": "talk.mom.job.sweep.give.01.mp3",
+   "character": "mom",
+   "dur": 4.8,
+   "sha256": "773804d8e762bc47aa6f42656eb0d74fa9ca8d722b3b28ef18ad32a1e7af34b9",
+   "heard": "Sweep the leaf piles on the drive and tip them into the green garden sack by the hedge.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.sweep.remind.02": {
+   "file": "talk.mom.job.sweep.remind.02.mp3",
+   "character": "mom",
+   "dur": 2.04,
+   "sha256": "aac2a547ca2d93dfb70f2edff486b1847e20352540e0803eb2604966ca05edd9",
+   "heard": "Sweep them into the green sack.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.sweep.remind.03": {
+   "file": "talk.mom.job.sweep.remind.03.mp3",
+   "character": "mom",
+   "dur": 1.728,
+   "sha256": "9c79a0944fcbcd1733f309b75e92f451776a9299fcc89403989203e576d11a18",
+   "heard": "The leaves are still waiting",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.table.remind.02": {
+   "file": "talk.mom.job.table.remind.02.mp3",
+   "character": "mom",
+   "dur": 1.608,
+   "sha256": "b88755c716eb8cf262de2c8035299865d8474824dfd1c6a420ddd20711c2b89d",
+   "heard": "Table still needs laying",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.table.remind.03": {
+   "file": "talk.mom.job.table.remind.03.mp3",
+   "character": "mom",
+   "dur": 1.848,
+   "sha256": "53c080f4c7875389825f5a276d4ccfa4da7ebba7411189172b1f55d2d871b3d6",
+   "heard": "Don't forget Dad's ketchup.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.videos.remind.03": {
+   "file": "talk.mom.job.videos.remind.03.mp3",
+   "character": "mom",
+   "dur": 1.224,
+   "sha256": "d61bad2f375adc85238dde5c1737bd43e1150e4a766bea7d8c6ad422421b6662",
+   "heard": "Videos away, please.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.01": {
+   "file": "talk.sister.afternoon.01.mp3",
+   "character": "sister",
+   "dur": 5.736,
+   "sha256": "8aa2e322715e6181acd48fdec72d472a1580d63eaf91c87525aa254d014f79f2",
+   "heard": "I've made a map of an imaginary island. The biscuit shop is very important.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.02": {
+   "file": "talk.sister.afternoon.02.mp3",
+   "character": "sister",
+   "dur": 6.096,
+   "sha256": "23ae23e7cd5656c4364705367f453036bf00b40a0cda5693ee72726522cb419e",
+   "heard": "Can you guess what I'm drawing? You get three guesses and none can be a potato.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.03": {
+   "file": "talk.sister.afternoon.03.mp3",
+   "character": "sister",
+   "dur": 4.104,
+   "sha256": "523683e9cedc29b72792816b6dd75065128ff3de685456a07a3ab4028aa9f7d1",
+   "heard": "I've invented a game. I'm still working out how I win it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.04": {
+   "file": "talk.sister.afternoon.04.mp3",
+   "character": "sister",
+   "dur": 4.68,
+   "sha256": "2476ad9e0e5388432063e268c5800237816ee0a86e078027bf8fdac36d379f79",
+   "heard": "If I were a detective, I'd start with whoever hid the nice crayons.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.05": {
+   "file": "talk.sister.afternoon.05.mp3",
+   "character": "sister",
+   "dur": 6.888,
+   "sha256": "3333777ffc047283ec5b3ff95329163b1bd85ac8f707b810a738a9fd04351508",
+   "heard": "I found a shiny button. It's treasure, until somebody needs their coat back.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.06": {
+   "file": "talk.sister.afternoon.06.mp3",
+   "character": "sister",
+   "dur": 6.216,
+   "sha256": "d4efff4b63cc592ee1611686bc31b4378f0163d333e1a87be33e9f474300f63d",
+   "heard": "I've been practicing whistling. So far, I'm very good at breathing.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.07": {
+   "file": "talk.sister.afternoon.07.mp3",
+   "character": "sister",
+   "dur": 4.848,
+   "sha256": "94c15aaba47f729ec3b092669a42d00c00a9a95c5c2d22b24191e773f8ef956d",
+   "heard": "Do you want to see my picture later? It's a surprise. Mostly to me.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.09": {
+   "file": "talk.sister.afternoon.09.mp3",
+   "character": "sister",
+   "dur": 3.792,
+   "sha256": "7cffce725b795fbe30095d4a20822d54b093ba9e31c31c28d50978e66f78d6dd",
+   "heard": "I've got a secret club. You can join if you think of a better name.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.10": {
+   "file": "talk.sister.afternoon.10.mp3",
+   "character": "sister",
+   "dur": 4.536,
+   "sha256": "438a13f345705cef907bf9460f86dc08b12aae7d1328c78f025d77ecc70e5f44",
+   "heard": "I tried writing with my other hand. It looks like a spider went shopping.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.11": {
+   "file": "talk.sister.afternoon.11.mp3",
+   "character": "sister",
+   "dur": 5.184,
+   "sha256": "b60535131769bb50aab1462ed17927de2fc07e04e90b253553554399e5fb6b7a",
+   "heard": "What's the hardest word you know? Mine changes whenever there's homework.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.12": {
+   "file": "talk.sister.afternoon.12.mp3",
+   "character": "sister",
+   "dur": 5.568,
+   "sha256": "be19342faa8cdfb44080a818e3125cd71583a835311fb318222a85b618848f32",
+   "heard": "I've sorted my crayons into best ones and other best ones. It took ages.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.chapter.1": {
+   "file": "talk.sister.context.chapter.1.mp3",
+   "character": "sister",
+   "dur": 4.776,
+   "sha256": "5a1e9e900f19fa033dddf484947cec54be4c95e5d70cb111a02aca03db6e3bc1",
+   "heard": "If you get stuck, ask. I can help, or make encouraging noises.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.chapter.2": {
+   "file": "talk.sister.context.chapter.2.mp3",
+   "character": "sister",
+   "dur": 5.136,
+   "sha256": "d0450af8f77f5c0523491ef20564f974c9fa09a2da7ceb02ce0d555b868419c7",
+   "heard": "If you're saving for games, I can help count. I won't help spend, probably.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.console.dc": {
+   "file": "talk.sister.context.console.dc.mp3",
+   "character": "sister",
+   "dur": 5.088,
+   "sha256": "08673b499fef4f39604da169698b4a46587babadd8f91cd1aeee2a29ef1e0cfb",
+   "heard": "Can a daydream play a game about dreaming? That would save a lot of drawing.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.console.gb": {
+   "file": "talk.sister.context.console.gb.mp3",
+   "character": "sister",
+   "dur": 4.848,
+   "sha256": "03178ef5421335215987e60b6d88639b5353ba38caf6c56e3a1a96dd2ed02aeb",
+   "heard": "The Game Lad fits in your hands. My best drawings need the whole table.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.console.sn": {
+   "file": "talk.sister.context.console.sn.mp3",
+   "character": "sister",
+   "dur": 4.32,
+   "sha256": "c65e4171c40c36eb2bffae8bf7b7426636101be9c5d66fa60a48975e99f7ba29",
+   "heard": "The Super Ultra looks little until you see how big its adventures are.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.console.u64": {
+   "file": "talk.sister.context.console.u64.mp3",
+   "character": "sister",
+   "dur": 5.664,
+   "sha256": "9f3b330e25440eb08210a871f0138e8b176babca707ee3916ed4b58a4deb20df",
+   "heard": "Can we play your Ultra 64 together sometime? I'll try being a good loser. Briefly.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.0": {
+   "file": "talk.sister.context.dow.0.mp3",
+   "character": "sister",
+   "dur": 4.608,
+   "sha256": "dbc439804ca9ee11d3eac17f9e6221e950cf5fac2f8799181e255008128bdb69",
+   "heard": "Monday, sounds like it should be a pudding, a very plain one.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.1": {
+   "file": "talk.sister.context.dow.1.mp3",
+   "character": "sister",
+   "dur": 4.56,
+   "sha256": "1e36feafc9fba84e49be7d2f6ca3e2009fb7b7257756944774a3525b07551641",
+   "heard": "On Tuesday, I like doing things twice, except getting told off.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.2": {
+   "file": "talk.sister.context.dow.2.mp3",
+   "character": "sister",
+   "dur": 3.48,
+   "sha256": "d349348c6b306c0a6f4cbfe1aa0d6c7fadb8740f97e89ea07db5ddb2d42e4f92",
+   "heard": "Wednesday's got too many letters. I've checked.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.3": {
+   "file": "talk.sister.context.dow.3.mp3",
+   "character": "sister",
+   "dur": 4.488,
+   "sha256": "a91737a7d841653edfcbc43eef111743832546691fdf019ca3e58803c5ab83fc",
+   "heard": "Thursday is nearly the weekend. Nearly nearly counts.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.4": {
+   "file": "talk.sister.context.dow.4.mp3",
+   "character": "sister",
+   "dur": 2.352,
+   "sha256": "78c8c66b835df56b734afc0ed7e5d9ff566edca2767b716d308298348c0249c4",
+   "heard": "Friday's the best word on a timetable.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.5": {
+   "file": "talk.sister.context.dow.5.mp3",
+   "character": "sister",
+   "dur": 4.008,
+   "sha256": "67e289a9c4d4545175640084c669951f31b770c809b2653afb1b8dcc71c5adb5",
+   "heard": "Saturday should have a rule against hurrying, unless there's cake.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.dow.6": {
+   "file": "talk.sister.context.dow.6.mp3",
+   "character": "sister",
+   "dur": 4.656,
+   "sha256": "623a5ab5e1914fa3b1fc075a2507edc8b302c8c44213a391dd87f68cb8abaae5",
+   "heard": "Sunday goes faster than the other days. I think it's cheating.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.jobDone.cat": {
+   "file": "talk.sister.context.jobDone.cat.mp3",
+   "character": "sister",
+   "dur": 4.968,
+   "sha256": "7e9aebbbb74baa3075a34627842c717ffece2ac4d9980bde75422fabaf1647a5",
+   "heard": "You fed the cat. Did you get a thank you? No? Same here.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.jobDone.plant": {
+   "file": "talk.sister.context.jobDone.plant.mp3",
+   "character": "sister",
+   "dur": 4.728,
+   "sha256": "61b0935f2e89865f199edb23b74af862778a308045a0b4b0f1ce26757e0b138e",
+   "heard": "Your plant looks happier, I think. Plants are hard to interview.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.jobDone.tidy": {
+   "file": "talk.sister.context.jobDone.tidy.mp3",
+   "character": "sister",
+   "dur": 5.064,
+   "sha256": "cd6e7dd1fea0455f3e967931db73831b651217f5e69981aeafcdf5ce340dd7d7",
+   "heard": "You've tidied your room. Now you can hear things when they fall on the floor.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.room.hall": {
+   "file": "talk.sister.context.room.hall.mp3",
+   "character": "sister",
+   "dur": 5.088,
+   "sha256": "b3f5da412e60c0f2ce42c11e596748c44fd5fdb88785ba2b64266e60d9af304b",
+   "heard": "You can't build a den in the hall. I've asked several times.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.room.kitchen": {
+   "file": "talk.sister.context.room.kitchen.mp3",
+   "character": "sister",
+   "dur": 3.624,
+   "sha256": "dd1670a60fcd1b63b6067ecaefe395b53744f2e9626364f34f53b0e28dcb9895",
+   "heard": "I like the kitchen. Things you can eat keep appearing in it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.room.lounge": {
+   "file": "talk.sister.context.room.lounge.mp3",
+   "character": "sister",
+   "dur": 4.536,
+   "sha256": "dc78f7899c1bf44739d8cfeb00fd81ba75fde492c08994c836c2dd8514538977",
+   "heard": "This room would make an excellent den. We could still let the grown-ups visit.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.season.autumn": {
+   "file": "talk.sister.context.season.autumn.mp3",
+   "character": "sister",
+   "dur": 5.184,
+   "sha256": "870602208d4db268be885d7fd4cdef8e48a7daf5dd050fae94c0e72ed43104ae",
+   "heard": "I like crunchy leaves. They're the only rubbish that's supposed to make a noise.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.season.spring": {
+   "file": "talk.sister.context.season.spring.mp3",
+   "character": "sister",
+   "dur": 3.504,
+   "sha256": "74e7455763ef474a670be9622d89a5b20b7ccd77bf21210020902aa5a09c8d30",
+   "heard": "Spring's when the trees get dressed again. Slowly,",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.season.summer": {
+   "file": "talk.sister.context.season.summer.mp3",
+   "character": "sister",
+   "dur": 4.752,
+   "sha256": "90035ef55dc7caa0aed1485e0e2222f1dad3457061349f68e40d6ef88ad15d46",
+   "heard": "Summer evenings are brilliant. The sky forgets to tell you it's bedtime,",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.season.winter": {
+   "file": "talk.sister.context.season.winter.mp3",
+   "character": "sister",
+   "dur": 4.056,
+   "sha256": "bd9662b42a1f3d505385fa43133c514b39a0e2a1c9876e352c9106973701d747",
+   "heard": "I want to see my breath in winter. Then I pretend I'm a dragon.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.weather.cold": {
+   "file": "talk.sister.context.weather.cold.mp3",
+   "character": "sister",
+   "dur": 5.184,
+   "sha256": "e6193a7ca115598293192118672429f2673ee91eae70f6a733765d75df302ee5",
+   "heard": "If it's going to be cold, my teddy wants a scarf. He says he has rights.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.weather.warm": {
+   "file": "talk.sister.context.weather.warm.mp3",
+   "character": "sister",
+   "dur": 5.112,
+   "sha256": "a50faabc042372aab27c91308e81e6a523deb8a06a1229950813e085b6ff6598",
+   "heard": "They said warm weather. Does that mean ice lollies count as sensible planning?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.weather.wet": {
+   "file": "talk.sister.context.weather.wet.mp3",
+   "character": "sister",
+   "dur": 7.152,
+   "sha256": "480fa3c1ead190b3e0cfcdd32b87830df33f2158a7a6254750bbbeb382aaea84",
+   "heard": "Rain in the forecast? I could make a coat for my paper boat.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.01": {
+   "file": "talk.sister.evening.01.mp3",
+   "character": "sister",
+   "dur": 6.144,
+   "sha256": "6cece660774caa90530902985b11405cdc7da8089fd3231c4daf0e667952f309",
+   "heard": "Do grown-ups get told to go to bed? Who tells them? Bigger grown-ups?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.02": {
+   "file": "talk.sister.evening.02.mp3",
+   "character": "sister",
+   "dur": 5.664,
+   "sha256": "c3db7af4892b80462334aa138c9112aecb6ce38c76e7e648c69123bb02fbb6f2",
+   "heard": "I'm saving my best drawing for tomorrow, unless I think of a better one tonight.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.03": {
+   "file": "talk.sister.evening.03.mp3",
+   "character": "sister",
+   "dur": 4.824,
+   "sha256": "985d939fa6105078edc8bd6fca58e0e7c979abd968d160bfc34fa4ad18c27ee6",
+   "heard": "I can stay awake for ages. That yawn was just my mouth stretching.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.04": {
+   "file": "talk.sister.evening.04.mp3",
+   "character": "sister",
+   "dur": 4.44,
+   "sha256": "c296fbdaa278d79217386cb98d6a39b3ad33607a68ded0e85a936c28b1c67b88",
+   "heard": "If I have a really good dream, I'll tell you. Unless you're the villain.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.05": {
+   "file": "talk.sister.evening.05.mp3",
+   "character": "sister",
+   "dur": 5.472,
+   "sha256": "06a6e3befc711a286944519885d5d17018d0646ffab34d3cc7db131ac6458264",
+   "heard": "I'm not tired, my feet are tired. There's a difference.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.06": {
+   "file": "talk.sister.evening.06.mp3",
+   "character": "sister",
+   "dur": 4.704,
+   "sha256": "f5c86fe031e288aa4659af77ae90681d9a3e1809751225513d156f6f9e8de49d",
+   "heard": "Will you read something with me later? I can do the funny voices.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.07": {
+   "file": "talk.sister.evening.07.mp3",
+   "character": "sister",
+   "dur": 5.208,
+   "sha256": "30c31db85672d1b01f8e222a32b06e2433358c14de50194a1ef0d52ddf7c04eb",
+   "heard": "My teddy needs a blanket. He says it's drafty. Well, I said it for him.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.08": {
+   "file": "talk.sister.evening.08.mp3",
+   "character": "sister",
+   "dur": 4.416,
+   "sha256": "599f9a62f6d417bcca69752a06a3fdfed31b60389225ac008b6df73fc35e6d59",
+   "heard": "I like it when everyone's home. You can hear where everyone is.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.09": {
+   "file": "talk.sister.evening.09.mp3",
+   "character": "sister",
+   "dur": 3.912,
+   "sha256": "218911d931658eb79a2a44379b88301d60f240d566d149f4f2849e1b29f60611",
+   "heard": "I'm trying to remember all the good things today. There were at least four.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.10": {
+   "file": "talk.sister.evening.10.mp3",
+   "character": "sister",
+   "dur": 5.208,
+   "sha256": "7ee96237289bcefa0429ac761282cb8ee10bddd0aa5848b45155917cca1d6667",
+   "heard": "Can tomorrow have an extra afternoon? I didn't finish everything I was inventing.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.11": {
+   "file": "talk.sister.evening.11.mp3",
+   "character": "sister",
+   "dur": 5.136,
+   "sha256": "e5fa51ccb9bd26a89c15690481f8993360981c452f6cc3ee5855e46354d8ff99",
+   "heard": "I've put my slippers in a sensible place. One sensible place each.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.evening.12": {
+   "file": "talk.sister.evening.12.mp3",
+   "character": "sister",
+   "dur": 6.432,
+   "sha256": "33df9ada09bea51cff38749fbf2032c5e96443ac881ca6e9b6fd585ba67e08ff",
+   "heard": "If I fall asleep first, don't let anybody finish my story. I haven't picked the ending.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.01": {
+   "file": "talk.sister.morning.01.mp3",
+   "character": "sister",
+   "dur": 4.752,
+   "sha256": "6bec44af89a5a0d0bae40af2d1287e4d1ef4aca7b000b4c1667384620e4c1517",
+   "heard": "I had a dream I could fly. Only about this high. Still counts.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.02": {
+   "file": "talk.sister.morning.02.mp3",
+   "character": "sister",
+   "dur": 5.28,
+   "sha256": "93552d3d62b2dc7b8cae1e68533047f6a8394a204906ab4a354da86a207f67c4",
+   "heard": "I've decided I'm in charge of choosing today's best color. It's yellow so far",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.03": {
+   "file": "talk.sister.morning.03.mp3",
+   "character": "sister",
+   "dur": 4.896,
+   "sha256": "00acce6f588379a4666968fc73fa75a5e17304caa989cdcf45d3e2dd239b4e78",
+   "heard": "My cereal went soggy while I was thinking. I was thinking about more cereal.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.04": {
+   "file": "talk.sister.morning.04.mp3",
+   "character": "sister",
+   "dur": 3.552,
+   "sha256": "a354c7b769c3d1331498eb02fe8c0e2f78c1f680e36ede29bd9d03ffc41e640c",
+   "heard": "Do you think cats have alarms? Or do they just wake up cross?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.05": {
+   "file": "talk.sister.morning.05.mp3",
+   "character": "sister",
+   "dur": 4.704,
+   "sha256": "bc0b4d75c01492aaf4d42c3cd3477a481cb7293ecb318373dfab87a94d103f71",
+   "heard": "I found a really good pencil. It's shorter than my finger, but it means business.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.06": {
+   "file": "talk.sister.morning.06.mp3",
+   "character": "sister",
+   "dur": 3.648,
+   "sha256": "0e5b0a345e410125cccf36e1cead0d3c7b188fc569dd32424020e50fc6bbec77",
+   "heard": "I got dressed really quickly. Don't look at whether my socks agree.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.07": {
+   "file": "talk.sister.morning.07.mp3",
+   "character": "sister",
+   "dur": 4.68,
+   "sha256": "8fde40b08fbf1856ebbcb29b796bf1890c6490d6033c01d8368f1925f1e56042",
+   "heard": "I'm drawing an animal nobody's discovered. That way it can't be wrong.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.09": {
+   "file": "talk.sister.morning.09.mp3",
+   "character": "sister",
+   "dur": 3.552,
+   "sha256": "ee9fd957b174f3ad050e4f2beae2bfd84717b75cc944df5fd9bbd00162337fb2",
+   "heard": "I was awake ages ago. I just hadn't told my legs yet.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.10": {
+   "file": "talk.sister.morning.10.mp3",
+   "character": "sister",
+   "dur": 6.504,
+   "sha256": "24614c7a068ff7503b8569055f8f6163e64d81c68dc6d5d41c78f9b8da350fc7",
+   "heard": "Can you teach me a card trick later? One where I get to know the secret?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.11": {
+   "file": "talk.sister.morning.11.mp3",
+   "character": "sister",
+   "dur": 5.808,
+   "sha256": "d0075e33a32d7285dba16e2f40d488c640d9dfbcbde1d75796ce0f936d3b3c41",
+   "heard": "I made up a joke, but I forgot the middle. The end was brilliant.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.morning.12": {
+   "file": "talk.sister.morning.12.mp3",
+   "character": "sister",
+   "dur": 4.08,
+   "sha256": "d622d67f664ff14bcfa768a1688f0e3787642bc24cf91256e770d3a4b859ddcd",
+   "heard": "I think my teddy stayed up late. Look how tired he looks.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}

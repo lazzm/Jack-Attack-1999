@@ -1,5 +1,15 @@
 # Jack's Home Page - changelog
 
+## 2.80.0 - 2026-11-08
+- Making the bed works wherever you press on the duvet or pillow, not just its edge.
+- On phones and tablets, fixing Dad's office PC is readable straight away: the recovery screen fills the screen with big buttons, no need to find the close-up view first.
+- Talking to your sister on the sofa keeps her targeted while the view eases up, instead of drifting onto the window.
+- Nothing covers Mom's face when she talks to you on a phone held upright, and the bed-making help no longer hides what she's saying.
+- At night your own breath no longer appears as a white blob in front of you; the family's breath shows as faint wisps.
+- Surfaces look more like what they're made of: plastic, metal, wood, fabric, ceramic and paper each have their own finish, with grain and a little wear.
+- Bounce Quest 64 has 50 golden acorns: three secret switch stages unlock power-up outfits (fly, go heavy, go see-through), Bopper can side-flip, coins underwater read as coins instead of covering him, and the manor library is candle-lit and furnished.
+- 88 more recorded lines for the family's chat, 746 in all, in a standard Southern English accent and checked for the right words. About 40 are still being recorded.
+
 ## 2.79.0 - 2026-11-08
 - New players are always welcomed by name. Mom's first greeting could be used up while the house was still hidden behind sign-up, so some new players never heard it. Now she calls out within a few seconds of you arriving, and it still never replays after a refresh. She also no longer says your name twice ("Sarah? SARAH!").
 - Slower computers and phones run faster. When a device struggles, the game's simplest lighting now really is simple: in testing it runs faster than before the new lighting arrived, while the full lighting looks exactly as it did.
