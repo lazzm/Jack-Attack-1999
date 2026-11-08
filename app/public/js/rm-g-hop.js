@@ -1345,7 +1345,7 @@
       let LAMPS = [], PROPS = [], chestOpen = {}, plugOut = {}, bossDown = false, raceWon = false;
       const HPMAX = () => prog.opt.easy ? 8 : 6;
       let clock = 0, motionClock = 0, mission = 0;
-      const P = { buf: 0, coyote: 0, wallLock: 0, crouchT: 0, crouchSpeed: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, face: 0, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, twirl: false, kicked: false, wallT: 0, wnx: 0, wnz: 0, punchN: 0, punchT: 0, inv: 0, hp: 6, plat: null, safe: [0, 0, 0], safeT: 0, run: 0, land: 0, ctrl: 0, yaw: 0, spin: 0, fallY: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false };
+      const P = { buf: 0, poundBuf: 0, coyote: 0, wallLock: 0, crouchT: 0, crouchSpeed: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, face: 0, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, twirl: false, kicked: false, wallT: 0, wnx: 0, wnz: 0, punchN: 0, punchT: 0, inv: 0, hp: 6, plat: null, safe: [0, 0, 0], safeT: 0, run: 0, land: 0, ctrl: 0, yaw: 0, spin: 0, fallY: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false };
       const IN = { x: 0, y: 0, a: false, aH: false, b: false, c: false, cH: false, l: false, r: false };
       function readInput() { const s = K.stick(), mag = Math.hypot(s.x, s.y), scale = mag > 0.18 ? Math.min(1, (mag - 0.18) / 0.82) / mag : 0; IN.x = s.x * scale; IN.y = s.y * scale; IN.a = K.pressed('a'); IN.aH = K.held('a'); IN.b = K.pressed('b'); IN.c = K.pressed('c') || K.pressed('x'); IN.cH = K.held('c') || K.held('x'); IN.l = K.pressed('l'); IN.r = K.pressed('r'); }
 
@@ -1464,7 +1464,7 @@
       };
       let shake = 0, flash = 0, msg = '', msgT = 0, msg2 = '', msgCol = '#ffd23a';
       const say = (s, t, s2, c) => { msg = s; msgT = t || 2; msg2 = s2 || ''; msgCol = c || '#ffd23a'; };
-      function respawnAt(x, y, z, face) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, face, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, buf: 0, coyote: 0, crouchT: 0, wallLock: 0, twirl: false, kicked: false, wallT: 0, plat: null, ctrl: 0, yaw: face, spin: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false }); floorAt(x, z, y + 1); if (FL.h > -100) P.y = FL.h; P.safe = [P.x, P.y, P.z]; camSnap(); }
+      function respawnAt(x, y, z, face) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, face, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, buf: 0, poundBuf: 0, coyote: 0, crouchT: 0, wallLock: 0, twirl: false, kicked: false, wallT: 0, plat: null, ctrl: 0, yaw: face, spin: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false }); floorAt(x, z, y + 1); if (FL.h > -100) P.y = FL.h; P.safe = [P.x, P.y, P.z]; camSnap(); }
       function hurt(n, fx, fz) {
         if(P.power==='tin'||P.power==='peek')return;
         if (P.inv > 0 || demo || P.st === 'dead' || mode !== 'play') return;
@@ -1505,6 +1505,12 @@
       }
 
       function stepPlayer(dt) {
+        // Remember an airborne press during the first few takeoff frames, until
+        // there is room for the flip. Sample before jumping so grounded Z+A
+        // still means backflip/long jump, without queuing a pound as well.
+        if (P.gnd || ['pound', 'dead', 'hurt'].includes(P.st)) P.poundBuf = 0;
+        else if (IN.c) P.poundBuf = 0.14;
+        else P.poundBuf = Math.max(0, (P.poundBuf || 0) - dt);
         P.stT += dt; P.coyote = P.gnd ? 0.1 : Math.max(0, P.coyote - dt); P.wallLock = Math.max(0, P.wallLock - dt); P.buf = Math.max(0, P.buf - dt); P.crouchT = Math.max(0, P.crouchT - dt); if (P.chainT > 0) P.chainT -= dt; if (P.wallT > 0) P.wallT -= dt; if (P.inv > 0) P.inv -= dt; if (P.punchT > 0) P.punchT -= dt; if (P.ctrl > 0) P.ctrl -= dt; if (P.land > 0) P.land -= dt;
         if (P.st === 'dead') { P.vy -= 20 * dt; P.y += P.vy * dt; P.spin += dt * 10; if (P.stT > 2.2 && !fading) afterDeath(); return; }
         const bodyH=manorCamera()?(prog.opt.big?2.65:P.power==='peek'?2.2:1.9):1.25;
@@ -1573,7 +1579,7 @@
         }
         if (P.st === 'punch' && P.stT < 0.2) attack(1.1, 1.0);
         if (P.st === 'kick' && P.stT < 0.35) attack(0.9, 1.0);
-        if (IN.c && !P.gnd && !['pound', 'dead', 'hurt'].includes(P.st)) { floorAt(P.x, P.z, P.y); if (P.y - FL.h > 0.9) { P.st = 'pound'; P.stT = 0; P.vx = P.vz = 0; P.vy = 0; K.sfx.tone(600, 0.25, 'square', 0.05, 0, 200); } }
+        if (P.poundBuf > 0 && !P.gnd && !['pound', 'dead', 'hurt'].includes(P.st)) { floorAt(P.x, P.z, P.y); if (P.y - FL.h > 0.9) { P.poundBuf = 0; P.st = 'pound'; P.stT = 0; P.vx = P.vz = 0; P.vy = 0; K.sfx.tone(600, 0.25, 'square', 0.05, 0, 200); } }
         // gravity
         let g = 36;
         if (P.st === 'pound') { g = 0; if (P.stT < 0.28) { P.vy = 0; P.vx = P.vz = 0; } else P.vy = -32; }
@@ -1612,7 +1618,7 @@
       }
       function land(gh, o) {
         const was = P.st, vy = P.vy;
-        P.y = gh; P.vy = 0; P.gnd = true; P.plat = o; P.twirl = false; P.kicked = false; P.wallT = 0; P.stT = 0;
+        P.y = gh; P.vy = 0; P.gnd = true; P.plat = o; P.twirl = false; P.kicked = false; P.wallT = 0; P.stT = 0; P.poundBuf = 0;
         if (was === 'pound') { P.st = 'poundLand'; shake = 0.2; snd.pound(); burst(P.x, gh + 0.1, P.z, 0xe8e0d0, 12, 6, { ring: true, life: 0.4, grav: 0 }); poundOn(o); attack(0, 1.9, true); }
         else { P.chain = was === 'jump' ? 1 : was === 'jump2' ? 2 : 0; P.chainT = P.chain ? 0.38 : 0; P.st = 'idle'; if (vy < -5) P.land = Math.min(0.13, -vy * 0.007); if (vy < -16) { burst(P.x, gh + 0.1, P.z, 0xd8d0c0, 5, 3, { life: 0.35, grav: 4 }); } if (vy < -5) K.sfx.noise(0.06, 0.04, 600); }
         if(P.power==='tin'&&vy<-5){shake=Math.max(shake,.13);K.sfx.tone(90,.13,'triangle',.09,0,45);burst(P.x,gh+.12,P.z,[0xaacfd1,0xd8e7cb],7,2,{ring:true,life:.35,grav:1});}

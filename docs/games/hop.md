@@ -17,7 +17,7 @@ The reference has fifteen main courses, miniature courses, 120 rewards, swimming
 | Clockwork | Moving platforms, conveyors, timing, route mastery | Gears, lifts, hands, belt, shortcut, slow-clock trial | Retained. A second full layout and a verified complete natural timed ascent remain absent. |
 | Three power-ups | Permanent switches, temporary wing/metal/invisibility abilities, revisits | None | **Brolly Bonnet** glides and uses updrafts; **Tin Biscuit** sinks, walks without air and operates weight plates; **Peekaboo Hood** crosses marked violet grilles. Each has a permanent pound switch in its own secret stage, reusable boxes, timed outfit, unique silhouette and two required rewards. Brolly is a glider with launch fans, not unrestricted flight. |
 | Secret stages | Distinct cap-switch miniature courses | None | **Brolly Belfry**: floating islands/bridge/fan/three wind hoops/bell. **Tin Pan Pantry**: dry switch landing, flooded aisle, biscuit tins, weight plate and lunch safe. **Peekaboo Parlour**: candlelit hall, two full-height violet grilles and return reward. Secret rewards return to their hub ring after celebration. More miniature courses remain absent. |
-| Moves/camera | Chained jumps, long jump, wall kick, swimming, adaptive camera | Repaired moves/coyote/buffer, scene collision, indoor recovery, readable shadows | Retained; gliding and a running reverse-and-jump side flip added. Wind ribbons are rendered separately from camera blockers. Marked grilles are ignored by camera collision only during Peekaboo, while normal walls/floors remain solid. Ledge grab remains absent. |
+| Moves/camera | Chained jumps, long jump, wall kick, swimming, adaptive camera | Repaired moves/coyote/buffer, scene collision, indoor recovery, readable shadows | Retained; gliding and a running reverse-and-jump side flip added. The 2.80.0 blocker repair buffers airborne pound requests for 140 ms through early takeoff. Wind ribbons are rendered separately from camera blockers. Marked grilles are ignored by camera collision only during Peekaboo, while normal walls/floors remain solid. Ledge grab remains absent. |
 | Rewards/presentation | Clear celebration, contrast, music/feedback | Ink-outlined HUD, readable signs, raised trophy, framed typed boss intro | Retained. Outfits have distinct pickup/unlock/expiry cues and frozen timers on pause. Reward pose puts head accessories away to preserve the face and trophy separation; Tin/Peekaboo body treatment remains. Home-painting prompts join the footer instead of clipping at the screen edge. Four help pages, dynamic course counts and compact eight-objective cards/pause lists. |
 | Bosses/ending | Milestone encounters and ending | Big Boohoo, King Grumpus, Crown and credits | Retained. More milestone bosses remain absent. |
 | Saving | Persistent rewards/unlocks and safe suspension | Detailed v2/run.v1 suspension, production refresh safety | Adds permanent `powers`, player outfit/time/glide state and per-visit hoop/pressure/safe/ledger state. No old save key or reward ID removed. Expiry inside a grille ejects beside it. |
@@ -120,3 +120,45 @@ After values are from the full native run, which includes unlocked boxes and acq
 Build a complete enclosed snow slide and a richer snow interior, then another full course and milestone boss. Add a hub movement school and ledge grab. Retune the old coast/hub challenges before extending swimming to them. Expand Brolly routes into longer altitude-management courses; the current bonnet is controlled gliding from launch fans. Preserve existing reward IDs, door thresholds and cold-cache save compatibility.
 
 No claim of full reference scope or a modern showcase renderer. Physical controllers, mobile GPU performance and a listening session are not available in headless validation. Camera checks sample recorded routes/orbits rather than every geometry/input combination. Every cheat/outfit combination, unaided 50-acorn progression and the full natural clockwork timed ascent remain unverified.
+
+
+## 2.80.0 ground-pound release blocker
+
+The intermittent failure was in the phone portion of the default room/controller run. An instrumented replay of the original gesture reproduced it: the height poll returned at browser time 47002.1 ms, with feet at 13.185 and downward velocity −1.3. C arrived at 47448.1 ms, **446 ms later**, with feet at 11.085, floor at 10.56 (clearance **0.525**, below the required 0.9), and downward velocity −12.1. The cartridge read the C edge at 47461.7 ms, **13.6 ms after pointerdown**, at that same height. It then landed and crouched with C held, matching both supplied failure logs. The pending input reached simulation; the test had spent its remaining airtime on the fixture's 200 ms polling/handle round trips, release and button-layout lookup. The power flag is set synchronously by a successful pound landing before saving; this failure never entered the pound state.
+
+There was also a separate player-facing rejection: real keyboard C down/up before a simulation step, sent on airborne jump frames 1–5, was discarded below the clearance gate; frames 6 and 12 worked. The cartridge now remembers that airborne edge for 140 ms, consumes it once clearance permits, and clears it on landing, respawn, hurt or death. Sampling eligibility before jump processing preserves grounded crouch+jump as backflip/long jump. The timer uses simulation time and the existing player snapshot, so pause and refresh retain it. No shared input kit or save schema/key changed.
+
+The phone regression resolves both button positions before takeoff and waits in the browser animation loop for **rising** clearance above 1.1. It still sends actual touch events. A capture listener records the state at C pointerdown, and an assertion requires actual airborne clearance above 0.9; there is no retry, extended eligibility or direct unlock. Native coverage requests pounds on frames 1–6 and 12 after takeoff, releases C before stepping, refreshes with a pending request, checks single consumption, and checks the grounded backflip chord. A supplemental production-runtime check dispatches down/up within one JavaScript task and verifies the edge is consumed with the button already released, independently of render pacing.
+
+Evidence: `tests/shots/games/hop/input-blocker/early-press-before.json`, `original-touch-failure.json`, and `performance-before.json`. The instrumented original-gesture run is `/tmp/cmp-hop-input-diagnosis-full.log` (node exit 1, expected reproduction); two preceding phone-only diagnostic runs passed. Validation results below are recorded only after completion. The original diagnosis used a 5-second failure cap after the same gesture so it did not wait out the fixture's long timeout; the captured input timing precedes that cap. Campaign/content scope and the next content chunk above are unchanged.
+
+Release-blocker verification (all four cmp runs used identical game/test source hashes):
+
+- `node --check app/public/js/rm-g-hop.js`: exit 0.
+- `node --check tests/games/hop.mjs`: exit 0.
+- `node --expose-internals tests/parody-audit.cjs`: exit 0; zero authored text spans.
+- Four consecutive `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-hop <label> games/hop.mjs` runs, with these labels and actual node results:
+
+| Label | Node exit | C clearance at actual touch | Vertical velocity | Same-task production pulse |
+| --- | --- | --- | --- | --- |
+| `hop-blocker-1` | 0 | 1.648 | 6.5 | 0.3 ms; read with C released |
+| `hop-blocker-2` | 0 | 1.747 | 5.9 | 0.4 ms; read with C released |
+| `hop-blocker-3` | 0 | 1.540 | 7.1 | 0.2 ms; read with C released |
+| `hop-blocker-4` | 0 | 1.547 | 7.3 | 0.3 ms; read with C released |
+
+Per-run logs: `/tmp/cmp-hop-blocker-{1,2,3,4}.log`; each includes the native campaign, between-frame input regression, physical-room/controller play, production save/refresh and real phone touch. Each has `POUND INPUT PASS`, `RUNTIME INPUT PASS`, `ROOM PASS`, `PHONE PASS` and `HOP AFTER PASS`. Runtime/touch/performance JSON for each run is preserved under `tests/shots/games/hop/input-blocker/run-{1,2,3,4}-*.json`. The four cmp server logs have no module-load failures.
+
+- `node tests/games/hop.mjs http://localhost:18088 --native`: exit 0; `/tmp/hop-blocker-native.log`.
+- `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` (no URL): exit 0; **12/12 passed**, including browser errors and server log; `/tmp/hop-blocker-smoke.log`.
+
+
+Release-blocker frame samples, in milliseconds (same 320×240 software renderer, update + draw + synchronous GPU readback; 60 warmup + 120 samples):
+
+| Course | Before median / p95 | After median / p95 | Update median before → after |
+| --- | --- | --- | --- |
+| hub | 11.9 / 13.1 | 11.9 / 13.5 | 0.2 → 0.2 |
+| brolly | 5.9 / 6.9 | 6.1 / 6.8 | 0.2 → 0.2 |
+| grotto | 16.8 / 19.2 | 17.7 / 19.7 | 1.2 → 1.2 |
+| manor-interior | 14.6 / 18.2 | 15.1 / 17.7 | 1.7 → 1.7 |
+
+Both JSON files are under `tests/shots/games/hop/input-blocker/performance-{before,after}.json`. Render cost varies between samples; the measured update medians did not increase. No render code changed in this repair. Before/after evidence shots are `input-blocker/original-touch-failure.png` (original gesture landed and crouched), `input-blocker/buffered-pound-after.png` (early airborne request now starts the pound), and `input-blocker/phone-brolly-after.png` (successful real-touch switch unlock and glide), relative to `tests/shots/games/hop/`.
