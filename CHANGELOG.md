@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.79.0 - 2026-11-08
+- New players are always welcomed by name. Mom's first greeting could be used up while the house was still hidden behind sign-up, so some new players never heard it. Now she calls out within a few seconds of you arriving, and it still never replays after a refresh. She also no longer says your name twice ("Sarah? SARAH!").
+- Slower computers and phones run faster. When a device struggles, the game's simplest lighting now really is simple: in testing it runs faster than before the new lighting arrived, while the full lighting looks exactly as it did.
+
 ## 2.78.0 - 2026-11-07
 - Talking to the family feels personal. When you walk up and talk, Mom, Dad and your sister look down at you, and the view eases up to their face (move the mouse or your thumb and it lets go at once). If you're standing right on top of them, they take a small half-step back. Nothing covers their face while they talk to you, and on phones the objective note moves down out of the way.
 - The family look better up close: hands rest relaxed at their sides with gently curled fingers instead of stiff claws, necks have a proper shape into the shoulders, collars wrap round the neck, and clothes are sharper. While one of them talks, the others listen: they look at whoever is speaking, nod and blink.
