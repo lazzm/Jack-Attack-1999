@@ -1,6 +1,6 @@
 # Family model and animation pass — review log
 
-Current: round 4 implementation and the completed/unfinished verification record are below. Round 3 results and its dated carry-over list remain as history. Earlier round findings and validation remain as dated history.
+Current: round 6, faces that talk and feel, is appended below. Earlier round findings, measurements and unfinished work remain as dated history.
 
 ## Round 1 baseline — historical
 
@@ -804,3 +804,123 @@ Full commands, actual exits, fixture retries and log paths: `tests/shots/models/
 ### Round 5b limits / handoff
 
 All requested 5b suites completed before the ten-minute work cutoff. No browser remains running from these gates. No further implementation is planned. Functional raster caps are explicit above; uncapped full smoke/voice/people/door/character runs were not repeated. Physical-phone GPU/thermal behaviour, portrait/tablet conversation layout, seated/oblique/wall-blocked staging and long natural listener exchanges remain future work. The final current/queued-line caption guard was added after the four uncapped speed runs; final units, full voices and the later matrix cases cover it functionally, but that final predicate was not re-benchmarked. Source hashes distinguish the sampled and final trees. Geometry, rig animation, rendering, lighting and walking are unchanged after sampling. Both initial matrix failures were fixture navigation precision/timeouts, corrected with real inputs; their nonzero exits are not concealed by the completed eighteen-frame set. No commit, deployment, data, site, version, changelog or AGENTS changes; pre-existing voice link retained.
+
+## Round 6 — faces that talk and feel, 8 November 2026
+
+Base/main `f68ee3639778c292ee6260998a33e7e78f63fd30`, live 2.80.0. Work began 14:55:48 UTC; fresh research through 15:11 is recorded with primary sources in ANIMATION-RESEARCH.md. No commit, deployment, Docker, real-data, site, version, changelog or AGENTS changes. The pre-existing untracked voice symlink is retained. The implementation does not change speech selection, account identity, no-repeat memory or saved-state formats.
+
+### Changes and budget
+
+- `st-voice.js` derives a 100 Hz source-PCM envelope once per decoded buffer, cached weakly with the existing 24-clip decoded cache. Runtime interpolation and cumulative audible-time progress are O(1). Quiet intervals and joined name/line gaps retain their real timing. Distance, wall filtering and user volume no longer alter articulation; scheduled, suspended and ended playback close the mouth. Amplitude is one byte per 10 ms; the cumulative activity index adds four bytes per bin. Temporary RMS/sorting arrays are released after construction.
+- `np-rig.js` packs eight mouth cells into the existing row by removing transparent side margins. Rest, M/B/P seal, A, E/I, O/U, F/V and other consonants use a small original spelling schedule; recorded articulation advances over audible time. Continuous amplitude scales the painted aperture, with 45 ms premultiplied frame blending and a separate outgoing aperture to avoid reopening during closure. This is approximate articulation, **not** phoneme/word alignment or speech recognition. Text-only lines get a duration-normalised punctuation schedule.
+- Independent warm happy, cross, tired, cheeky and sad layers affect brow height/slope/asymmetry, eye aperture and mouth corners. Question accents remain. A fourth optional `talk` argument accepts a mood string or `{mood}`; ordinary lines infer restrained cues. Happy/cheeky smiles retain eye sparkles and narrow the eyes instead of holding crescent eyes throughout speech. Pause blinks have fast closure/slower reopening and a cooldown. Thinking briefly glances away. A listener waits until the joke cue, then delays and releases one closed-mouth smile, including after the turn's listener pointer clears.
+- `hs-world.js` respects the existing family `hideTip` predicate while carrying, removing a redundant F caption across the face. Portrait conversation/objective CSS reuses the existing measured carry stack to keep the job slip clear of bottom controls.
+- Native stair review exposed a real defect: `placeRig` can parent a speaker on the flight into the hidden cupboard underneath. A hall/landing parent correction made Dad visible, but the tree then failed the bump route while the base control passed. **That correction was backed out at the cutoff. `np-life.js` is unchanged from HEAD. Stair visibility remains unfinished; the attempted-fix images are not evidence of the final branch.**
+
+Low geometry remains **Mom 2,818; Dad 2,998; Crystal 2,994 triangles**, including contact shadows, **two draws each**. Atlas stays **512×512 / 256×256 Potato: 0% memory growth**, with no speech-time painting or new textures, dependencies, meshes or bones. The existing `jaw` bone still turns the newspaper leaf.
+
+### Evidence method and honest limits
+
+`tests/models-faces.mjs` plays a real recording per person, samples the actual voice handle every 8 ms and replays that trace through the production rig at exact 60 Hz. It captures frames **0,2,...120**, 61/person, 183 before and 183 after, using the same diagnostic camera/light and pinned base route. Native frames, trace data, rig state, uniforms, triangle/draw/atlas budgets and source hashes accompany the sheets. These are facial probes; they are not falsely labelled as natural in-house conversations. Separate native real-F cases stage only initial positions and inventory, then use actual input, menus and refresh.
+
+Chosen recorded lines: Mom `talk.mom.evening.02` (4.931 s), Dad `c1.dad.hello` (4.548 s), Crystal `talk.sister.afternoon.03` (4.071 s). Mom's long early silence is real PCM silence: the face must stay still there. The after set adds a 24-expression contact sheet, a 21-mouth chart and recorded-punchline listener sequences. The original 2-second strips deliberately retain the requested duration rather than moving their window to hide pauses.
+
+An initial stair projection assertion passed while Dad was invisible. That screenshot was explicitly rejected after visual inspection; actor ancestry and offscreen-balloon assertions now supplement projection/UI checks. The attempted-fix native desktop capture visibly showed Dad, but is rejected as final-branch evidence after rollback. Its stair lighting is also too dark; neither defect is claimed resolved.
+
+Short-landscape native review also exposed a genuine carry/reply overlap on seated Mom. The carry tag now uses the left side below the room heading, and `np-bubble.js` can wrap the same phone-size lettering into a 192 px side column while carrying. The native 740×360 recapture shows the complete face, held video, reply and controls separately. The portrait job slip reuses the measured stack above the bottom controls. These are two actual layout fixes, not just larger test tolerances.
+
+Thinking gaze is layered over the old saccade state, and pause blinks do not reschedule the shared idle random clock. A 1,000-frame comparison against the actual base rig proves identical random consumption through thinking, speech, pauses and ended voice; facial beats must not perturb later line/navigation choices. `norepeat-unit` remains mandatory. Speech selection in `np-life.js` is unchanged.
+
+Two fixture races are explicit. The phone voice wait previously accepted a fading balloon and then read no live bubble; it now matches the requested named live utterance and freezes/samples in one evaluation. The conversation matrix previously used a real keyboard Esc, which correctly selected keyboard input, then looked for touch buttons; every subsequent touch case now makes a real screen press to restore that input mode. It also waits for actual carrying controls, the measured portrait stack and a visible delivered reply before sampling. Projection alone never proves visibility.
+
+### Next ten — round 6, rewritten
+
+1. Fix the flight render-parent defect while preserving real route, welcome and dialogue behavior; then improve face lighting at the stairs and dark oblique lounge approaches with a world-lighting/contact review. The visible actor now renders, but dark faces still hide fine acting; do not disguise this with invented “AAA” scores.
+2. Add authored word/phoneme markers for the most important recorded lines, then extend coverage across the 746 recordings. Activity-weighted spelling is a useful fallback, not exact alignment; inspect bilabial closures, teeth contacts, accents and name joins by ear and frame.
+3. Capture long natural alternating Mom/Dad/Crystal exchanges, including interruptions, cancelled/paused audio and changed jobs. Review joke-cue timing, turn-boundary smiles and held listening gaze in the house rather than only the controlled probe.
+4. Complete the full seated/standing × wall/stair/oblique × desktop/phone/tablet matrix, rapid F/Esc/look input and HUD restoration. Keep visibility ancestry, delivered-reply and control-overlap assertions alongside harsh native screenshot review.
+5. Extend stair acceptance through continuous ±180° turns, reversals, real route restarts, LOD changes and both landing rails, including the hall/landing room-parent seam.
+6. Extend furniture refresh/interrupt and support checks to kitchen chairs, the pulled-out/swivelled office chair and beanbag, with moved furniture viewed from front, side and rear.
+7. Finish the newspaper pinch through a complete leaf action, then author a real page flip and persistent lap/table rest; the existing leaf adjustment is still not a page turn.
+8. Inspect every prop grip close up, especially can/case thumb opposition and finger webs. Reallocate hidden geometry while retaining relaxed free hands and the 3k Low budget.
+9. Sweep less-used costume collars, underarms and pattern joins at close desktop/phone/tablet ranges; retain the atlas/draw allocation and improve silhouette continuity before adding surface noise.
+10. Measure sustained GPU, thermal behaviour, audio-output latency and touch response on physical weak phones/tablets. Paired shared-host SwiftShader runs and emulated CPU throttling are narrower evidence.
+
+Final command exits, measurements and remaining unverified cases follow below. Incomplete or interrupted jobs are not passes.
+
+<!-- r6-final-ledger -->
+### Final measured CPU and mobile result
+
+Final per-person CPU probe: actual production r128 rigs, 16 alternating AB/BA batches of 2,000 updates after 3,000 warmups, rendering and atlas paint excluded. Recorded mode supplies the same synthetic level/activity callbacks to both rigs; it measures rig work, not one-off envelope construction or actual audio-output latency. No browser of mine ran during this final CPU probe. Milliseconds per person/update:
+
+| Person | Idle base → tree | Walk | Text conversation | Recorded | Listening |
+|---|---:|---:|---:|---:|---:|
+| mom | 0.018588 → 0.019598 | 0.019884 → 0.017632 | 0.022833 → 0.021852 | 0.013378 → 0.016033 | 0.019031 → 0.017745 |
+| dad | 0.018983 → 0.020607 | 0.018519 → 0.018311 | 0.021070 → 0.018890 | 0.017276 → 0.018694 | 0.016857 → 0.016853 |
+| sister | 0.018926 → 0.019383 | 0.020020 → 0.018544 | 0.017862 → 0.018266 | 0.018041 → 0.020109 | 0.018325 → 0.019075 |
+
+Recorded-speech extra rig CPU is approximately **2.655 / 1.418 / 2.068 microseconds** for Mom / Dad / Crystal in these medians. Relative increases are 19.8% / 8.2% / 11.5%; do not conceal the percentages or mistake this CPU-only probe for GPU evidence. Source hashes and every batch are in `tests/shots/models/r6-person-cpu.json`.
+
+| Uncapped mobile sample | 4× P50 | 1× P50 | 4× / 1× calls |
+|---|---:|---:|---:|
+| main | 433.2 ms | 183.3 ms | 181 / 63 |
+| tree1 | 299.9 ms | 216.6 ms | 181 / 63 |
+| main2 | 466.5 ms | 266.6 ms | 208 / 67 |
+| tree2 | 333.4 ms | 183.4 ms | 208 / 67 |
+| main3 | 316.6 ms | 133.3 ms | 181 / 63 |
+| tree3 | 266.7 ms | 116.7 ms | 208 / 67 |
+
+The final main3 → tree3 pair uses frozen main and the six sampled production assets, with matching measurement-time before/after source hashes, High tier, 832,932 pixels, 0.85 scale, diffuse lighting, ready bakes and zero atlas repaint. **Its scene loads differ**: 174,738/154,482 triangles on main versus 167,076/148,052 on tree, 181/63 versus 208/67 calls. Thus 316.6→266.7 ms and 133.3→116.7 ms are observations, **not a clean attributed speed improvement**. Main2/tree2 have matched 208/67 scene calls, but predate the final stair/bubble/RNG corrections and one control interval overlapped an earlier CPU diagnostic. The stair-parent correction was subsequently rolled back; the other five sampled production assets remain final. The historical 170–180/83 ms reference was not reproduced on this shared software renderer. No physical-phone performance claim is made.
+
+### Exact validation ledger
+
+All servers own disposable `/tmp` data on 18080–18099; one browser of mine at a time. Functional house gates disclose their existing raster caps. Native art captures restore requested resolution; all mobile performance samples are uncapped.
+
+| Command (repository root unless cwd shown) | Real exit | Log / detail |
+|---|---:|---|
+| `node tests/models-faces.mjs --baseline` | 0 | `/tmp/jhp-r6-faces-before-gate.log` |
+| `node tests/models-faces.mjs` | 0 | `/tmp/jhp-r6-faces-after-gate.log` |
+| `node tests/models-mobile-pair.mjs --label=tree1` | 0 | `/tmp/jhp-r6-mobile-tree1-gate.log` |
+| `node tests/models-mobile-pair.mjs --label=main2 --baseline` | 0 | `/tmp/jhp-r6-mobile-main2-gate.log` |
+| `node tests/models-mobile-pair.mjs --label=tree2` | 0 | `/tmp/jhp-r6-mobile-tree2-gate.log` |
+| `MODELS_ROUND=r6 FIXTURE_RASTER_RATIO=.25 node tests/models-gate.mjs --only=voices` | 143 | `/tmp/jhp-r6-voices-1794152082047.log` |
+| `MODELS_ROUND=r6 FIXTURE_RASTER_RATIO=.25 node tests/models-gate.mjs --only=voices` | 1 | `/tmp/jhp-r6-voices-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/characters.mjs --only=day,space,bump` | 1 | `/tmp/jhp-r6-characters-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/people-pass.mjs --desktop --skip-perf` | 0 | `/tmp/jhp-r6-people-gate.log` |
+| `cd tests && FIXTURE_RASTER_RATIO=.5 SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | 0 | `/tmp/jhp-r6-smoke-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/identity-house.mjs --case=sarah` | 0 | `/tmp/jhp-r6-identity-gate.log` |
+| `MODELS_ROUND=r6 node tests/models-perf.cjs` | 0 | `/tmp/jhp-r6-models-perf-gate.log` |
+| `node tests/models-animation.mjs --label=r6-after --only=idle,talk,question,stairs,stairs-down,sit,stand,rear --skip-perf --stairs-rise=20` | 0 | `/tmp/jhp-r6-models-animation-gate.log` |
+| `node tests/models-closeup-perf.cjs --baseline-ref=main --round=r6` | 0 | `/tmp/jhp-r6-person-cpu-final-gate.log` |
+| `node tests/models-mobile-pair.mjs --label=main3 --baseline` | 0 | `/tmp/jhp-r6-mobile-main3-gate.log` |
+| `node tests/models-mobile-pair.mjs --label=tree3` | 0 | `/tmp/jhp-r6-mobile-tree3-gate.log` |
+| `bash /tmp/jhp-r6-phone.sh` | 0 | `/tmp/jhp-r6-voice-phone-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/.r6-characters-baseline.mjs --only=bump` | 0 | `/tmp/jhp-r6-bump-base-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/characters.mjs --only=bump` | 1 | `/tmp/jhp-r6-bump-tree-gate.log` |
+| `node tests/models-conversation-layouts.mjs --devices=tablet,portrait,short --cases=stairs-dad,oblique-mom,seated-sister --append` | 1 | `/tmp/jhp-r6-layouts-final-gate.log` |
+| `node tests/models-faces.mjs` | 0 | `/tmp/jhp-r6-faces-after-gate.log` |
+| `MODELS_ROUND=r6 python3 tests/models-units.py` | 0 | `/tmp/jhp-r6-units-final-gate.log` |
+| `python3 tests/models-faces-sheets.py` | 0 | `/tmp/jhp-r6-sheets-final-gate.log` |
+| `FIXTURE_RASTER_RATIO=.5 node tests/characters.mjs --only=bump` | 0 | `/tmp/jhp-r6-bump-tree-gate.log` |
+| `node tests/models-conversation-layouts.mjs --devices=tablet --cases=seated-mom --append` | 1 | `/tmp/jhp-r6-tablet-mom-gate.log` |
+| `node tests/models-conversation-layouts.mjs --devices=tablet --cases=seated-mom --append` | 0 | `/tmp/jhp-r6-tablet-mom-gate.log` |
+
+Unit ledger: **79 scripts, 79 pass**; every exact `node tests/*-unit.cjs` invocation and log is in `tests/shots/models/r6-unit-results.json`. This includes `norepeat-unit`, all model units, source-PCM lifecycle, listener/pause/mood checks, the baseline shared-random cadence regression. The first unit run failed the seeded paper grip after an idle random draw was removed; the old draw schedule was restored and subsequent full runs pass. The initial voice-unit mock supplied silent decoded PCM and nonzero analyser data; it now supplies actual PCM with a silent interval and checks the new source-envelope API without discarding the real audio-output integration checks.
+
+Syntax ledger: 12 touched/new JavaScript files checked with `node --check`, 0 failures, exact commands in `tests/shots/models/r6-syntax.json`. `git diff --check` is checked at handoff.
+
+The full voice invocation exits 1 (**8/9**): phone read an absent balloon after matching a fading one. The strengthened phone-only retry is `FIXTURE_RASTER_RATIO=.25 node tests/voices.mjs http://127.0.0.1:18089 --only=phone`, **exit 0, 1/1**. All nine cases therefore have passing coverage across the full run and retry; there is no single clean full invocation after the fixture correction. The early long-lived queue and two matrix attempts were terminated externally (143), not passed. The first short-landscape matrix failed a real carry-on-face overlap and triggered the production layout fix. Later matrix runs failed waiting for touch Talk; they are not labelled successful coverage.
+
+The initial character invocation is **2/3, exit 1**; day and space pass, bump fails with Mom talking and no phone goal. The isolated base bump passes; the uncorrected tree retry fails. `debug.sim()` deliberately omits speechTick, so its simulated 60 seconds cannot finish a real-time welcome/conversation. A wait-before-simulation fixture attempt also failed and was removed. The stair-parent production change was rolled back; both `np-life.js` and `tests/characters.mjs` now match HEAD. The last focused bump result above tests that rollback. A clean final full three-case invocation is not claimed. Speech selection is unchanged.
+
+### Art evidence and remaining limits
+
+Final facial probe source matches current rig/voice assets: **True**. Before/after: 183 native 480×480 frames each, frames 0,2,...120, six labelled strips `tests/shots/models/r6-faces/{before,after}-{mom,dad,sister}-strip.jpg` and 240 px GIF review aids. `expressions.jpg` has 24 expression poses; `visemes.jpg` has 21 mouth poses; `listeners.jpg` has 15 recorded-punchline samples. Native originals and actual playback traces remain in `before/` and `after/`. Final pose probe adds 384 native desktop/phone rig frames in `tests/shots/models/r6-after/`; it enforces two draws and every Low costume/LOD budget. These are controlled probes, not natural in-house exchanges.
+
+Native real-input house captures currently retained: **10 cases**, with 4 recorded refresh checks, in `tests/shots/models/r6-layouts/`. The per-case JSON records actual projected faces, panels, player pose and control intersections. Older desktop entries predate the strengthened ancestry/reply waits; the attempted desktop stair has explicit visible ancestry but belongs to the rolled-back prototype. The wall-sister fixture placed her into the closed front door and is rejected. Only completed assertions and personally reviewed images count. Full cross-product mobile coverage is unfinished.
+
+Personally reviewed the six facial before/after strips, expression and mouth charts, recorded-listener sheet, selected native facial frames, desktop seated/oblique/stair house captures, portrait seated Mom and stairs, and the corrected native short-landscape seated Mom. The short-screen before image covers the face; its after image separates the tag, reply, face, held video and objective. Existing stair/oblique lighting is visibly dark. Final additional contact sheets and any late tablet shot are named in the handoff; no unseen capture is claimed reviewed.
+
+**Not verified / risks:** exact phoneme/word alignment across all 746 recordings; prolonged natural alternating exchanges; all furniture and mobile layout combinations; native Potato-viseme art; uninterrupted audio-output latency or sustained GPU/thermal performance on physical devices. The larger mobile matrix is incomplete, the failed Talk fixture pressed the upper-left menu area and paused the game (diagnostic showed the correct Mom raycast with busy=true); the focused retry presses the upper centre instead. The flight-parent fix is withheld after the route regression. The stair and wall prototype captures are rejected as final acceptance evidence. Shared-host scene variation prevents attributing whole-house speed differences to the face work. No claim of a complete AAA character or whole-game premium result. No deploy, commit, version/changelog/AGENTS, site or real-data edits.
+
+Handoff at 16:35 UTC: implementation frozen at the cutoff. After removing the stair-parent prototype, the original focused bump test passes (52.4 s). Final 79-unit handoff run passes; 12 changed/new JS files pass syntax, and the reverted life/character files were separately checked and match HEAD. The focused tablet seated-Mom run passes (111.4 s), including visible delivered reply, carry/objective/control separation and standing refresh. Its native `tablet-seated-mom.png` was personally viewed: face clear, held video below the mouth, reply and reminders above. Broader tablet/phone matrix remains unfinished. Stair prototype and closed-front-door wall fixture are rejected in `r6-layouts/report.json` and README.txt. No browser/server of this task remains.

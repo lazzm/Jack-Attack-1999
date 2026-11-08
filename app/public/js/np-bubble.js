@@ -167,7 +167,9 @@
       // into that space before falling back beneath the speaker. Quantising the
       // width keeps a bobbing head from changing the line breaks every frame.
       const side=face?Math.max(face.x-view.m-8,view.w-view.m-face.x-face.w-8):0;
-      const limit=face&&top.y-18-b.h<view.top+12&&side>=220&&side<320?Math.max(220,Math.floor(side/16)*16)+'px':'';
+      const shortCarry=view.h<500&&view.w<900&&document.documentElement.dataset.gameTouch==='true'&&H.held?.();
+      const minSide=shortCarry?180:220;
+      const limit=face&&(shortCarry||top.y-18-b.h<view.top+12)&&side>=minSide&&(shortCarry||side<320)?Math.min(shortCarry?192:320,Math.max(minSide,Math.floor(side/16)*16))+'px':'';
       if(b.widthLimit!==limit){b.widthLimit=limit;b.el.style.maxWidth=limit;b.w=b.el.offsetWidth;b.h=b.el.offsetHeight;}
       const obstacles=face?keep.concat(face):keep;
       const others = obstacles.concat(placed);

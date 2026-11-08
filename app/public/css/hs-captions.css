@@ -351,6 +351,22 @@ html:not([data-game-touch="true"]) .hs-ui .rm-note {
     max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 24px);
   }
 }
+
+/* A short landscape view has useful space beside the speaker. Keep the
+   inventory tag there, leaving the centre for the face and the hands. */
+@media (max-height: 500px) and (max-width: 900px) and (orientation: landscape) {
+  html[data-game-touch="true"] .hs-ui.holding.np-conversation .hs-hold,
+  html[data-game-touch="true"] .hs-ui.holding:has(.np-bub:not(.np-out)) .hs-hold {
+    left: calc(var(--hud-safe-left) + 12px);
+    top: calc(var(--hud-safe-top) + 68px);
+    transform: none;
+    max-width: 210px;
+  }
+  html[data-game-touch="true"] .hs-ui.holding .np-bub:not(.np-edge) {
+    font-size: 14.5px;
+    padding: 11px 12px 9px;
+  }
+}
 @media (orientation: landscape) {
   html[data-game-touch="true"] .hs-ui .rm-note, html[data-game-touch="true"] .hs-ui.holding .rm-note {
     max-width: calc(100vw - var(--hud-safe-left) - var(--hud-safe-right) - 460px);
@@ -410,4 +426,14 @@ html[data-game-touch="true"] .hs-ui.np-conversation .ch-chip,
 html[data-game-touch="true"] .hs-ui:has(.np-bub:not(.np-out)) .ch-chip {
   top: auto;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+/* Carry feedback already has a measured stack on portrait devices. Keep the
+   job slip there during conversation, clear of the bottom action buttons. */
+@media (orientation: portrait) {
+  html[data-game-touch="true"] .hs-ui.holding.np-conversation .ch-chip,
+  html[data-game-touch="true"] .hs-ui.holding:has(.np-bub:not(.np-out)) .ch-chip {
+    top: var(--ht-job-top, calc(env(safe-area-inset-top, 0px) + 236px));
+    bottom: auto;
+  }
 }

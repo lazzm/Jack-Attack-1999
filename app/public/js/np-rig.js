@@ -33,10 +33,40 @@
   const CELL = {
     face: [0, 0.5, 0.5, 0.5], white: [0.875, 0.5, 0.125, 0.25], pelvis: [0.5, 0.5, 0.375, 0.25],
     torso: [0, 0, 0.5, 0.5], sleeve: [0.5, 0, 0.25, 0.5], legs: [0.75, 0, 0.25, 0.5],
-    eye: i => [0.5 + i * 0.125, 0.875, 0.125, 0.125], mouth: i => [0.5 + i * 0.125, 0.75, 0.125, 0.125],
+    eye: i => [0.5 + i * 0.125, 0.875, 0.125, 0.125], mouth: i => [0.5 + i * 0.0625, 0.75, 0.0625, 0.125],
   };
   const WHITE_UV = [0.9375, 0.625];
-  const EYE = { open: 0, half: 1, shut: 2, happy: 3 }, MOUTH = { smile: 0, small: 1, open: 2, oh: 3 };
+  const EYE = { open: 0, half: 1, shut: 2, happy: 3 }, MOUTH = { smile: 0, small: 1, open: 2, oh: 3, wide: 4, teeth: 5, closed: 6, sad: 7 };
+  // Paint directions are independent of articulation and gaze. Cross stays
+  // gentle, cheeky stays warm; explicit direction wins over simple text cues.
+  const MOOD = {
+    neutral: [0, 0, 0, 0, 0], happy: [-.04, .13, 0, .024, .21],
+    cross: [.30, -.025, 0, -.025, .055], tired: [-.04, -.025, 0, -.015, .29],
+    cheeky: [-.04, .11, .018, .008, .13], sad: [-.30, -.07, 0, .008, .15],
+  };
+  function lineMood(text, direction) {
+    const tag = typeof direction === 'string' ? direction : direction?.mood;
+    if (Object.prototype.hasOwnProperty.call(MOOD, tag)) return tag;
+    if (/\b(sorry|sad|lonely|upset|miss you)\b|oh dear/i.test(text)) return 'sad';
+    if (/\b(stop|mess|behave|enough|naughty|careful)\b|(?:don't|do not) (?:touch|push|shout|make)|told you|not funny/i.test(text)) return 'cross';
+    if (/\b(tired|sleepy|yawn|exhausted)\b|long day|off to bed/i.test(text)) return 'tired';
+    if (/\b(hehe|heh|secret)\b|only joking|just kidding|bet you|think.*retired|working out how I win/i.test(text)) return 'cheeky';
+    if (/\b(thanks|brilliant|lovely|great|funny|haha)\b|thank you|well done|ha ha/i.test(text)) return 'happy';
+    return 'neutral';
+  }
+  function speechTrack(text) {
+    const track = []; let total = 0, audible = 0;
+    // Small original spelling heuristic, not a pronunciation dictionary.
+    for (const token of text.toLowerCase().replace(/<[^>]*>/g, '').match(/ph|ee|ea|ie|oo|ou|ow|oa|[a-z]|[.,!?;:…]+|\s+/g) || []) {
+      const pause = /^[.,!?;:…]/.test(token), space = /^\s/.test(token);
+      const shape = pause || space ? MOUTH.smile : /^[mbp]$/.test(token) ? MOUTH.closed : /^(f|v|ph)$/.test(token) ? MOUTH.teeth : /^(o|u|w|oo|ou|ow|oa)$/.test(token) ? MOUTH.oh : /^(e|i|y|ee|ea|ie)$/.test(token) ? MOUTH.wide : token === 'a' ? MOUTH.open : MOUTH.small;
+      const weight = pause ? /[.!?…]/.test(token) ? 3.8 : 2.5 : space ? .35 : shape === MOUTH.closed ? .8 : /[aeiou]/.test(token) ? 1.35 : .85;
+      total += weight; audible += pause || space ? 0 : weight;
+      track.push({ shape, pause: pause || space, end: total, voicedEnd: audible });
+    }
+    for (const unit of track) { unit.end /= total || 1; unit.voicedEnd /= audible || 1; }
+    return track;
+  }
 
   // ================================================================ geometry: everything is merged into one buffer
   function Geo(bones) {
@@ -346,7 +376,7 @@
     },
   };
 
-  // the face: base (cheeks, brows, nose shadow), 4 eye frames and 4 mouth frames
+  // Four eyes and eight tightly cropped mouths in the original atlas area.
   function paintFace(A, S, O) {
     const hp = S.head, f = S.face, rx = hp.r[0], ry = hp.r[1], skin = S.skin, dark = '#1d130e';
     // base: centimetres from the head centre (x = the person's left), y up
@@ -382,7 +412,9 @@
     box(EYE.happy, g => { P2.stroke(g, dark, a * 0.24, q => { q.moveTo(-a * 1.05, -b * 0.25); q.quadraticCurveTo(0, b * 0.75, a * 1.05, -b * 0.25); }); });
     // mouth: w x h cm box, origin at the centre
     const w = 2 * f.mw * rx, h = 2 * f.mh * ry, lip = f.lip || '#8a4638', edge = mixHex(skin, '#4a2018', 0.55), inside = '#3e1414', tongue = '#c8676a';
-    const mbox = (i, fn) => A.cell(CELL.mouth(i), -w / 2, w / 2, -h / 2, h / 2, fn);
+    // Trim transparent side margins, preserving lip texel density and world
+    // size while doubling the cells. Clothing and atlas dimensions stay fixed.
+    const mbox = (i, fn) => A.cell(CELL.mouth(i), -w / 4, w / 4, -h / 2, h / 2, fn);
     const open = (g, hw, top, bot, teeth) => {
       const path = q => { q.moveTo(-hw, top); q.quadraticCurveTo(0, top - 0.25, hw, top); q.quadraticCurveTo(hw * 0.9, bot * 0.6, 0, bot); q.quadraticCurveTo(-hw * 0.9, bot * 0.6, -hw, top); q.closePath(); };
       P2.fill(g, inside, path);
@@ -393,7 +425,17 @@
     mbox(MOUTH.small, g => open(g, w * 0.15, h * 0.06, -h * 0.2, false));
     mbox(MOUTH.open, g => open(g, w * 0.19, h * 0.1, -h * 0.34, true));
     mbox(MOUTH.oh, g => { P2.ell(g, 0, -h * 0.06, w * 0.085, h * 0.17, inside); P2.stroke(g, edge, 0.24, q => q.ellipse(0, -h * 0.06, w * 0.085, h * 0.17, 0, 0, TAU)); });
-    return { eye: [f.ex, f.ey, f.ew, f.ew * rx / ry], mouth: [0, f.my, f.mw, f.mh] };
+    mbox(MOUTH.wide, g => open(g, w * .215, h * .07, -h * .16, true));
+    mbox(MOUTH.teeth, g => {
+      open(g, w * .16, h * .035, -h * .095, true);
+      P2.stroke(g, lip, .27, q => { q.moveTo(-w * .15, -h * .08); q.quadraticCurveTo(0, -h * .015, w * .15, -h * .08); });
+    });
+    mbox(MOUTH.closed, g => {
+      P2.stroke(g, lip, .34, q => { q.moveTo(-w * .19, 0); q.quadraticCurveTo(0, -h * .035, w * .19, 0); });
+      P2.stroke(g, mixHex(skin, lip, .3), .17, q => { q.moveTo(-w * .09, -h * .065); q.quadraticCurveTo(0, -h * .10, w * .09, -h * .065); });
+    });
+    mbox(MOUTH.sad, g => P2.stroke(g, lip, .32, q => { q.moveTo(-w * .19, -h * .08); q.quadraticCurveTo(0, h * .12, w * .19, -h * .08); }));
+    return { eye: [f.ex, f.ey, f.ew, f.ew * rx / ry], mouth: [0, f.my, f.mw * .5, f.mh] };
   }
   // circumference of a ring (Ramanujan)
   const circ = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
@@ -1031,23 +1073,36 @@
   // ================================================================ the material: stock lighting + the painted face
   // One program for everybody (the same onBeforeCompile source); each person has their own material for their own atlas
   // and face-frame uniforms. The fragment picks the eye and mouth frames from the atlas (the old games' texture swap).
-  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npGaze;\nuniform float npBrow;\nuniform float npRim;\n';
+  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npMouthPrev;\nuniform float npMouthMix;\nuniform float npJaw;\nuniform float npMouthPrevJaw;\nuniform float npLid;\nuniform vec3 npAct;\nuniform vec2 npGaze;\nuniform float npBrow;\nuniform float npRim;\n';
   const FACE_FRAG = `
     if (vNpFace.z > 0.002) {
       vec2 npf = vNpFace.xy;
       vec2 npbase = npf;
-      npbase.y -= npBrow * step(0.12, npf.y) * step(npf.y, 0.50);
+      npbase.y -= (npBrow + npAct.x * (abs(npf.x) - npEye.x) + npAct.z * sign(npf.x)) * step(npEye.y + 0.02, npf.y) * step(npf.y, 0.50);
       vec4 npc = texture2D(map, vec2(0.0, 0.5) + clamp(npbase * 0.25 + 0.25, 0.01, 0.49), -0.6);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * vNpFace.z * step(max(abs(npf.x), abs(npf.y)), 0.94));
       vec2 npg = npf - npGaze;
       vec2 npe = (vec2(abs(npg.x), npg.y) - npEye.xy) / npEye.zw * 0.5 + 0.5;
+      npe.y = (npe.y - 0.64) / clamp(npLid + sign(npf.x) * npAct.z * 2.0, 0.12, 1.1) + 0.64;
       float npm = step(0.0, npe.x) * step(npe.x, 1.0) * step(0.0, npe.y) * step(npe.y, 1.0);
       npc = texture2D(map, npEyeCell + clamp(npe, 0.0, 1.0) * 0.125, -0.8);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * npm * vNpFace.z);
       vec2 npq = (npf - npMouth.xy) / npMouth.zw * 0.5 + 0.5;
+      npq.y -= npAct.y * pow(abs((npq.x - 0.5) * 2.0), 2.0) + npAct.z * (npq.x - 0.5);
+      vec2 nppq = npq;
+      nppq.y = (nppq.y - 0.60) / max(0.18, npMouthPrevJaw) + 0.60;
+      npq.y = (npq.y - 0.60) / max(0.18, npJaw) + 0.60;
       npm = step(0.0, npq.x) * step(npq.x, 1.0) * step(0.0, npq.y) * step(npq.y, 1.0);
-      npc = texture2D(map, npMouthCell + clamp(npq, 0.0, 1.0) * 0.125, -0.8);
-      diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * npm * vNpFace.z);
+      float nppm = step(0.0, nppq.x) * step(nppq.x, 1.0) * step(0.0, nppq.y) * step(nppq.y, 1.0);
+      if (max(npm, nppm) > 0.0) {
+        vec2 npuv = clamp(npq, vec2(0.035, 0.025), vec2(0.965, 0.975)) * vec2(0.0625, 0.125);
+        npc = texture2D(map, npMouthCell + npuv, -0.8);
+        vec4 npp = texture2D(map, npMouthPrev + clamp(nppq, vec2(0.035, 0.025), vec2(0.965, 0.975)) * vec2(0.0625, 0.125), -0.8);
+        npc.a *= npm; npp.a *= nppm;
+        float npa = mix(npp.a, npc.a, npMouthMix);
+        vec3 nprgb = mix(npp.rgb * npp.a, npc.rgb * npc.a, npMouthMix) / max(0.0001, npa);
+        diffuseColor.rgb = mix(diffuseColor.rgb, nprgb, npa * vNpFace.z);
+      }
     }`;
   // a soft warm rim (Medium/High: the Phong path): lifts the people off the walls, like the illustrated games did
   const RIM_FRAG = '\n  totalEmissiveRadiance += npRim * pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 3.0) * diffuseColor.rgb;';
@@ -1060,7 +1115,9 @@
     const P = { vertexColors: true, skinning: true, map: tex };
     const m = low ? new T.MeshLambertMaterial(P) : new T.MeshPhongMaterial(Object.assign(P, { shininess: 6, specular: new T.Color('#0c0c0c') }));
     m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
+    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() } });
     m.onBeforeCompile = npCompile;
+    m.customProgramCacheKey = () => 'np-painted-face-r6';
     return m;
   }
   let shadowMat = null;
@@ -1106,7 +1163,7 @@
     const face = { eye: EYE.open, mouth: MOUTH.smile };
     const setFace = (eye, mouth) => {
       if (eye !== face.eye) { face.eye = eye; const c = CELL.eye(eye); U.npEyeCell.value.set(c[0], c[1]); }
-      if (mouth !== face.mouth) { face.mouth = mouth; const c = CELL.mouth(mouth); U.npMouthCell.value.set(c[0], c[1]); }
+      if (mouth !== face.mouth) { U.npMouthPrev.value.copy(U.npMouthCell.value); U.npMouthPrevJaw.value = U.npJaw.value; face.mouth = mouth; st.faceBlend = 0; const c = CELL.mouth(mouth); U.npMouthCell.value.set(c[0], c[1]); }
     };
     const useLod = near => {
       const want = near ? LOD[0] : LOD[1]; if (want === lodNow && body.geometry === outfits[outfit].geo[lodNow]) return;
@@ -1142,6 +1199,7 @@
       placed: false, contactK: 0, contactPoint: null, contactSide: null,
       action: null, seat: null, seatPose: null, look: null, listen: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0, brow: 0,
+      mood: 'neutral', moodK: 0, speechUnits: [], speechIndex: 0, faceBlend: 1, quiet: 0, pauseBlinked: false, blinkLast: -10,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
       sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, weightAt: 0, weightSide: 0, glanceT: 0,
@@ -1425,7 +1483,7 @@
     // ---------------------------------------------------------------- update
     const lookR = new T.Vector3();
     function update(dt, near) {
-      st.t += dt; const t = st.t, now = performance.now(), talking = now < st.talkUntil;
+      st.t += dt; const t = st.t, now = performance.now(), talking = now < st.talkUntil || !!(st.talkVoice?.started && !st.talkVoice.ended);
       const voice = near && talking ? st.talkVoice : null, voiceActive = voice && voice.started && !voice.ended;
       const voiceOpen = voiceActive ? clamp(voice.level(), 0, 1) : 0;
       const progress=near&&talking?(voiceActive?clamp(voice.progress(),0,1):clamp((now-st.talkStart)/Math.max(1,st.talkUntil-st.talkStart),0,1)):0;
@@ -1714,6 +1772,9 @@
       useLod(near);
       // the painted eyes lead the head a little and dart about now and then
       const holding = !!st.look;
+      // A brief thinking glance, then return to the listener. Ordinary addressed
+      // speech retains eye contact; no random wandering on important lines.
+      const thinking = near && talking && st.thinking && progress > .025 && progress < .20;
       if (t > st.saccadeAt) {
         st.saccadeAt = t + (holding ? 0.6 + Math.random() * 1.6 : 0.4 + Math.random() * 2.2);
         const away = holding && !(talking && st.engage) && Math.random() < 0.18;
@@ -1725,34 +1786,72 @@
       _q2.copy(W.chest.q).invert().multiply(W.head.q); _v.set(0, 0, 1).applyQuaternion(_q2);
       const actualYaw = Math.atan2(_v.x, _v.z), actualPitch = Math.atan2(_v.y, Math.hypot(_v.x, _v.z));
       const resY = look ? clamp(lookYawRaw - actualYaw, -0.6, 0.6) : 0, resP = look ? clamp(lookPitchRaw - actualPitch, -0.5, 0.5) : 0;
-      U.npGaze.value.set(clamp(resY * 0.09 + st.gaze.x * 0.25, -0.05, 0.05), clamp(resP * 0.08 + st.gaze.y * 0.25, -0.035, 0.035));
-      // blink (a quick shut frame); reading or washing up looks down with heavy lids; dozing: shut
-      if (t > st.blinkAt) { st.blinkT = 0.18; st.blinkAt = t + 2 + Math.random() * 4.5; if (Math.random() < 0.15) st.blinkAt = t + 0.35; }
+      const gazeX = thinking ? (kind === 'sister' ? 1 : -1) * .12 : st.gaze.x, gazeY = thinking ? .045 : st.gaze.y;
+      U.npGaze.value.set(clamp(resY * 0.09 + gazeX * 0.25, -0.05, 0.05), clamp(resP * 0.08 + gazeY * 0.25, -0.035, 0.035));
+      // Long enough audible silence marks an occasional phrase blink. Its latch
+      // prevents a long pause retriggering every frame. Idle blinking remains.
+      const elapsed = (now - st.talkStart) / 1000, v = st.talkVoice, units = st.speechUnits;
+      const voicedClock = !!(voiceActive && v.speechProgress), articulation = voicedClock ? clamp(v.speechProgress(), 0, 1) : progress;
+      const anticipate = voicedClock ? .018 / Math.max(1, v.dur || 1) : 0;
+      let index = st.speechIndex || 0;
+      const phase = clamp(articulation + anticipate, 0, .999999), key = voicedClock ? 'voicedEnd' : 'end';
+      if (index && (units[index - 1]?.[key] || 0) > phase) index = 0;
+      while (index < units.length - 1 && (units[index][key] <= phase || voicedClock && units[index].pause)) index++;
+      st.speechIndex = index; const unit = units[index];
+      const quiet = talking && near && (!v ? !!unit?.pause : voiceActive && voiceOpen < .055);
+      st.quiet = quiet ? st.quiet + dt : 0;
+      if (!quiet) st.pauseBlinked = false;
+      if (st.quiet > .10 && !st.pauseBlinked && t - st.blinkLast > 1.25) {
+        st.blinkT = .22; st.blinkLast = t; st.pauseBlinked = true;
+      }
+      if (t > st.blinkAt) {
+        // Preserve the old shared random-draw schedule. Speech acting may defer
+        // the visible blink, but must not perturb later navigation/line choices.
+        st.blinkAt = t + 2 + Math.random() * 4.5; if (Math.random() < .15) st.blinkAt = t + .35;
+        if (!talking || quiet && t - st.blinkLast > 1.25 || t - st.blinkLast > 6) { st.blinkT = .22; st.blinkLast = t; }
+      }
       let eye = EYE.open; if (!st.look && !talking && (st.action === 'paper' || st.action === 'draw' || st.action === 'magazine' || st.action === 'washup')) eye = EYE.half; if (act?.doze && !st.look) eye = EYE.shut;
-      if (st.blinkT > 0) { st.blinkT -= dt; eye = st.blinkT > 0.135 || st.blinkT < 0.045 ? EYE.half : EYE.shut; }
-      if (near && talking && st.accent > 0.65 && /[!?]/.test(st.talkText) && st.blinkT <= 0) eye = EYE.happy;
+      let blink = 0;
+      if (st.blinkT > 0) { st.blinkT = Math.max(0, st.blinkT - dt); const b = .22 - st.blinkT; blink = b < .055 ? smooth(b / .055) : b < .095 ? 1 : 1 - smooth((b - .095) / .125); if (blink > .92) eye = EYE.shut; }
       if (st.gestureKind === 'smile' && now < (st.gestureStart||0)+1800 && st.blinkT <= 0) eye = EYE.happy;
       const question=st.question&&progress>.5&&progress<.94?Math.sin(Math.PI*(progress-.5)/.44)*voiceOpen*.022:0;
-      st.brow += ((talking ? st.accent * 0.032 + question : 0) - st.brow) * k; U.npBrow.value = st.brow;
-      // talking: mouth frames from the line's rhythm (syllable-ish beats, rounder on o/u, closed at punctuation)
-      let open = 0, ch = ' ';
-      if (talking) {
-        const el = (performance.now() - st.talkStart) / 1000, text = st.talkText, v = st.talkVoice;
-        if (v && v.started && !v.ended) { // a recording is playing: the mouth follows how loud it is right now
-          const ci = Math.floor(progress * text.length); ch = text[ci] || ' ';
-          open = voiceOpen; st.talkHeard = true;
-        } else if (v && (v.ended || st.talkHeard)) open = 0; // (the recording has finished: close up, even if the timer runs on)
-        else {
-          const ci = Math.floor(el * 13.5); ch = text[ci] || ' ';
-          const pause = /[.,!?;:]/.test(text[ci - 1] || '') || /[.,!?;:]/.test(ch);
-          const beat = Math.abs(Math.sin(el * 11.5 + Math.sin(el * 3.1) * 1.4));
-          open = pause ? 0.05 : clamp(beat * (/[aeiouAEIOU]/.test(ch) ? 1 : 0.6), 0, 1);
+      const moodLive = near && talking && (!v || voiceActive), mood = MOOD[st.mood] || MOOD.neutral;
+      st.moodK += ((moodLive ? 1 : 0) - st.moodK) * (1 - Math.exp(-dt * (moodLive ? 5 : 3)));
+      // One delayed, closed-mouth listener smile at a joke; it fades instead of
+      // becoming a permanent grin or another source of speech selection.
+      let reaction = 0;
+      if (partner && partner.joke && now < partner.talkUntil + 400 && (!pv || pv.started) && (!pv?.ctx || pv.ctx.state === 'running')) {
+        const lp = pv ? pv.speechProgress ? pv.speechProgress() : pv.progress() : (now - partner.talkStart) / Math.max(1, partner.talkUntil - partner.talkStart);
+        if (lp >= partner.jokeAt && (st.reactSpeaker !== partner || st.reactLine !== partner.talkSerial)) {
+          st.reactSpeaker = partner; st.reactLine = partner.talkSerial; st.reactAt = now + 220 + (kind === 'dad' ? 60 : 0);
         }
-        if (el < 0.7 && /!/.test(text) && eye === EYE.open) eye = EYE.happy; // a cheery line starts with smiling eyes
+      }
+      const reactionAge = (now - (st.reactAt ?? -1e9)) / 1000;
+      if (near && !talking && reactionAge >= 0 && reactionAge < 1.3) reaction = smooth(reactionAge / .24) * (1 - smooth((reactionAge - .65) / .65));
+      const mk = st.moodK, ak = 1 - Math.exp(-dt * 7), acting = U.npAct.value;
+      acting.x += (mood[0] * mk - acting.x) * ak;
+      acting.y += (mood[1] * mk + reaction * .085 - acting.y) * ak;
+      acting.z += (mood[2] * mk - acting.z) * ak;
+      const squint = mood[4] * mk + reaction * .16;
+      U.npLid.value = clamp((1 - squint) * (1 - blink * .86), .12, 1);
+      st.brow += ((talking ? st.accent * 0.032 + question : 0) + mood[3] * mk - st.brow) * k; U.npBrow.value = st.brow;
+      // Keep the consumed audio scalar continuous for voice/body diagnostics.
+      // Lip closure and teeth are visual constraints layered on top of it.
+      let open = 0;
+      if (near && talking) {
+        if (voiceActive) { open = voiceOpen; st.talkHeard = true; }
+        else if (!v && unit && !unit.pause) {
+          const start = index ? units[index - 1].end : 0, local = clamp((phase - start) / Math.max(.001, unit.end - start), 0, 1);
+          open = (.25 + Math.sin(Math.PI * local) * .65) * (unit.shape === MOUTH.small ? .65 : 1);
+        }
       }
       st.mouth += (open - st.mouth) * (1 - Math.exp(-dt * (open > st.mouth ? 34 : 24)));
-      const m = st.mouth < 0.18 ? MOUTH.smile : st.mouth > 0.4 && /[oOuUwW]/.test(ch) ? MOUTH.oh : st.mouth > 0.58 ? MOUTH.open : MOUTH.small;
+      const rest = mk > .45 && st.mood === 'sad' ? MOUTH.sad : mk > .45 && st.mood === 'cross' ? MOUTH.closed : MOUTH.smile;
+      const m = st.mouth < .065 || !talking || v && !voiceActive || !unit ? rest : unit.shape;
       setFace(eye, m);
+      st.faceBlend = Math.min(1, st.faceBlend + dt / .045); U.npMouthMix.value = smooth(st.faceBlend);
+      const articulated = m !== MOUTH.smile && m !== MOUTH.closed && m !== MOUTH.sad;
+      U.npJaw.value = articulated ? m === MOUTH.teeth ? .72 + st.mouth * .28 : .30 + st.mouth * .70 : 1;
     }
 
     // shadows: under the hips, and under each foot (fading as it lifts)
@@ -1789,7 +1888,12 @@
         st.seat = o.seat || null; if (st.seat) st.seatPose = st.seat;
       } if ('look' in o) st.look = o.look || null; if ('listen' in o) st.listen = o.listen || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
-      talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length); },
+      talk(ms, text, voice, direction) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length);
+        st.speechUnits = speechTrack(st.talkText); st.speechIndex = 0; st.mood = lineMood(st.talkText, direction); st.thinking = /\b(hmm|um|wonder)\b|let me think/i.test(st.talkText);
+        const joke = /\b(funny|joke|haha|secret)\b|ha ha|only joking|just kidding|bet you|think.*retired|working out how I win/i.exec(st.talkText);
+        st.joke = !/not (?:a )?joke|not funny|no joke/i.test(st.talkText) && (st.mood === 'cheeky' || !!joke); st.jokeAt = joke ? clamp((joke.index + joke[0].length) / Math.max(1, st.talkText.length), .12, .94) : .78; st.talkSerial = (st.talkSerial || 0) + 1;
+        st.quiet = 0; st.pauseBlinked = false;
+      },
       hush() { st.talkUntil = 0; st.talkVoice = null; },
       acknowledge(kind) { rig.hush(); st.gestureStart = performance.now(); st.gestureKind = kind === 'smile' ? 'smile' : 'nod'; },
       headTop(out) { // world position just above the hair (speech bubbles hang from here)
