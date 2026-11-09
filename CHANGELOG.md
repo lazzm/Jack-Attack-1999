@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.84.0 - 2026-11-09
+- The family act out what they say: in the 80 lines you hear most, the smile lands on the punchline and the brows go up on the question, and their mouths shape your name properly when they call you.
+- Listeners turn their whole body towards whoever is talking with a small step, not just their heads, and sitting family keep hold of their mugs and papers: they sip between turns, lower the paper to talk to you, and put the mug down to reply.
+- Faces read from the side as well as from the front.
+- Bounce Quest 64 has a sixth course, Treacle Troubleworks, with its own music, enemies and six golden acorns, and a foreman boss with attacks you can learn to dodge; 60 acorns in all. Bopper can now catch the edges of moving and spinning platforms.
+
 ## 2.83.1 - 2026-11-09
 - 8 more recorded lines for the family, 754 in all, each checked for the right words and a standard Southern English accent. About 30 are still text-only: some of Mom's short reminders keep coming out in the wrong accent, so they're being re-directed before they're recorded again.
 
