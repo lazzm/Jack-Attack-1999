@@ -413,12 +413,24 @@ async function runtimeShortPress(){
  assert.equal(proof.heldAfterRelease,false);assert.equal(proof.read?.held,false);assert.equal(proof.read.gnd,false);assert(proof.read.clearance>.9);assert.equal(proof.state,'pound');
  await writeFile(path.join(dir,'input-queue-room.json'),JSON.stringify(proof,null,2));console.log('RUNTIME INPUT PASS '+JSON.stringify(proof));
 }
+// Observe the real upload, including a budgeted copy on a smaller phone CRT.
+// A cartridge object can exist before its first frame reaches that screen.
+function watchCartridgeFrame(){
+ window.hopCartridgeFrame=null;const upload=Room._.tvLive;
+ Room._.tvLive=function(canvas,...args){
+  const tx=upload.call(this,canvas,...args),k=RoomTV.dbg();
+  if(tx&&window.__hopDbg&&canvas===k?.cv&&k.frame>0){
+   window.hopCartridgeFrame={frame:k.frame,native:[canvas.width,canvas.height],texture:[tx.image.width,tx.image.height]};Room._.tvLive=upload;
+  }
+  return tx;
+ };
+}
 async function room(){
  const account='Hop'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
  const f=await roomFixture(base,{account,password,signup:false,onPage:async page=>{if(before)await page.route('**/js/rm-g-hop.js*',r=>r.fulfill({body:source,contentType:'application/javascript'}))}});browser=f.browser;p=f.page;
  try{
-  await playCase(f,'n64.hop');await f.until(()=>!!window.__hopDbg);await p.waitForTimeout(1000);await p.screenshot({path:path.join(dir,'in-room-title.png')});
-  await p.keyboard.press('t');await f.until(()=>RoomTV.lockIn());await p.keyboard.press('Enter');if(!before)await f.until(()=>__hopDbg.ui.started);else await p.waitForTimeout(900);
+  await p.evaluate(watchCartridgeFrame);await playCase(f,'n64.hop');await f.until(()=>!!window.hopCartridgeFrame&&!House.gliding);console.log('ROOM CRT READY',await p.evaluate(()=>hopCartridgeFrame));await p.screenshot({path:path.join(dir,'in-room-title.png')});
+  await p.keyboard.press('t');await f.until(()=>RoomTV.covered()&&!House.gliding);await p.keyboard.press('Enter');if(!before)await f.until(()=>__hopDbg.ui.started);else await p.waitForTimeout(900);
   await p.keyboard.press('z');await f.until(()=>__hopDbg.mode==='card');await f.until(()=>__hopDbg.snapshot?__hopDbg.snapshot().card.t>.7:true);if(before)await p.waitForTimeout(1000);await p.keyboard.press('z');if(before)for(let i=0;i<15&&await p.evaluate(()=>__hopDbg.mode==='card');i++){await p.waitForTimeout(400);await p.keyboard.press('z')}await f.until(()=>__hopDbg.mode==='play');
   const z=await p.evaluate(()=>__hopDbg.P.z);await p.keyboard.down('ArrowUp');await f.until(z=>__hopDbg.P.z<z-.4,z);await p.keyboard.up('ArrowUp');await p.screenshot({path:path.join(dir,'lock-in-play.png')});
   assert(await p.evaluate(()=>{let yes=false;House.scene.traverse(o=>{if(o.material?.map?.userData?.jackLive&&o.material.map.image===RoomTV.dbg().cv)yes=true});return yes}),'Telly shows live game canvas');
@@ -464,12 +476,26 @@ async function phone(){
  const account='HPhone'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
  const f=await roomFixture(base,{account,password,signup:false,width:390,height:844,touch:true,storage:{jhp_touch_slow_asked:true},contextOptions:{isMobile:true,deviceScaleFactor:1,userAgent:'Mozilla/5.0 (Linux; Android 9) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36'}});browser=f.browser;p=f.page;
  try{
-  await playCase(f,'n64.hop');await f.until(()=>!!window.__hopDbg);const cdp=await p.context().newCDPSession(p);
-  const press=async selector=>{const r=await p.locator(selector).boundingBox();assert(r,selector);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:r.x+r.width/2,y:r.y+r.height/2,id:2}]});await p.waitForTimeout(120);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})};
-  await press('.rm-tools .rm-lock');await f.until(()=>RoomTV.lockIn());await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.ui.started);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='card');await f.until(()=>__hopDbg.ui.card.t>.7);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='play');
+  await p.evaluate(watchCartridgeFrame);await playCase(f,'n64.hop');await f.until(()=>!!window.hopCartridgeFrame&&!House.gliding);console.log('PHONE CRT READY',await p.evaluate(()=>hopCartridgeFrame));const cdp=await p.context().newCDPSession(p);
+  // Locator taps resolve moving/rebuilt controls at dispatch time. Latch short
+  // actions in browser frames: a jump or punch can have finished before the
+  // touchEnd round trip and Node's next poll. The finger still releases normally.
+  const press=async(selector,action)=>{
+   if(action){
+    await f.until(action=>action==='jump'?__hopDbg.P.gnd:__hopDbg.P.gnd&&!__hopDbg.P.swimming&&__hopDbg.P.ctrl<=0&&__hopDbg.P.punchT<=0,action);
+    await p.evaluate(action=>{
+     const seen=window.hopTouchAction={seen:false,done:false};
+     const poll=()=>{if(seen.done)return;const P=__hopDbg.P;if(action==='jump'?!P.gnd:P.punchT>0)seen.seen=true;requestAnimationFrame(poll)};
+     requestAnimationFrame(poll);
+    },action);
+   }
+   try{await p.locator(selector).tap();if(action)await f.until(()=>hopTouchAction.seen)}
+   finally{if(action)await p.evaluate(()=>hopTouchAction.done=true)}
+  };
+  await press('.rm-tools .rm-lock');await f.until(()=>RoomTV.covered()&&!House.gliding);await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.ui.started);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='card');await f.until(()=>__hopDbg.ui.card.t>.7);await press('.rm-pad [data-b="a"]');await f.until(()=>__hopDbg.mode==='play');
   const r=await p.locator('.rm-pad .rm-stick').boundingBox();assert(r,'Phone movement pad');const x=await p.evaluate(()=>__hopDbg.P.x);await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:r.x+r.width*.85,y:r.y+r.height*.5,id:1}]});await f.until(x=>__hopDbg.P.x>x+.3,x);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await f.until(()=>Math.hypot(__hopDbg.P.vx,__hopDbg.P.vz)<.1);
-  await press('.rm-pad [data-b="a"]');await f.until(()=>!__hopDbg.P.gnd);await p.screenshot({path:path.join(dir,'phone-touch-jump.png')});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await press('.rm-pad [data-b="l"]');await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);
-  await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);
+  await press('.rm-pad [data-b="a"]','jump');await p.screenshot({path:path.join(dir,'phone-touch-jump.png')});await f.until(()=>__hopDbg.P.gnd);const yaw=await p.evaluate(()=>__hopDbg.C.want);await press('.rm-pad [data-b="l"]');await f.until(yaw=>__hopDbg.C.want>yaw+.7,yaw);
+  await press('.rm-pad [data-b="b"]','punch');
   await p.evaluate(()=>{__hopDbg.go('brolly');const s=__hopDbg.powerSwitch;__hopDbg.tp(s.x,s.y,s.z);window.hopFloor=__hopDbg.P.y});
   const buttons=await p.evaluate(()=>Object.fromEntries(['a','c'].map(b=>{const r=document.querySelector('.rm-pad [data-b="'+b+'"]').getBoundingClientRect();return[b,{x:r.x+r.width/2,y:r.y+r.height/2,id:2}]})));
   await p.evaluate(()=>{window.hopPoundTouch=null;const onC=e=>{if(!e.target.closest('[data-b="c"]'))return;const d=__hopDbg;window.hopPoundTouch={y:d.P.y,clearance:d.P.y-hopFloor,vy:d.P.vy,gnd:d.P.gnd,st:d.P.st,frame:RoomTV.dbg().frame};document.removeEventListener('pointerdown',onC,true)};document.addEventListener('pointerdown',onC,true)});
@@ -483,6 +509,9 @@ async function phone(){
   await p.evaluate(()=>__hopDbg.go('grotto'));const waterStick=await p.locator('.rm-pad .rm-stick').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:waterStick.x+waterStick.width*.5,y:waterStick.y+waterStick.height*.12,id:1}]});await f.until(()=>__hopDbg.P.swimming);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   const dive=await p.locator('.rm-pad [data-b="c"]').boundingBox();await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:dive.x+dive.width/2,y:dive.y+dive.height/2,id:2}]});await f.until(()=>__hopDbg.P.y<-3);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.screenshot({path:path.join(dir,'phone-swimming.png')});
   await press('.rm-pad [data-b="start"]');await f.until(()=>__hopDbg.paused);await p.screenshot({path:path.join(dir,'phone-touch-portrait.png')});const pose=await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]);await p.setViewportSize({width:844,height:390});await p.waitForTimeout(800);assert(await p.evaluate(()=>__hopDbg.paused));assert.deepEqual(await p.evaluate(()=>[__hopDbg.P.x,__hopDbg.P.y,__hopDbg.P.z]),pose,'Rotation preserves player');await p.screenshot({path:path.join(dir,'phone-touch-landscape.png')});
-  await press('.rm-pad [data-b="start"]');await f.until(()=>!__hopDbg.paused);await press('.rm-pad [data-b="b"]');await f.until(()=>__hopDbg.P.punchN>0);await p.screenshot({path:path.join(dir,'phone-touch-play.png')});await p.setViewportSize({width:768,height:1024});await p.waitForTimeout(800);await p.screenshot({path:path.join(dir,'tablet-touch-game.png')});await press('.rm-tools .rm-lock');await f.until(()=>!RoomTV.lockIn()&&!House.gliding);await p.screenshot({path:path.join(dir,'tablet-in-room.png')});await cdp.detach();assert.deepEqual(f.errors,[]);console.log('PHONE PASS: actual touch title/card, thumb movement, jump, camera, Grotto entry/dive, pause, rotation, punch and tablet framing');
+  await press('.rm-pad [data-b="start"]');await f.until(()=>!__hopDbg.paused);
+  // punchN is combo history, not an active attack. Swimming B uses a different
+  // attack; stage dry ground to prove a fresh punch after rotation.
+  await p.evaluate(()=>__hopDbg.go('hub'));await press('.rm-pad [data-b="b"]','punch');await p.screenshot({path:path.join(dir,'phone-touch-play.png')});await p.setViewportSize({width:768,height:1024});await p.waitForTimeout(800);await p.screenshot({path:path.join(dir,'tablet-touch-game.png')});await press('.rm-tools .rm-lock');await f.until(()=>!RoomTV.lockIn()&&!House.gliding);await p.screenshot({path:path.join(dir,'tablet-in-room.png')});await cdp.detach();assert.deepEqual(f.errors,[]);console.log('PHONE PASS: actual touch title/card, thumb movement, jump, camera, Grotto entry/dive, pause, rotation, fresh punch and tablet framing');
  }catch(e){if(p&&!p.isClosed()){console.log('DEVICE FAIL STATE',await state().catch(()=>({unavailable:true})));await p.screenshot({path:path.join(dir,'device-failure.png')}).catch(()=>{})}throw e}finally{await browser.close();browser=null}
 }

@@ -78,7 +78,10 @@ async function houseSave(page){return page.evaluate(()=>{
   const pose=JSON.parse(localStorage.getItem('jhp_hs_pose')||'null');if(pose)delete pose.t;
   return{pose,stand:JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p,power:localStorage.getItem('jhp_off')};
 })}
-async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.__smokeProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'))}
+// Reload rebuilds and uploads the room artwork. The normal 8-second action
+// budget can expire during its 12-second loading phase on shared SwiftShader.
+// Keep all readiness and saved-state assertions, using the startup budget here.
+async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await wait(page,()=>window.__smokeProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'),60000)}
 const checks=[
  ['sparse-signup',90000,async()=>{
    let sparse;
@@ -115,9 +118,17 @@ const checks=[
    const after=await page.evaluate(()=>({mode:House.mode,p:[House.W.x,House.W.z]}));
    assert.equal(after.mode,'walk');assert(Math.hypot(after.p[0]-walked[0],after.p[1]-walked[1])<1,`Refresh changed walking pose: ${JSON.stringify(walked)} -> ${JSON.stringify(after.p)}`);
  }],
- ['pc-controls',20000,async()=>{
-   const {page}=await room();await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');
-   await until(()=>House.mode==='monitor'&&!House.gliding&&DesktopSurface.ready());
+ // Four camera transitions plus desktop/app actions share this budget. A
+ // 20-second total can expire while each individually awaited step is healthy.
+ ['pc-controls',60000,async()=>{
+   const {page}=await room();
+   async function enterPC(){
+     await aim([40,-55,155],[-15,-24,0]);
+     await page.evaluate(()=>{window.__smokePCFrame=House.perf().frames;House.dirty()});
+     await until(()=>{if(House.perf().frames<=__smokePCFrame||House.busy||House.gliding)return false;const h=House.pick(innerWidth/2,innerHeight/2);return h&&['pc','pc.tower','pc.power'].includes(h.spot)&&h.dist<=House.SPOTS[h.spot].range});
+     await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding&&DesktopSurface.ready());
+   }
+   await enterPC();
    console.log('pc-controls: entered monitor');
    await page.evaluate(async()=>{await Apps.open('notepad')});
    assert.equal(await page.locator('.appwin').count(),1);
@@ -125,7 +136,7 @@ const checks=[
    await page.keyboard.press('t');assert(!await page.evaluate(()=>House.desktopDisplay()));
    await page.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());await until(()=>!document.querySelector('.appwin'));assert.equal(await page.locator('.appwin').count(),0);
    console.log('pc-controls: leaving first monitor');await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
-   console.log('pc-controls: first standing pose settled');await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding);
+   console.log('pc-controls: first standing pose settled');await enterPC();
    console.log('pc-controls: leaving second monitor with F2');await page.keyboard.press('F2');await until(()=>House.mode==='walk'&&!House.gliding);console.log('pc-controls: F2 standing pose settled');
  }],
  ['console-game',60000,async()=>{
