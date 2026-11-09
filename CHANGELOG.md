@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.83.0 - 2026-11-09
+- The family no longer vanish on the stairs: anyone walking up or down the lower flight stays in view the whole way.
+- Faces stay readable in dim rooms and at night, with a soft light on them instead of a black band across the jaw, and their mouths and brows are bigger so you can see what they're saying and feeling on a phone.
+- Mouths close on the right sounds (M, B, P) in the 40 lines you hear most, and every line now carries the right mood, so Dad smiles at his own joke instead of frowning.
+- A refresh keeps everything exactly where it was, including things you'd just picked up or moved.
+- The Game Lad's buttons are labelled A, B, START and SELECT again.
+- Dad's car has see-through glass with the seats visible inside.
+- Bounce Quest 64: movement-school lessons only count when you do the move, Bopper's gloves grip the ledge when he hangs, and the coach only gives his full welcome once.
+
 ## 2.82.0 - 2026-11-09
 - Bounce Quest 64 has 54 golden acorns: race a rival down an enclosed snow slide, warm up in a furnished ski lodge, learn every move from a friendly teacher in a 12-lesson movement school, and grab ledges when a jump falls just short (a press just before the ledge still counts).
 - Things look like what they're made of, round 3: Dad's office PC has recessed vents, drive bays, a power button and a badge; wallpaper has a proper pattern, paper texture and seams; painted doors and skirting have glossy edges, brush marks and the odd chip; windows and the glass cabinet have a reflection and a tinted edge; and the telly, video player, kitchen cupboards, fridge, coats, wellies, the car and the drive have their own finishes. Phones and slow computers run at the same speed as before.
