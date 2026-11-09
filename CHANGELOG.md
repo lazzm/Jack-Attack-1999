@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.82.0 - 2026-11-09
+- Bounce Quest 64 has 54 golden acorns: race a rival down an enclosed snow slide, warm up in a furnished ski lodge, learn every move from a friendly teacher in a 12-lesson movement school, and grab ledges when a jump falls just short (a press just before the ledge still counts).
+- Things look like what they're made of, round 3: Dad's office PC has recessed vents, drive bays, a power button and a badge; wallpaper has a proper pattern, paper texture and seams; painted doors and skirting have glossy edges, brush marks and the odd chip; windows and the glass cabinet have a reflection and a tinted edge; and the telly, video player, kitchen cupboards, fridge, coats, wellies, the car and the drive have their own finishes. Phones and slow computers run at the same speed as before.
+- Behind the scenes: several release checks that only failed when the test machine was busy now wait for the game to be ready, so real problems stand out.
+
 ## 2.81.0 - 2026-11-08
 - The family's mouths follow their recorded voices: they open with the loudness of the actual recording, take the shape of the sounds being said (closed for M and B, round for O, wide for E), and close on pauses. Lines without a recording still move in time with the words.
 - Faces show how they feel. Brows and eyes carry happy, cross, tired, cheeky, sad and thinking looks from what they're saying, blinks fall on pauses, and whoever is listening smiles at a joke.
