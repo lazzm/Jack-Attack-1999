@@ -84,7 +84,34 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
   a bounded response smile that survives the turn boundary. These presentation layers do not select speech, change
   dialogue history or consume additional shared random numbers.
 
+### Round 8: line direction, group pivots and seated conversations
+- `np-beats.js` directs 126 joke, question, warm, firm, thought and phrase beats across 80 priority opening, welcome
+  and time-of-day lines. This is a curated set, not a ranking from player telemetry. Explicit word anchors and
+  estimated recorded-word spans live in `tools/audio/author-acting-beats.py`; recordings and dialogue selection are
+  unchanged. Acting uses the base-clip clock after the actual decoded name and 100ms join, with an anchor-based
+  text-only fallback. Pending recordings do not invent a visible speech beat.
+- Standing listeners in wide groups turn in bounded 25-degree steps at at most 0.8 radians/second, after 320ms of
+  stable attention and with a pause between steps. The existing gait solver keeps one foot planted. Seats, stairs,
+  explicit player conversations and avoidance retain their own controls; no route or random draws are added.
+- Seated paper/magazine grips solve against the same changing page angle and reachable height. The paper tilts
+  towards the lap rather than pulling the wrists beyond arm length. One-handed jobs retain their held tool and
+  pause their action phase while engaged. A seated drawing keeps its crayon and supported paper, pauses on the
+  actual nib contact while speaking, and resumes the same action phase. Free seated cup hands rest on the thigh. Sipping follows the actual solved head; speaking interrupts a sip smoothly.
+- Cheek face coordinates spread the painted mouth around the original solid skull, and brows extend slightly
+  towards the temples. At grazing camera angles the same mouth paint eases around the near cheek so its classes
+  remain visible; the actual render camera and solved head supply one scalar to the existing shader. There are no
+  separate lips, face cards or extra draws. Raised family brows have clear fringe space. Hair changes reuse the exact original topology.
+- `voice-name-phonemes.json` supplies 3,028 directed painted-mouth cues for all 402 available joined-name recordings,
+  including 249 closed-lip/teeth contacts. Mom-call cues include the recorded “love”. Playback qualifies the name
+  track against its source file and decoded duration, closes the join gap, then switches to the base-line track.
+  Missing or stale name tracks keep the existing fallback. The offline helper is `tools/audio/author-name-cues.py`;
+  phone boundaries are estimates, and no recording is modified. Both cue packs inherit the script build stamp.
+
 ### Budgets
+
+Round 8 / main 2.83.1 measured Low/Potato near/far (including six shadow triangles): Mom **2,818 / 1,731**,
+Dad **2,998 / 1,895**, sister **2,994 / 1,835**; family near **8,810**, six draws. All Low outfits remain at or
+below **2,998**. The earlier dated measurements below are historical.
 - Draw calls per person: 2 (body + contact shadow).
 - 4 November 2026 animation/model pass: Low/Potato near/far, **including** the six shadow triangles: Mom **2,778 / 1,726**; Dad work/home/weekend **2,958 / 1,890**; sister **2,954 / 1,830**. Other costumes are unchanged, maximum **2,998**. The family still fits six draws and 9,000 triangles. Original grouped fingers, broader skull/jaw forms, Mom's solid nape locks and the sister's parted/tapered hair reuse the existing skeleton. Detailed research, ranked critique, paired CPU timings and verification are in [ANIMATION-RESEARCH.md](ANIMATION-RESEARCH.md) and [ANIMATION-REVIEW.md](ANIMATION-REVIEW.md).
 - Low/Potato: at most **3,000 triangles per person in every outfit**, at both near and far detail. Measured 28 October with `characters.mjs --only=budget`:
@@ -127,8 +154,10 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
 - The trick-or-treaters come along the pavement from down the road before turning up the path.
 - **Talking to someone mid-job** (`rig.set({ engage })` while you hold a conversation): the job pauses, they turn
   their whole body (little steps) to face you, keep one-handed things (mug, sponge, spoon, can, remote, phone), put
-  two-handed things down (paper, magazine, yo-yo, drawing), and go back to the job afterwards; seated people stay
-  seated and turn their head. `characters.mjs --only=interrupt` talks to everyone during every job in their routines.
+  standing two-handed things down (paper, magazine, yo-yo, drawing), and go back to the job afterwards. Seated
+  readers retain both page grips and tilt/lower the paper or magazine into the lap; the lower limit follows both
+  real arm lengths. Seated people stay seated and turn their head. Cups can rise during a quiet listening interval
+  and lower promptly when their owner speaks; the near rim follows the solved mouth, including head turns. `characters.mjs --only=interrupt` talks to everyone during every job in their routines.
 - Clothes: shaped upper trouser legs meet under a rounded, rolled-under hem. Their hidden waist stays inside the top at the front, sides and back; no extra pelvis wedge, projecting waistband or rigid ledge. Dad keeps a tucked shirt and belt. `characters.mjs --only=hips` captures all sides and close waist views, plus phone/tablet portrait and landscape; `--only=hip-motion` adds real stride phases and seated views.
 - Hand targets use the skeleton’s positive-X left side and negative-X right side. Lap, paper, mug, phone and job poses keep wrists on their own side; the seated gallery asserts this so crossed forearms cannot return.
 - Walk: heel-strike/toe-off, pelvis sway, roll and turn with the stride, shoulders counter-turning, arm swing with

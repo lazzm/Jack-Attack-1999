@@ -87,7 +87,14 @@
         Cl.push(c.r * ao, c.g * ao, c.b * ao);
         if (o.cell && uv) { const r = o.cell, p = o.pad || 0; UV.push(r[0] + p + clamp(uv.getX(i), 0, 1) * (r[2]-2*p), r[1] + p + clamp(uv.getY(i), 0, 1) * (r[3]-2*p)); }
         else UV.push(WHITE_UV[0], WHITE_UV[1]);
-        if (hp) { const zz = (z - hp.c[2]) / hp.r[2]; F.push((x - hp.c[0]) / hp.r[0], (y - hp.c[1]) / hp.r[1], smooth((zz - 0.12) / 0.3)); }
+        if (hp) {
+          const zz = (z - hp.c[2]) / hp.r[2], fy = (y - hp.c[1]) / hp.r[1];
+          // Paint around the cheek, rather than squeezing the entire mouth
+          // onto its front plane. The existing solid skull supplies the side
+          // surface; no lip mesh, additional material or camera-facing card.
+          const wrap = 1 + .24 * smooth((-.18-fy)/.22) + .07 * smooth((fy-.08)/.12);
+          F.push((x - hp.c[0]) / hp.r[0] / wrap, fy, smooth((zz + .04) / .28));
+        }
         else F.push(0, 0, 0);
         const w = typeof weights === 'function' ? weights(x, y, z) : Array.isArray(weights) ? weights : [[weights, 1]];
         let s = 0; for (const q of w) s += q[1];
@@ -387,7 +394,7 @@
       g.save(); g.globalAlpha = 0.22; P2.stroke(g, mixHex(skin, '#7a3a24', 0.6), 0.32, q => { q.moveTo(-0.55, ny + 0.2); q.quadraticCurveTo(0, ny - 0.18, 0.55, ny + 0.2); }); g.restore();
       if (f.freckles) { g.save(); g.globalAlpha = 0.26; for (const [x, y] of [[-3.3, -3.1], [-2.4, -3.7], [-4.0, -3.9], [3.2, -3.2], [2.3, -3.8], [4.0, -3.8]]) P2.ell(g, x * rx / 13.7, ey + y * 0.85, 0.17, 0.17, '#b06a3a'); g.restore(); }
       for (const k of [1, -1]) { // brows: short soft arches, the inner end a touch lower (friendly)
-        const bx = k * ex, by = ey + f.browY * ry, w = 0.17 * rx;
+        const bx = k * ex, by = ey + f.browY * ry, w = 0.19 * rx;
         P2.stroke(g, S.brow, f.brow * ry * 1.25, q => { q.moveTo(bx - k * w, by - 0.1); q.quadraticCurveTo(bx, by + 1.05, bx + k * w, by - 0.15); });
       }
       O.paintFace && O.paintFace(g, S, P2);
@@ -809,8 +816,8 @@
   const HAIR = {
     mom: { ears: true, build(G, S, J, L, h, h2) { // a soft chin-length bob with a side-swept fringe
       const P = S.head, [cx, cy, cz] = P.c;
-      G.add(helmet(S, L, { face: 78, soft: 9,
-        line: (A, ab) => 27 + 7 * smooth((ab - 42) / 22) + 4 * smooth(A / 40) - 3 * Math.exp(-(((A + 30) / 26) ** 2)) - 52 * smooth((ab - 58) / 22),
+      G.add(helmet(S, L, { face: 78, soft: 6,
+        line: (A, ab) => 37 + 7 * smooth((ab - 42) / 22) + 4 * smooth(A / 40) - 3 * Math.exp(-(((A + 30) / 26) ** 2)) - 52 * smooth((ab - 58) / 22),
         end: ab => -46 - 6 * smooth((ab - 100) / 70) + 1.8 * Math.cos(ab * D2R * 5),
         thick: (ab, ed) => 1.5 + 0.9 * smooth((ab - 40) / 40) * (1 - 0.35 * smooth((ab - 120) / 50)) + 1.2 * smooth((ed - 20) / 50),
         shape: hairLocks(S, bobFall(S, 1.6, 12), -0.28) }), shade(h, h2, S), (x, y) => {
@@ -825,8 +832,8 @@
     } },
     dad: { build(G, S, J, L, h, h2) { // short back-and-sides, parted on his left, a small quiff; and his glasses
       const P = S.head, [cx, cy, cz] = P.c, base = shade(h, h2, S);
-      G.add(helmet(S, L, { face: 80, soft: 12,
-        line: (A, ab) => 35 + 5 * smooth(A / 30) - 4 * Math.exp(-(((A + 12) / 14) ** 2)) + 5 * Math.exp(-(((ab - 46) / 12) ** 2)) - 48 * smooth((ab - 52) / 28),
+      G.add(helmet(S, L, { face: 80, soft: 8,
+        line: (A, ab) => 40 + 5 * smooth(A / 30) - 4 * Math.exp(-(((A + 12) / 14) ** 2)) + 5 * Math.exp(-(((ab - 46) / 12) ** 2)) - 48 * smooth((ab - 52) / 28),
         end: ab => lerp(-12, -44, smooth((ab - 104) / 45)) + 24 * Math.exp(-(((ab - 98) / 15) ** 2)),
         thick: (ab, ed) => 1.6 + 0.5 * smooth((ab - 90) / 60) + 1.4 * smooth((ed - 20) / 45),
         shape: (x, y, z, ab, ed, A) => { if (ed > 22 && A > -40 && A < 50) { const b = Math.exp(-(((A - 4) / 26) ** 2)) * smooth((ed - 26) / 16) * (1 - smooth((ed - 62) / 20)); const k = 1 + 2.4 * b / P.r[1]; x = cx + (x - cx) * k; y = cy + (y - cy) * k; z = cz + (z - cz) * k; } return [x, y, z]; } }),
@@ -842,8 +849,8 @@
     } },
     sister: { build(G, S, J, L, h, h2) { // a straight fringe and two bunches with hair bobbles and butterfly clips
       const P = S.head, [cx, cy, cz] = P.c, st = shade(h, h2, S);
-      G.add(helmet(S, L, { face: 80, soft: 7,
-        line: (A, ab) => 20 + 6 * smooth((ab - 35) / 20) - 28 * smooth((ab - 55) / 25),
+      G.add(helmet(S, L, { face: 80, soft: 6,
+        line: (A, ab) => 30 + 6 * smooth((ab - 35) / 20) - 28 * smooth((ab - 65) / 25),
         end: ab => lerp(-5, -38, smooth((ab - 85) / 50)),
         thick: (ab, ed) => 1.5 + 0.8 * smooth((ed - 20) / 50), shape: hairLocks(S, null, 0) }), st, 'head');
       for (const s of [1, -1]) {
@@ -860,10 +867,10 @@
       }
     } },
     short: { build(G, S, J, L, h, h2) { // a child's short crop
-      G.add(helmet(S, L, { face: 80, soft: 8, flat: S.hatted, line: (A, ab) => 24 + 6 * smooth((ab - 35) / 20) - 3 * Math.exp(-(((A - 20) / 16) ** 2)) - 28 * smooth((ab - 55) / 25), end: ab => lerp(2, -20, smooth((ab - 92) / 28)), thick: (ab, ed) => 1.3 + 0.9 * smooth((ed - 20) / 50) }), shade(h, h2, S), 'head');
+      G.add(helmet(S, L, { face: 80, soft: 6, flat: S.hatted, line: (A, ab) => 32 + 6 * smooth((ab - 35) / 20) - 3 * Math.exp(-(((A - 20) / 16) ** 2)) - 28 * smooth((ab - 55) / 25), end: ab => lerp(2, -20, smooth((ab - 92) / 28)), thick: (ab, ed) => 1.3 + 0.9 * smooth((ed - 20) / 50) }), shade(h, h2, S), 'head');
     } },
     bob: { ears: true, build(G, S, J, L, h, h2) { // a child's bob with a fringe
-      G.add(helmet(S, L, { face: 78, soft: 8, flat: S.hatted, line: (A, ab) => 21 + 7 * smooth((ab - 40) / 20) - 50 * smooth((ab - 58) / 22), end: ab => -34 - 6 * smooth((ab - 100) / 70), thick: (ab, ed) => 1.6 + 1.0 * smooth((ed - 15) / 50), shape: bobFall(S, 2.2, 6) }), shade(h, h2, S), (x, y) => [['head', 1]]);
+      G.add(helmet(S, L, { face: 78, soft: 6, flat: S.hatted, line: (A, ab) => 31 + 7 * smooth((ab - 40) / 20) - 50 * smooth((ab - 58) / 22), end: ab => -34 - 6 * smooth((ab - 100) / 70), thick: (ab, ed) => 1.6 + 1.0 * smooth((ed - 15) / 50), shape: bobFall(S, 2.2, 6) }), shade(h, h2, S), (x, y) => [['head', 1]]);
     } },
     none: { build() {} },
     // the grown-up: neat short hair under a red bobble hat (it's cold out on Halloween)
@@ -1073,7 +1080,7 @@
   // ================================================================ the material: stock lighting + the painted face
   // One program for everybody (the same onBeforeCompile source); each person has their own material for their own atlas
   // and face-frame uniforms. The fragment picks the eye and mouth frames from the atlas (the old games' texture swap).
-  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npMouthPrev;\nuniform float npMouthMix;\nuniform float npJaw;\nuniform float npMouthPrevJaw;\nuniform float npLid;\nuniform vec3 npAct;\nuniform vec2 npGaze;\nuniform float npBrow;\nuniform float npRim;\n';
+  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npMouthPrev;\nuniform float npMouthMix;\nuniform float npJaw;\nuniform float npMouthPrevJaw;\nuniform float npLid;\nuniform vec3 npAct;\nuniform vec2 npGaze;\nuniform float npBrow;\nuniform float npRim;\nuniform float npView;\n';
   const FACE_FRAG = `
     if (vNpFace.z > 0.002) {
       vec2 npf = vNpFace.xy;
@@ -1087,7 +1094,12 @@
       float npm = step(0.0, npe.x) * step(npe.x, 1.0) * step(0.0, npe.y) * step(npe.y, 1.0);
       npc = texture2D(map, npEyeCell + clamp(npe, 0.0, 1.0) * 0.125, -0.8);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * npm * vNpFace.z);
-      vec2 npq = (npf - npMouth.xy) / npMouth.zw * 0.5 + 0.5;
+      // At grazing angles the near cheek otherwise hides every painted mouth
+      // class. Ease the same paint around that solid surface, like a drawn
+      // profile. Frontal/three-quarter features keep their original placement.
+      vec2 nplip = npf;
+      nplip.x -= sin(npView) * smoothstep(0.65, 1.40, abs(npView)) * 0.42;
+      vec2 npq = (nplip - npMouth.xy) / npMouth.zw * 0.5 + 0.5;
       npq.y -= npAct.y * pow(abs((npq.x - 0.5) * 2.0), 2.0) + npAct.z * (npq.x - 0.5);
       vec2 nppq = npq;
       nppq.y = (nppq.y - 0.60) / max(0.18, npMouthPrevJaw) + 0.60;
@@ -1119,9 +1131,9 @@
     const P = { vertexColors: true, skinning: true, map: tex };
     const m = low ? new T.MeshLambertMaterial(P) : new T.MeshPhongMaterial(Object.assign(P, { shininess: 6, specular: new T.Color('#0c0c0c') }));
     m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
-    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() } });
+    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() }, npView: { value: 0 } });
     m.onBeforeCompile = npCompile;
-    m.customProgramCacheKey = () => 'np-painted-face-r7';
+    m.customProgramCacheKey = () => 'np-painted-face-r8';
     return m;
   }
   let shadowMat = null;
@@ -1157,6 +1169,14 @@
     for (const n of BONES) { const p = PARENT[n], j = J[n]; if (p) { B[p].add(B[n]); const pj = J[p]; B[n].position.set(j[0] - pj[0], j[1] - pj[1], j[2] - pj[2]); } else B[n].position.set(j[0], j[1], j[2]); }
     const mat = material(low, first.tex, first.uni), U = mat.userData.np;
     const body = new T.SkinnedMesh(first.geo[lodNow], mat);
+    const faceView = new T.Vector3(), headInverse = new T.Matrix4();
+    body.onBeforeRender = (renderer, scene, camera) => {
+      // Use the actual render camera and solved head, so close-ups, reflection
+      // views and the house share the same profile. One scalar in the existing
+      // material; no extra mesh, pass, bone, texture upload or saved field.
+      faceView.setFromMatrixPosition(camera.matrixWorld).applyMatrix4(headInverse.copy(B.head.matrixWorld).invert());
+      U.npView.value = clamp(Math.atan2(faceView.x,faceView.z),-Math.PI*.5,Math.PI*.5);
+    };
     body.add(B.base); body.updateMatrixWorld(true);
     const skeleton = new T.Skeleton(bones);
     body.bind(skeleton);
@@ -1204,6 +1224,8 @@
       action: null, seat: null, seatPose: null, look: null, listen: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0, brow: 0,
       mood: 'neutral', moodK: 0, speechUnits: [], speechIndex: 0, faceBlend: 1, quiet: 0, pauseBlinked: false, blinkLast: -10,
+      directed: null, beatSmile: 0, beatBrow: 0, beatNod: 0, beatThought: 0, beatFirm: 0,
+      paperLower: 0, sipK: 0, sipAt: -1, sipRest: 0, sipQuiet: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
       sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, weightAt: 0, weightSide: 0, glanceT: 0,
@@ -1414,19 +1436,63 @@
     const lapArms = { L: { ik: [0,0,0], pole: [.9,-.3,-.6], hand: [90,0,180], worldHand: true }, R: { ik: [0,0,0], pole: [-.9,-.3,-.6], hand: [90,0,180], worldHand: true } };
     const lap = () => lapArms;
     const table = H => (st.seat && st.seat.table) || H + 22;
-    const mouthAt = H => S.mouthY - (S.hip + 2 - H);
-    const paperQ = new T.Quaternion().setFromAxisAngle(UPV.clone().set(1, 0, 0), 20 * D2R), paperP = new T.Vector3();
+    const cupLip = new T.Vector3(), cupOffset = new T.Vector3(), cupForward = new T.Vector3(), cupQ = new T.Quaternion();
+    function cupArm(H, tea) {
+      const s = st.sipK, restY = tea ? table(H)+6 : H+20, restZ = tea?28:22;
+      // Follow the solved head, including an oblique seated conversation.
+      // Aim the near rim at the painted mouth, accounting for the real hand,
+      // handle offset and wrist tilt instead of aiming the wrist at the chin.
+      cupForward.set(0,0,1).applyQuaternion(W.head.q);
+      const yaw = Math.atan2(cupForward.x,cupForward.z)*s, pitch = -18*D2R*s;
+      cupQ.setFromEuler(_e.set(pitch,yaw,0));
+      cupLip.set(0,S.mouthY-J.head[1],S.mouthZ-J.head[2]).applyQuaternion(W.head.q).add(W.head.p).addScaledVector(cupForward,1.2);
+      cupOffset.set(4.7,4.5-S.handLen*.48,-1).applyQuaternion(cupQ);cupLip.sub(cupOffset);
+      return { ik: [lerp(tea?-11:-9,cupLip.x,s),lerp(restY,cupLip.y,s),lerp(restZ,cupLip.z,s)], pole: [-.9,-.5,-.3],hand:[pitch/D2R,yaw/D2R,0],worldHand:true };
+    }
+    function cupContact(H) {
+      // The main arm pass precedes the head solve. Near the mouth, constrain
+      // the held rim to this frame's head instead of chasing its previous pose.
+      // The sip curve already eases the lift; blend in contact before drinking.
+      if (st.walking || (st.action !== 'tea' && st.action !== 'mug')) return;
+      const k = smooth(clamp((st.sipK-.55)/.35,0,1)); if (!k) return;
+      const a = cupArm(H,st.action === 'tea');
+      tgt.set(...a.ik); pole.set(...a.pole).normalize();
+      armIK('R',tgt,pole,k,eul(...a.hand),true);
+    }
+    const paperAxis = new T.Vector3(1,0,0), paperQ = new T.Quaternion().setFromAxisAngle(paperAxis, 20 * D2R), paperP = new T.Vector3();
     const paperHeld = new T.Vector3(), paperHeldQ = new T.Quaternion(); let paperHeading = 0, paperPlaced = false;
     const magHeld=new T.Vector3();let magHeading=0,magPlaced=false;
-    const paperC = Math.cos(20 * D2R), paperS = Math.sin(20 * D2R), gripY = -13 - S.handLen * 0.55, gripZ = -3.3 + S.handLen * 0.12;
+    let paperC = Math.cos(20 * D2R), paperS = Math.sin(20 * D2R);
+    const gripY = -13 - S.handLen * 0.55, gripZ = -3.3 + S.handLen * 0.12;
     const paperHinge=J.jaw[2]-J.p_paper[2];
     const paperAct = { arms: { L: { ik: [22, 0, 0], pole: [0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true },
       R: { ik: [-22, 0, 0], pole: [-0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true } }, lean: -4, lookR: [0, 0, 40], props: { paper: 1 } };
+    function readingHeight(point, half, gripY, gripZ) {
+      // A page cannot pull either wrist beyond the arm. Lower it as far as
+      // both real arms reach, retaining a little elbow bend and both grips.
+      if (!st.seat || !st.paperLower) return;
+      const gy = gripY*paperC-gripZ*paperS, gz = point.z+gripY*paperS+gripZ*paperC;
+      let minimum = -Infinity;
+      for (const sd of ['L','R']) {
+        const shoulder = W['arm'+sd].p, dx = (sd==='L'?half:-half)-shoulder.x, dz = gz-shoulder.z;
+        const reach = (segs['arm'+sd].L+segs['fore'+sd].L)*.975;
+        minimum = Math.max(minimum,shoulder.y-Math.sqrt(Math.max(1,reach*reach-dx*dx-dz*dz))-gy+.5);
+      }
+      point.y = lerp(point.y,Math.max(point.y,minimum),st.paperLower);
+    }
+    function readingAngle(act) {
+      const angle = 20+st.paperLower*50;
+      paperQ.setFromAxisAngle(paperAxis,angle*D2R);paperC=Math.cos(angle*D2R);paperS=Math.sin(angle*D2R);
+      act.arms.L.hand[0]=act.arms.R.hand[0]=180+angle;
+    }
     function reading(t, H) {
-      paperP.set(0, H + 36 + Math.sin(t * 0.4) * 0.5, 32);
+      readingAngle(paperAct);
+      paperP.set(0, H + 36 + Math.sin(t * 0.4) * 0.5 - st.paperLower*17, 32 + st.paperLower*3);
+      readingHeight(paperP,22,gripY,gripZ);
       const y = paperP.y + gripY * paperC - gripZ * paperS, z = paperP.z + gripY * paperS + gripZ * paperC;
       paperAct.arms.L.ik[1] = paperAct.arms.R.ik[1] = y; paperAct.arms.L.ik[2] = paperAct.arms.R.ik[2] = z;
-      const phase=t%11, leaf=st.cosmeticNear!==false&&phase>6&&phase<7.4?Math.sin(Math.PI*(phase-6)/1.4)**2*8*D2R:0;
+      const phase=t%11, targetLeaf=!st.engage&&!st.listen&&st.cosmeticNear!==false&&phase>6&&phase<7.4?Math.sin(Math.PI*(phase-6)/1.4)**2*8*D2R:0;
+      const leaf=B.jaw.rotation.y+(targetLeaf-B.jaw.rotation.y)*(1-Math.exp(-dtReading*10));
       if(B.jaw.rotation.y!==leaf)B.jaw.rotation.y=leaf;
       // The outside grip accompanies its leaf instead of passing through it.
       const gx=leaf?22*Math.cos(leaf)+(gripZ-paperHinge)*Math.sin(leaf):22, gz=leaf?-22*Math.sin(leaf)+(gripZ-paperHinge)*Math.cos(leaf)+paperHinge:gripZ;
@@ -1444,8 +1510,10 @@
     }
     const magP=new T.Vector3(),magAct={arms:{L:{ik:[10.5,0,0],pole:[.8,-.6,-.8],hand:[200,0,0],worldHand:true},R:{ik:[-10.5,0,0],pole:[-.8,-.6,-.8],hand:[200,0,0],worldHand:true}},lean:-2,lookR:[0,0,34],props:{mag:1}};
     function magazine(t,H){
-      magP.set(0,H+28+Math.sin(t*.35)*.3,32);
+      readingAngle(magAct);
+      magP.set(0,H+28+Math.sin(t*.35)*.3-st.paperLower*12,32+st.paperLower*2);
       const y=-8.5-S.handLen*.55,z=-.4+S.handLen*.12;
+      readingHeight(magP,10.5,y,z);
       for(const sd of ['L','R']){const a=magAct.arms[sd].ik;a[1]=magP.y+y*paperC-z*paperS;a[2]=magP.z+y*paperS+z*paperC;}
       magAct.lookR[1]=H+25;return magAct;
     }
@@ -1453,7 +1521,7 @@
     function drawing(t,H){
       const tb=table(H),left=drawAct.arms.L.ik,right=drawAct.arms.R.ik;
       left[1]=tb+.2-S.handLen*.1;left[2]=30-S.handLen*.35;
-      right[0]=-4-Math.sin(t*6)*1.6-crayonTip.x;right[1]=tb+1.3+Math.max(0,Math.sin(t*3)-.8)*.6-crayonTip.y;right[2]=30+Math.cos(t*4.3)*1.6-crayonTip.z;
+      right[0]=-4-Math.sin(t*6)*1.6-crayonTip.x;right[1]=tb+1.05+Math.max(0,Math.sin(t*3)-.8)*.6-crayonTip.y;right[2]=30+Math.cos(t*4.3)*1.6-crayonTip.z;
       drawAct.lookR[1]=tb;return drawAct;
     }
     const ACT = {
@@ -1466,13 +1534,13 @@
       magazine,
       telly: (t, H) => ({ arms: lap(H), lean: -6, props: {} }),
       remote: (t, H) => ({ arms: { L: lap(H).L, R: { ik: [-10, H + 14, 28], pole: [-0.9, -0.5, -0.6], hand: [-30, 0, 0] } }, lean: -8, props: { remote: 1 } }),
-      tea: (t, H) => { const ph = t % 9, sip = ph < 2.4 && !st.engage, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)), tb = table(H); return { arms: { L: { ik: [12, tb + 3, 27], pole: [0.9, -0.3, -0.7], hand: [-75, 0, 0] }, R: { ik: sip ? [lerp(-11, -3, s), lerp(tb + 6, mouthAt(H) - 3, s), lerp(28, 12, s)] : [-11, tb + 6, 28], pole: [-0.9, -0.5, -0.3], hand: [0, 0, 0], worldHand: true } }, lean: 3, props: { mug: 1 } }; },
+      tea: (t, H) => ({ arms: { L: st.seat&&!st.seat.table ? lap(H).L : { ik: [12, table(H)+3, 27], pole: [.9,-.3,-.7], hand: [-75,0,0] }, R: cupArm(H,true) }, lean: 3, props: { mug: 1 } }),
       draw: drawing,
       yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [-8, H - 4, 30], props: { string: 1 } }; },
       carwash: (t, H) => ({ arms: { L: { ik: [12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [-12 - Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [-10, H + 10, 50], props: { sponge: 1 } }),
       sit: (t, H) => ({ arms: lap(H), lean: -3, props: {} }),
       doze: (t, H) => ({ arms: lap(H), lean: -8, props: {}, doze: 1 }),
-      mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4 && !st.engage, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(-9, -3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [-9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [0, 0, 0], worldHand: true } }, lean: 0, props: { mug: 1 } }; },
+      mug: (t, H) => ({ arms: { L: st.seat ? lap(H).L : [6,7,0,22,0], R: cupArm(H,false) }, lean: 0, props: { mug: 1 } }),
       reach: (t, H) => ({ arms: { R: { ik: [-9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: kind === 'sister' ? 32 : kind === 'mom' ? 26 : 22, props: {} }),
       carry: (t, H) => ({ arms: { L: { ik: [13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [-13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
       trick: (t, H) => ({ arms: { R: [18 + Math.sin(t * 1.3) * 3, 9, 0, 38, 0], L: st.props?.raygun ? [30, 12, 0, 45, -10] : [4, 7, 0, 16, 0] }, lean: 0, props: { pail: 1 } }),
@@ -1486,11 +1554,48 @@
 
     // ---------------------------------------------------------------- update
     const lookR = new T.Vector3();
+    let dtReading = 0;
     function update(dt, near) {
+      dtReading = dt;
       st.t += dt; const t = st.t, now = performance.now(), talking = now < st.talkUntil || !!(st.talkVoice?.started && !st.talkVoice.ended);
       const voice = near && talking ? st.talkVoice : null, voiceActive = voice && voice.started && !voice.ended;
       const voiceOpen = voiceActive ? clamp(voice.level(), 0, 1) : 0;
       const progress=near&&talking?(voiceActive?clamp(voice.progress(),0,1):clamp((now-st.talkStart)/Math.max(1,st.talkUntil-st.talkStart),0,1)):0;
+      st.beatSmile = st.beatBrow = st.beatNod = st.beatThought = st.beatFirm = 0;
+      if (near && talking && st.directed && (!voice || voiceActive)) {
+        const source = voice?.sourceTime?.(), seconds = (st.talkUntil-st.talkStart)/1000;
+        const match = source !== null && source !== undefined && Math.abs(voice.dur-(voice.nameId?voice.nameDur+.10:0)-st.directed.dur)<.035;
+        for (const [kind,at,end,fraction] of st.directed.beats) {
+          const age = match ? source-at : (progress-st.beatOffset-fraction*st.beatScale)*seconds;
+          const length = match ? end-at : Math.min(1.1,end-at);
+          const beat = smooth(age/.13)*(1-smooth((age-length+.24)/.24));
+          if (kind === 'joke' || kind === 'warm') st.beatSmile = Math.max(st.beatSmile,beat*(kind === 'joke'?1:.7));
+          if (kind === 'question') st.beatBrow = Math.max(st.beatBrow,beat);
+          if (kind === 'thought') st.beatThought = Math.max(st.beatThought,beat);
+          if (kind === 'firm') st.beatFirm = Math.max(st.beatFirm,beat);
+          st.beatNod = Math.max(st.beatNod,beat*(kind === 'phrase'?1:.4));
+        }
+      }
+      // A mug stays attached to its hand. During a conversation, a sip starts
+      // only after a quiet interval; a new line brings it down promptly without
+      // snapping. Listening to somebody else's sentence leaves room to drink.
+      const mug = st.action === 'tea' || st.action === 'mug';
+      // Render/locomotion dt can be capped on a slow device. Quiet intervals
+      // and a sip must still fit between the real recorded sentences.
+      const sipDt = st.sipWall == null ? dt : Math.max(dt,(now-st.sipWall)/1000);
+      st.sipWall=now;st.sipClock=(st.sipClock??t-sipDt)+sipDt;
+      const sipTime=st.sipClock;
+      st.sipQuiet = talking ? 0 : st.sipQuiet+sipDt;
+      // The maintenance loop can submit near=false between visible frames.
+      // That controls cosmetic detail, not whether a held sip is still live.
+      if (mug && !st.walking) {
+        if (st.sipAt < 0 && sipTime >= st.sipRest && st.sipQuiet > (st.engage?.65:1.2)) st.sipAt=sipTime;
+        const age = st.sipAt < 0 ? -1 : sipTime-st.sipAt;
+        const target = !talking && age >= 0 && age < 2.25 ? smooth(age/.7)*(1-smooth((age-1.55)/.7)) : 0;
+        st.sipK += (target-st.sipK)*(1-Math.exp(-sipDt*(talking?12:9)));
+        if (age >= 2.25 || talking && st.sipAt >= 0) { st.sipAt=-1;st.sipRest=sipTime+7+(kind==='sister'?2:0); }
+      } else { st.sipAt=-1;st.sipK += -st.sipK*(1-Math.exp(-sipDt*12)); }
+      st.paperLower += ((st.seat&&(st.engage||st.listen||talking)?1:0)-st.paperLower)*(1-Math.exp(-dt*2.2));
       // Punctuation is indexed once when a line begins; render-time work is
       // a short scalar comparison, using the recording's existing progress.
       let endNod=0;
@@ -1515,6 +1620,7 @@
         const ch = st.talkText[Math.floor((now - st.talkStart) * 0.0135)] || ' ';
         if ((Math.floor(beat) === 0 || Math.floor(beat) % 3 === st.talkSeed % 3) && !/[.,;:!?]/.test(ch)) st.accent = Math.sin(Math.PI * clamp(phase / 0.55, 0, 1)) ** 2;
         if (voice) st.accent *= voiceActive ? smooth(clamp(voiceOpen * 2, 0, 1)) : voice.ended || st.talkHeard ? 0 : 1;
+        if (st.directed) st.accent = st.beatNod;
       }
       const k = 1 - Math.exp(-dt * 9);
       gaitUpdate(dt);
@@ -1565,10 +1671,17 @@
         if (hy - 2 > maxY) hy = maxY + 2;
       }
       B.hips.position.set(hx, hy, hz);
-      // engaged (you're talking to them): the job pauses: arms come out of the action into a natural talking pose (the
-      // bones blend there), things in one hand stay in it, two-handed things (the paper, the yo-yo) are put down
-      const act0 = st.action && ACT[st.action] ? ACT[st.action](t, hy) : null;
-      const act = st.engage && act0 ? { props: Object.fromEntries(Object.entries(act0.props || {}).filter(([p]) => KEEP.has(p))), arms: Object.keys(act0.props || {}).some(p => KEEP.has(p)) ? { R: act0.arms?.R } : null, lean: 0 } : act0;
+      // Seated readers keep both grips and lower their reading into the lap.
+      // Working hands pause their actual tool pose, rather than stirring or
+      // scrubbing through the conversation. One free hand can still gesture.
+      const seatedRead = !!st.seat && (st.action === 'paper' && PROPS_FOR[kind].includes('paper') || st.action === 'magazine' && PROPS_FOR[kind].includes('mag'));
+      const seatedJob = !!st.seat && st.action === 'draw';
+      const pauseJob = st.engage || seatedJob && talking;
+      if (!pauseJob && st.jobPause != null) { st.jobOffset=(st.jobOffset||0)+t-st.jobPause;st.jobPause=null; }
+      else if (pauseJob && st.jobPause == null) st.jobPause=t;
+      const jobTime = (st.jobPause??t)-(st.jobOffset||0);
+      const act0 = st.action && ACT[st.action] ? ACT[st.action](mug||seatedRead?t:jobTime, hy) : null;
+      const act = st.engage && act0 && !seatedRead && !seatedJob ? { props: Object.fromEntries(Object.entries(act0.props || {}).filter(([p]) => KEEP.has(p))), arms: Object.keys(act0.props || {}).some(p => KEEP.has(p)) ? { R: act0.arms?.R } : null, lean: 0 } : act0;
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
@@ -1648,7 +1761,7 @@
           a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), lerp(18 + (sd === 'L' ? 4 : 0),9 + Math.max(0,sw)*0.1,walking), lerp(S.familyHands?3:8,2+sw*0.07,walking), S.familyHands?-78:lerp(-7,-4,walking)];
         }
         if (Array.isArray(a)) armFK(sd, a, k);
-        else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2]), a.worldHand); }
+        else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, seatedRead || seatedJob&&pauseJob ? 1 : k, eul(a.hand[0], a.hand[1], a.hand[2]), a.worldHand); }
       }
       // A real armrest/seat surface, read once by the seat callback. Only
       // reach once it is inside the arm's envelope; never straighten an arm
@@ -1701,13 +1814,13 @@
       // the paper and the magazine: held up between the hands, turned to face the reader
       for (const [p, wide] of [['paper', 1], ['mag', 0]]) {
         const b = B['p_' + p]; if (!b.scale.x) continue;
-        if(!wide && st.action==='magazine'&&!st.engage){
+        if(!wide && st.action==='magazine'&&(!st.engage||seatedRead)){
           b.position.copy(magP);b.quaternion.copy(paperQ);const c=Math.cos(st.h),s=Math.sin(st.h);
           magHeld.set(st.x+magP.x*c+magP.z*s,st.y-magP.y,st.z-magP.x*s+magP.z*c);magHeading=st.h;magPlaced=true;continue;
         }
         if(!wide&&magPlaced){toRig(b.position,magHeld.x,magHeld.y,magHeld.z);b.quaternion.setFromAxisAngle(UPV,magHeading-st.h).multiply(paperQ);continue;}
         if (wide) {
-          if (st.action === 'paper' && !st.engage) {
+          if (st.action === 'paper' && (!st.engage||seatedRead)) {
             b.position.copy(paperP); b.quaternion.copy(paperQ);
             const c = Math.cos(st.h), s = Math.sin(st.h);
             paperHeld.set(st.x + paperP.x*c + paperP.z*s, st.y-paperP.y, st.z-paperP.x*s+paperP.z*c);
@@ -1729,6 +1842,7 @@
       // secondary hair and painted face work. Refresh the cached head frame.
       if (!near) {
         B.neck.quaternion.identity(); B.head.quaternion.identity(); fk('neck'); fk('head');
+        cupContact(hy);
         if (st.cosmeticNear !== false) { B.hairL.rotation.set(0,0,kind === 'sister' ? .05 : 0); B.hairR.rotation.set(0,0,kind === 'sister' ? -.05 : 0); st.hairS = st.hairV = 0; }
         st.cosmeticNear = false; useLod(false); setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0,0); U.npBrow.value = 0; return;
       }
@@ -1765,6 +1879,7 @@
       if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
       else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (st.listen ? .009 : S.familyHands ? .025 : .03), 'YXZ'));
       slerpTo('head', _q, k * 0.7); fk('head');
+      cupContact(hy);
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
         _v.set(0,0,1).applyQuaternion(W.head.q);
@@ -1779,7 +1894,7 @@
       const holding = !!st.look;
       // A brief thinking glance, then return to the listener. Ordinary addressed
       // speech retains eye contact; no random wandering on important lines.
-      const thinking = near && talking && st.thinking && progress > .025 && progress < .20;
+      const thinking = st.beatThought > .4 || near && talking && !st.directed && st.thinking && progress > .025 && progress < .20;
       if (t > st.saccadeAt) {
         st.saccadeAt = t + (holding ? 0.6 + Math.random() * 1.6 : 0.4 + Math.random() * 2.2);
         const away = holding && !(talking && st.engage) && Math.random() < 0.18;
@@ -1822,7 +1937,7 @@
       let blink = 0;
       if (st.blinkT > 0) { st.blinkT = Math.max(0, st.blinkT - dt); const b = .22 - st.blinkT; blink = b < .055 ? smooth(b / .055) : b < .095 ? 1 : 1 - smooth((b - .095) / .125); if (blink > .92) eye = EYE.shut; }
       if (st.gestureKind === 'smile' && now < (st.gestureStart||0)+1800 && st.blinkT <= 0) eye = EYE.happy;
-      const question=st.question&&progress>.5&&progress<.94?Math.sin(Math.PI*(progress-.5)/.44)*voiceOpen*.022:0;
+      const question=st.directed?st.beatBrow*.047:st.question&&progress>.5&&progress<.94?Math.sin(Math.PI*(progress-.5)/.44)*voiceOpen*.022:0;
       const moodLive = near && talking && (!v || voiceActive), mood = MOOD[st.mood] || MOOD.neutral;
       st.moodK += ((moodLive ? 1 : 0) - st.moodK) * (1 - Math.exp(-dt * (moodLive ? 5 : 3)));
       // One delayed, closed-mouth listener smile at a joke; it fades instead of
@@ -1831,7 +1946,9 @@
       const heardEnd = partner && now - (partner.heardEnd ?? -1e9) < 400;
       if (partner && (now < partner.talkUntil + 400 || heardEnd) && (!pv || pv.started) && (!pv?.ctx || pv.ctx.state === 'running')) {
         const lp = pv ? pv.speechProgress ? pv.speechProgress() : pv.progress() : (now - partner.talkStart) / Math.max(1, partner.talkUntil - partner.talkStart);
-        const heard = pv?.speechCue?.('joke');
+        const directedJoke = partner.directed?.beats.find(b=>b[0]==='joke'), source = pv?.sourceTime?.();
+        const qualified = directedJoke && source !== null && source !== undefined && Math.abs(pv.dur-(pv.nameId?pv.nameDur+.10:0)-partner.directed.dur)<.035;
+        const heard = qualified ? source >= directedJoke[1] : partner.directed ? null : pv?.speechCue?.('joke');
         const joke = partner.joke && (heardEnd || (heard === null || heard === undefined ? lp >= partner.jokeAt : heard));
         const warmEnding = !partner.joke && partner.mood === 'happy' && (pv ? pv.progress() : lp) >= .96;
         if ((joke || warmEnding) && (st.reactSpeaker !== partner || st.reactLine !== partner.talkSerial)) {
@@ -1840,15 +1957,15 @@
       }
       const reactionAge = (now - (st.reactAt ?? -1e9)) / 1000;
       if (near && (!talking || progress < .12) && reactionAge >= 0 && reactionAge < 1.3) reaction = smooth(reactionAge / .24) * (1 - smooth((reactionAge - .65) / .65)) * (st.reactStrength ?? 1);
-      const mk = st.moodK, ak = 1 - Math.exp(-dt * 7), acting = U.npAct.value;
+      const mk = st.moodK * (st.directed ? .22 + st.beatSmile*.78 + st.beatFirm*.6 : 1), ak = 1 - Math.exp(-dt * 7), acting = U.npAct.value;
       acting.x += (mood[0] * mk - acting.x) * ak;
-      acting.y += (mood[1] * mk + reaction * .12 - acting.y) * ak;
+      acting.y += (mood[1] * mk + st.beatSmile*.12 + reaction * .12 - acting.y) * ak;
       acting.z += (mood[2] * mk - acting.z) * ak;
-      const squint = mood[4] * mk + reaction * .26;
+      const squint = mood[4] * mk + st.beatSmile*.12 + reaction * .26;
       U.npLid.value = clamp((1 - squint) * (1 - blink * .86), .12, 1);
       // The painted happy curve reads at a few pixels. Reserve it for the
       // peak of a smile; the lead-in/out keep the continuous eye squash.
-      if (blink < .1 && (reaction > .55 || mk > .7 && st.mood === 'happy' && progress > .82)) eye = EYE.happy;
+      if (blink < .1 && (reaction > .55 || (st.directed ? st.beatSmile > .85 : mk > .7 && st.mood === 'happy' && progress > .82))) eye = EYE.happy;
       st.brow += ((talking ? st.accent * 0.032 + question : 0) + mood[3] * mk - st.brow) * k; U.npBrow.value = st.brow;
       // Keep the consumed audio scalar continuous for voice/body diagnostics.
       // Lip closure and teeth are visual constraints layered on top of it.
@@ -1894,7 +2011,7 @@
       set floor(fn) { floorFn.f = fn; },
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; st.contactK = 0; st.contactPoint = st.contactSide = null; placeFeet(); st.sm = {}; },
-      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o) st.action = o.action || null; if ('seat' in o) {
+      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o && st.action !== (o.action||null)) { st.action=o.action||null;st.jobPause=null;st.jobOffset=0; } if ('seat' in o) {
         const old = st.seat;
         if (old && !o.seat && Number.isFinite(old.x) && Number.isFinite(old.z)) {
           const a = old.face * D2R, k = smooth(st.sitK);
@@ -1905,10 +2022,14 @@
         st.seat = o.seat || null; if (st.seat) st.seatPose = st.seat;
       } if ('look' in o) st.look = o.look || null; if ('listen' in o) st.listen = o.listen || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
-      talk(ms, text, voice, direction) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.heardEnd = null; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length);
+      talk(ms, text, voice, direction, lineId) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.heardEnd = null; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length);
+        const id = lineId || voice?.lineId; st.directed = window.NPCBeats?.[window.VoiceLineAliases?.[id] || id] || null;
+        const baseText = window.NPCLines?.[window.VoiceLineAliases?.[id] || id]?.[1] || st.talkText, prefix = st.talkText.indexOf(baseText), chars = Math.max(1,st.talkText.length);
+        st.beatOffset = Math.max(0,prefix)/chars;st.beatScale = (prefix>=0?baseText.length:chars)/chars;
         st.speechUnits = speechTrack(st.talkText); st.speechIndex = 0; st.mood = lineMood(st.talkText, direction); st.thinking = /\b(hmm|um|wonder)\b|let me think/i.test(st.talkText);
         const joke = /\b(funny|joke|haha|secret)\b|ha ha|only joking|just kidding|bet you|think.*retired|working out how I win/i.exec(st.talkText);
         st.joke = !/not (?:a )?joke|not funny|no joke/i.test(st.talkText) && (st.mood === 'cheeky' || !!joke); st.jokeAt = joke ? clamp((joke.index + joke[0].length) / Math.max(1, st.talkText.length), .12, .94) : .78; st.talkSerial = (st.talkSerial || 0) + 1;
+        if (st.directed) { const punch = st.directed.beats.find(b=>b[0]==='joke');st.joke=!!punch;st.jokeAt=punch?st.beatOffset+punch[3]*st.beatScale:1; }
         st.quiet = 0; st.pauseBlinked = false;
       },
       hush() {

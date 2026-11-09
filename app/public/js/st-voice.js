@@ -20,14 +20,14 @@
   const build = (document.currentScript?.src || '').match(/[?&]v=([^&]+)/);
   const stamp = build ? '?v=' + build[1] : '';
   const asset = file => BASE + file + stamp;
-  let manifest = null, names = null, phonemes = null, loading = null;
+  let manifest = null, names = null, phonemes = null, namePhonemes = null, loading = null;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const own = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   function loadManifest() {
     if (manifest || loading) return loading;
     const get = file => fetch(asset(file), { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
-    loading = Promise.all([get('manifest.json'), get('names/manifest.json'), get('../voice-phonemes.json')]).then(([m, n, p]) => {
-      manifest = m && typeof m === 'object' ? m : {}; names = n && typeof n === 'object' ? n : {}; phonemes = p?.lines || {}; return manifest;
+    loading = Promise.all([get('manifest.json'), get('names/manifest.json'), get('../voice-phonemes.json'), get('../voice-name-phonemes.json')]).then(([m, n, p, np]) => {
+      manifest = m && typeof m === 'object' ? m : {}; names = n && typeof n === 'object' ? n : {}; phonemes = p?.lines || {}; namePhonemes = np?.names || {}; return manifest;
     });
     return loading;
   }
@@ -226,13 +226,28 @@
     const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') { note(id, 'no-context'); return null; }
     const n = nameInfo(id,o);
     const authored = phonemes?.[window.VoiceLineAliases?.[id] || id];
-    let track = null, cueIndex = 0;
+    const authoredName = n && namePhonemes?.[n.id];
+    let track = null, nameTrack = null, cueIndex = 0, nameCueIndex = 0;
     const h = { lineId: id, nameId: n?.id || null, nameDur: n?.dur || 0, dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
+      // Authored acting shares the source clock with phonemes, including the
+      // actual decoded first-name prefix. A suspended recording holds its pose.
+      sourceTime() { return !h.started ? null : c.currentTime-h.t0-(n?h.nameDur+.10:0); },
       // Seconds in the base clip, after a joined first name and its real gap.
-      // null keeps the activity-weighted fallback for names/unmarked clips.
+      // Names have their own directed track, never borrowed from the base line.
+      // Missing/stale tracks retain the activity-weighted fallback.
       phoneme() {
-        if (!track || !h.started || h.ended || c.state !== 'running') return null;
-        const t = c.currentTime - h.t0 - (n ? h.nameDur + .10 : 0) + .012;
+        if (!h.started || h.ended || c.state !== 'running') return null;
+        const elapsed = c.currentTime-h.t0;
+        if (n && elapsed < h.nameDur) {
+          if (!nameTrack) return null;
+          const t = elapsed+.012, cues = nameTrack.cues;
+          if (cues[nameCueIndex][0] > t) nameCueIndex=0;
+          while (nameCueIndex<cues.length-1 && cues[nameCueIndex+1][0]<=t) nameCueIndex++;
+          return cues[nameCueIndex][1];
+        }
+        if (n && elapsed < h.nameDur+.10) return 0;
+        if (!track) return null;
+        const t = elapsed - (n ? h.nameDur + .10 : 0) + .012;
         if (t < 0) return null;
         const cues = track.cues;
         if (cues[cueIndex][0] > t) cueIndex = 0;
@@ -268,6 +283,7 @@
       if (h.cancelled || !on()) { done('cancelled'); return; }
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
       const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0; h.envelope = speechEnvelope(buf);
+      if (authoredName && authoredName.file === n?.file && Math.abs(h.nameDur-authoredName.dur)<.035 && authoredName.cues?.length) nameTrack=authoredName;
       // Reject stale timing if a recording was replaced. Never apply a base
       // clip's cues to its joined name, or to a differently cut recording.
       if (authored?.file === m.file && Math.abs(h.dur - (n ? h.nameDur + .10 : 0) - authored.dur) < .035 && authored.cues?.length) {

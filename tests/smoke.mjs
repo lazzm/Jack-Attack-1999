@@ -132,8 +132,10 @@ const checks=[
    console.log('pc-controls: entered monitor');
    await page.evaluate(async()=>{await Apps.open('notepad')});
    assert.equal(await page.locator('.appwin').count(),1);
-   await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('t');await until(()=>House.desktopDisplay());
-   await page.keyboard.press('t');assert(!await page.evaluate(()=>House.desktopDisplay()));
+   await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('t');await until(()=>House.desktopDisplay()&&!House.anims.has('pc-lock'));
+   // LOCK IN restores Notepad's editor focus. T while typing is text, so
+   // release that focus again before testing the house control's return key.
+   await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('t');await until(()=>!House.desktopDisplay());
    await page.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());await until(()=>!document.querySelector('.appwin'));assert.equal(await page.locator('.appwin').count(),0);
    console.log('pc-controls: leaving first monitor');await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
    console.log('pc-controls: first standing pose settled');await enterPC();
