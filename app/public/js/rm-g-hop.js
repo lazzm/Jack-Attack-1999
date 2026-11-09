@@ -1,7 +1,7 @@
 /* BOUNCE QUEST 64 (N64, in Jack's room): a proper 3D collect-a-thon. King Grumpus has pinched the golden acorns of
- * Biscuit Island and hidden them all over the place. Bopper hops round the island (8 acorns) and through the magic
+ * Biscuit Island and hidden them all over the place. Bopper hops round the island (9 acorns) and through the magic
  * doors in Acorn Plaza into five worlds (Custard Cove, Frosty Flapjack Peaks, Ghoulish Ginger Manor, Tick-Tock Tower, Custard Grotto),
- * seven or eight named acorns in each, three secret outfit stages, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 50 in all.
+ * seven or eight named acorns in each, three outfit stages, three more in the enclosed Cocoa Coaster, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 54 in all.
  * Moves: jump, land-and-jump-again for a double then triple jump, a twirl in the air, long jump (run, hold Z, press A),
  * side flip (reverse and jump while running), backflip (stand still, hold Z, press A), ground pound (Z in the air), wall kick (jump at a wall, press A as you touch
  * it), punch-punch-kick (B), jump kick (B in the air). Camera: L / R turn it round (like the yellow C buttons).
@@ -14,7 +14,7 @@
   const GID = 'n64.hop';
   const SECRETS = [
     ['rm.hop.king', 'Crumbs!', 'Somebody very grumpy is waiting behind the crowned door in Bounce Quest 64.'],
-    ['rm.hop.every', 'Every Last Acorn', 'There are fifty golden acorns in Bounce Quest 64. Find the lot.'],
+    ['rm.hop.every', 'Every Last Acorn', 'There are fifty-four golden acorns in Bounce Quest 64. Find the lot.'],
     ['rm.hop.wall', 'Wall Kicker', 'In Bounce Quest 64, a certain golden acorn can only be reached by kicking off walls.'],
   ];
   for (const [id, n, h] of SECRETS) { try { if (window.Apps && Apps.defineSecret && !(Apps.secrets && Apps.secrets[id])) Apps.defineSecret(id, n, h); } catch (e) {} }
@@ -49,6 +49,7 @@
         74, -1, -1, 77, -1, -1, 81, -1, -1, -1, 79, -1, 77, -1, 76, -1, 74, -1, -1, 72, -1, -1, 71, -1, 72, -1, -1, -1, -1, -1, -1, -1],
       bass: [48, 0, 0, 0, 55, 0, 0, 0, 52, 0, 0, 0, 55, 0, 0, 0, 45, 0, 0, 0, 52, 0, 0, 0, 50, 0, 0, 0, 55, 0, 0, 0],
       drums: '..x...x...x...x.' },
+    coaster:{bpm:156,wave:'triangle',vol:.075,bassWave:'square',lead:[79,83,86,83,79,0,76,79,81,84,88,84,81,0,79,76,74,78,81,78,74,0,71,74,76,79,83,86,84,81,79,0,79,0,86,0,88,86,83,79,81,0,88,0,89,88,84,81,78,81,86,81,78,74,71,74,76,79,83,79,76,-1,0,0],bass:[48,0,55,0,52,0,55,0,53,0,60,0,57,0,60,0,50,0,57,0,54,0,57,0,48,0,55,0,52,55,59,55],drums:'o.x.o.x.o.xxo.x.'},
     manor: { bpm: 92, wave: 'triangle', vol: 0.08, bassWave: 'sine',
       lead: [69, 0, 72, 0, 76, 0, 75, 0, 76, -1, 72, 0, 69, -1, -1, 0, 68, 0, 71, 0, 74, 0, 73, 0, 74, -1, 71, 0, 68, -1, -1, 0,
         69, 0, 72, 0, 76, 0, 79, 0, 81, -1, 79, 0, 77, 0, 76, 0, 74, 0, 72, 0, 71, 0, 68, 0, 69, -1, -1, -1, 0, 0, 0, 0],
@@ -464,7 +465,7 @@
       function mesh(kind, x, y, z, s, m) { const me = new T.Mesh(model(kind), m || matV()); me.position.set(x, y, z); if (s) me.scale.setScalar(s); WG.add(me); return me; }
 
       // ================================================================ THE WORLDS
-      const WN = { hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
+      const WN = { snowhall:'THE COCOA COASTER', hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
       const ORDER = ['cove', 'peaks', 'manor', 'tower', 'boss', 'grotto'];
       const NEED = { cove: 0, peaks: 3, manor: 7, tower: 12, boss: 18, grotto: 5 };
       // ---- Biscuit Island (the hub)
@@ -548,7 +549,7 @@
           npc('mayor', `MAYOR ${castN('mate1')}`, 5, 25, 2.6, () => mayorLines());
           npc('tortoise', `OLD ${castN('grandad')}`, -29, -1, -1.2, ['OH! HELLO, YOUNG BOPPER. I WAS HAVING A LITTLE SNOOZE.', 'I SAW SOMETHING SHINY ROLL UNDER THE PIER, YOU KNOW. AND I HEARD THE GRUMPIES MUTTERING ABOUT AN ACORN THEY GUARD.', 'IF YOU STOMP ALL FIVE OF THEM, I EXPECT IT WILL TURN UP IN THE PLAZA FOUNTAIN. ZZZ...']);
           sign(PLX + 2.5, PLZ + 11.5, Math.PI + 0.3, ['ACORN PLAZA. THE MAGIC DOORS LEAD TO OTHER WORLDS.', 'EACH DOOR OPENS WHEN YOU HAVE ENOUGH GOLDEN ACORNS. THE NUMBER IS ON THE DOOR.']);
-          sign(11, 28, 0.5, ['WELCOME TO BISCUIT ISLAND!', 'PRESS ' + L('b') + ' NEAR A SIGN OR A PERSON TO READ OR TALK. ' + L('l') + ' AND ' + L('r') + ' TURN THE CAMERA ROUND.', 'PRESS START TO PAUSE AND SEE WHICH ACORNS YOU HAVE FOUND.']);
+          sign(11, 28, 0.5, ['WELCOME TO BISCUIT ISLAND!', 'PRESS ' + L('b') + ' NEAR A SIGN OR A PERSON TO READ OR TALK. ' + L('l') + ' AND ' + L('r') + ' TURN THE CAMERA ROUND.', 'PRESS START TO PAUSE AND SEE WHICH ACORNS YOU HAVE FOUND.', 'THE SOFT LANDINGS CLUB IS ACROSS THE BOARDWALK. THE COACH TEACHES EVERY MOVE.']);
           life(LX + 2.4, LTOP + 1.0, LZ + 1.2);
         },
       };
@@ -1231,10 +1232,149 @@
         q.bells.forEach((m, i) => { q.flash[i] = Math.max(0, q.flash[i] - dt); m.material.emissive.setHex(q.flash[i] > 0 ? 0x88602a : 0); m.rotation.z = Math.sin((0.5 - q.flash[i]) * 30) * q.flash[i] * 0.3; });
       }
 
+      // The Cocoa Coaster: arc-length physics in a solid, enclosed ice chute.
+      // Geometry and movement sample the same centreline; the chase camera stays inside it.
+      const SNOW_RUN=480,SNOW_END=4+SNOW_RUN,SNOW_POINTS=[];
+      function snowWidth(z){const u=(z-4)/SNOW_RUN;return 6.4-1.8*sstep(.30,.40,u)*(1-sstep(.59,.69,u));}
+      function snowCenter(z){const u=clamp((z-4)/SNOW_RUN,0,1);return {x:22*Math.sin(u*Math.PI*5)*Math.sin(u*Math.PI),y:40*(1-u)+1.2*Math.sin(u*Math.PI*6)*Math.sin(u*Math.PI),z:4+u*SNOW_RUN};}
+      for(let i=0,s=0;i<=SNOW_RUN;i++){const p=snowCenter(4+i);if(i){const a=SNOW_POINTS[i-1];s+=Math.hypot(p.x-a.x,p.y-a.y,p.z-a.z);}SNOW_POINTS.push({...p,s});}
+      const SNOW_LENGTH=SNOW_POINTS[SNOW_RUN].s;
+      function snowAt(s){if(s<0){const a=snowAt(0);return {...a,x:a.x+a.tx*s,y:a.y+a.slope*s,z:a.z+a.tz*s};}s=clamp(s,0,SNOW_LENGTH);let lo=0,hi=SNOW_RUN;while(hi-lo>1){const m=(lo+hi)>>1;if(SNOW_POINTS[m].s<s)lo=m;else hi=m;}const a=SNOW_POINTS[lo],b=SNOW_POINTS[hi],f=(s-a.s)/(b.s-a.s||1),dx=b.x-a.x,dz=b.z-a.z,h=Math.hypot(dx,dz)||1;return{x:lerp(a.x,b.x,f),y:lerp(a.y,b.y,f),z:lerp(a.z,b.z,f),tx:dx/h,tz:dz/h,nx:dz/h,nz:-dx/h,slope:(b.y-a.y)/(b.s-a.s||1),angle:Math.atan2(-dx,-dz)};}
+      function snowFloor(x,z){if(z<4&&z>-23&&Math.abs(x)<11.3)return 40;if(z>SNOW_END-2&&z<SNOW_END+21&&Math.abs(x)<12)return 0;if(z<4||z>SNOW_END)return -100;const a=snowCenter(z),b=snowCenter(z+.1),h=Math.hypot(b.x-a.x,.1),lane=(x-a.x)*h/.1;return Math.abs(lane)<snowWidth(z)+.3?a.y+Math.abs(lane)/45:-100;}
+      function snowInside(x,y,z,pad=.15){if(z<4&&z>-22)return Math.abs(x)<11-pad&&y>40+pad&&y<48.7-pad;if(z>=SNOW_END&&z<SNOW_END+20)return Math.abs(x)<12-pad&&y>pad&&y<9-pad;const a=snowCenter(z),b=snowCenter(z+.1),lane=(x-a.x)*Math.hypot(b.x-a.x,.1)/.1,h=y-a.y,w=h<4.8?6.4:h<7.7?lerp(6.4,4.7,(h-4.8)/2.9):lerp(4.7,0,(h-7.7));return z>=4&&z<SNOW_END&&h>Math.abs(lane)/45+pad&&h<8.7-pad&&Math.abs(lane)<w*snowWidth(z)/6.4-pad;}
+      let SNOW=null,SCHOOL=null;
+      function snowNew(){return{phase:'lodge',s:0,lane:0,laneV:0,speed:0,air:0,jvy:0,jumpBuf:0,hops:0,t:0,race:false,rivalS:0,rivalV:0,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,mittens:0,finishT:0,mesh:null,mittMeshes:[]};}
+      WORLDS.snowhall={song:'peaks',spawn:[0,-12,Math.PI],spawnY:40,bound:530,square:true,ground:snowFloor,killY:-20,fog:[0x344f79,35,90],light:{sky:0xd9eaff,gnd:0x3a405c,amb:.9,sun:.6,dir:[-.4,1,.3]},build(){
+        SNOW=snowNew();sky([[0,'#243858'],[1,'#7389aa']],0,0);
+        const Y=40;
+        box(0,Y-.8,-9,22,.8,26,{t:'wood',c:0xc3a279});
+        for(const x of [-11,11])box(x,Y,-9,.5,8.7,26,{t:'wood',c:0x86613e});
+        box(0,Y,-22,22,8.7,.5,{t:'wood',c:0x86613e});box(0,Y+8.7,-9,22.5,.4,26.5,{t:'wood',c:0x6f4930});
+        for(const x of [-8.9,8.9])box(x,Y,4,4.2,8.7,.55,{t:'ice',c:0x7c9fbd});
+        for(const z of [-18,-11,-4]){box(0,Y+7.9,z,22,.4,.5,{t:'wood',c:0x483124});for(const x of [-10.65,10.65]){box(x,Y+2.4,z,.18,2.7,2.6,{c:0xc5e7ec,solid:false});box(x,Y+2.4,z,.25,.12,2.8,{c:0x765236,solid:false});box(x,Y+2.4,z,.25,2.8,.12,{c:0x765236,solid:false});}}
+        // A thick woven rug, warm stove, cocoa counter, benches and drying racks.
+        const fg=new T.PlaneGeometry(21.8,25.8,16,20);fg.rotateX(-Math.PI/2);const fp=fg.attributes.position,fc=[];for(let i=0;i<fp.count;i++){const x=fp.getX(i),z=fp.getZ(i)-9,warm=clamp(1.2*ex(x,z,-7,-16,24)+.7*ex(x,z,6,-16,18),0,1),c=mix3(hexA(0x8e796b),hexA(0xf0b86b),warm);fp.setXYZ(i,x,40.012,z);fc.push(...c);}fg.setAttribute('color',new T.Float32BufferAttribute(fc,3));fg.computeVertexNormals();WG.add(new T.Mesh(fg,mat('lodgePlanks',{vcol:true,map:TEX.wood()})));
+        for(const z of [-13,-9,-5])for(const x of [-2,0,2])deco(pt(S.box(),0xd6ae76,x,Y+.032,z,.9,.005,.9,0,Math.PI/4,0));
+        box(0,Y+.014,-10,10,.008,12,{c:0x804646,solid:false});for(const z of [-15,-13,-11,-9,-7,-5])box(0,Y+.024,z,9.4,.004,.13,{c:z%4?0xd6a369:0x3c788b,solid:false});
+        for(const x of [-4.6,4.6])box(x,Y+.024,-10,.15,.004,11.5,{c:0xe3bd7d,solid:false});
+        cyl(-7,Y,-17,1.1,2.4,{t:'metal',c:0x626a76});cyl(-7,Y+2.4,-17,1.2,.18,{c:0x313e4d});cyl(-7,Y+2.5,-17,.25,5.9,{c:0x414955});box(-7,Y+.4,-15.94,1.1,1.1,.14,{c:0xffa442,solid:false});
+        for(let i=0;i<5;i++)box(-7,Y+.45+i*.2,-15.83,1.05,.08,.1,{c:0x3e3940,solid:false});
+        box(6,Y,-17,5,1.6,2,{t:'wood',c:0x99643c});box(6,Y+1.6,-17,5.3,.18,2.2,{t:'wood',c:0xd5ac72});
+        for(const x of [4.4,5.4,6.4,7.4]){cyl(x,Y+1.79,-17,.22,.45,{c:0xe3c18d,solid:false});deco(pt(S.tor(.12,8),0xb9774e,x+.25,Y+2,-17,.25,.25,.25,0,0,Math.PI/2));}
+        for(const x of [-7,7]){box(x,Y+.9,-8,2.6,.25,5,{t:'wood',c:0xae7e50});for(const z of [-9.8,-6.2])for(const dx of [-.9,.9])box(x+dx,Y,z,.2,.9,.3,{t:'wood'});box(x+(x>0?1.2:-1.2),Y+1.15,-8,.18,1.5,5,{t:'wood'});}
+        box(-7,Y,-3,3,3,1.5,{t:'wood',c:0x966746});for(let i=0;i<4;i++)box(-7,Y+.4+i*.7,-2.16,2.7,.12,.13,{c:0xd7b382,solid:false});
+        for(let i=0;i<3;i++)box(-4.5-i*.9,Y,-3,1,.65+i*.65,1.8,{t:'crate'});
+        const mittenSites=[[6,41.95,-17],[-7,43.3,-3],[-7,41.5,-8]];
+        mittenSites.forEach(([x,y,z],i)=>{const m=new T.Mesh(merge([pt(S.ball(10),[0xf1ba65,0xc87874,0x66aaba][i],0,.3,0,.55,.7,.4),pt(S.ball(8),0xf3d8ad,.27,.23,0,.28,.38,.3),pt(S.cyl(8),0xf3d8ad,0,0,0,.55,.18,.42)]),matV());m.position.set(x,y,z);WG.add(m);SNOW.mittMeshes.push(m);});
+        const prof=[[-6.4,.65],[-5.4,.12],[0,0],[5.4,.12],[6.4,.65],[6.4,4.8],[4.7,7.7],[0,8.7],[-4.7,7.7],[-6.4,4.8]],pos=[],colors=[],uv=[];
+        const vertex=(p,c,u,v)=>{pos.push(...p);colors.push(...hexA(c));uv.push(u,v);};
+        const point=(a,p,outer)=>[a.x+a.nx*(p[0]*snowWidth(a.z)/6.4+(outer?Math.sign(p[0])*.3:0)),a.y+p[1]+(outer?(p[1]<1?-.3:.3):0),a.z+a.nz*(p[0]*snowWidth(a.z)/6.4+(outer?Math.sign(p[0])*.3:0))];
+        const quad=(a,b,c,d,col,u,v)=>{vertex(a,col,u,v);vertex(b,col,u+1,v);vertex(c,col,u+1,v+1);vertex(a,col,u,v);vertex(c,col,u+1,v+1);vertex(d,col,u,v+1);};
+        for(let i=0;i<SNOW_RUN;i+=2){const a=snowAt(SNOW_POINTS[i].s),b=snowAt(SNOW_POINTS[Math.min(SNOW_RUN,i+2)].s);for(let j=0;j<prof.length;j++){const k=(j+1)%prof.length,light=i%24<4;const c=j<4?(light?0xe9d6ae:0xbcd8ef):j<6||j>8?(light?0x9b8c83:0x6486ad):0x354967;quad(point(a,prof[j],false),point(b,prof[j],false),point(b,prof[k],false),point(a,prof[k],false),c,j,i/4);quad(point(a,prof[k],true),point(b,prof[k],true),point(b,prof[j],true),point(a,prof[j],true),0x3f536c,j,i/4);if(i===0||i===SNOW_RUN-2){const s=i===0?a:b;quad(point(s,prof[j],false),point(s,prof[k],false),point(s,prof[k],true),point(s,prof[j],true),0x87adcf,j,0);}}}
+        const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('color',new T.Float32BufferAttribute(colors,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.computeVertexNormals();const chute=new T.Mesh(geo,mat('coasterIce',{vcol:true,map:TEX.ice(),side:T.DoubleSide}));WG.add(chute);CAM_MESHES.push(chute);
+        for(let s=12;s<SNOW_LENGTH;s+=18){const a=snowAt(s),side=(Math.floor(s/18)%2?1:-1);deco(pt(S.box(),0x403b43,a.x+a.nx*side*5.9*snowWidth(a.z)/6.4,a.y+2.5,a.z+a.nz*side*5.9*snowWidth(a.z)/6.4,.55,.9,.55));deco(pt(S.box(),0xffcc78,a.x+a.nx*side*5.9*snowWidth(a.z)/6.4,a.y+2.55,a.z+a.nz*side*5.9*snowWidth(a.z)/6.4,.4,.55,.4));for(const lane of [-3,3])deco(pt(S.box(),0xf2d48c,a.x+a.nx*lane,a.y+.16,a.z+a.nz*lane,.12,.06,1.5,0,a.angle,0));}
+        for(const f of [.29,.56,.79]){const a=snowAt(SNOW_LENGTH*f);deco(pt(S.box(),0xd9edf4,a.x,a.y+.22,a.z,9,.44,.6,0,a.angle,0));}
+        for(let s=8;s<SNOW_LENGTH-8;s+=8){const a=snowAt(s),lane=Math.sin(s*.035)*2.5;coin(a.x+a.nx*lane,a.y+1,a.z+a.nz*lane);}
+        box(0,-.7,SNOW_END+8,24,.7,25,{t:'ice',c:0xd4e4ee});for(const x of [-12,12])box(x,0,SNOW_END+8,.5,9,25,{t:'ice',c:0x728eaf});box(0,0,SNOW_END+20,24,9,.5,{t:'ice',c:0x728eaf});box(0,9,SNOW_END+8,24.5,.4,25,{t:'ice',c:0x526c92});
+        for(const x of [-6.5,6.5])box(x,-.3,SNOW_END-2.5,.45,9.3,6.5,{vis:false,nograb:true});for(const x of [-9.7,9.7])box(x,-.3,SNOW_END-5,6.6,9.3,.6,{t:'ice',c:0x728eaf});
+        const gb=box(0,-.2,SNOW_END-5.2,12.8,3,.5,{vis:false,props:{nograb:true}});gb.open=true;const gm=new T.Mesh(merge([pt(S.box(),0x806448,0,1.0,0,12.8,.35,.35),pt(S.box(),0xb09a72,0,2.5,0,12.8,.35,.35),...[-6,-4,-2,0,2,4,6].map(x=>pt(S.box(),0xd6bc88,x,1.4,0,.25,2.8,.35))]),matV());gm.position.set(0,-4,SNOW_END-5.2);WG.add(gm);SNOW.gate={b:gb,m:gm};
+        for(const x of [-4,4])cyl(x,0,SNOW_END+5,.15,4,{c:0xdab66d});box(0,3.6,SNOW_END+5,8,.65,.15,{c:0xe8ca87,solid:false});
+        for(let i=0;i<8;i++)box(-3.5+i,3.61,SNOW_END+5.1,.5,.5,.04,{c:i%2?0x344a67:0xffffe8,solid:false});
+        acorn('finish','THE COCOA COASTER',-4,1.5,SNOW_END+10,{hidden:true,cond:'finish'});acorn('rival','FLIPPER CRAMP REMATCH',4,1.5,SNOW_END+10,{hidden:true,cond:'rival'});acorn('cocoa','THREE LOST MITTENS',0,41.4,-16,{hidden:true,cond:'cocoa'});
+        npc('tortoise',castN('grandad')+' THE COCOA KEEPER',1,-18,.4,()=>['WELCOME TO THE COCOA COASTER! A CHUTE SO FAST THE COCOA GETS THERE BEFORE THE MUG.',SNOW.mittens===7?'THREE MITTENS! ONE OF THEM MUST BE A SPARE. YOUR ACORN IS ON THE RUG.':'FIND MY THREE LOST MITTENS. LOOK ON THE COUNTER, THE BENCH AND THE DRYING RACK.'],{y:40});
+        npc('percy',castN('mate2')+' THE SLOPE SOAP',3,-1,0,()=>['I AM '+castN('mate2')+', THE SLOPE SOAP. CLEAN ROUND THE BENDS. FILTHY AT WINNING.','RACE ME TO THE CHECKERED ARCH! STEER LEFT AND RIGHT. HOLD '+L('c')+' OR PULL BACK TO BRAKE.','HOLD FORWARD TO TUCK. '+L('a')+' HOPS THE THREE SNOW RIDGES. NO SHORTCUTS THROUGH THE WALLS!'],{y:40,snowRival:true,done:()=>snowStart(true)});
+        sign(-3,0,Math.PI,['COCOA COASTER. WALK INTO THE CHUTE FOR A PRACTICE RUN.','LEFT / RIGHT STEER. FORWARD TUCKS. '+L('c')+' OR BACK BRAKES. '+L('a')+' HOPS. THE CAMERA FOLLOWS THE CHUTE.'],40);
+        sign(0,SNOW_END+14,0,['BACK TO THE FIRE. PRESS '+L('b')+' HERE TO RETURN TO THE LODGE.','RACE THE SLOPE SOAP FOR ANOTHER ACORN. THE SAME COURSE, THE SAME RULES.'],0);
+        sign(0,-20,0,['BACK TO THE PEAKS. PRESS '+L('b')+' HERE TO GO OUTSIDE.'],40);
+      }};
+      function snowStart(race){if(!SNOW)return;Object.assign(SNOW,{phase:race?'count':'run',race,s:0,lane:0,laneV:0,speed:4,air:0,jvy:0,jumpBuf:0,hops:0,t:race?3:0,rivalS:0,rivalV:4,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,finishT:0});P.power=null;P.powerT=0;P.gnd=true;P.st='slide';P.stT=0;music('coaster');snowPlace();snowCamera(0,true);say(race?'READY TO LATHER?':'THE COCOA COASTER!',1.5,'LEFT / RIGHT STEER. FORWARD TUCKS. '+L('c')+' BRAKES. '+L('a')+' HOPS.');saveNow();}
+      function snowPlace(){const q=SNOW,a=snowAt(q.s);P.x=a.x+a.nx*q.lane;P.z=a.z+a.nz*q.lane;P.y=a.y+Math.abs(q.lane)/45+q.air;P.face=a.angle;P.yaw=a.angle;P.vx=a.tx*q.speed;P.vz=a.tz*q.speed;P.vy=q.jvy;P.gnd=q.air<=0;P.st=q.air>0?'jump':'slide';P.plat=null;}
+      function snowStep(dt){const q=SNOW;if(!q||!['count','run'].includes(q.phase))return false;
+        if(q.phase==='count'){q.t-=dt;P.vx=P.vz=P.vy=0;if(q.t<=0){q.phase='run';q.t=0;say('GO!',.8);K.sfx.tone(1100,.2,'square',.07);}else if(Math.ceil(q.t)!==Math.ceil(q.t+dt)){say(String(Math.ceil(q.t)),.8);K.sfx.tone(660,.1,'square',.06);}return true;}
+        q.t+=dt;q.jumpBuf=IN.a?.14:Math.max(0,q.jumpBuf-dt);if(q.jumpBuf>0&&q.air<=0){q.hops++;P.stT=0;q.jvy=7.5;q.jumpBuf=0;snd.jump(0);}
+        q.jvy-=22*dt;q.air=Math.max(0,q.air+q.jvy*dt);if(q.air===0)q.jvy=0;
+        const a=snowAt(q.s),ahead=snowAt(q.s+2),bend=wrapA(ahead.angle-a.angle)/2;
+        const brake=IN.cH||IN.y>.3;q.speed=clamp(q.speed+(4-a.slope*18+(IN.y<-.4?2:0)-q.speed*.17-(brake?13:0))*dt,brake?4:7,26);
+        q.laneV+=(IN.x*22+bend*q.speed*q.speed*.2)*dt;q.laneV*=Math.exp(-dt*3.4);q.lane+=q.laneV*dt;
+        const edge=snowWidth(snowAt(q.s).z)-1.05;if(Math.abs(q.lane)>edge){q.lane=clamp(q.lane,-edge,edge);q.laneV*=-.35;q.speed=Math.max(5,q.speed*.72);if(q.bumps<=0){snd.pound();burst(P.x,P.y+.4,P.z,0xd3edff,7,3,{life:.35});q.bumps=.35;}}q.bumps=Math.max(0,q.bumps-dt);
+        const old=q.s;q.s=Math.min(SNOW_LENGTH,q.s+q.speed*dt);
+        [.29,.56,.79].forEach((f,i)=>{const s=SNOW_LENGTH*f;if(old<s&&q.s>=s&&!(q.bumpMask&(1<<i))){q.bumpMask|=1<<i;if(q.air<.5){q.speed*=.68;K.sfx.noise(.12,.06,800);burst(P.x,P.y+.2,P.z,0xe6f4ff,7,3,{life:.3});}}});
+        if(q.race)snowRivalStep(dt);
+        snowPlace();P.run+=dt*q.speed;if(K.frame%8===0)burst(P.x-a.tx*.8,P.y+.08,P.z-a.tz*.8,0xe4f6ff,2,1,{grav:1,life:.25,size:.07});if(K.frame%50===0)K.sfx.noise(.12,.025+q.speed*.001,700+q.speed*50);
+        if(q.s>=SNOW_LENGTH){q.phase='finish';music('peaks');q.gate.b.open=false;q.gate.m.position.y=0;q.speed=0;P.vx=P.vz=P.vy=0;P.gnd=true;P.st='idle';P.y=0;q.air=0;P.z=SNOW_END+2;reveal('finish');const key=q.race?'coasterRace':'coaster';prog.records[key]=Math.min(Number(prog.records[key])||999,q.t);if(q.race&&q.rivalS<SNOW_LENGTH){reveal('rival');say('YOU WIN! CLEAN AS A WHISTLE!',3,castN('mate2')+': I HAD A FLIPPER CRAMP!');}else say(q.race?'SOAP GETS THERE FIRST!':'COASTER COMPLETE!',3,'FETCH YOUR ACORN. '+L('b')+' BY THE SIGN RETURNS TO THE FIRE.');saveNow();}return true;
+      }
+      function snowRivalStep(dt){const q=SNOW;const r=snowAt(q.rivalS),turn=Math.abs(wrapA(snowAt(q.rivalS+4).angle-r.angle)),oldR=q.rivalS;for(const f of [.29,.56,.79])if(SNOW_LENGTH*f-q.rivalS>0&&SNOW_LENGTH*f-q.rivalS<3.8&&q.rivalAir===0)q.rivalJvy=7.5;q.rivalJvy-=22*dt;q.rivalAir=Math.max(0,q.rivalAir+q.rivalJvy*dt);if(q.rivalAir===0)q.rivalJvy=0;q.rivalV=clamp(q.rivalV+(5-r.slope*15-q.rivalV*.16-turn*8)*dt,6,23.8);q.rivalS=Math.min(SNOW_LENGTH,q.rivalS+q.rivalV*dt);[.29,.56,.79].forEach((f,i)=>{if(oldR<SNOW_LENGTH*f&&q.rivalS>=SNOW_LENGTH*f&&!(q.rivalMask&(1<<i))){q.rivalMask|=1<<i;if(q.rivalAir<.5)q.rivalV*=.68;}});}
+      function snowUpdate(dt){if(!SNOW)return;const q=SNOW;if(q.phase==='lodge'&&P.z>2.4&&Math.abs(P.x)<5.5)snowStart(false);
+        if(q.phase==='lodge')q.mittMeshes.forEach((m,i)=>{m.visible=!(q.mittens&(1<<i));if(m.visible&&Math.hypot(P.x-m.position.x,P.z-m.position.z)<1&&Math.abs(P.y+.7-m.position.y)<1.1){q.mittens|=1<<i;m.visible=false;snd.coin();if(q.mittens===7){reveal('cocoa');say('ALL THREE MITTENS!',2,'THE COCOA KEEPER HAS AN ACORN ON THE RUG.');}else say('MITTEN '+[0,1,1,2,1,2,2,3][q.mittens]+' OF 3',1.3);saveNow();}});
+        const n=NPCS.find(n=>n.snowRival);if(n?.mesh){if(['count','run'].includes(q.phase)||(q.phase==='finish'&&q.race)){if(q.phase==='finish')snowRivalStep(dt);const a=snowAt(q.rivalS),lane=1.5;n.x=a.x+a.nx*lane;n.y=a.y;n.z=a.z+a.nz*lane;n.mesh.position.set(n.x,n.y+(q.rivalS>=SNOW_LENGTH?0:.2+(q.rivalAir||0)),n.z);n.mesh.rotation.set(q.rivalS>=SNOW_LENGTH?0:-1.2,a.angle,0);n.mesh.visible=q.race;}else{n.x=3;n.y=40;n.z=-1;n.mesh.visible=true;n.mesh.position.set(3,40,-1);n.mesh.rotation.x=0;}}
+      }
+      function snowCamera(dt,snap){const q=SNOW;if(!q||!['count','run'].includes(q.phase))return false;const a=snowAt(q.s-5.8),b=snowAt(q.s+1.2);C.pos.set(a.x+a.nx*q.lane*.65,a.y+3.1+q.air*.25,a.z+a.nz*q.lane*.65);C.look.set(P.x+b.tx*.8,P.y+.8,P.z+b.tz*.8);C.yaw=C.want=b.angle;C.ty=P.y;cam.position.copy(C.pos);cam.lookAt(C.look);const f=62+q.speed*.22;if(Math.abs(cam.fov-f)>.01){cam.fov=f;cam.updateProjectionMatrix();}return true;}
+      function snowInput(){if(!SNOW||!IN.b||!P.gnd)return false;if(SNOW.phase==='finish'&&Math.hypot(P.x,P.z-(SNOW_END+14))<3){iris({op:'snowTop'});return true;}if(SNOW.phase==='lodge'&&Math.hypot(P.x,P.z+20)<3){iris({op:'snowOut'});return true;}return false;}
+
+      // A real island playground: lessons only count after the coach starts them.
+      const SCHOOL_LESSONS=[
+        ['HOP','jump','PRESS {a}. LAND IN THE GOLD HOOP.',30,26,4.5],
+        ['DOUBLE HOP','jump2','LAND FROM A HOP, THEN PRESS {a} AGAIN QUICKLY.',30,26,4.5],
+        ['TRIPLE HOP','jump3','HOP TWICE, THEN RUN AND HOP AGAIN BEFORE THE CHAIN ENDS!',39,27,4.5],
+        ['TWIRL','twirl','PRESS {a} AGAIN IN THE AIR. LAND IN THE HOOP.',30,26,4.5],
+        ['LONG HOP','long','RUN RIGHT ALONG THE STRIPE. HOLD {c}, THEN PRESS {a}.',38,26,4.5],
+        ['BACKFLIP','back','STAND STILL. HOLD {c}, THEN PRESS {a}.',30,26,4.5],
+        ['SIDE FLIP','side','RUN, REVERSE DIRECTION AND PRESS {a} TOGETHER.',30,26,4.5],
+        ['WALL KICK','wallkick','JUMP AT THE BLUE WALL. PRESS {a} AS YOU TOUCH IT.',35.5,22,4.5],
+        ['GROUND POUND','pound','HOP ABOVE THE RED BUTTON. PRESS {c} IN THE AIR.',28,20,4.8],
+        ['PUNCH','punch','FACE THE PADDED GRUMPY AND PRESS {b}.',28,31,4.5],
+        ['LEDGE GRAB','climb','FALL AGAINST THE LOW LEDGE. {a} CLIMBS; {c} LETS GO.',40,31,7],
+        ['CAMERA','camera','PRESS {l} OR {r} TO TURN THE VIEW. STAY IN THE HOOP.',32,19,4.5]
+      ];
+      function schoolHint(d){return d[2].replace(/\{([abclr])\}/g,(_,b)=>L(b));}
+      function schoolNext(){for(let i=0;i<SCHOOL_LESSONS.length;i++)if(!(prog.school&(1<<i)))return i;return SCHOOL_LESSONS.length;}
+      function buildSchool(){if(curW!=='hub')return;
+        box(34,3.8,26,20,.7,20,{t:'wood',c:0xb99a6e});for(const x of [25,33,42])for(const z of [17,35])cyl(x,-3,z,.35,7.5,{t:'wood',c:0x735034});
+        box(15,-.2,31,7,.8,4,{t:'wood',c:0xb5905d});for(const x of [12,15,18])for(const z of [29.3,32.7])cyl(x,-3,z,.22,3.6,{t:'wood',c:0x775137});
+        for(let i=0;i<12;i++)box(18+i*.5,-.2,31,.65,.8+i*.35,4,{t:'wood',c:0xc39f6b});
+        for(const z of [17,35])for(let x=25;x<=43;x+=3){box(x,4.5,z,.15,1.1,.15,{t:'wood'});if(x<42)box(x+1.5,5.2,z,3,.12,.12,{t:'wood',c:0xf0dca8});}
+        for(let x=26;x<43;x+=2)box(x,4.51,26,.9,.025,.15,{c:0xf0d390,solid:false});
+        const wall=box(39.8,4.5,22,1,5.8,5,{t:'brick',c:0x8cabc2});wall.schoolWall=true;
+        box(41,4.5,31,4,2.5,4,{t:'crate',c:0xd0b18b});
+        cyl(28,4.5,20,.85,.3,{c:0xc86e56,props:{schoolButton:true}});cyl(28,4.8,20,.6,.08,{c:0xffd57b,props:{schoolButton:true}});
+        const dummy=new T.Mesh(model('grumpy'),matV());dummy.position.set(28,4.8,31);WG.add(dummy);cyl(28,4.5,31,.7,.3,{t:'wood',c:0x715244});
+        const ring=new T.Mesh(S.tor(.09,20),mat('lessonRing',{color:0xffd66e,emissive:0x44300c}));ring.scale.setScalar(2.25);ring.rotation.x=Math.PI/2;WG.add(ring);
+        SCHOOL={active:false,lesson:schoolNext(),seen:false,ring,dummy};
+        npc('tortoise',castN('mate4')+' THE HOP COACH',32,17.8,Math.PI,()=>{const i=schoolNext();return i>=SCHOOL_LESSONS.length?['EVERY MOVE! YOUR FEET DESERVE A DIPLOMA. HAVE A GOLDEN ACORN!']:['WELCOME TO THE SOFT LANDINGS CLUB! I AM COACH '+castN('mate4')+'.', 'LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0]+'. '+schoolHint(SCHOOL_LESSONS[i]),'DO THE MOVE, THEN LAND IN THE GOLD HOOP. COME BACK TO ME FOR THE NEXT LESSON.'];},{y:4.5,coach:true,done:schoolStart});
+        sign(25.5,29,-Math.PI/2,['SOFT LANDINGS CLUB. TWELVE LITTLE LESSONS, ONE BIG ACORN.','TALK TO THE COACH TO BEGIN. THE GOLD HOOP SHOWS WHERE TO FINISH. YOUR COMPLETED LESSONS ARE SAVED.'],4.5);
+        sign(41,18,Math.PI,['WALL KICK CORNER. A REAL WALL, SOFT LANDINGS.'],4.5);
+        acorn('school','SOFT LANDINGS DIPLOMA',32,6,20,{hidden:schoolNext()<SCHOOL_LESSONS.length,cond:'school'});schoolAnim();
+      }
+      function schoolStart(){if(!SCHOOL)return;const i=schoolNext();SCHOOL.lesson=i;SCHOOL.seen=false;SCHOOL.active=i<SCHOOL_LESSONS.length;if(!SCHOOL.active){reveal('school');return;}say('LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0],2,schoolHint(SCHOOL_LESSONS[i]));schoolAnim();saveNow();}
+      function schoolAnim(){if(!SCHOOL)return;const q=SCHOOL,d=SCHOOL_LESSONS[q.lesson];q.ring.visible=!!q.active&&!!d;if(d)q.ring.position.set(d[3],d[5]+.12,d[4]);q.ring.material.color.setHex(q.seen?0x8aee9c:0xffd66e);}
+      function schoolUpdate(){if(!SCHOOL?.active)return;const q=SCHOOL,d=SCHOOL_LESSONS[q.lesson];if(!d)return;const inYard=P.x>24&&P.x<45&&P.z>15&&P.z<37&&P.y>4.2;
+        if(!inYard){q.seen=false;return;}
+        if(d[1]==='camera'?(IN.l||IN.r):d[1]==='punch'?(P.st==='punch'&&Math.hypot(P.x-28,P.z-31)<2.2):d[1]==='pound'?false:P.st===d[1])q.seen=true;
+        if(q.seen&&P.gnd&&Math.hypot(P.x-d[3],P.z-d[4])<2.8&&Math.abs(P.y-d[5])<.5){prog.school|=1<<q.lesson;q.active=false;schoolAnim();burst(P.x,P.y+.5,P.z,[0xffd77b,0x8deb99],12,3,{life:.6});K.sfx.seq([[72,.2],[76,.2],[84,.5]],{bpm:250,vol:.08});if(schoolNext()===SCHOOL_LESSONS.length){reveal('school');say('SOFT LANDINGS DIPLOMA!',3,'THE COACH HAS YOUR GOLDEN ACORN.');}else say('LESSON COMPLETE!',2,'PRESS '+L('b')+' BY THE COACH FOR THE NEXT ONE.');saveNow();}
+        schoolAnim();
+      }
+      function tryLedge(){if(P.gnd||P.vy>0||P.ledgeLock>0||IN.cH||P.power==='tin'||['pound','dead','hurt','ledge','climb'].includes(P.st))return false;const head=prog.opt.big?2.7:P.power==='peek'?2.2:1.95;
+        for(let i=0;i<BOXES.length;i++){const b=BOXES[i];if(b.mv||b.open||b.phase||b.nograb)continue;const top=b.y+b.hh;if(P.y<top-1.65||P.y>top-.85)continue;const dx=P.x-b.x,dz=P.z-b.z,lx=dx*b.cs-dz*b.sn,lz=dx*b.sn+dz*b.cs;let nx=0,nz=0;
+          if(Math.abs(lx)<b.hw-.12&&Math.abs(Math.abs(lz)-b.hd)<.7)nz=Math.sign(lz);else if(Math.abs(lz)<b.hd-.12&&Math.abs(Math.abs(lx)-b.hw)<.7)nx=Math.sign(lx);else continue;
+          const wx=nx*b.cs+nz*b.sn,wz=-nx*b.sn+nz*b.cs;if(P.vx*wx+P.vz*wz>-.15&&(-Math.sin(P.face)*wx-Math.cos(P.face)*wz)>-.4)continue;
+          const x=nx?b.x+nx*(b.hw+.43)*b.cs+lz*b.sn:b.x+lx*b.cs+nz*(b.hd+.43)*b.sn,z=nx?b.z-nx*(b.hw+.43)*b.sn+lz*b.cs:b.z-lx*b.sn+nz*(b.hd+.43)*b.cs;
+          if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-wx*.95,ez=z-wz*.95;let room=true;for(const o of BOXES){if(o===b||o.open||o.phase)continue;const ox=ex-o.x,oz=ez-o.z;if(Math.abs(ox*o.cs-oz*o.sn)<o.hw+.35&&Math.abs(ox*o.sn+oz*o.cs)<o.hd+.35&&o.y-o.hh<top+head&&o.y+o.hh>top+.05){room=false;break;}}if(!room)continue;
+          return catchLedge(i,'box',x,z,ex,ez,top,wx,wz);
+        }
+        for(let i=0;i<CYLS.length;i++){const c=CYLS[i],top=c.y1,dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(c.mv||c.r<.8||P.y<top-1.65||P.y>top-.85||Math.abs(d-c.r)>.7||d<.01)continue;const nx=dx/d,nz=dz/d;if(P.vx*nx+P.vz*nz>-.15&&(-Math.sin(P.face)*nx-Math.cos(P.face)*nz)>-.4)continue;const x=c.x+nx*(c.r+.43),z=c.z+nz*(c.r+.43);if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-nx*.95,ez=z-nz*.95;let clear=true;for(const b of BOXES){if(b.open||b.phase)continue;const ox=ex-b.x,oz=ez-b.z;if(Math.abs(ox*b.cs-oz*b.sn)<b.hw+.35&&Math.abs(ox*b.sn+oz*b.cs)<b.hd+.35&&b.y-b.hh<top+head&&b.y+b.hh>top+.05){clear=false;break;}}if(!clear)continue;for(const b of CYLS)if(b!==c&&Math.hypot(ex-b.x,ez-b.z)<b.r+.35&&b.y0<top+head&&b.y1>top+.05)clear=false;if(clear)return catchLedge(i,'cyl',x,z,ex,ez,top,nx,nz);}
+        return false;
+      }
+      function catchLedge(i,kind,x,z,ex,ez,top,nx,nz){P.ledge={i,kind,x,y:top-1.55,z,ex,ez,top,t:0,grabT:0,fromY:P.y};P.x=x;P.z=z;P.vx=P.vy=P.vz=0;P.gnd=false;P.st='ledge';P.stT=0;P.gliding=false;P.face=Math.atan2(nx,nz);P.yaw=P.face;P.plat=null;P.wallT=0;K.sfx.tone(470,.065,'triangle',.06);return true;}
+      function ledgeStep(dt){const l=P.ledge;if(!l||!['ledge','climb'].includes(P.st))return false;
+        if(P.st==='ledge'){l.grabT=Math.min(.1,(l.grabT||0)+dt);P.y=lerp(l.fromY??l.y,l.y,sstep(0,.1,l.grabT));P.vx=P.vy=P.vz=0;if(IN.c){P.ledge=null;P.ledgeLock=.25;P.st='fall';P.vy=-2;P.poundBuf=0;IN.c=false;return false;}if(l.grabT>=.1&&P.grabBuf>0){P.st='climb';P.stT=0;l.t=0;P.grabBuf=0;K.sfx.tone(650,.08,'triangle',.05);}return true;}
+        l.t+=dt;const lift=sstep(0,.18,l.t),across=sstep(.1,.32,l.t);P.x=lerp(l.x,l.ex,across);P.z=lerp(l.z,l.ez,across);P.y=lerp(l.y,l.top,lift);P.vx=P.vy=P.vz=0;
+        if(l.t>=.32){P.y=l.top;P.gnd=true;P.plat=(l.kind==='cyl'?CYLS:BOXES)[l.i]||null;P.st='idle';P.stT=0;P.ledge=null;P.ledgeLock=.2;P.chain=P.chainT=0;P.land=.06;}return true;
+      }
+
       // ================================================================ progress (saved) and the visit (not saved)
-      const prog = { powers: {}, records: {}, got: {}, ac: {}, score: 0, lives: 4, opt: { mus: 1, cam: 1, easy: 0 }, hs: [], boss: 0, started: 0, w: 'hub', p: null, door: -1 };
+      const prog = { school:0, powers: {}, records: {}, got: {}, ac: {}, score: 0, lives: 4, opt: { mus: 1, cam: 1, easy: 0 }, hs: [], boss: 0, started: 0, w: 'hub', p: null, door: -1 };
       (function loadProg() {
-        const s = K.load(); if (!s || typeof s !== 'object') return;
+        const s = K.load(); if (!s || typeof s !== 'object') return;prog.school=(s.school|0)&4095;
         if(s.powers&&typeof s.powers==='object')for(const k of Object.keys(POWER_DEFS))if(Object.prototype.hasOwnProperty.call(s.powers,k))prog.powers[k]=s.powers[k]?1:0;
         if (s.records && typeof s.records === 'object') prog.records = s.records;
         prog.got = s.got && typeof s.got === 'object' ? s.got : {}; prog.ac = s.ac && typeof s.ac === 'object' ? s.ac : {};
@@ -1246,7 +1386,7 @@
       const gotAc = id => curW === 'hub' ? !!prog.got[id] : !!(prog.ac[curW] && prog.ac[curW][id]);
       const nAc = () => Object.keys(prog.got).length + Object.keys(prog.ac).reduce((n, w) => n + Object.keys(prog.ac[w] || {}).length, 0);
       const nAcW = w => w === 'hub' ? Object.keys(prog.got).length : Object.keys(prog.ac[w] || {}).length;
-      const TOTAL = 50;
+      const TOTAL = 54;
       // v2 progress/save keys stay intact; run is the separate suspension record.
       const disk = K.load() || {};
       let runCache = disk.run && disk.run.v === 1 && WORLDS[disk.run.w] ? disk.run : null;
@@ -1271,7 +1411,7 @@
           boss: curW === 'boss' ? Object.assign(fields(BOSS, actorKeys), { rings: BOSS.rings.map(r => fields(r, 'r on x z')) }) : null,
           boo: curW === 'manor' ? fields(BB, actorKeys) : null,
           race: curW === 'peaks' ? fields(PERCY, actorKeys) : null,
-          powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
+          coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
           dlg: dlg && { name: dlg.name, lines: dlg.lines, i: dlg.i, ch: dlg.ch, npc: NPCS.indexOf(dlg.npc), race: !!dlg.npc?.percy },
           fade: fading && { t: fading.t, dur: fading.dur, done: fading.done, action: fading.action },
           feedback: { shake, flash, msg, msgT, msg2, msgCol },
@@ -1280,7 +1420,7 @@
       function saveNow() {
         if (demo || mode === 'view') return;
         if (prog.started && mode !== 'title' && mode !== 'attract' && fading?.action?.op !== 'title') runCache = snapshot();
-        K.save({ v2: 1, started: prog.started, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: prog.lives, opt: prog.opt, hs: prog.hs, boss: prog.boss,
+        K.save({ v2: 1, school:prog.school, started: prog.started, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: prog.lives, opt: prog.opt, hs: prog.hs, boss: prog.boss,
           w: runCache ? runCache.w : prog.w, p: runCache ? [runCache.player.x, runCache.player.y, runCache.player.z] : prog.p, door: prog.door, run: runCache,
           ui: fading?.action?.op === 'title' ? { quit: fields(fading, 't dur done action') } : mode === 'title' ? { title: true, started, menuI, sub, subI, idleT } : null });
       }
@@ -1303,10 +1443,11 @@
         if (s.boo && curW === 'manor') { Object.assign(BB, s.boo); BB.mesh.position.set(BB.x, BB.y, BB.z); BB.mesh.visible = !['sleep', 'gone'].includes(BB.st); }
         if (s.race && curW === 'peaks') { Object.assign(PERCY, s.race); PERCY.mesh.position.set(PERCY.x, PERCY.y, PERCY.z); PERCY.npc.x = PERCY.x; PERCY.npc.y = PERCY.y; PERCY.npc.z = PERCY.z; }
         SNOWB.length = 0; (s.snow || []).forEach((q, i) => { if (!snowM[i]) return; snowM[i].visible = true; snowM[i].position.set(q.x, q.y, q.z); SNOWB.push(Object.assign({}, q, { m: snowM[i] })); });
+        if(SNOW&&s.coaster){Object.assign(SNOW,s.coaster);SNOW.mittMeshes.forEach((m,i)=>m.visible=!(SNOW.mittens&(1<<i)));}if(SCHOOL&&s.school)Object.assign(SCHOOL,s.school);
         if (GROT && s.grotto) Object.assign(GROT, s.grotto);if(s.powerRun)Object.assign(POWER_RUN,s.powerRun);powerAnim(clock);
         mode = ['play', 'card', 'dlg', 'win', 'ending', 'over'].includes(s.mode) ? s.mode : 'play'; paused = !!s.paused; pauseI = s.pauseI || 0; card = s.card; winT = s.winT || 0; endT = s.endT || 0; overT = s.overT || 0; overSent = !!s.overSent; lastResult = s.result || null; winA = ACS.find(a => a.id === s.win) || null;
         dlg = null;
-        if (s.dlg) { const d = s.dlg, npc = NPCS[d.npc] || { name: d.name }; let done = d.race ? () => percyStart() : null;
+        if (s.dlg) { const d = s.dlg, npc = NPCS[d.npc] || { name: d.name }; let done = npc.done || (d.race ? () => percyStart() : null);
           if (curW === 'boss' && BOSS.st === 'intro') done = () => { BOSS.st = 'hop'; BOSS.t = 0; BOSS.vy = 12; music('boss'); };
           if (curW === 'manor' && BB.st === 'intro') done = () => { BB.st = 'fight'; BB.t = 0; music('boss'); };
           dlg = Object.assign({}, d, { npc, done });
@@ -1318,6 +1459,7 @@
         worldAnim(0, clock); animBop(0, clock); trialAnim(0, clock);
         if (GROT) { GROT.pearlMeshes.forEach((m,i)=>m.visible=!(GROT.pearls&(1<<i))); grottoAnim(clock); }
         if (s.visuals) { const v = s.visuals; ENS.forEach((e, i) => setPose(e.mesh, v.enemies[i])); NPCS.forEach((n, i) => setPose(n.mesh, v.npc[i])); if (curW === 'boss') { setPose(BOSS.mesh, v.boss); setPose(BOSS.stars, v.stars); } if (curW === 'manor') setPose(BB.mesh, v.boo); if (curW === 'peaks') setPose(PERCY.mesh, v.race); } if (winA) winA.mesh.visible = true;
+        if(SNOW){const n=NPCS.find(n=>n.snowRival);if(n?.mesh){n.x=n.mesh.position.x;n.z=n.mesh.position.z;n.y=['count','run'].includes(SNOW.phase)||SNOW.phase==='finish'&&SNOW.race?snowAt(SNOW.rivalS).y:40;}}
         if (s.lens) { cam.position.fromArray(s.lens.pos); cam.quaternion.fromArray(s.lens.quat); cam.fov=s.lens.fov||60;cam.updateProjectionMatrix(); }
         else { cam.position.copy(C.pos); cam.lookAt(C.look); }
         cam.updateMatrixWorld(true); if(winA){animBop(0,clock);poseReward();}
@@ -1345,7 +1487,7 @@
       let LAMPS = [], PROPS = [], chestOpen = {}, plugOut = {}, bossDown = false, raceWon = false;
       const HPMAX = () => prog.opt.easy ? 8 : 6;
       let clock = 0, motionClock = 0, mission = 0;
-      const P = { buf: 0, poundBuf: 0, coyote: 0, wallLock: 0, crouchT: 0, crouchSpeed: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, face: 0, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, twirl: false, kicked: false, wallT: 0, wnx: 0, wnz: 0, punchN: 0, punchT: 0, inv: 0, hp: 6, plat: null, safe: [0, 0, 0], safeT: 0, run: 0, land: 0, ctrl: 0, yaw: 0, spin: 0, fallY: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false };
+      const P = { ledge:null,ledgeLock:0,grabBuf:0,buf: 0, poundBuf: 0, coyote: 0, wallLock: 0, crouchT: 0, crouchSpeed: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, face: 0, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, twirl: false, kicked: false, wallT: 0, wnx: 0, wnz: 0, punchN: 0, punchT: 0, inv: 0, hp: 6, plat: null, safe: [0, 0, 0], safeT: 0, run: 0, land: 0, ctrl: 0, yaw: 0, spin: 0, fallY: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false };
       const IN = { x: 0, y: 0, a: false, aH: false, b: false, c: false, cH: false, l: false, r: false };
       function readInput() { const s = K.stick(), mag = Math.hypot(s.x, s.y), scale = mag > 0.18 ? Math.min(1, (mag - 0.18) / 0.82) / mag : 0; IN.x = s.x * scale; IN.y = s.y * scale; IN.a = K.pressed('a'); IN.aH = K.held('a'); IN.b = K.pressed('b'); IN.c = K.pressed('c') || K.pressed('x'); IN.cH = K.held('c') || K.held('x'); IN.l = K.pressed('l'); IN.r = K.pressed('r'); }
 
@@ -1360,12 +1502,12 @@
       function buildWorld(id) {
         if (WG) disposeWorld();
         WG = new T.Group(); T3.add(WG); BK = buckets(); WD = WORLDS[id]; curW = id;
-        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; winA = null; dlg = null; card = null; mission = 0;
+        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; SNOW = null; SCHOOL = null; winA = null; dlg = null; card = null; mission = 0;
         BOXES.length = 0; CYLS.length = 0; MOVERS.length = 0; COINS = []; REDS = []; ACS = []; ENS = []; NPCS = []; DOORS = []; LIFE = []; LAMPS = []; PROPS = []; SNOWB.length = 0;
         chestOpen = {}; plugOut = {}; bossDown = false; raceWon = false; PERCY.on = false; PERCY.st = 'idle'; BB.on = false;
         Object.assign(visit, { coins: 0, reds: 0, kills: 0, t: 0, life50: 0, kicks: 0 });
         POWER_RUN={rings:0,pressure:0,gate:0,ledger:false,safeLoot:false,phaseCross:0};powerBoxes=[];powerPortals=[];powerGates=[];powerSwitch=null;powerRings=[];powerLedger=null;
-        WD.build(); buildTrial(id); if(id==='manor')manorSigns();buildPowerContent(id);
+        WD.build(); buildTrial(id); if(id==='manor')manorSigns();buildPowerContent(id);buildSchool();
         if (WD.exitAt) exitDoorBuild();
         BK.flush();
         const f = T3.scene.fog; f.color.setHex(WD.fog[0]); f.near = WD.fog[1]; f.far = WD.fog[2];
@@ -1376,7 +1518,7 @@
         coinSpark_=new T.InstancedMesh(coinSparkGeo,mat('coinSpark',{color:0xfff1bc,lit:false}),12);coinSpark_.frustumCulled=false;WG.add(coinSpark_);coinScales=[];
         for (const a of ACS) { a.mesh = new T.Mesh(acornGeo, gotAc(a.id) ? matGhost : matAcorn); a.mesh.position.set(a.x, a.y, a.z); a.mesh.visible = !a.hidden; WG.add(a.mesh); }
         for (const e of ENS) { e.mesh = new T.Mesh(model(e.kind), e.kind === 'boohoo' ? ghostMat : matV()); e.mesh.position.set(e.x, e.y, e.z); WG.add(e.mesh); }
-        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : 1.6) }); }
+        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if(n.snowRival){const gear=new T.Mesh(merge([pt(S.hemi(12),0x76c5c9,0,1.42,0,.85,.5,.8),pt(S.box(),0xf4d17f,0,1.28,-.48,.62,.2,.12),pt(S.box(),0x415a72,0,1.29,-.55,.49,.12,.05)]),matV());n.mesh.add(gear);}if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost&&!n.snowRival) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : 1.6) }); }
         lifeMeshes = LIFE.map(o => { const m = new T.Mesh(model('life'), matV()); m.position.set(o.x, o.y, o.z); m.scale.setScalar(0.9); WG.add(m); return m; });
         snowM = []; for (let i = 0; i < 6; i++) { const m = new T.Mesh(model('snowball'), matV()); m.visible = false; WG.add(m); snowM.push(m); }
         if (id === 'manor') BB.init(); if (id === 'boss') BOSS.init();
@@ -1403,6 +1545,7 @@
       }
       function poundOn(o) {
         if (!o) return;
+        if(o.schoolButton&&SCHOOL?.active&&SCHOOL_LESSONS[SCHOOL.lesson]?.[1]==='pound')SCHOOL.seen=true;
         if(o.powerSwitch)unlockPower(o.powerSwitch);
         if (o.trial) trialStart();
         if (Number.isInteger(o.bell)) chime(o.bell);
@@ -1464,7 +1607,7 @@
       };
       let shake = 0, flash = 0, msg = '', msgT = 0, msg2 = '', msgCol = '#ffd23a';
       const say = (s, t, s2, c) => { msg = s; msgT = t || 2; msg2 = s2 || ''; msgCol = c || '#ffd23a'; };
-      function respawnAt(x, y, z, face) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, face, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, buf: 0, poundBuf: 0, coyote: 0, crouchT: 0, wallLock: 0, twirl: false, kicked: false, wallT: 0, plat: null, ctrl: 0, yaw: face, spin: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false }); floorAt(x, z, y + 1); if (FL.h > -100) P.y = FL.h; P.safe = [P.x, P.y, P.z]; camSnap(); }
+      function respawnAt(x, y, z, face) { Object.assign(P, { ledge:null,ledgeLock:0,grabBuf:0,x, y, z, vx: 0, vy: 0, vz: 0, face, gnd: true, st: 'idle', stT: 0, chain: 0, chainT: 0, buf: 0, poundBuf: 0, coyote: 0, crouchT: 0, wallLock: 0, twirl: false, kicked: false, wallT: 0, plat: null, ctrl: 0, yaw: face, spin: 0, swimming: false, air: 30, airClock: 0, stroke: 0, power:null, powerT:0, gliding:false }); floorAt(x, z, y + 1); if (FL.h > -100) P.y = FL.h; P.safe = [P.x, P.y, P.z]; camSnap(); }
       function hurt(n, fx, fz) {
         if(P.power==='tin'||P.power==='peek')return;
         if (P.inv > 0 || demo || P.st === 'dead' || mode !== 'play') return;
@@ -1505,6 +1648,7 @@
       }
 
       function stepPlayer(dt) {
+        P.ledgeLock=Math.max(0,(P.ledgeLock||0)-dt);P.grabBuf=IN.a&&!P.gnd?.14:Math.max(0,(P.grabBuf||0)-dt);
         // Remember an airborne press during the first few takeoff frames, until
         // there is room for the flip. Sample before jumping so grounded Z+A
         // still means backflip/long jump, without queuing a pound as well.
@@ -1513,6 +1657,7 @@
         else P.poundBuf = Math.max(0, (P.poundBuf || 0) - dt);
         P.stT += dt; P.coyote = P.gnd ? 0.1 : Math.max(0, P.coyote - dt); P.wallLock = Math.max(0, P.wallLock - dt); P.buf = Math.max(0, P.buf - dt); P.crouchT = Math.max(0, P.crouchT - dt); if (P.chainT > 0) P.chainT -= dt; if (P.wallT > 0) P.wallT -= dt; if (P.inv > 0) P.inv -= dt; if (P.punchT > 0) P.punchT -= dt; if (P.ctrl > 0) P.ctrl -= dt; if (P.land > 0) P.land -= dt;
         if (P.st === 'dead') { P.vy -= 20 * dt; P.y += P.vy * dt; P.spin += dt * 10; if (P.stT > 2.2 && !fading) afterDeath(); return; }
+        if(ledgeStep(dt)||snowStep(dt))return;
         const bodyH=manorCamera()?(prog.opt.big?2.65:P.power==='peek'?2.2:1.9):1.25;
         const cy = C.yaw, fx = -Math.sin(cy), fz = -Math.cos(cy), rx = Math.cos(cy), rz = -Math.sin(cy);
         let wx = fx * -IN.y + rx * IN.x, wz = fz * -IN.y + rz * IN.x, wl = Math.hypot(wx, wz); if (wl > 1) { wx /= wl; wz /= wl; wl = 1; }
@@ -1538,6 +1683,7 @@
           const k = P.st === 'long' ? 0.8 : P.st === 'wallkick' ? 1.5 : 3.2;
           if (wl > 0.1) { P.vx += (wx * TOP - P.vx) * Math.min(1, k * dt * wl); P.vz += (wz * TOP - P.vz) * Math.min(1, k * dt * wl); if (!['long', 'back', 'wallkick'].includes(P.st)) P.face += wrapA(wantF - P.face) * Math.min(1, dt * 7); }
         }
+        if(tryLedge()){ledgeStep(dt);return;}
         // A press just before touchdown or wall contact belongs to that move.
         // Holding jump never manufactures another press; coyote time is consumed on takeoff.
         if (!P.gnd && P.wallLock <= 0 && IN.a) {
@@ -1569,6 +1715,8 @@
           }
         }
         if (IN.b) {
+          if(curW==='peaks'&&P.gnd&&Math.hypot(P.x+46,P.z+13.4)<2){iris({op:'snowIn'});return;}
+          if(snowInput())return;
           const door = P.gnd && nearManorDoor(); if(door){useManorDoor(door);return;}
           const rang = P.gnd && tryChime(), n = P.gnd && !demo && !rang ? nearTalk() : null;
           if (n) { startTalk(n); return; }
@@ -1607,6 +1755,7 @@
         else if (P.gnd && P.vy <= 0 && P.y - gh < 0.42 && !(P.plat && P.plat.bounce)) { P.y = gh; P.plat = go; P.vy = 0; }
         else if (P.y > gh + 0.05) { if (P.gnd) { P.gnd = false; P.plat = null; if (!['jump', 'jump2', 'jump3', 'long', 'back', 'spring'].includes(P.st)) { P.st = 'fall'; P.stT = 0; } P.fallY = P.y; } }
         if (!P.gnd && P.vy < 0 && ['jump', 'jump2', 'wallkick', 'twirl', 'kick'].includes(P.st) && P.stT > 0.3 && P.st !== 'jump2') { /* keep pose */ }
+        if(tryLedge()){ledgeStep(0);return;}
         // the sea, the lava, the void
         if (!WD.swimEnabled && WD.water != null && P.y < WD.water - 0.6 && WD.ground(P.x, P.z) < WD.water - 0.4) { burst(P.x, WD.water, P.z, [0x9ad8ff, 0xffffff], 14, 6); K.sfx.noise(0.5, 0.2, 800); return fallOut(); }
         if (WD.lava != null && P.y < WD.lava + 0.1 && P.st !== 'dead') { P.y = WD.lava + 0.1; P.vy = 17; P.gnd = false; P.st = 'burn'; P.stT = 0; P.ctrl = 1.4; const ddx = P.safe[0] - P.x, ddz = P.safe[2] - P.z, d = Math.hypot(ddx, ddz) || 1, v = Math.min(12, d / 1.5); P.vx = ddx / d * v; P.vz = ddz / d * v; burst(P.x, P.y, P.z, [0xffa82a, 0xff4a1a], 14, 6); K.sfx.tone(800, 0.4, 'sawtooth', 0.07, 0, 1600); if (!demo) { P.hp -= 1; P.inv = 0.6; flash = 0.3; if (P.hp <= 0) return die(); } }
@@ -1870,9 +2019,9 @@
       }
       function mayorLines() {
         const n = nAc();
-        if (prog.boss) return ['BOPPER! THE HERO OF BISCUIT ISLAND! WE\'RE PUTTING UP A STATUE OF YOU. IT\'S MADE OF SHORTBREAD.', n < TOTAL ? 'THERE ARE STILL ' + (TOTAL - n) + ' ACORNS OUT THERE SOMEWHERE, IF YOU FANCY A BIT MORE BOUNCING.' : 'ALL FIFTY ACORNS! I DON\'T KNOW WHAT TO SAY. HAVE A BISCUIT.'];
+        if (prog.boss) return ['BOPPER! THE HERO OF BISCUIT ISLAND! WE\'RE PUTTING UP A STATUE OF YOU. IT\'S MADE OF SHORTBREAD.', n < TOTAL ? 'THERE ARE STILL ' + (TOTAL - n) + ' ACORNS OUT THERE SOMEWHERE, IF YOU FANCY A BIT MORE BOUNCING.' : 'ALL '+TOTAL+' ACORNS! I DON\'T KNOW WHAT TO SAY. HAVE A BISCUIT.'];
         const next = ORDER.find(w => NEED[w] > n);
-        const L0 = n === 0 ? [`WELL HELLO THERE, BOPPER! I'M MAYOR ${castN('mate1')}.`, 'DISASTER! KING GRUMPUS HAS PINCHED ALL THE GOLDEN ACORNS ON BISCUIT ISLAND AND HIDDEN THEM ALL OVER THE PLACE!', 'THERE ARE EIGHT RIGHT HERE ON THE ISLAND. HOW ABOUT THE TOP OF THE LIGHTHOUSE FOR A START?', 'THE MAGIC DOORS IN ACORN PLAZA LEAD TO FAR-OFF WORLDS WITH MORE ACORNS. THE FIRST ONE IS OPEN ALREADY.', 'PRESS ' + L('a') + ' TO JUMP. LAND AND PRESS IT AGAIN, AND AGAIN, FOR A TRIPLE JUMP!']
+        const L0 = n === 0 ? [`WELL HELLO THERE, BOPPER! I'M MAYOR ${castN('mate1')}.`, 'DISASTER! KING GRUMPUS HAS PINCHED ALL THE GOLDEN ACORNS ON BISCUIT ISLAND AND HIDDEN THEM ALL OVER THE PLACE!', 'THERE ARE NINE RIGHT HERE ON THE ISLAND. HOW ABOUT THE TOP OF THE LIGHTHOUSE FOR A START?', 'THE MAGIC DOORS IN ACORN PLAZA LEAD TO FAR-OFF WORLDS WITH MORE ACORNS. THE FIRST ONE IS OPEN ALREADY.', 'PRESS ' + L('a') + ' TO JUMP. LAND AND PRESS IT AGAIN, AND AGAIN, FOR A TRIPLE JUMP!']
           : ['YOU\'VE FOUND ' + n + ' GOLDEN ACORN' + (n === 1 ? '' : 'S') + '! MARVELLOUS!'];
         if (next && n > 0) L0.push('THE DOOR TO ' + WN[next] + ' OPENS AT ' + NEED[next] + ' ACORNS. YOU NEED ' + (NEED[next] - n) + ' MORE.');
         if (!next) L0.push('YOU\'VE GOT ENOUGH TO OPEN KING GRUMPUS\'S DOOR! GO AND SHOW HIM WHAT FOR!');
@@ -1882,7 +2031,7 @@
       // ================================================================ camera: collision before smoothing, stable camera-relative steering
       const cam = T3.cam, C = { yaw: 0, want: 0, auto: 0, ty: 0, pos: V3(), look: V3(), dist: 9.5, arm: 1, lift: 0 };
       const camRay = new T.Raycaster(), camHits = [], camVisible = [], rayStart = V3(), rayDir = V3();
-      function manorCamera(){return curW==='manor'&&Math.abs(P.x)<10.6&&P.z<-14.1&&P.z>-25.6&&P.y<9;}
+      function manorCamera(){return (curW==='snowhall'&&SNOW&&!['count','run'].includes(SNOW.phase))||curW==='manor'&&Math.abs(P.x)<10.6&&P.z<-14.1&&P.z>-25.6&&P.y<9;}
       // The first intersection of a capsule-sized boom with an oriented box/cylinder.
       function cameraRoom(ax, ay, az, bx, by, bz, geometry) {
         const dx = bx - ax, dy = by - ay, dz = bz - az, len = Math.hypot(dx, dy, dz) || 1, pad = .28;
@@ -1939,6 +2088,7 @@
         if (!snap && !demo && mode === 'play') {
           if (IN.l || IN.r) { C.want += (IN.l ? 1 : -1) * Math.PI / 4; C.auto = 2.5; K.sfx.tone(760, 0.03, 'square', 0.04); }
         }
+        if(snowCamera(dt,snap))return;
         if(inside)limitManorOrbit(snap);
         C.auto = Math.max(0, C.auto - dt);
         // Sideways/backwards running must not rotate the very axes the player is steering with.
@@ -1982,6 +2132,7 @@
         for (const a of [base + 1.1, base - 1.1, base + 1.6, base - 1.6]) { const x = mx + Math.sin(a) * dist, z = mz + Math.cos(a) * dist, y = my + 3, f = cameraRoom(mx, my, mz, x, y, z); if (f > best) { best = f; target = [lerp(mx, x, f), lerp(my, y, f), lerp(mz, z, f)]; } }
         C.pos.lerp(tv.set(...target), 1 - Math.exp(-dt * 7)); cam.position.copy(C.pos); C.look.set(mx, my - 0.4, mz); cam.lookAt(C.look);
       }
+      function friendlyCamera(dt,n){const mx=(P.x+n.x)/2,mz=(P.z+n.z)/2,my=Math.max(P.y,n.y)+1.05,base=Math.atan2(P.x-n.x,P.z-n.z),reach=7.2;let best=-1,target=null;for(const side of [-1.0,1.0,-1.4,1.4]){const a=base+side,x=mx+Math.sin(a)*reach,z=mz+Math.cos(a)*reach,y=my+1.9,f=Math.min(cameraRoom(mx,my,mz,x,y,z),cameraRoom(P.x,P.y+1.2,P.z,x,y,z),cameraRoom(n.x,n.y+1.2,n.z,x,y,z));if(f>best){best=f;target=[lerp(mx,x,f),lerp(my,y,f),lerp(mz,z,f)];}}C.pos.lerp(tv.set(...target),1-Math.exp(-dt*8));C.look.set(mx,my,mz);cam.position.copy(C.pos);cam.lookAt(C.look);cam.fov=68;cam.updateProjectionMatrix();}
       function poseReward() {
         const right = tv2.set(1,0,0).applyQuaternion(cam.quaternion), lift = BOP.hips.position.y - 0.42, side = prog.opt.big ? 1.4 : .95;
         winA.mesh.scale.setScalar(.8); winA.mesh.position.set(P.x + right.x * side, P.y + (prog.opt.big ? 3.4 : 2.65) + lift, P.z + right.z * side);
@@ -1991,7 +2142,8 @@
         if (C.winYaw == null) {
           let best = -1, angle = C.yaw;
           for (let i = 0; i < 16; i++) { const a = C.yaw + i / 16 * TAU, x = P.x + Math.sin(a) * reach, z = P.z + Math.cos(a) * reach;
-            const room = cameraRoom(P.x, targetY, P.z, x, P.y + height + bounce, z), score = room * 8 - Math.abs(wrapA(a - C.yaw)) * 0.02;
+            // Choose for the entire celebration arc, so a rising head never drives the boom into a banner or beam.
+            let room=1;for(const lift of [0,.4,.8])room=Math.min(room,cameraRoom(P.x,P.y+(prog.opt.big?3:2.4)+lift,P.z,x,P.y+height+lift,z));const score = room * 8 - Math.abs(wrapA(a - C.yaw)) * 0.02;
             if (score > best) { best = score; angle = a; }
           }
           C.winYaw = angle;
@@ -2001,17 +2153,20 @@
         const f = cameraRoom(P.x, targetY, P.z, C.pos.x, C.pos.y, C.pos.z);
         cam.position.set(lerp(P.x, C.pos.x, f), lerp(targetY, C.pos.y, f), lerp(P.z, C.pos.z, f));
         C.look.set(P.x,targetY,P.z);cam.lookAt(C.look);
-        cam.fov=clamp(2*Math.atan(Math.tan(Math.PI/6)/Math.max(.2,f))*180/Math.PI,60,95);cam.updateProjectionMatrix();
+        const rewardFov=curW==='snowhall'?68:60;cam.fov=clamp(2*Math.atan(Math.tan(rewardFov*Math.PI/360)/Math.max(.2,f))*180/Math.PI,rewardFov,95);cam.updateProjectionMatrix();
       }
 
       // ================================================================ the flow: title, menus, demo, worlds, pause, death, the ending
       let lastResult = null;
       let overSent = false, mode = 'title', menuI = 0, sub = null, subI = 0, idleT = 0, winT = 0, paused = false, pauseI = 0, card = null, overT = 0, endT = 0, fading = null, lockT = 0, demoT = 0, demoI = 0, demoJ = 0;
       const music = s => K.music(prog.opt.mus && s ? SONGS[s] : null);
-      const playSong = () => curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
+      const playSong = () => curW==='snowhall'&&SNOW&&['count','run'].includes(SNOW.phase)?'coaster':curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
       function iris(action) { if (fading) return; fading = { t: 0, dur: 0.42, action, fn: () => applyTransition(action), done: false }; K.sfx.tone(520, 0.3, 'triangle', 0.05, 0, 160); }
       function applyTransition(a) {
-        if (a.op === 'enter') { prog.door = ORDER.indexOf(a.w); buildWorld(a.w); spawnInWorld(a.w); P.hp = HPMAX(); P.inv = 0; mode = 'card'; card = { w: a.w, t: 0 }; K.music(null); K.sfx.seq([[72, 0.5], [79, 0.5], [84, 1]], { bpm: 200, vol: 0.08, wave: 'triangle' }); }
+        if(a.op==='snowIn'){buildWorld('snowhall');spawnInWorld('snowhall');mode='play';music('peaks');}
+        else if(a.op==='snowTop'){Object.assign(SNOW,{phase:'lodge',s:0,speed:0,air:0,jvy:0});respawnAt(0,40,-10,Math.PI);mode='play';music('peaks');}
+        else if(a.op==='snowOut'){buildWorld('peaks');respawnAt(-46,99,-11,0);mode='play';music('peaks');}
+        else if (a.op === 'enter') { prog.door = ORDER.indexOf(a.w); buildWorld(a.w); spawnInWorld(a.w); P.hp = HPMAX(); P.inv = 0; mode = 'card'; card = { w: a.w, t: 0 }; K.music(null); K.sfx.seq([[72, 0.5], [79, 0.5], [84, 1]], { bpm: 200, vol: 0.08, wave: 'triangle' }); }
         else if(a.op==='secretBack'){buildWorld('hub');const d=POWER_DEFS[a.k],[x,z]=d.portal;respawnAt(x,WD.ground(x,z),z+3,0);mode='play';music('hub');}
         else if (a.op === 'safe') { respawnAt(...a.pose, a.face); P.inv = 1.4; }
         else if (a.op === 'hub') { toHubAtDoor(a.i); if (a.ending) say('KING GRUMPUS IS BEATEN!', 3, 'THERE MAY STILL BE ACORNS TO FIND...'); }
@@ -2026,14 +2181,14 @@
         if (d) { respawnAt(d.x + d.fx * 3.2, PH, d.z + d.fz * 3.2, Math.atan2(-d.fx, -d.fz)); C.want = C.yaw = P.face + 1.9; camUpdate(0, true); } else spawnInWorld('hub');
         P.hp = HPMAX(); music('hub'); mode = 'play';
       }
-      function leaveWorld() { const k=WD.power;iris(k?{op:'secretBack',k}:{ op: 'hub', i: ORDER.indexOf(curW) }); }
+      function leaveWorld() {if(curW==='snowhall'){iris({op:'snowOut'});return;} const k=WD.power;iris(k?{op:'secretBack',k}:{ op: 'hub', i: ORDER.indexOf(curW) }); }
       function afterDeath() {
         prog.lives--;
-        if (prog.lives < 0) { mode = 'over'; overT = 0; overSent = false; lastResult = null; addHs(); prog.lives = 4; const w = curW; curW = 'hub'; K.save({ v2: 1, started: 1, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: 4, opt: prog.opt, hs: prog.hs, boss: prog.boss, w: 'hub', p: null, door: -1 }); curW = w; return; }
+        if (prog.lives < 0) { mode = 'over'; overT = 0; overSent = false; lastResult = null; addHs(); prog.lives = 4; const w = curW; curW = 'hub'; K.save({ v2: 1, school:prog.school, started: 1, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: 4, opt: prog.opt, hs: prog.hs, boss: prog.boss, w: 'hub', p: null, door: -1 }); curW = w; return; }
         iris({ op: 'restart', w: curW, rebuild: curW === 'boss', inv: 1 });
       }
       function newGame() {
-        Object.assign(prog, { powers:{}, got: {}, ac: {}, score: 0, lives: 4, boss: 0, started: 1, w: 'hub', p: null, door: -1 });
+        Object.assign(prog, { school:0, powers:{}, got: {}, ac: {}, score: 0, lives: 4, boss: 0, started: 1, w: 'hub', p: null, door: -1 });
         runCache = null; lastResult = null; overSent = false; paused = false; buildWorld('hub'); spawnInWorld('hub'); P.hp = HPMAX(); mode = 'card'; card = { w: 'hub', t: 0 }; saveNow();
       }
       function continueGame() {
@@ -2107,7 +2262,7 @@
           if (P.plat === s && P.gnd && mode !== 'title') { const dx = P.x - ox, dz = P.z - oz, dr = (s.ry || 0) - ory, c = Math.cos(dr), sn = Math.sin(dr); P.x = s.x + dx * c + dz * sn; P.z = s.z - dx * sn + dz * c; P.y = s.k === 'box' ? s.y + s.hh : s.y1; P.face += dr; P.yaw += dr; } }
         for (const c of CYLS) if (c.squish > 0) c.squish -= dt;
         for (const pr of PROPS) { if(pr.kind==='manorDoor'){pr.open+=clamp(pr.want-pr.open,-dt*2,dt*2);syncDoor(pr);}else if(pr.open > 0 && pr.open < 1) { pr.open = Math.min(1, pr.open + dt * 3); pr.lid.rotation.x = 1.3 * pr.open; } }
-        trialAnim(dt, t); grottoAnim(t);powerAnim(t);
+        trialAnim(dt, t); grottoAnim(t);powerAnim(t);schoolAnim();if(SNOW?.gate){SNOW.gate.b.open=SNOW.phase!=='finish';SNOW.gate.m.position.y=SNOW.phase==='finish'?0:-4;}
         lifeMeshes.forEach((m, i) => { m.rotation.y = t * 2; m.position.y = LIFE[i].y + Math.sin(t * 3 + i) * 0.15; });
         for (const a of ACS) if (a.mesh && a.mesh.visible && a !== winA) { a.mesh.rotation.y = t * 2 + a.x; a.mesh.position.y = a.y + Math.sin(t * 2.5 + a.x) * 0.2; }
       }
@@ -2144,7 +2299,8 @@
         let yaw = P.yaw, rx = 0, rz = 0, sc = 1, hy = 0.42;
         const arm = [0, 0, 0, 0], leg = [0, 0, 0, 0]; // armL x,z  armR x,z / legL x,z legR x,z
         let headY = 0, headX = 0;
-        if(st==='glide'){rx=-.15;arm[1]=1.8;arm[3]=-1.8;leg[0]=.3;leg[2]=-.3;hy+=Math.sin(t*4)*.025;}
+        if(st==='ledge'||st==='climb'){hy=.3;arm[0]=arm[2]=2.9;arm[1]=.25;arm[3]=-.25;leg[0]=.2;leg[2]=.35;rx=-.08;}
+        else if(st==='glide'){rx=-.15;arm[1]=1.8;arm[3]=-1.8;leg[0]=.3;leg[2]=-.3;hy+=Math.sin(t*4)*.025;}
         else if (st === 'swim') { rx = lerp(-.35,-1.15,clamp(((WD.water||0)-P.y-1)/1.5,0,1)) + clamp(P.vy / 6,-.75,.75); arm[0] = Math.sin(P.run*1.6)*1.1; arm[2] = -arm[0]; arm[1] = .9; arm[3] = -.9; leg[0] = Math.sin(P.run*2)*.45; leg[2] = -leg[0]; hy += Math.sin(P.run)*.04; }
         else if (P.gnd && (st === 'run' || st === 'idle' || st === 'skid')) {
           const amp = Math.min(1, sp / 7), ph = P.run;
@@ -2206,7 +2362,7 @@
         if (mode === 'card') { card.t += dt; card.sel = card.sel || 0; if (up() || dn()) { card.sel = (card.sel + ACS.length + (up() ? -1 : 1)) % ACS.length; tick(); } if (card.t > 0.6 && (K.pressed('a') || K.pressed('start'))) { mission = card.sel; mode = 'play'; K.resume?.(); okS(); music(WORLDS[curW].song); if (card.w === 'hub' && !card.back && nAc() === 0) say('FIND THE GOLDEN ACORNS!', 2.5); } camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'over') { overT += dt; P.vy = 0; if (overT > 3.2 && !overSent) { overSent = true; sendScore(true, 'GAME OVER', `${nAc()} OF ${TOTAL} GOLDEN ACORNS. THEY'RE SAVED: PICK CONTINUE ON THE TITLE SCREEN.`); } return; }
         if (mode === 'ending') { endingUpdate(dt, t); return; }
-        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && ['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)) introCamera(dt); else camUpdate(dt); animBop(dt, t); return; }
+        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && ['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)) introCamera(dt);else if(mode==='dlg'&&(dlg.npc?.snowRival||dlg.npc?.coach||curW==='snowhall'&&dlg.npc?.kind==='tortoise'))friendlyCamera(dt,dlg.npc); else camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'win') {
           winT += dt; rewardCamera(dt); animBop(dt, t);
           if (winA) { winA.mesh.material = matAcorn; poseReward(); winA.mesh.rotation.y = t * 4; }
@@ -2221,6 +2377,7 @@
         if (fading) { animBop(dt, t); camUpdate(dt); return; }
         visit.t += dt; readInput();powerInput();
         stepPlayer(dt);
+        snowUpdate(dt);schoolUpdate();
         if (mode !== 'play') { animBop(dt, t); camUpdate(dt); return; }
         enemiesUpdate(dt, t); if (curW === 'peaks') percyUpdate(dt); if (curW === 'manor') BB.update(dt, t); if (curW === 'boss') BOSS.update(dt, t);
         if (P.st !== 'dead') { trialUpdate(dt); grottoUpdate(dt); powerUpdate(dt);powerAnim(t);collectStuff(dt); }
@@ -2318,6 +2475,11 @@
           else if(q.st==='demo')footer.push(['LISTEN... ROUND '+(q.round+1)+' OF 3','#ffe486']);
           if(P.gnd&&Math.hypot(P.x-q.switch.x,P.z-q.switch.z)<2.4&&Math.abs(P.y-q.switch.y)<1.8)footer.push(['JUMP THEN '+L('c')+': '+(q.st==='idle'?'START':'RETRY')+' TRIAL','#fff']);
         }
+        if(mode==='play'&&SCHOOL?.active)footer.push(['LESSON '+(SCHOOL.lesson+1)+'/12: '+SCHOOL_LESSONS[SCHOOL.lesson][0],SCHOOL.seen?'#9fffbd':'#ffe6a0']);
+        if(mode==='play'&&P.st==='ledge')footer.push([L('a')+' CLIMB   '+L('c')+' LET GO','#fff0b8']);
+        if(mode==='play'&&curW==='peaks'&&Math.hypot(P.x+46,P.z+13.4)<4)footer.push([L('b')+' ENTER THE COCOA LODGE','#fff0ba']);
+        if(mode==='play'&&SNOW){const q=SNOW;if(['count','run'].includes(q.phase))footer.push([q.phase==='count'?'READY... '+Math.ceil(q.t):Math.round(q.speed*3)+' MPH   '+Math.round(q.s/SNOW_LENGTH*100)+'%   '+q.t.toFixed(1)+' SEC','#fff0c0']);if(q.phase==='run')footer.push([q.race?(q.s>=q.rivalS?'YOU ARE AHEAD!':castN('mate2')+' IS AHEAD!'):'STEER  '+L('c')+' BRAKE  '+L('a')+' HOP','#e1f1ff']);}
+        if(mode==='play'&&SNOW?.phase==='finish'){const best=prog.records[SNOW.race?'coasterRace':'coaster'];footer.push(['TIME '+SNOW.t.toFixed(2)+'  BEST '+Number(best).toFixed(2)+' SECONDS','#fff0b8']);}
         if(mode==='play'&&curW==='peekaboo')footer.push(['GRILLES '+[0,1,1,2][POWER_RUN.phaseCross]+'/2','#e0cbff']);
         if(mode==='play'&&curW==='brolly')footer.push(['WIND HOOPS '+POWER_RUN.rings+'/3','#f7e6ad']);
         if(mode==='play'&&POWER_RUN.pressure>0&&!POWER_RUN.gate)footer.push(['WEIGHT PLATE '+Math.min(100,Math.floor(POWER_RUN.pressure/.7*100))+'%','#ffe0a0']);
@@ -2350,7 +2512,7 @@
         hud.fillStyle = 'rgba(0,0,30,.62)'; hud.fillRect(0, 0, W, H);
         bigText('PAUSE', W / 2, 22, 20);
         F.center(hud, WN[curW] + '   ' + nAcW(curW) + '/' + ACS.length, W / 2, 40, '#bcd8ff', 1, true);
-        ACS.forEach((a, i) => { const g = gotAc(a.id); acIcon(28, 58 + i * 12, 8, g ? '#ffc81a' : '#556'); F.draw(hud, a.name, 38, 55 + i * 12, g ? '#ffd23a' : '#cfd6e8', 1, true); });
+        ACS.forEach((a, i) => { const g = gotAc(a.id); acIcon(28, 58 + i * (ACS.length>8?11:12), 8, g ? '#ffc81a' : '#556'); F.draw(hud, a.name, 38, 55 + i * (ACS.length>8?11:12), g ? '#ffd23a' : '#cfd6e8', 1, true); });
         if (Number.isFinite(prog.records[curW])) F.center(hud, 'TRIAL BEST: ' + prog.records[curW].toFixed(2) + ' SECONDS', W / 2, ACS.length>7?153:143, '#ffe48a', 1, '#261832');
         const it = pauseItems(), y0 = ACS.length>7?168:162; box2(W / 2 - 70, y0 - 6, 140, it.length * 13 + 8, 0.85);
         it.forEach((s, i) => F.center(hud, (i === pauseI ? '→ ' : '') + s, W / 2, y0 + i * 13, i === pauseI ? '#fff' : '#9ab', 1));
@@ -2371,18 +2533,18 @@
       function drawHowto() {
         box2(10, 96, W - 20, 130, 0.88);
         const pg = subI === 0 ? [['THE MOVES', '#ffd23a'], ['RUN: STICK.   JUMP: ' + L('a')], ['LAND AND PRESS ' + L('a') + ' AGAIN: DOUBLE, THEN TRIPLE JUMP'], ['AIR '+L('a')+': TWIRL. REVERSE + '+L('a')+': SIDE FLIP.'], ['LONG JUMP: RUN, HOLD ' + L('c') + ', PRESS ' + L('a')], ['BACKFLIP: STAND STILL, HOLD ' + L('c') + ', PRESS ' + L('a')], ['GROUND POUND: ' + L('c') + ' IN THE AIR'], ['WALL KICK: JUMP AT A WALL, ' + L('a') + ' AS YOU TOUCH'], ['PUNCH, PUNCH, KICK: ' + L('b') + '.  TALK / READ: ' + L('b')], ['CAMERA: ' + L('l') + ' / ' + L('r') + '.   PAUSE: START']]
-          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN 50 GOLDEN ACORNS.'], ['8 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['FIVE COURSES, THREE SECRET SWITCH STAGES'], ['AND THE KING HAVE THE OTHER 42.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['TALK TO EVERYONE: THEY GIVE GOOD HINTS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
+          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN '+TOTAL+' GOLDEN ACORNS.'], ['9 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['FIVE COURSES, THREE SECRET SWITCH STAGES'], ['COCOA COASTER AND THE KING HAVE THE REST.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['HANG ON A LEDGE: '+L('a')+' CLIMBS, '+L('c')+' DROPS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
           : subI===2 ? [['A PROPER DIP', '#ffd23a'], ['CUSTARD GROTTO OPENS WITH FIVE ACORNS.'], ['STICK: SWIM. HOLD '+L('a')+': UP. HOLD '+L('c')+': DIVE.'], ['RELEASE UP AND DIVE TO FLOAT GENTLY.'], ['AT THE SURFACE, PRESS '+L('a')+' AGAIN TO LEAP OUT.'], ['BUBBLE VENTS AND THE SURFACE REFILL AIR.'], ['COINS TOP UP AIR AND MEND YOUR BISCUIT.'], [L('b')+' OPENS THE CHEST IN THE WRECK.'], ['FIND THREE PEARLS. FOLLOW THE CURRENT HOOPS.'], ['IN THE MANOR, '+L('b')+' OPENS AND CLOSES THE DOOR.']]
           : [['DRESS FOR THE QUEST','#ffd23a'],['FIND THREE SECRET RINGS ON BISCUIT ISLAND.'],['POUND THEIR SWITCHES TO WAKE MATCHING BOXES.'],[L('b')+' BY A BOX: TAKE ITS TEMPORARY OUTFIT.'],['BROLLY BONNET: HOLD '+L('a')+' IN THE AIR TO GLIDE.'],['TIN BISCUIT: SINK, WALK AND WEIGH DOWN PLATES.'],['PEEKABOO HOOD: CROSS VIOLET GRILLES.'],['SWITCH UNLOCKS STAY ON FILE A.'],['OUTFIT TIMERS FREEZE ON PAUSE.'],['REVISIT THE COVE, GROTTO AND LIBRARY.']];
         pg.forEach(([s, c], i) => (i === 0 ? F.center(hud, s, W / 2, 102, c, 1) : F.draw(hud, s, 18, 106 + i * 12, '#fff', 1)));
         F.center(hud, (subI + 1) + '/4  PRESS ' + L('a'), W / 2, H - 10, '#9ab', 1);
       }
       function drawCard() {
-        const w = card.w, cols = { brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
+        const w = card.w, cols = { snowhall:['#384c71','#e2c498'], brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
         const gr = hud.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, cols[0]); gr.addColorStop(1, cols[1]); hud.fillStyle = gr; hud.fillRect(0, 0, W, H);
         hud.strokeStyle = '#c8a050'; hud.lineWidth = 6; hud.strokeRect(6, 6, W - 12, H - 12); hud.strokeStyle = '#7a5a1a'; hud.lineWidth = 2; hud.strokeRect(10, 10, W - 20, H - 20);
         const nm = WN[w]; bigText(nm, W / 2, 38, nm.length > 16 ? 17 : 22);
-        const list = ACS,row=list.length>7?12:15; list.forEach((a, i) => { const g = gotAc(a.id); acIcon(48, 74 + i * row, 10, g ? '#ffc81a' : 'rgba(255,255,255,.35)'); F.draw(hud, (i === (card.sel || 0) ? '> ' : (i + 1) + '. ') + a.name, 60, 70 + i * row, i === (card.sel || 0) ? '#ffd85a' : g ? '#ffe86a' : '#fff', 1, '#000'); });
+        const list = ACS,row=list.length>8?11:list.length>7?12:15; list.forEach((a, i) => { const g = gotAc(a.id); acIcon(48, 74 + i * row, 10, g ? '#ffc81a' : 'rgba(255,255,255,.35)'); F.draw(hud, (i === (card.sel || 0) ? '> ' : (i + 1) + '. ') + a.name, 60, 70 + i * row, i === (card.sel || 0) ? '#ffd85a' : g ? '#ffe86a' : '#fff', 1, '#000'); });
         if (curW !== 'hub' && curW !== 'boss') { const a = ACS[card.sel || 0]; const hint = WORLDS[w].power ? 'POUND THE GREAT SWITCH. PRESS '+L('b')+' BY ITS BOX. USE YOUR NEW OUTFIT TO FINISH THE ROUTE.' : a.power ? 'THIS RETURN ROUTE NEEDS '+POWER_DEFS[a.power].name+'. FIND ITS SECRET SWITCH ON BISCUIT ISLAND.' : curW === 'grotto' ? ({dip:'HOLD '+L('c')+' TO DIVE. '+L('a')+' SWIMS UP. TAKE A BREATH AT THE SURFACE.',chest:'SWIM INTO THE WRECK AND PRESS '+L('b')+' BESIDE THE CHEST.',pearls:'FIND THREE SHINING PEARLS. BUBBLE VENTS REFILL YOUR AIR.',current:'FOLLOW THE THREE GOLD HOOPS UNDERWATER. LET THE CURRENT HELP.',roost:'PRESS '+L('a')+' AT THE SURFACE TO LEAP ONTO THE STEPPING ROCKS.'}[a.id] || 'EXPLORE EVERY DEPTH. COINS MEND YOUR BISCUIT AND TOP UP YOUR AIR.') : a.id === 'trial' ? TRIALS[curW].hint : a.id === 'c100' ? 'FOLLOW EVERY COIN TRAIL. COINS ALSO MEND YOUR BISCUIT.' : a.hidden ? 'TALK TO THE LOCALS AND LOOK FOR SOMETHING TO SET RIGHT.' : 'A SHINY ACORN IS WAITING UP THERE. LOOK FOR A WAY TO CLIMB.'; wrap(hint, 47).slice(0, 2).forEach((s, i) => F.center(hud, s, W / 2, 176 + i * 10, '#eef8ff', 1, '#000')); }
         if (card.t > 0.6 && (K.t * 2 | 0) % 2) F.center(hud, 'PRESS ' + L('a'), W / 2, H - 26, '#fff', 1, '#000');
         F.center(hud, 'ACORNS ' + nAc() + ' / ' + TOTAL, W / 2, H - 40, '#ffd23a', 1, '#000');
@@ -2442,7 +2604,7 @@
         const r={left:Infinity,top:Infinity,right:-Infinity,bottom:-Infinity},v=new T.Vector3();o.updateWorldMatrix(true,true);cam.updateMatrixWorld(true);
         o.traverseVisible(m=>{const a=m.geometry&&m.geometry.attributes.position;if(!a||!m.visible)return;for(let i=0;i<a.count;i++){v.fromBufferAttribute(a,i).applyMatrix4(m.matrixWorld).project(cam);const x=(v.x+1)*W/2,y=(1-v.y)*H/2;r.left=Math.min(r.left,x);r.right=Math.max(r.right,x);r.top=Math.min(r.top,y);r.bottom=Math.max(r.bottom,y);}});return r;
       }
-      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
+      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, get snow(){return SNOW;},snowAt,snowInside,snowEnd:SNOW_END,snowLength:SNOW_LENGTH,get school(){return SCHOOL;},schoolLessons:SCHOOL_LESSONS,get total(){return TOTAL;}, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
       return { update, draw, end() { saveNow();tinEnv.dispose(); removeEventListener('pagehide', onHide); removeEventListener('beforeunload', onHide); document.removeEventListener('visibilitychange', onVisibility); if (window.__hopDbg?.P === P) delete window.__hopDbg; } };
     },
   });
