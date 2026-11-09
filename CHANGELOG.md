@@ -8,6 +8,7 @@
 - The Game Lad's buttons are labelled A, B, START and SELECT again.
 - Dad's car has see-through glass with the seats visible inside.
 - Bounce Quest 64: movement-school lessons only count when you do the move, Bopper's gloves grip the ledge when he hangs, and the coach only gives his full welcome once.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same draw calls as 2.82.0), voices 9/9, characters, zero, Bounce Quest 64, cupboard, voice recordings, people pass, identity twice, seasons, performance, physics, smoke, all first time with no reruns.
 
 ## 2.82.0 - 2026-11-09
 - Bounce Quest 64 has 54 golden acorns: race a rival down an enclosed snow slide, warm up in a furnished ski lodge, learn every move from a friendly teacher in a 12-lesson movement school, and grab ledges when a jump falls just short (a press just before the ledge still counts).
