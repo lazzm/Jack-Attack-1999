@@ -1,0 +1,110 @@
+{
+ "created": "2026-11-09",
+ "why": "Sixth batch: retakes of the 2.75.0 talk lines, recorded three lines per request with Received Pronunciation asked for. Each clip passed voice-qa (after repair), a transcript check (spelling and number differences only allowed) and an accent check.",
+ "accepted": {
+  "talk.dad.context.console.gb": {
+   "file": "talk.dad.context.console.gb.mp3",
+   "character": "dad",
+   "dur": 5.112,
+   "sha256": "fff0d5729199c83cd6902efbf293b19963bf28b1a05d390616d27779cc854dce",
+   "heard": "The Game Lad's a neat idea, all your buttons in one place and no hunting for the remote",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.context.jobDone.bin": {
+   "file": "talk.dad.context.jobDone.bin.mp3",
+   "character": "dad",
+   "dur": 5.016,
+   "sha256": "f7df01fa3d1e1cace9f911db8689246862446f915bd7e6ce16567833cd595290",
+   "heard": "Thanks for taking your bin down. A small job until nobody does it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.console.gb": {
+   "file": "talk.mom.context.console.gb.mp3",
+   "character": "mom",
+   "dur": 5.136,
+   "sha256": "9da7081697dd3a253f5f69d6d38e328ec62057786ddde31e62969490bf5cf605",
+   "heard": "Your game lad's handy for a quiet minute. Leave yourself a minute without it, too.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.console.sn": {
+   "file": "talk.mom.context.console.sn.mp3",
+   "character": "mom",
+   "dur": 6.024,
+   "sha256": "d8ee339812014a9bf21ac81d4136a47847b34db6730a079193adf717853af8b0",
+   "heard": "The Super Ultras still going strong. Treat old things kindly. Ask your dad.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cat.give.03": {
+   "file": "talk.mom.job.cat.give.03.mp3",
+   "character": "mom",
+   "dur": 6.384,
+   "sha256": "9ebbaee94bac20de83f403bf2d62280f37a9f6f39cc63bab974df5742a38f298",
+   "heard": "The cat's bowl needs biscuits, love. Shake some in, call the cat over, and let dinner finish.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.shopping.remind.01": {
+   "file": "talk.mom.job.shopping.remind.01.mp3",
+   "character": "mom",
+   "dur": 2.328,
+   "sha256": "ba9282f64e7f64d36119f190b9ebe405037611f8fbef9a94eb52e44764f59624",
+   "heard": "Shopping still needs putting away.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.sweep.remind.01": {
+   "file": "talk.mom.job.sweep.remind.01.mp3",
+   "character": "mom",
+   "dur": 1.536,
+   "sha256": "7faa03a9cec9eba35325cb9fdebbb8d842951f99c36bce27856200162dd98e12",
+   "heard": "Drive leaves love",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "talk.sister.afternoon.08": {
+   "file": "talk.sister.afternoon.08.mp3",
+   "character": "sister",
+   "dur": 5.496,
+   "sha256": "be55e690a900815d211376f13e59c4ffc2eb61f3c1d7cee897882167d34bc9a7",
+   "heard": "I made a paper boat. It isn't allowed water until I've finished the decorations.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}

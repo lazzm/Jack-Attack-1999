@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.83.1 - 2026-11-09
+- 8 more recorded lines for the family, 754 in all, each checked for the right words and a standard Southern English accent. About 30 are still text-only: some of Mom's short reminders keep coming out in the wrong accent, so they're being re-directed before they're recorded again.
+
 ## 2.83.0 - 2026-11-09
 - The family no longer vanish on the stairs: anyone walking up or down the lower flight stays in view the whole way.
 - Faces stay readable in dim rooms and at night, with a soft light on them instead of a black band across the jaw, and their mouths and brows are bigger so you can see what they're saying and feeling on a phone.
