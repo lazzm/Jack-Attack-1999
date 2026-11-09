@@ -10,7 +10,7 @@ import {playCase} from '../case-actions.mjs';
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 const base=process.argv.find(a=>/^http:/.test(a));
 assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply throwaway localhost URL');
-const before=process.argv.includes('--before'),dir=path.join(__dirname,'../shots/games/hop',before?'pass4-before':'pass4-after');
+const qa7Only=process.argv.includes('--qa7-only'),before=process.argv.includes('--before'),dir=qa7Only?path.join(__dirname,'../shots/qa7-fixes',before?'before':'after','hop'):path.join(__dirname,'../shots/games/hop',before?'pass4-before':'pass4-after');
 await mkdir(dir,{recursive:true});
 const source=before?execFileSync('git',['show','HEAD:app/public/js/rm-g-hop.js'],{cwd:path.join(__dirname,'../..'),encoding:'utf8'}):await readFile(path.join(__dirname,'../../app/public/js/rm-g-hop.js'),'utf8');
 let browser,p;const errors=[];
@@ -33,7 +33,7 @@ function runner(restoring){
 async function native(restoring=false,code=source){
  await p.goto(base+'/__hop-review');await D(()=>{window.Room={_:{esc:s=>s}}});
  for(const src of ['vendor/three.min.js','js/cast.js','js/rm-tv.js','js/rm-3d.js'])await p.addScriptTag({url:base+'/'+src});
- await D(()=>Cast.bind('hop-review',{first:'Robin',g:'f'}));await p.addScriptTag({content:code});await p.evaluate(runner,restoring);await frames(restoring?0:90);
+ await D(()=>Cast.bind('hop-review',{first:'Robin',g:'f'}));await p.addScriptTag({content:qa7Only?code.replace('window.__hopDbg = {','window.__hopDbg = { hero:BOP,'):code});await p.evaluate(runner,restoring);await frames(restoring?0:90);
 }
 async function world(w){await D(w=>__hopDbg.go(w),w);await frames(1)}
 async function at(x,y,z){await D(a=>__hopDbg.tp(...a),[x,y,z]);await frames(1)}
@@ -74,13 +74,14 @@ try{
   p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
   await p.route('**/__hop-review',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Jack Attack 1999</title><link rel="icon" href="data:,"><body style="margin:0;background:#10152a"><div id="screen" style="position:absolute;width:min(96vw,128vh);aspect-ratio:4/3;left:50%;top:50%;transform:translate(-50%,-50%)"></div>'}));
   await native();
+  if(qa7Only){await key('Enter');await key('z');await frames(45);await key('z');await qa7Findings();await browser.close();browser=null;}else{
   if(!process.argv.includes('--bench')){if(process.argv.includes('--pass4-only')||process.argv.includes('--powers-only')||process.argv.includes('--legacy-only')||process.argv.includes('--manor-only')||process.argv.includes('--swim-only')||process.argv.includes('--feel-only')||process.argv.includes('--boss-only')||process.argv.includes('--trials-only')||process.argv.includes('--edges-only')){await key('Enter');await key('z');await frames(45);await key('z');if(process.argv.includes('--pass4-only'))await pass4();else if(process.argv.includes('--powers-only'))await powers();else if(process.argv.includes('--legacy-only'))await legacySaves();else if(process.argv.includes('--manor-only'))await manorInside();else if(process.argv.includes('--swim-only'))await swimming();else if(process.argv.includes('--boss-only'))await bossFight();else if(process.argv.includes('--trials-only'))await trials();else if(process.argv.includes('--edges-only')){await enemiesAndPuzzles();await doorAndTitleEdges();await gameOverEdge()}else await improvements(true)}else await playthrough()}
   if(!['--pass4-only','--powers-only','--feel-only','--trials-only','--boss-only','--edges-only','--swim-only','--manor-only','--legacy-only'].some(a=>process.argv.includes(a))&&(process.argv.includes('--native')||process.argv.includes('--bench'))){const stats=[];for(const w of ['hub','cove','peaks','manor','tower','boss',...['grotto','manor-interior','grotto-wreck'],...['brolly','pantry','peekaboo','brolly-flight','pantry-tin','library-peek'],...(!before?['snowhall','coaster-descent']:[])]){stats.push(await perf(w));if(process.argv.includes('--bench')&&!before&&['brolly','pantry','peekaboo'].includes(w)){console.log('BENCH ENTRY VIEW '+w);await shot((w==='brolly'?'brolly':w==='pantry'?'tin':'peek')+'-secret-start');}}assert.equal(stats.filter(r=>!r.world.includes('-')).reduce((n,r)=>n+r.acorns,0),before?50:54,'Declared reward inventory matches all course definitions');await writeFile(path.join(dir,process.argv.includes('--bench')?'paired-performance.json':'performance.json'),JSON.stringify(stats,null,2));console.log('PERFORMANCE '+JSON.stringify(stats));}
   // Repeated full regressions retain the inventory assertion; native/bench owns the GPU profile.
   if(!['--pass4-only','--powers-only','--feel-only','--trials-only','--boss-only','--edges-only','--swim-only','--manor-only','--legacy-only','--native','--bench'].some(a=>process.argv.includes(a))){const counts={};for(const w of await D(()=>Object.keys(__hopDbg.WORLDS))){await world(w);counts[w]=await D(()=>__hopDbg.ACS().length)}const total=Object.values(counts).reduce((a,b)=>a+b,0);assert.equal(total,before?50:54,'Declared reward inventory matches all course definitions');const record={scope:'Inventory assertion; full GPU frame samples are produced by --native or --bench',total,counts};await writeFile(path.join(dir,'performance.json'),JSON.stringify(record,null,2));console.log('INVENTORY PASS '+JSON.stringify(record));}
-  await browser.close();browser=null;
+  await browser.close();browser=null;}
  }
- if(!process.argv.includes('--native')&&!process.argv.includes('--bench')){if(process.argv.includes('--phone-only'))await phone();else await room();}
+ if(!qa7Only&&!process.argv.includes('--native')&&!process.argv.includes('--bench')){if(process.argv.includes('--phone-only'))await phone();else await room();}
  assert.deepEqual(errors,[],'Browser errors');console.log('HOP '+(before?'BEFORE':'AFTER')+' PASS');
 }catch(e){if(p&&!p.isClosed()){console.log('FAIL STATE',await state().catch(()=>({unavailable:true})));await shot('failure').catch(()=>{})}throw e}finally{clearTimeout(watchdog);await browser?.close()}
 async function playthrough(){
@@ -562,6 +563,29 @@ async function snowCourse(){
 }
 async function pass4(){await snowCourse();if(typeof movementSchool==='function')await movementSchool();}
 async function schoolBegin(){await faceAt(32,19,0,4.5);await key('x');assert.equal((await state()).mode,'dlg','Coach starts each lesson');await closeDialogue();assert(await D(()=>__hopDbg.school.active));}
+async function qa7Findings(){
+ await world('hub');const result={landings:[],introductions:[],hands:[]};
+ async function coach(n){await faceAt(32,19,0,4.5);await key('x');await frames(170);const lines=await D(()=>__hopDbg.snapshot().dlg.lines);result.introductions.push(lines);await shot('r236-coach-'+n);assert.match(lines[0],n===1||before?/^WELCOME/:/^READY/);await closeDialogue();}
+ await coach(1);
+ for(const lesson of [0,1]){
+  if(lesson)await coach(2);
+  await faceAt(34,32,0,4.5);await key('z');await untilFrame(()=>__hopDbg.P.gnd,150);if(lesson){await key('z');await untilFrame(()=>__hopDbg.P.gnd,150)}
+  assert.equal(await D(()=>__hopDbg.prog.school),lesson?1:0);await shot('r230-wrong-landing-'+lesson);await walkTo(34,26);await walkTo(30,26);await frames(5);const mask=await D(()=>__hopDbg.prog.school);result.landings.push({lesson,mask});await shot('r230-grounded-hoop-'+lesson);assert.equal(mask,before?(lesson?3:1):(lesson?1:0),'Walking into the hoop credited an earlier landing');
+  if(!before){
+   await frames(60);await faceAt(30,26,0,4.5);await key('z');await untilFrame(()=>__hopDbg.P.gnd,150);if(lesson){assert.equal(await D(()=>__hopDbg.prog.school),1,'Ordinary hop counted as Double Hop');await key('z');await untilFrame(()=>__hopDbg.P.gnd,150)}await frames(3);assert.equal(await D(()=>__hopDbg.prog.school),lesson?3:1);await shot('r230-real-landing-'+lesson);
+  }
+ }
+ for(const kind of ['box','cyl']){
+  if(kind==='box'){await faceAt(38.1,31,-Math.PI/2,4.5);await p.keyboard.down('ArrowUp');await key('z')}else{await faceAt(50.5,.5,-Math.PI/2,2.8);await p.keyboard.down('ArrowUp')}
+  await untilFrame(()=>__hopDbg.P.st==='ledge',160);await p.keyboard.up('ArrowUp');await frames(12);assert.equal(await D(()=>__hopDbg.P.ledge.kind),kind);await shot('r231-'+kind+'-hang');await key('u');await frames(20);await shot('r231-'+kind+'-side');
+  const contact=await D(()=>{const d=__hopDbg,P=d.P,l=P.ledge,B=d.hero,nx=Math.sin(P.face),nz=Math.cos(P.face),out={kind:l.kind,top:l.top,root:P.y,hands:{}};B.root.updateMatrixWorld(true);for(const side of ['L','R']){const vertices=[];B['arm'+side].traverse(m=>{if(!m.isMesh)return;const p=m.geometry.attributes.position,c=m.geometry.attributes.color;for(let i=0;i<p.count;i++)if(c.getX(i)>.9&&c.getY(i)>.9&&c.getZ(i)>.9){const v=new THREE.Vector3().fromBufferAttribute(p,i);m.localToWorld(v);const inward=(P.x-v.x)*nx+(P.z-v.z)*nz;vertices.push({x:v.x,y:v.y,z:v.z,inward})}});out.hands[side]={highest:Math.max(...vertices.map(v=>v.y)),contact:vertices.filter(v=>Math.abs(v.y-l.top)<.06&&Math.abs(v.inward-.43)<.12).length,nearest:vertices.sort((a,b)=>Math.hypot(a.y-l.top,a.inward-.43)-Math.hypot(b.y-l.top,b.inward-.43)).slice(0,3)}}return out});result.hands.push(contact);await writeFile(path.join(dir,'qa7-results.json'),JSON.stringify(result,null,2));console.log('HAND CONTACT',JSON.stringify(contact));
+  if(!before)for(const [side,hand]of Object.entries(contact.hands))assert(hand.contact>0,kind+' '+side+' glove misses actual rim');else for(const hand of Object.values(contact.hands))assert(hand.highest<contact.top-.2,'Baseline no longer reproduces glove gap');
+  await key('z');await untilFrame(()=>__hopDbg.P.gnd,100);assert.equal((await state()).P.st,'idle');await shot('r231-'+kind+'-climbed');
+ }
+ if(!before){await __saveAndReload();assert(await D(()=>__hopDbg.prog.schoolMet));await faceAt(32,19,0,4.5);await key('x');await frames(170);assert.match(await D(()=>__hopDbg.snapshot().dlg.lines[0]),/^READY/);await shot('r236-coach-after-refresh');await closeDialogue()}
+ await writeFile(path.join(dir,'qa7-results.json'),JSON.stringify(result,null,2));console.log('QA7 HOP PASS: real wrong/correct landings; Hop versus Double Hop; once-only coach; straight/round glove contact and climbs');
+ async function __saveAndReload(){await D(()=>__hopDbg.save());await native(true);await frames(1)}
+}
 async function schoolLanding(){await untilFrame(()=>__hopDbg.P.gnd,240);await frames(5);assert(await D(()=>!__hopDbg.school.active),'Move must land in its lesson hoop '+JSON.stringify(await D(()=>({q:__hopDbg.snapshot().school,P:__hopDbg.P}))));}
 async function movementSchool(){
  await world('hub');await shot('school-from-hub');await faceAt(12,31,-Math.PI/2,99);await shot('school-approach');await walkTo(25,31);await shot('school-playground');

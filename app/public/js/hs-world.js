@@ -307,7 +307,7 @@
       for (const did of r.links) {
         const d=DOORS[did];if(!d||!(d.open||d.ang>.01||d.always))continue;
         const next=d.portal&&!d.always?chain.concat(d.portal):chain;
-        for(const other of d.rooms)if(!visited.has(other)){
+        for(const other of d.rooms)if(ROOMS[other]&&!visited.has(other)){
           vs.add(other);route(other,next.length?next:null);
           if(depth<(rung().far?0:1))walk(ROOMS[other],depth+1,next,new Set([...visited,other]));
         }
@@ -317,7 +317,7 @@
     // The open flight is shared architecture, even when viewed through the
     // bedroom/lounge door on a short-distance device tier. Never cull one end
     // while a person on the other end is still visible through that portal.
-    if (vs.has('hall') || vs.has('landing') || cur?.id === 'cupboard') for(const id of ['hall','landing']){vs.add(id);route(id,null);}
+    if (vs.has('hall') || vs.has('landing') || cur?.id === 'cupboard') for(const id of ['hall','landing'])if(ROOMS[id]){vs.add(id);route(id,null);}
     // Room groups include shared wall faces: retain their architecture. Only dense vegetation uses these routes.
     const connected = [...vs];
     for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) {
@@ -2912,7 +2912,7 @@
       if (vegetationRoutes.size && !window.House?.god) {
         vegetationProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);vegetationFrustum.setFromProjectionMatrix(vegetationProjection);
         for (const [id,paths] of vegetationRoutes) {
-          const r=ROOMS[id];if(!r._renderDrawn)continue;let seen=false;
+          const r=ROOMS[id];if(!r?._renderDrawn)continue;let seen=false;
           for(const path of paths){if(!path){seen=true;break;}let all=true;for(const box of path)if(!vegetationFrustum.intersectsBox(box)){all=false;break;}if(all){seen=true;break;}}
           if(seen)continue;
           const mesh=r._grassMesh?.parent?r._grassMesh:(r._grassMesh=r.group.children.find(o=>o.name==='mowable-grass-blades'||o.name==='garden-grass-blades'));
@@ -3141,7 +3141,15 @@
       ls.set('jhp_hs_stand', {t:Date.now(), p}); localStorage.setItem('jhp_last', String(Date.now()));
     } catch (e) {}
   }
-  function saveWalkState() { saveGrip();if(mode==='focus'&&focusS?.o.seatId)ls.set('jhp_hs_furniture_seat',{id:focusS.o.seatId,back:focusS.back,rx:P.rx,ry:P.ry});if(live&&saveT&&(!window.AccountGate||AccountGate.allowed))saveThings(true);savePose();saveStood(); }
+  function saveWalkState() {
+    saveGrip();
+    if(mode==='focus'&&focusS?.o.seatId)ls.set('jhp_hs_furniture_seat',{id:focusS.o.seatId,back:focusS.back,rx:P.rx,ry:P.ry});
+    // A shove is saved on sleep, so an awake chair/beanbag need not have a
+    // pending save timer yet. Save its current body pose before the player:
+    // restoring the old furniture can otherwise cover a valid standing point.
+    if(live&&(!window.AccountGate||AccountGate.allowed)){flushMoved();saveThings(true);}
+    savePose();saveStood();
+  }
   setInterval(saveStood, 1000); addEventListener('pagehide', saveWalkState);
   setInterval(() => { if (live && mode === 'walk' && Date.now() - poseT > 1500) { poseT = Date.now(); savePose(); } }, 2000);
   // pb's classes tell us what boot.js is up to

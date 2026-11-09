@@ -1558,8 +1558,11 @@
     G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 512, 64, (gg) => { A.text(gg, 'GAME LAD COLOR', 256, 48, '700 44px ' + A.UIF, '#c8c8d8', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     G.box(-2.2, -2.9, 2.4, 2.2, 0.5, 0.7, M({ c: '#222', sh: 20 })); G.box(-2.2, -2.9, 2.4, 0.7, 0.5, 2.2, M({ c: '#222', sh: 20 })); // the D-pad cross
     G.cyl(1.6, -2.95, 2.9, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', family:'glossPlastic' })); G.cyl(3.0, -2.95, 2.2, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', family:'glossPlastic' })); // B and A
-    for (const [letter,x,z] of [['B',1.6,3.82],['A',3,3.12]]) G.plane(x, -2.65, z, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gb'+letter, 64, 64, (gg) => { A.text(gg, letter, 32, 52, '700 48px ' + A.UIF, '#ddd', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
+    // A is printed on the raised right grip; B is on the shell below it.
+    // Each decal follows its own moulding, clear of both the plastic and button.
+    for (const [letter,x,z,y] of [['B',1.6,3.82,-2.65],['A',3,3.12,-2.79]]) G.plane(x, y, z, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gb'+letter, 64, 64, (gg) => { A.text(gg, letter, 32, 52, '700 48px ' + A.UIF, '#eee6f3', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     [-1, 0.2].forEach((x, i) => G.rbox(x, -2.75, 5.1, 1.4, 0.3, 0.5, 0.2, M('#4a2a88'), { ry: -25 })); // select / start, slanted
+    for(const [label,x,w]of [['SELECT',-1.3,1.65],['START',.55,1.5]])G.plane(x,-2.65,5.92,w,.38,M({c:'#fff',map:K.tex('rm.gb'+label,256,64,gg=>A.text(gg,label,128,48,'700 40px '+A.UIF,'#eee6f3','center')),pr:1,tr:true,dw:false,at:.03}),{rx:90});
     for (let r = 0; r < 5; r++) for (let c = 0; c < 2; c++) G.cyl(2.3 + c * 0.6 - r * 0.25, -2.65, 4.3 + r * 0.42, 0.14, 0.14, 0.2, 6, M('#3a1a68')); // the speaker holes
     G.box(0, -0.6, -6.5, 2.6, 0.3, 0.6, M('#4a2a88')); G.box(0, -1.5, 6.4, 1.4, 0.5, 0.6, M('#2a2a34')); // the cartridge slot lip, the link port
     G.rbox(3.5, -2.0, -1.8, 0.5, 0.5, 1.6, 0.2, M('#3a1a68')); // the volume wheel

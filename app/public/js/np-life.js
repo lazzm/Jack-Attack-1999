@@ -656,12 +656,15 @@
     } catch (e) { console.error(e); }
     if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice:welcome&&!voice?.started?null:voice, shout: !n.person });
-    if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice);
+    // Ordinary chats have an authored expression, including quoted warnings
+    // and jokes about chores. Their words alone do not make a reprimand.
+    const direction = window.NPCDialogue?.[n.lineId]?.mood || window.VoiceDirections?.[n.lineId];
+    if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice, direction);
     if (here && n.gesture) c.rig.acknowledge(/smile/i.test(n.text)?'smile':'nod');
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
       if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
       speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
-      if (here) c.rig.talk(end - nowMs(), n.text, h);
+      if (here) c.rig.talk(end - nowMs(), n.text, h, direction);
     };
     if (n.person) c.talking = true;
     speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;

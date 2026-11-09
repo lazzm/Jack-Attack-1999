@@ -41,7 +41,7 @@ const PROFILES = {
 // ---------------------------------------------------------------- server
 async function start() {
   data = await mkdtemp('/tmp/jhp-mobile-');
-  for (let port = 18100; port <= 18160; port++) {
+  for (let port = 18080; port <= 18099; port++) {
     const free = await new Promise(resolve => { const p = net.createServer(); p.once('error', () => resolve(false)); p.listen(port, '127.0.0.1', () => p.close(() => resolve(true))); });
     if (!free) continue;
     let out = '';

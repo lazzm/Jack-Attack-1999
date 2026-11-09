@@ -220,7 +220,8 @@
    "fx": "downstairs",
    "chapter": "5",
    "batch": "dad-downstairs-01",
-   "callout": "dad-shout"
+   "callout": "dad-shout",
+   "mood": "cross"
   },
   {
    "id": "c1.dad.hello",
@@ -933,7 +934,8 @@
    "line": "Smells good. What's for tea? No, don't tell me. Let me guess. Chips? |",
    "context": "Lounge to kitchen",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.tea2",
@@ -942,7 +944,8 @@
    "line": "The ketchup is in the middle, I see. Good. The system works. |",
    "context": "At the table",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.tea3",
@@ -978,7 +981,8 @@
    "line": "The bill. The bill. I dread the bill. |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.tv1",
@@ -996,7 +1000,8 @@
    "line": "It's all adverts these days. Four minutes of programme, ten of adverts. |",
    "context": "Lounge",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "neutral"
   },
   {
    "id": "bark.dad.tv3",
@@ -1005,7 +1010,8 @@
    "line": "Page one-oh-one, for the news. Page three-two-six, for the scores. Wonderful stuff. |",
    "context": "Lounge, Teletext",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "happy"
   },
   {
    "id": "bark.dad.mess1",
@@ -1014,7 +1020,8 @@
    "line": "I've lost my keys. Has anyone seen my keys? They were here a minute ago. |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "neutral"
   },
   {
    "id": "bark.dad.mess2",
@@ -1023,7 +1030,8 @@
    "line": "Who's been using my chair? It's still warm. |",
    "context": "Lounge",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.bed1",
@@ -1032,7 +1040,8 @@
    "line": "Is it bedtime yet? I'm shattered. Night night. |",
    "context": "21:30",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "tired"
   },
   {
    "id": "bark.dad.school1",
@@ -1041,7 +1050,8 @@
    "line": "Morning, morning! I'm late! Where's my tie? Never mind! |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "dad-plain-07"
+   "batch": "dad-plain-07",
+   "mood": "neutral"
   },
   {
    "id": "bark.dad.wknd1",
@@ -1050,7 +1060,8 @@
    "line": "Right. The car won't wash itself. Or will it? Let's find out. |",
    "context": "Saturday",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.wknd2",
@@ -1059,7 +1070,8 @@
    "line": "Sunday. A day of rest. Do not disturb the rest. |",
    "context": "Sunday, in the chair",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.wknd3",
@@ -1068,7 +1080,8 @@
    "line": "It's Saturday. Pocket money day. Don't spend it all at once. |",
    "context": "Saturday",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.cut1",
@@ -1095,7 +1108,8 @@
    "line": "A fine lawn. I should enter it in a competition. |",
    "context": "Garden",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "happy"
   },
   {
    "id": "bark.dad.react.gnome",
@@ -1104,7 +1118,8 @@
    "line": "I've named the gnome Kevin. He's very quiet. |",
    "context": "Gnome",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.react.joke",
@@ -1113,7 +1128,8 @@
    "line": "Why did the computer go to the doctor? It had a virus. Thank you, I'm here all week. |",
    "context": "Random",
    "chapter": "5",
-   "batch": "dad-plain-08"
+   "batch": "dad-plain-08",
+   "mood": "cheeky"
   },
   {
    "id": "bark.dad.react.pc",
@@ -1281,7 +1297,8 @@
    "fx": "downstairs",
    "chapter": "5",
    "batch": "mom-downstairs-01",
-   "callout": "mom-shout"
+   "callout": "mom-shout",
+   "mood": "happy"
   },
   {
    "id": "bark.mom.tea2",
@@ -1292,7 +1309,8 @@
    "fx": "downstairs",
    "chapter": "5",
    "batch": "mom-downstairs-01",
-   "callout": "mom-shout"
+   "callout": "mom-shout",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.line3",
@@ -1325,7 +1343,8 @@
    "fx": "downstairs",
    "chapter": "5",
    "batch": "mom-downstairs-01",
-   "callout": "mom-call"
+   "callout": "mom-call",
+   "mood": "happy"
   },
   {
    "id": "bark.mom.school1",
@@ -1336,7 +1355,8 @@
    "fx": "downstairs",
    "chapter": "5",
    "batch": "mom-downstairs-01",
-   "callout": "mom-shout"
+   "callout": "mom-shout",
+   "mood": "cross"
   },
   {
    "id": "bark.mom.gran",
@@ -1906,7 +1926,8 @@
    "line": "Sit down, love. Eat it while it's hot. |",
    "context": "Kitchen, player in the room",
    "chapter": "5",
-   "batch": "mom-plain-05"
+   "batch": "mom-plain-05",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.tea5",
@@ -1924,7 +1945,8 @@
    "line": "Hello? Oh, hello, Gran! Yes. Yes. They're being very good. Aren't you? |",
    "context": "Hall, answering the phone",
    "chapter": "5",
-   "batch": "mom-plain-05"
+   "batch": "mom-plain-05",
+   "mood": "happy"
   },
   {
    "id": "bark.mom.line2",
@@ -1933,7 +1955,8 @@
    "line": "No, never! Well I never. And then what did she say? |",
    "context": "Hall, a long call",
    "chapter": "5",
-   "batch": "mom-plain-05"
+   "batch": "mom-plain-05",
+   "mood": "cheeky"
   },
   {
    "id": "bark.mom.tv1",
@@ -1952,7 +1975,8 @@
    "line": "Is that the telly or a rocket launch? |",
    "context": "Lounge",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "cheeky"
   },
   {
    "id": "bark.mom.mess2",
@@ -1961,7 +1985,8 @@
    "line": "Whose shoes are these in the middle of the hall? I nearly broke my neck! |",
    "context": "Hall, shoes on the floor",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "cross"
   },
   {
    "id": "bark.mom.mess3",
@@ -1970,7 +1995,8 @@
    "line": "Cups in the kitchen, please. They don't walk there on their own. |",
    "context": "Lounge, mess on the coffee table",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.mess4",
@@ -1979,7 +2005,8 @@
    "line": "Why is the sink always full? Where do all the plates come from? |",
    "context": "Kitchen",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "cross"
   },
   {
    "id": "bark.mom.bed1",
@@ -1988,7 +2015,8 @@
    "line": "It's gone nine! Bedtime for little ones! And the rest of you, don't stay up too late!",
    "context": "Landing, 21:00, the player still up",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.bed3",
@@ -1997,7 +2025,8 @@
    "line": "Right, I'm off up. Don't stay on that computer all night. |",
    "context": "22:00",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "tired"
   },
   {
    "id": "bark.mom.school2",
@@ -2006,7 +2035,8 @@
    "line": "Where's your bag? Where's your PE kit? Have you got your dinner money? |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.school3",
@@ -2016,7 +2046,8 @@
    "context": "Hall, door",
    "chapter": "5",
    "batch": "mom-plain-06",
-   "callout": "mom-call"
+   "callout": "mom-call",
+   "mood": "happy"
   },
   {
    "id": "bark.mom.wknd1",
@@ -2025,7 +2056,8 @@
    "line": "Pancakes? Who wants pancakes? Don't all shout at once. |",
    "context": "Kitchen, Saturday morning",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "cheeky"
   },
   {
    "id": "bark.mom.wknd2",
@@ -2034,7 +2066,8 @@
    "line": "Roast on at one. Be in for one, not five past. |",
    "context": "Sunday",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "mood": "neutral"
   },
   {
    "id": "bark.mom.cut1",
@@ -2061,7 +2094,8 @@
    "line": "You've been such a help lately. I've noticed. |",
    "context": "Random, after a good streak",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "mood": "happy"
   },
   {
    "id": "bark.mom.react.nag",
@@ -2070,7 +2104,8 @@
    "line": "I'll give you pocket money when the washing-up's done, not before. |",
    "context": "Random, jobs not done by noon",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "mood": "cross"
   },
   {
    "id": "bark.mom.react.cat",
@@ -2755,7 +2790,8 @@
    "line": "I don't like the green bits. Can I have just the orange bits? |",
    "context": "At the table",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "neutral"
   },
   {
    "id": "bark.sis.tea2",
@@ -2764,7 +2800,8 @@
    "line": "Can I leave the table? I've finished. I mean I've pushed it round. |",
    "context": "At the table",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "cheeky"
   },
   {
    "id": "bark.sis.tea3",
@@ -2801,7 +2838,8 @@
    "context": "Lounge",
    "chapter": "5",
    "batch": "sister-plain-03",
-   "callout": "sis-whine"
+   "callout": "sis-whine",
+   "mood": "cross"
   },
   {
    "id": "bark.sis.tv2",
@@ -2811,7 +2849,8 @@
    "context": "Lounge",
    "chapter": "5",
    "batch": "sister-plain-03",
-   "callout": "sis-whine"
+   "callout": "sis-whine",
+   "mood": "cross"
   },
   {
    "id": "bark.sis.mess1",
@@ -2829,7 +2868,8 @@
    "line": "I tidied my room. Look. I've done everything. Where's my pound? |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "cheeky"
   },
   {
    "id": "bark.sis.bed1",
@@ -2838,7 +2878,8 @@
    "line": "I'm not tired! I don't wanna go to bed! |",
    "context": "20:30",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "tired"
   },
   {
    "id": "bark.sis.bed2",
@@ -2847,7 +2888,8 @@
    "line": "Can I have a drink of water? And a story? And the landing light? |",
    "context": "21:00",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "neutral"
   },
   {
    "id": "bark.sis.school1",
@@ -2856,7 +2898,8 @@
    "line": "I can't find my shoe. It was right there. Someone moved it. |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "mood": "sad"
   },
   {
    "id": "bark.sis.school2",
@@ -2865,7 +2908,8 @@
    "line": "I don't wanna go. I've got a spelling test. |",
    "context": "Kitchen",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "mood": "sad"
   },
   {
    "id": "bark.sis.wknd1",
@@ -2874,7 +2918,8 @@
    "line": "Cartoons! Saturday morning telly! The best! |",
    "context": "Saturday morning",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "mood": "happy"
   },
   {
    "id": "bark.sis.wknd2",
@@ -2883,7 +2928,8 @@
    "line": "Can we go to the park? Can we? Pleeease? |",
    "context": "Sunday",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "mood": "happy"
   },
   {
    "id": "bark.sis.cut1",
@@ -2911,7 +2957,8 @@
    "context": "Hall",
    "chapter": "5",
    "batch": "sister-plain-04",
-   "callout": "sis-whine"
+   "callout": "sis-whine",
+   "mood": "sad"
   },
   {
    "id": "bark.sis.react.peek",
@@ -2920,7 +2967,8 @@
    "line": "I'm not spying. I'm just standing here. Normally. |",
    "context": "Doorway",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "mood": "cheeky"
   },
   {
    "id": "bark.sis.react.drawing",
@@ -2930,7 +2978,8 @@
    "context": "Showing a drawing",
    "chapter": "5",
    "batch": "sister-plain-04",
-   "callout": "sis-whine"
+   "callout": "sis-whine",
+   "mood": "happy"
   },
   {
    "id": "bark.sis.react.console",
@@ -2940,7 +2989,8 @@
    "context": "Beside the console",
    "chapter": "5",
    "batch": "sister-plain-04",
-   "callout": "sis-whine"
+   "callout": "sis-whine",
+   "mood": "cheeky"
   },
   {
    "id": "arena.announcer.14a4q40",
@@ -5005,7 +5055,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5020,7 +5071,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5035,7 +5087,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5050,7 +5103,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5065,7 +5119,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5080,7 +5135,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5095,7 +5151,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5110,7 +5167,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5125,7 +5183,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5140,7 +5199,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5155,7 +5215,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5170,7 +5231,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5185,7 +5247,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5200,7 +5263,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5215,7 +5279,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5230,7 +5295,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5245,7 +5311,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5260,7 +5327,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5275,7 +5343,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5290,7 +5359,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5305,7 +5375,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5320,7 +5391,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5335,7 +5407,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5350,7 +5423,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5365,7 +5439,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5380,7 +5455,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5395,7 +5471,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5410,7 +5487,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5425,7 +5503,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5440,7 +5519,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5455,7 +5535,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5470,7 +5551,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5485,7 +5567,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5500,7 +5583,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5515,7 +5599,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5530,7 +5615,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5545,7 +5631,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5560,7 +5647,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5575,7 +5663,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5590,7 +5679,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5605,7 +5695,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5620,7 +5711,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5635,7 +5727,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5650,7 +5743,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5665,7 +5759,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5680,7 +5775,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5695,7 +5791,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5710,7 +5807,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5725,7 +5823,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5740,7 +5839,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5755,7 +5855,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -5770,7 +5871,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5785,7 +5887,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5800,7 +5903,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5815,7 +5919,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5830,7 +5935,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5845,7 +5951,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5860,7 +5967,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5875,7 +5983,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5890,7 +5999,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5905,7 +6015,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5920,7 +6031,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5935,7 +6047,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5950,7 +6063,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5965,7 +6079,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -5980,7 +6095,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -5995,7 +6111,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6010,7 +6127,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6025,7 +6143,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6040,7 +6159,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6055,7 +6175,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6070,7 +6191,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6085,7 +6207,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6100,7 +6223,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6115,7 +6239,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6130,7 +6255,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6145,7 +6271,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6160,7 +6287,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6175,7 +6303,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6190,7 +6319,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6205,7 +6335,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6220,7 +6351,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6235,7 +6367,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6250,7 +6383,8 @@
     "kind": "talk",
     "when": {
      "period": "morning"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6265,7 +6399,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6280,7 +6415,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6295,7 +6431,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6310,7 +6447,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6325,7 +6463,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6340,7 +6479,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6355,7 +6495,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6370,7 +6511,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6385,7 +6527,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6400,7 +6543,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6415,7 +6559,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6430,7 +6575,8 @@
     "kind": "talk",
     "when": {
      "period": "afternoon"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6445,7 +6591,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6460,7 +6607,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6475,7 +6623,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "tired"
    }
   },
   {
@@ -6490,7 +6639,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6505,7 +6655,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "tired"
    }
   },
   {
@@ -6520,7 +6671,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6535,7 +6687,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6550,7 +6703,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6565,7 +6719,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6580,7 +6735,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6595,7 +6751,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6610,7 +6767,8 @@
     "kind": "talk",
     "when": {
      "period": "evening"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6625,7 +6783,8 @@
     "kind": "talk",
     "when": {
      "dow": 1
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6640,7 +6799,8 @@
     "kind": "talk",
     "when": {
      "dow": 2
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6655,7 +6815,8 @@
     "kind": "talk",
     "when": {
      "dow": 3
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6670,7 +6831,8 @@
     "kind": "talk",
     "when": {
      "dow": 4
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6685,7 +6847,8 @@
     "kind": "talk",
     "when": {
      "dow": 5
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6700,7 +6863,8 @@
     "kind": "talk",
     "when": {
      "dow": 6
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6715,7 +6879,8 @@
     "kind": "talk",
     "when": {
      "dow": 0
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6730,7 +6895,8 @@
     "kind": "talk",
     "when": {
      "room": "kitchen"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6745,7 +6911,8 @@
     "kind": "talk",
     "when": {
      "room": "lounge"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6760,7 +6927,8 @@
     "kind": "talk",
     "when": {
      "room": "hall"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6775,7 +6943,8 @@
     "kind": "talk",
     "when": {
      "weather": "wet"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6790,7 +6959,8 @@
     "kind": "talk",
     "when": {
      "weather": "warm"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -6805,7 +6975,8 @@
     "kind": "talk",
     "when": {
      "weather": "cold"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6820,7 +6991,8 @@
     "kind": "talk",
     "when": {
      "season": "winter"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6835,7 +7007,8 @@
     "kind": "talk",
     "when": {
      "season": "spring"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6850,7 +7023,8 @@
     "kind": "talk",
     "when": {
      "season": "summer"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6865,7 +7039,8 @@
     "kind": "talk",
     "when": {
      "season": "autumn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6880,7 +7055,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "cat"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6895,7 +7071,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "tidy"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6910,7 +7087,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "washup"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6925,7 +7103,8 @@
     "kind": "talk",
     "when": {
      "console": "n64"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6940,7 +7119,8 @@
     "kind": "talk",
     "when": {
      "console": "ps"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -6955,7 +7135,8 @@
     "kind": "talk",
     "when": {
      "chapter": 1
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6970,7 +7151,8 @@
     "kind": "talk",
     "when": {
      "chapter": 2
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -6985,7 +7167,8 @@
     "kind": "talk",
     "when": {
      "dow": 1
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7000,7 +7183,8 @@
     "kind": "talk",
     "when": {
      "dow": 2
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7015,7 +7199,8 @@
     "kind": "talk",
     "when": {
      "dow": 3
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7030,7 +7215,8 @@
     "kind": "talk",
     "when": {
      "dow": 4
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7045,7 +7231,8 @@
     "kind": "talk",
     "when": {
      "dow": 5
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7060,7 +7247,8 @@
     "kind": "talk",
     "when": {
      "dow": 6
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7075,7 +7263,8 @@
     "kind": "talk",
     "when": {
      "dow": 0
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7090,7 +7279,8 @@
     "kind": "talk",
     "when": {
      "room": "kitchen"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7105,7 +7295,8 @@
     "kind": "talk",
     "when": {
      "room": "lounge"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7120,7 +7311,8 @@
     "kind": "talk",
     "when": {
      "room": "garden"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7135,7 +7327,8 @@
     "kind": "talk",
     "when": {
      "weather": "wet"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7150,7 +7343,8 @@
     "kind": "talk",
     "when": {
      "weather": "warm"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7165,7 +7359,8 @@
     "kind": "talk",
     "when": {
      "weather": "cold"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7180,7 +7375,8 @@
     "kind": "talk",
     "when": {
      "season": "winter"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7195,7 +7391,8 @@
     "kind": "talk",
     "when": {
      "season": "spring"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7210,7 +7407,8 @@
     "kind": "talk",
     "when": {
      "season": "summer"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7225,7 +7423,8 @@
     "kind": "talk",
     "when": {
      "season": "autumn"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7240,7 +7439,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "car"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -7255,7 +7455,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "lawn"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -7270,7 +7471,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "bin"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -7285,7 +7487,8 @@
     "kind": "talk",
     "when": {
      "console": "n64"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7300,7 +7503,8 @@
     "kind": "talk",
     "when": {
      "console": "ps"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7315,7 +7519,8 @@
     "kind": "talk",
     "when": {
      "chapter": 1
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7330,7 +7535,8 @@
     "kind": "talk",
     "when": {
      "chapter": 2
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7345,7 +7551,8 @@
     "kind": "talk",
     "when": {
      "dow": 1
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7360,7 +7567,8 @@
     "kind": "talk",
     "when": {
      "dow": 2
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7375,7 +7583,8 @@
     "kind": "talk",
     "when": {
      "dow": 3
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7390,7 +7599,8 @@
     "kind": "talk",
     "when": {
      "dow": 4
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7405,7 +7615,8 @@
     "kind": "talk",
     "when": {
      "dow": 5
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7420,7 +7631,8 @@
     "kind": "talk",
     "when": {
      "dow": 6
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7435,7 +7647,8 @@
     "kind": "talk",
     "when": {
      "dow": 0
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7450,7 +7663,8 @@
     "kind": "talk",
     "when": {
      "room": "kitchen"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7465,7 +7679,8 @@
     "kind": "talk",
     "when": {
      "room": "lounge"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7480,7 +7695,8 @@
     "kind": "talk",
     "when": {
      "room": "hall"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7495,7 +7711,8 @@
     "kind": "talk",
     "when": {
      "weather": "wet"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7510,7 +7727,8 @@
     "kind": "talk",
     "when": {
      "weather": "warm"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7525,7 +7743,8 @@
     "kind": "talk",
     "when": {
      "weather": "cold"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7540,7 +7759,8 @@
     "kind": "talk",
     "when": {
      "season": "winter"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7555,7 +7775,8 @@
     "kind": "talk",
     "when": {
      "season": "spring"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7570,7 +7791,8 @@
     "kind": "talk",
     "when": {
      "season": "summer"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7585,7 +7807,8 @@
     "kind": "talk",
     "when": {
      "season": "autumn"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7600,7 +7823,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "cat"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7615,7 +7839,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "tidy"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7630,7 +7855,8 @@
     "kind": "talk",
     "when": {
      "jobDone": "plant"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7645,7 +7871,8 @@
     "kind": "talk",
     "when": {
      "console": "n64"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7660,7 +7887,8 @@
     "kind": "talk",
     "when": {
      "console": "ps"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7675,7 +7903,8 @@
     "kind": "talk",
     "when": {
      "chapter": 1
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7690,7 +7919,8 @@
     "kind": "talk",
     "when": {
      "chapter": 2
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -7705,7 +7935,8 @@
     "kind": "give",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7720,7 +7951,8 @@
     "kind": "give",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7735,7 +7967,8 @@
     "kind": "give",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7750,7 +7983,8 @@
     "kind": "give",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7765,7 +7999,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7780,7 +8015,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7795,7 +8031,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7810,7 +8047,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7825,7 +8063,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7840,7 +8079,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7855,7 +8095,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7870,7 +8111,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7885,7 +8127,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7900,7 +8143,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7915,7 +8159,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7930,7 +8175,8 @@
     "kind": "remind",
     "when": {
      "job": "cat"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7945,7 +8191,8 @@
     "kind": "give",
     "when": {
      "job": "bed"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7960,7 +8207,8 @@
     "kind": "give",
     "when": {
      "job": "bed"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7975,7 +8223,8 @@
     "kind": "remind",
     "when": {
      "job": "bed"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -7990,7 +8239,8 @@
     "kind": "remind",
     "when": {
      "job": "bed"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8005,7 +8255,8 @@
     "kind": "remind",
     "when": {
      "job": "bed"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8020,7 +8271,8 @@
     "kind": "give",
     "when": {
      "job": "bin"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8035,7 +8287,8 @@
     "kind": "give",
     "when": {
      "job": "bin"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8050,7 +8303,8 @@
     "kind": "remind",
     "when": {
      "job": "bin"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8065,7 +8319,8 @@
     "kind": "remind",
     "when": {
      "job": "bin"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8080,7 +8335,8 @@
     "kind": "remind",
     "when": {
      "job": "bin"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8095,7 +8351,8 @@
     "kind": "give",
     "when": {
      "job": "tidy"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8110,7 +8367,8 @@
     "kind": "give",
     "when": {
      "job": "tidy"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8125,7 +8383,8 @@
     "kind": "remind",
     "when": {
      "job": "tidy"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8140,7 +8399,8 @@
     "kind": "remind",
     "when": {
      "job": "tidy"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8155,7 +8415,8 @@
     "kind": "remind",
     "when": {
      "job": "tidy"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8170,7 +8431,8 @@
     "kind": "give",
     "when": {
      "job": "plant"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8185,7 +8447,8 @@
     "kind": "give",
     "when": {
      "job": "plant"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8200,7 +8463,8 @@
     "kind": "remind",
     "when": {
      "job": "plant"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8215,7 +8479,8 @@
     "kind": "remind",
     "when": {
      "job": "plant"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8230,7 +8495,8 @@
     "kind": "remind",
     "when": {
      "job": "plant"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8245,7 +8511,8 @@
     "kind": "give",
     "when": {
      "job": "washup"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8260,7 +8527,8 @@
     "kind": "give",
     "when": {
      "job": "washup"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8275,7 +8543,8 @@
     "kind": "remind",
     "when": {
      "job": "washup"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8290,7 +8559,8 @@
     "kind": "remind",
     "when": {
      "job": "washup"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8305,7 +8575,8 @@
     "kind": "remind",
     "when": {
      "job": "washup"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8320,7 +8591,8 @@
     "kind": "give",
     "when": {
      "job": "table"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8335,7 +8607,8 @@
     "kind": "give",
     "when": {
      "job": "table"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8350,7 +8623,8 @@
     "kind": "remind",
     "when": {
      "job": "table"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8365,7 +8639,8 @@
     "kind": "remind",
     "when": {
      "job": "table"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8380,7 +8655,8 @@
     "kind": "remind",
     "when": {
      "job": "table"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8395,7 +8671,8 @@
     "kind": "give",
     "when": {
      "job": "shopping"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8410,7 +8687,8 @@
     "kind": "give",
     "when": {
      "job": "shopping"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8425,7 +8703,8 @@
     "kind": "remind",
     "when": {
      "job": "shopping"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8440,7 +8719,8 @@
     "kind": "remind",
     "when": {
      "job": "shopping"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8455,7 +8735,8 @@
     "kind": "remind",
     "when": {
      "job": "shopping"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8470,7 +8751,8 @@
     "kind": "give",
     "when": {
      "job": "bins"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8485,7 +8767,8 @@
     "kind": "give",
     "when": {
      "job": "bins"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8500,7 +8783,8 @@
     "kind": "remind",
     "when": {
      "job": "bins"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8515,7 +8799,8 @@
     "kind": "remind",
     "when": {
      "job": "bins"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8530,7 +8815,8 @@
     "kind": "remind",
     "when": {
      "job": "bins"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8545,7 +8831,8 @@
     "kind": "give",
     "when": {
      "job": "hoover"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8560,7 +8847,8 @@
     "kind": "give",
     "when": {
      "job": "hoover"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8575,7 +8863,8 @@
     "kind": "remind",
     "when": {
      "job": "hoover"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8590,7 +8879,8 @@
     "kind": "remind",
     "when": {
      "job": "hoover"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8605,7 +8895,8 @@
     "kind": "remind",
     "when": {
      "job": "hoover"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8620,7 +8911,8 @@
     "kind": "give",
     "when": {
      "job": "videos"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8635,7 +8927,8 @@
     "kind": "give",
     "when": {
      "job": "videos"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8650,7 +8943,8 @@
     "kind": "remind",
     "when": {
      "job": "videos"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8665,7 +8959,8 @@
     "kind": "remind",
     "when": {
      "job": "videos"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8680,7 +8975,8 @@
     "kind": "remind",
     "when": {
      "job": "videos"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8695,7 +8991,8 @@
     "kind": "give",
     "when": {
      "job": "cushions"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8710,7 +9007,8 @@
     "kind": "give",
     "when": {
      "job": "cushions"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8725,7 +9023,8 @@
     "kind": "remind",
     "when": {
      "job": "cushions"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8740,7 +9039,8 @@
     "kind": "remind",
     "when": {
      "job": "cushions"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8755,7 +9055,8 @@
     "kind": "remind",
     "when": {
      "job": "cushions"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8770,7 +9071,8 @@
     "kind": "give",
     "when": {
      "job": "car"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8785,7 +9087,8 @@
     "kind": "give",
     "when": {
      "job": "car"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8800,7 +9103,8 @@
     "kind": "remind",
     "when": {
      "job": "car"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8815,7 +9119,8 @@
     "kind": "remind",
     "when": {
      "job": "car"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8830,7 +9135,8 @@
     "kind": "remind",
     "when": {
      "job": "car"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8845,7 +9151,8 @@
     "kind": "give",
     "when": {
      "job": "lawn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8860,7 +9167,8 @@
     "kind": "give",
     "when": {
      "job": "lawn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8875,7 +9183,8 @@
     "kind": "remind",
     "when": {
      "job": "lawn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8890,7 +9199,8 @@
     "kind": "remind",
     "when": {
      "job": "lawn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8905,7 +9215,8 @@
     "kind": "remind",
     "when": {
      "job": "lawn"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8920,7 +9231,8 @@
     "kind": "give",
     "when": {
      "job": "sweep"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8935,7 +9247,8 @@
     "kind": "give",
     "when": {
      "job": "sweep"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8950,7 +9263,8 @@
     "kind": "remind",
     "when": {
      "job": "sweep"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8965,7 +9279,8 @@
     "kind": "remind",
     "when": {
      "job": "sweep"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8980,7 +9295,8 @@
     "kind": "remind",
     "when": {
      "job": "sweep"
-    }
+    },
+    "mood": "neutral"
    }
   },
   {
@@ -8993,7 +9309,8 @@
    "batch": "mom-qa5-12",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9006,7 +9323,8 @@
    "batch": "mom-qa5-12",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "happy"
    }
   },
   {
@@ -9019,7 +9337,8 @@
    "batch": "mom-qa5-12",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9032,7 +9351,8 @@
    "batch": "dad-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9045,7 +9365,8 @@
    "batch": "dad-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "happy"
    }
   },
   {
@@ -9058,7 +9379,8 @@
    "batch": "dad-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9071,7 +9393,8 @@
    "batch": "sister-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9084,7 +9407,8 @@
    "batch": "sister-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "happy"
    }
   },
   {
@@ -9097,7 +9421,8 @@
    "batch": "sister-qa5-05",
    "dialogue": {
     "kind": "gesture",
-    "when": {}
+    "when": {},
+    "mood": "neutral"
    }
   },
   {
@@ -9112,7 +9437,8 @@
     "kind": "talk",
     "when": {
      "console": "md"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -9127,7 +9453,8 @@
     "kind": "talk",
     "when": {
      "console": "dc"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9142,7 +9469,8 @@
     "kind": "talk",
     "when": {
      "console": "sn"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -9157,7 +9485,8 @@
     "kind": "talk",
     "when": {
      "console": "gb"
-    }
+    },
+    "mood": "happy"
    }
   },
   {
@@ -9172,7 +9501,8 @@
     "kind": "talk",
     "when": {
      "console": "md"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9187,7 +9517,8 @@
     "kind": "talk",
     "when": {
      "console": "dc"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9202,7 +9533,8 @@
     "kind": "talk",
     "when": {
      "console": "sn"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9217,7 +9549,8 @@
     "kind": "talk",
     "when": {
      "console": "gb"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9232,7 +9565,8 @@
     "kind": "talk",
     "when": {
      "console": "md"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9247,7 +9581,8 @@
     "kind": "talk",
     "when": {
      "console": "dc"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9262,7 +9597,8 @@
     "kind": "talk",
     "when": {
      "console": "sn"
-    }
+    },
+    "mood": "cheeky"
    }
   },
   {
@@ -9277,7 +9613,8 @@
     "kind": "talk",
     "when": {
      "console": "gb"
-    }
+    },
+    "mood": "cheeky"
    }
   }
  ]

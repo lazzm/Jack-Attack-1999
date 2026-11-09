@@ -1765,8 +1765,9 @@
     r.awayThing = t => !parked.present && riding(t);
     const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({c:'#fff',map:K.tex('hs.car.paint',256,256,(g,w,h)=>{g.fillStyle='#752637';g.fillRect(0,0,w,h);const r=K.rnd(840);for(let n=0;n<14000;n++){g.fillStyle=n%3?'rgba(24,10,14,.07)':'rgba(219,142,153,.09)';g.fillRect(r()*w,r()*h,1,1)}for(let n=0;n<26;n++){const x=r()*w,y=r()*h;g.strokeStyle='rgba(196,126,139,.15)';g.lineWidth=.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+3+r()*12,y+.7);g.stroke()}},{world:120}),sh:62,sp:'#64535d',reflect:.13,vc:true});
     const rubber=M({c:'#25282a',map:K.tex('hs.car.rubber',128,128,(g,w,h)=>{g.fillStyle='#deded5';g.fillRect(0,0,w,h);const r=K.rnd(841);for(let n=0;n<6000;n++){g.fillStyle=n%2?'rgba(18,20,18,.09)':'rgba(255,253,235,.09)';g.fillRect(r()*w,r()*h,1,1)}g.strokeStyle='rgba(47,50,44,.18)';g.lineWidth=1;for(let y=0;y<h;y+=12){g.beginPath();g.moveTo(0,y);g.lineTo(w*.5,y+6);g.lineTo(w,y);g.stroke()}},{world:16}),sh:6,sp:'#101312'}),chrome=M({c:'#a3a6a8',family:'metal',reflect:.12});
-    const glassPrint=K.tex('hs.car.glass',256,256,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h);g.fillStyle='rgba(185,207,214,.25)';g.beginPath();g.moveTo(0,h*.17);g.lineTo(w*.4,h*.04);g.lineTo(w,h*.3);g.lineTo(w,h*.42);g.lineTo(w*.4,h*.19);g.lineTo(0,h*.32);g.closePath();g.fill();g.fillStyle='rgba(22,49,39,.23)';for(let n=0;n<7;n++){const x=n*w/6;g.beginPath();g.moveTo(x-14,h);g.lineTo(x,h*.55);g.lineTo(x+20,h);g.fill()}g.strokeStyle='rgba(47,90,80,.72)';g.lineWidth=5;g.strokeRect(2,2,w-4,h-4)},{clamp:true});
-    const gl=M({c:'#fff',map:glassPrint,family:'glass',reflect:.12});
+    // Lightly tinted glazing shares the small reflection cube and its cheap-
+    // lighting guard. The cabin supplies the depth; no painted tree silhouettes.
+    const gl=M({c:'#b2cbc5',family:'glass',sh:64,sp:'#334b50',reflect:.16,o:.32,tr:true,dw:false,side:2});gl.name='car glazing';
     car.rbox(0, -52, 40, 170, 46, 320, 9, cm);
     // Hollow boot: a solid floor, wheel-side walls and rear valance under a hinged lid.
     car.box(0,-20,-157,166,5,86,cm);
@@ -1807,6 +1808,28 @@
     const trim = (top,bottom,material,width=1,overlap=0) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(width,delta.length()+overlap,width);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,material);};
     for(const side of [-1,1])for(const [top,bottom]of [[[side*66,-122,58.7],[side*75,-75,91]],[[side*66,-122,-96.7],[side*75,-75,-119]],[[side*66,-122,-14],[side*75,-75,-14]]]){trim(top,bottom,rubber,5,2);trim(top,bottom,cm,4,2)} // slim pillars
     for(const [y,z,width]of [[-121.6,58.9,132],[-75.3,91.2,150],[-121.6,-96.9,132],[-75.3,-119.3,150]])trim([-width/2,y,z],[width/2,y,z],rubber,2);
+    // A complete, low-cost cabin can be seen through every pane. These solid
+    // seats, headrests, dash and wheel stay in the existing static car batches.
+    const cabin=M({c:'#343a3a',family:'plastic'}),seatCloth=M({c:'#535b62',family:'fabric'});seatCloth.name='car upholstery';
+    car.box(0,-83.6,-15,140,1,196,cabin);
+    for(const x of [-36,36]){
+      car.rbox(x,-88,5,47,8,43,3,seatCloth);
+      car.rbox(x,-103,-15,47,27,8,3,seatCloth,{rx:-8});
+      car.rbox(x,-118,-18,23,8,9,2,seatCloth);
+      for(const xx of [-7,7])car.cyl(x+xx,-113.5,-17,.65,.65,5,6,chrome);
+    }
+    car.rbox(0,-88,-76,130,8,40,3,seatCloth);
+    car.rbox(0,-103,-94,130,28,8,3,seatCloth);
+    for(const x of [-40,40])car.rbox(x,-118,-94,23,8,9,2,seatCloth);
+    car.rbox(0,-91,66,138,13,20,3,cabin);
+    car.rbox(-36,-99,61,38,8,13,2,cabin);
+    car.geo(new T.TorusGeometry(14,1.5,6,18),-36,-104,43,cabin,{rx:-20});
+    trim([-49,-104,43],[-23,-104,43],cabin,1.8);
+    trim([-36,-104,43],[-36,-115,47],cabin,1.8);
+    trim([-36,-104,43],[-36,-94,57],cabin,3);
+    car.box(0,-87,13,13,9,40,cabin);
+    car.ball(0,-96,20,2,2,2,cabin,8);car.cyl(0,-91,20,.7,.7,8,6,cabin);
+    for(const side of [-1,1])car.box(side*72,-92,-14,2,18,190,cabin);
     // Wipers sit on the sloping windscreen, rear heater lines on the rear glass.
     for(const x of [-32,30]){trim([x-23,-81,87.7],[x+16,-88,83.2],rubber,1.2);trim([x-3,-77.5,90],[x-2,-84.5,85.6],rubber,1.5)}
     for(let y=-88;y>=-116;y-=7){const z=-119+(y+75)*(-22.3/47)-.35;trim([-64,y,z],[64,y,z],M('#786552'),.28)}
@@ -1820,8 +1843,7 @@
     });
     car.cyl(-85.5,-58,-103,4.8,4.8,.5,16,cm,{rz:90});car.box(-86,-58,-103,.3,.5,3,rubber);
     trim([-65,-82,-108],[-65,-121,-108],chrome,.7);car.cyl(-65,-82,-108,2,2,2,12,rubber);
-    // Dark window seals, centre pillars, door trim and inset handles make the
-    // opaque glazing read as glass, without a transparent empty cabin.
+    // Dark window seals, centre pillars, door trim and inset handles frame the glass.
     for (const side of [-1,1]) {
       car.box(side*83.8,-77,-12,1.4,3,284,M('#232529'));
       car.box(side*85.1,-52,-12,.5,33,1.2,M('#431b24'));

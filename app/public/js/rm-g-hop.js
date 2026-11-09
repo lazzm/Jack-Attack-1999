@@ -1339,18 +1339,19 @@
         cyl(28,4.5,20,.85,.3,{c:0xc86e56,props:{schoolButton:true}});cyl(28,4.8,20,.6,.08,{c:0xffd57b,props:{schoolButton:true}});
         const dummy=new T.Mesh(model('grumpy'),matV());dummy.position.set(28,4.8,31);WG.add(dummy);cyl(28,4.5,31,.7,.3,{t:'wood',c:0x715244});
         const ring=new T.Mesh(S.tor(.09,20),mat('lessonRing',{color:0xffd66e,emissive:0x44300c}));ring.scale.setScalar(2.25);ring.rotation.x=Math.PI/2;WG.add(ring);
-        SCHOOL={active:false,lesson:schoolNext(),seen:false,ring,dummy};
-        npc('tortoise',castN('mate4')+' THE HOP COACH',32,17.8,Math.PI,()=>{const i=schoolNext();return i>=SCHOOL_LESSONS.length?['EVERY MOVE! YOUR FEET DESERVE A DIPLOMA. HAVE A GOLDEN ACORN!']:['WELCOME TO THE SOFT LANDINGS CLUB! I AM COACH '+castN('mate4')+'.', 'LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0]+'. '+schoolHint(SCHOOL_LESSONS[i]),'DO THE MOVE, THEN LAND IN THE GOLD HOOP. COME BACK TO ME FOR THE NEXT LESSON.'];},{y:4.5,coach:true,done:schoolStart});
+        SCHOOL={active:false,lesson:schoolNext(),seen:false,airborne:false,ring,dummy};
+        npc('tortoise',castN('mate4')+' THE HOP COACH',32,17.8,Math.PI,()=>{const i=schoolNext();return i>=SCHOOL_LESSONS.length?['EVERY MOVE! YOUR FEET DESERVE A DIPLOMA. HAVE A GOLDEN ACORN!']:[prog.schoolMet||prog.school?(SCHOOL.active?'READY FOR ANOTHER GO?':'READY FOR THE NEXT MOVE?'):'WELCOME TO THE SOFT LANDINGS CLUB! I AM COACH '+castN('mate4')+'.', 'LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0]+'. '+schoolHint(SCHOOL_LESSONS[i]),'DO THE MOVE, THEN LAND IN THE GOLD HOOP. COME BACK TO ME FOR THE NEXT LESSON.'];},{y:4.5,coach:true,done:schoolStart});
         sign(25.5,29,-Math.PI/2,['SOFT LANDINGS CLUB. TWELVE LITTLE LESSONS, ONE BIG ACORN.','TALK TO THE COACH TO BEGIN. THE GOLD HOOP SHOWS WHERE TO FINISH. YOUR COMPLETED LESSONS ARE SAVED.'],4.5);
         sign(41,18,Math.PI,['WALL KICK CORNER. A REAL WALL, SOFT LANDINGS.'],4.5);
         acorn('school','SOFT LANDINGS DIPLOMA',32,6,20,{hidden:schoolNext()<SCHOOL_LESSONS.length,cond:'school'});schoolAnim();
       }
-      function schoolStart(){if(!SCHOOL)return;const i=schoolNext();SCHOOL.lesson=i;SCHOOL.seen=false;SCHOOL.active=i<SCHOOL_LESSONS.length;if(!SCHOOL.active){reveal('school');return;}say('LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0],2,schoolHint(SCHOOL_LESSONS[i]));schoolAnim();saveNow();}
+      function schoolStart(){if(!SCHOOL)return;const i=schoolNext();prog.schoolMet=true;SCHOOL.lesson=i;SCHOOL.seen=false;SCHOOL.airborne=false;SCHOOL.active=i<SCHOOL_LESSONS.length;if(!SCHOOL.active){reveal('school');return;}say('LESSON '+(i+1)+': '+SCHOOL_LESSONS[i][0],2,schoolHint(SCHOOL_LESSONS[i]));schoolAnim();saveNow();}
       function schoolAnim(){if(!SCHOOL)return;const q=SCHOOL,d=SCHOOL_LESSONS[q.lesson];q.ring.visible=!!q.active&&!!d;if(d)q.ring.position.set(d[3],d[5]+.12,d[4]);q.ring.material.color.setHex(q.seen?0x8aee9c:0xffd66e);}
-      function schoolUpdate(){if(!SCHOOL?.active)return;const q=SCHOOL,d=SCHOOL_LESSONS[q.lesson];if(!d)return;const inYard=P.x>24&&P.x<45&&P.z>15&&P.z<37&&P.y>4.2;
+      function schoolUpdate(){if(!SCHOOL?.active)return;const q=SCHOOL,d=SCHOOL_LESSONS[q.lesson];if(!d)return;const landed=!!q.airborne&&P.gnd;q.airborne=!P.gnd;const actionLesson=d[1]==='camera'||d[1]==='punch';const inYard=P.x>24&&P.x<45&&P.z>15&&P.z<37&&P.y>4.2;
         if(!inYard){q.seen=false;return;}
         if(d[1]==='camera'?(IN.l||IN.r):d[1]==='punch'?(P.st==='punch'&&Math.hypot(P.x-28,P.z-31)<2.2):d[1]==='pound'?false:P.st===d[1])q.seen=true;
-        if(q.seen&&P.gnd&&Math.hypot(P.x-d[3],P.z-d[4])<2.8&&Math.abs(P.y-d[5])<.5){prog.school|=1<<q.lesson;q.active=false;schoolAnim();burst(P.x,P.y+.5,P.z,[0xffd77b,0x8deb99],12,3,{life:.6});K.sfx.seq([[72,.2],[76,.2],[84,.5]],{bpm:250,vol:.08});if(schoolNext()===SCHOOL_LESSONS.length){reveal('school');say('SOFT LANDINGS DIPLOMA!',3,'THE COACH HAS YOUR GOLDEN ACORN.');}else say('LESSON COMPLETE!',2,'PRESS '+L('b')+' BY THE COACH FOR THE NEXT ONE.');saveNow();}
+        if(q.seen&&(landed||actionLesson)&&P.gnd&&Math.hypot(P.x-d[3],P.z-d[4])<2.8&&Math.abs(P.y-d[5])<.5){prog.school|=1<<q.lesson;q.active=false;schoolAnim();burst(P.x,P.y+.5,P.z,[0xffd77b,0x8deb99],12,3,{life:.6});K.sfx.seq([[72,.2],[76,.2],[84,.5]],{bpm:250,vol:.08});if(schoolNext()===SCHOOL_LESSONS.length){reveal('school');say('SOFT LANDINGS DIPLOMA!',3,'THE COACH HAS YOUR GOLDEN ACORN.');}else say('LESSON COMPLETE!',2,'PRESS '+L('b')+' BY THE COACH FOR THE NEXT ONE.');saveNow();}
+        if(landed&&q.active&&q.seen&&!actionLesson){q.seen=false;say('TRY THAT MOVE AGAIN!',2,'LAND IN THE GOLD HOOP.');}
         schoolAnim();
       }
       function tryLedge(){if(P.gnd||P.vy>0||P.ledgeLock>0||IN.cH||P.power==='tin'||['pound','dead','hurt','ledge','climb'].includes(P.st))return false;const head=prog.opt.big?2.7:P.power==='peek'?2.2:1.95;
@@ -1364,7 +1365,9 @@
         for(let i=0;i<CYLS.length;i++){const c=CYLS[i],top=c.y1,dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(c.mv||c.r<.8||P.y<top-1.65||P.y>top-.85||Math.abs(d-c.r)>.7||d<.01)continue;const nx=dx/d,nz=dz/d;if(P.vx*nx+P.vz*nz>-.15&&(-Math.sin(P.face)*nx-Math.cos(P.face)*nz)>-.4)continue;const x=c.x+nx*(c.r+.43),z=c.z+nz*(c.r+.43);if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-nx*.95,ez=z-nz*.95;let clear=true;for(const b of BOXES){if(b.open||b.phase)continue;const ox=ex-b.x,oz=ez-b.z;if(Math.abs(ox*b.cs-oz*b.sn)<b.hw+.35&&Math.abs(ox*b.sn+oz*b.cs)<b.hd+.35&&b.y-b.hh<top+head&&b.y+b.hh>top+.05){clear=false;break;}}if(!clear)continue;for(const b of CYLS)if(b!==c&&Math.hypot(ex-b.x,ez-b.z)<b.r+.35&&b.y0<top+head&&b.y1>top+.05)clear=false;if(clear)return catchLedge(i,'cyl',x,z,ex,ez,top,nx,nz);}
         return false;
       }
-      function catchLedge(i,kind,x,z,ex,ez,top,nx,nz){P.ledge={i,kind,x,y:top-1.55,z,ex,ez,top,t:0,grabT:0,fromY:P.y};P.x=x;P.z=z;P.vx=P.vy=P.vz=0;P.gnd=false;P.st='ledge';P.stT=0;P.gliding=false;P.face=Math.atan2(nx,nz);P.yaw=P.face;P.plat=null;P.wallT=0;K.sfx.tone(470,.065,'triangle',.06);return true;}
+      // The hang height and reaching arms meet the actual glove surface at the
+      // rim, with the boots still below it. The same pose fits round ledges.
+      function catchLedge(i,kind,x,z,ex,ez,top,nx,nz){P.ledge={i,kind,x,y:top-1.3,z,ex,ez,top,t:0,grabT:0,fromY:P.y};P.x=x;P.z=z;P.vx=P.vy=P.vz=0;P.gnd=false;P.st='ledge';P.stT=0;P.gliding=false;P.face=Math.atan2(nx,nz);P.yaw=P.face;P.plat=null;P.wallT=0;K.sfx.tone(470,.065,'triangle',.06);return true;}
       function ledgeStep(dt){const l=P.ledge;if(!l||!['ledge','climb'].includes(P.st))return false;
         if(P.st==='ledge'){l.grabT=Math.min(.1,(l.grabT||0)+dt);P.y=lerp(l.fromY??l.y,l.y,sstep(0,.1,l.grabT));P.vx=P.vy=P.vz=0;if(IN.c){P.ledge=null;P.ledgeLock=.25;P.st='fall';P.vy=-2;P.poundBuf=0;IN.c=false;return false;}if(l.grabT>=.1&&P.grabBuf>0){P.st='climb';P.stT=0;l.t=0;P.grabBuf=0;K.sfx.tone(650,.08,'triangle',.05);}return true;}
         l.t+=dt;const lift=sstep(0,.18,l.t),across=sstep(.1,.32,l.t);P.x=lerp(l.x,l.ex,across);P.z=lerp(l.z,l.ez,across);P.y=lerp(l.y,l.top,lift);P.vx=P.vy=P.vz=0;
@@ -1372,9 +1375,9 @@
       }
 
       // ================================================================ progress (saved) and the visit (not saved)
-      const prog = { school:0, powers: {}, records: {}, got: {}, ac: {}, score: 0, lives: 4, opt: { mus: 1, cam: 1, easy: 0 }, hs: [], boss: 0, started: 0, w: 'hub', p: null, door: -1 };
+      const prog = { school:0, schoolMet:false, powers: {}, records: {}, got: {}, ac: {}, score: 0, lives: 4, opt: { mus: 1, cam: 1, easy: 0 }, hs: [], boss: 0, started: 0, w: 'hub', p: null, door: -1 };
       (function loadProg() {
-        const s = K.load(); if (!s || typeof s !== 'object') return;prog.school=(s.school|0)&4095;
+        const s = K.load(); if (!s || typeof s !== 'object') return;prog.school=(s.school|0)&4095;prog.schoolMet=!!s.schoolMet||prog.school>0;
         if(s.powers&&typeof s.powers==='object')for(const k of Object.keys(POWER_DEFS))if(Object.prototype.hasOwnProperty.call(s.powers,k))prog.powers[k]=s.powers[k]?1:0;
         if (s.records && typeof s.records === 'object') prog.records = s.records;
         prog.got = s.got && typeof s.got === 'object' ? s.got : {}; prog.ac = s.ac && typeof s.ac === 'object' ? s.ac : {};
@@ -1411,7 +1414,7 @@
           boss: curW === 'boss' ? Object.assign(fields(BOSS, actorKeys), { rings: BOSS.rings.map(r => fields(r, 'r on x z')) }) : null,
           boo: curW === 'manor' ? fields(BB, actorKeys) : null,
           race: curW === 'peaks' ? fields(PERCY, actorKeys) : null,
-          coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
+          coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen airborne'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
           dlg: dlg && { name: dlg.name, lines: dlg.lines, i: dlg.i, ch: dlg.ch, npc: NPCS.indexOf(dlg.npc), race: !!dlg.npc?.percy },
           fade: fading && { t: fading.t, dur: fading.dur, done: fading.done, action: fading.action },
           feedback: { shake, flash, msg, msgT, msg2, msgCol },
@@ -1420,7 +1423,7 @@
       function saveNow() {
         if (demo || mode === 'view') return;
         if (prog.started && mode !== 'title' && mode !== 'attract' && fading?.action?.op !== 'title') runCache = snapshot();
-        K.save({ v2: 1, school:prog.school, started: prog.started, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: prog.lives, opt: prog.opt, hs: prog.hs, boss: prog.boss,
+        K.save({ v2: 1, school:prog.school, schoolMet:prog.schoolMet, started: prog.started, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: prog.lives, opt: prog.opt, hs: prog.hs, boss: prog.boss,
           w: runCache ? runCache.w : prog.w, p: runCache ? [runCache.player.x, runCache.player.y, runCache.player.z] : prog.p, door: prog.door, run: runCache,
           ui: fading?.action?.op === 'title' ? { quit: fields(fading, 't dur done action') } : mode === 'title' ? { title: true, started, menuI, sub, subI, idleT } : null });
       }
@@ -2184,11 +2187,11 @@
       function leaveWorld() {if(curW==='snowhall'){iris({op:'snowOut'});return;} const k=WD.power;iris(k?{op:'secretBack',k}:{ op: 'hub', i: ORDER.indexOf(curW) }); }
       function afterDeath() {
         prog.lives--;
-        if (prog.lives < 0) { mode = 'over'; overT = 0; overSent = false; lastResult = null; addHs(); prog.lives = 4; const w = curW; curW = 'hub'; K.save({ v2: 1, school:prog.school, started: 1, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: 4, opt: prog.opt, hs: prog.hs, boss: prog.boss, w: 'hub', p: null, door: -1 }); curW = w; return; }
+        if (prog.lives < 0) { mode = 'over'; overT = 0; overSent = false; lastResult = null; addHs(); prog.lives = 4; const w = curW; curW = 'hub'; K.save({ v2: 1, school:prog.school, schoolMet:prog.schoolMet, started: 1, score: prog.score, got: prog.got, ac: prog.ac, records: prog.records, powers: prog.powers, lives: 4, opt: prog.opt, hs: prog.hs, boss: prog.boss, w: 'hub', p: null, door: -1 }); curW = w; return; }
         iris({ op: 'restart', w: curW, rebuild: curW === 'boss', inv: 1 });
       }
       function newGame() {
-        Object.assign(prog, { school:0, powers:{}, got: {}, ac: {}, score: 0, lives: 4, boss: 0, started: 1, w: 'hub', p: null, door: -1 });
+        Object.assign(prog, { school:0, schoolMet:false, powers:{}, got: {}, ac: {}, score: 0, lives: 4, boss: 0, started: 1, w: 'hub', p: null, door: -1 });
         runCache = null; lastResult = null; overSent = false; paused = false; buildWorld('hub'); spawnInWorld('hub'); P.hp = HPMAX(); mode = 'card'; card = { w: 'hub', t: 0 }; saveNow();
       }
       function continueGame() {
@@ -2293,13 +2296,13 @@
 
       // ---- Bopper's poses
       function animBop(dt, t) {
-        const B = BOP, sp = Math.hypot(P.vx, P.vz), st = P.st;
+        const B = BOP, sp = Math.hypot(P.vx, P.vz), st = P.st, hanging=st==='ledge'||st==='climb';
         B.root.position.set(P.x, P.y, P.z);
         P.yaw += wrapA(P.face - P.yaw) * Math.min(1, dt * 16);
         let yaw = P.yaw, rx = 0, rz = 0, sc = 1, hy = 0.42;
         const arm = [0, 0, 0, 0], leg = [0, 0, 0, 0]; // armL x,z  armR x,z / legL x,z legR x,z
         let headY = 0, headX = 0;
-        if(st==='ledge'||st==='climb'){hy=.3;arm[0]=arm[2]=2.9;arm[1]=.25;arm[3]=-.25;leg[0]=.2;leg[2]=.35;rx=-.08;}
+        if(hanging){hy=.3;arm[0]=arm[2]=2.45;arm[1]=.25;arm[3]=-.25;leg[0]=.2;leg[2]=.35;rx=-.08;}
         else if(st==='glide'){rx=-.15;arm[1]=1.8;arm[3]=-1.8;leg[0]=.3;leg[2]=-.3;hy+=Math.sin(t*4)*.025;}
         else if (st === 'swim') { rx = lerp(-.35,-1.15,clamp(((WD.water||0)-P.y-1)/1.5,0,1)) + clamp(P.vy / 6,-.75,.75); arm[0] = Math.sin(P.run*1.6)*1.1; arm[2] = -arm[0]; arm[1] = .9; arm[3] = -.9; leg[0] = Math.sin(P.run*2)*.45; leg[2] = -leg[0]; hy += Math.sin(P.run)*.04; }
         else if (P.gnd && (st === 'run' || st === 'idle' || st === 'skid')) {
@@ -2331,7 +2334,7 @@
         if (P.land > 0) sc *= 1 - P.land * 1.6;
         B.m.rotation.set(rx, yaw, rz, 'YXZ'); tv.set(0,.9,0).applyEuler(B.m.rotation); B.m.position.set(-tv.x,.9-tv.y,-tv.z); B.m.scale.set(1 / Math.sqrt(sc), sc, 1 / Math.sqrt(sc));
         B.hips.position.y = hy; B.head.rotation.set(headX, headY, 0); B.head.scale.setScalar(prog.opt.big ? 1.7 : 1);
-        B.armR.position.y = mode === 'win' ? .78 : .38; B.armR.scale.y = mode === 'win' ? 1.9 : 1;
+        B.armR.position.y = mode === 'win' ? .78 : .38; B.armR.scale.y = mode === 'win' ? 1.9 : hanging?1.4:1; B.armL.scale.y=hanging?1.4:1;
         B.armL.rotation.set(arm[0], 0, arm[1]); B.armR.rotation.set(arm[2], 0, arm[3]); B.legL.rotation.set(leg[0], 0, leg[1]); B.legR.rotation.set(leg[2], 0, leg[3]);
         B.blink -= dt; if (B.blink < 0) B.blink = 2 + Math.random() * 3; B.eyes.scale.y = B.blink < 0.12 ? 0.1 : 1; B.eyes.position.y = B.blink < 0.12 ? 0.34 : 0;
         B.heroMat.emissive.setHex(P.inv > 0 && (P.inv * 12 | 0) % 2 ? 0x603010 : 0x000000);
