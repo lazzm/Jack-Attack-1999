@@ -2,7 +2,7 @@
 
 ## 2.85.0 - 2026-11-09
 - The family move more naturally: they sip with the elbow low and the head tipping to the cup, hold the phone to their ear on calls, fold the paper or magazine away before they stand and pick it up again when they're back, nod along while washing up or cooking, and pass the conversation to each other with a look and a small gesture. 53 more lines have their own acting.
-- Better on phones: Dad's PC is fully usable sideways, with the whole taskbar clear of the controls; the mobile phone is bigger with proper-sized keys; carrying something shows one clear Place button; and Resume stays in reach while you scroll the pause menu.
+- Better on phones: Dad's PC is fully usable sideways, with the whole taskbar clear of the controls; the mobile phone is bigger with proper-sized keys; carrying something shows one clear Place button; and the pause menu scrolls properly with your finger again (it could get stuck at the top), with Resume always in reach.
 - The back garden has proper planting: greener lawn without the black stubble, different trees and shrubs, and softer edges where grass meets path and fence. The houses across the road have more depth, and cushions, the sofa, beanbag, pillow and duvet look soft. At night, doors, steps and paths stand out just enough to find your way.
 
 ## 2.84.0 - 2026-11-09
