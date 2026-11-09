@@ -10,7 +10,9 @@ await withTestServer(async base=>{
  const account='St0'+Date.now().toString(36),password='Throwaway-1999';
  assert((await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
  // Old per-device settings (a Potato preset with the counter on) must migrate harmlessly.
- const f=await roomFixture(base,{account,password,signup:false,storage:{jhp_hs_graphics:{preset:'potato',dynamic:false,retro:true,showFps:true}},timeoutScale:4,debug:true});
+ // Keep startup fill cheap; every buffer assertion/capture below explicitly
+ // resizes to its real target, including the final desktop idle measurement.
+ const f=await roomFixture(base,{account,password,signup:false,width:640,height:480,storage:{jhp_hs_graphics:{preset:'potato',dynamic:false,retro:true,showFps:true}},timeoutScale:4,debug:true});
  const {page:p,view,until,errors}=f;p.setDefaultTimeout(120000);
  try{
   const migrated=await p.evaluate(()=>({gfx:localStorage.getItem('jhp_hs_gfx'),graphics:localStorage.getItem('jhp_hs_graphics'),fps:localStorage.getItem('jhp_hs_fps'),g:House.graphicsGet(),menu:typeof window.HouseGraphicsMenu}));
@@ -18,7 +20,9 @@ await withTestServer(async base=>{
   await p.evaluate(()=>{House.hush();window.stage0Ambient=[...House.ambient];House.ambient.clear();House._.setMode('focus');House.adapt(0,{pin:true,force:true})});
   // Sharp at every size: the drawing buffer is the CSS size times the device pixels (1 here), never a downscale.
   for(const [width,height]of [[1366,860],[2560,1440],[390,844],[844,390]]){
-   await p.setViewportSize({width,height});await p.waitForTimeout(250);
+   await p.setViewportSize({width,height});
+   // Wait for the house's resize handler, rather than racing it after 250 ms.
+   await until(([w,h])=>House.ren.domElement.width===w&&House.ren.domElement.height===h,[width,height]);
    const state=await p.evaluate(()=>{House._.renderForBenchmark();return{w:House.ren.domElement.width,h:House.ren.domElement.height,css:[House.ren.domElement.clientWidth,House.ren.domElement.clientHeight],pr:House.Q.pixelRatio,points:House.scene.children.concat(House.root.children).filter(o=>o.isPointLight&&o.visible).length,rate:House.screenRate(false),viewport:House.ren.getViewport(new THREE.Vector4()).toArray(),scissorTest:House.ren.getScissorTest(),render:getComputedStyle(House.ren.domElement).imageRendering}});
    assert.equal(state.pr,1,JSON.stringify(state));assert.equal(state.w,state.css[0],JSON.stringify(state));assert.equal(state.h,state.css[1],JSON.stringify(state));
    assert.deepEqual(state.viewport,[0,0,width,height],'Warm-up restored the full viewport');assert.equal(state.scissorTest,false,'Warm-up scissor was disabled');
@@ -77,14 +81,44 @@ await withTestServer(async base=>{
   await p.screenshot({path:shots+'graphics-counter.png'});
   console.log('PERF reload starting');await p.reload({waitUntil:'domcontentloaded'});console.log('PERF reload DOM ready');await until(()=>AccountGate.allowed&&House.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
   console.log('PERF resumed house ready');assert.equal(await p.evaluate(()=>House.graphicsGet().showFps),true,'Lost the counter');await p.evaluate(()=>House.showFps(false));
-  // No room GPU work once artwork decoding and all visual animation have settled.
-  // The loading panel has a bounded timeout; late SVG covers may still finish and correctly request a draw.
-  await p.evaluate(()=>{StoryGuide.setting('off');House.ambient.clear();House.anims.clear();House._.setMode('focus');House.hush();window.idleDraws=0;window.idleLast=performance.now();window.idleStacks=[];window.originalRender=House.ren.render;House.ren.render=function(...a){idleDraws++;idleLast=performance.now();if(idleStacks.length<8)idleStacks.push(new Error().stack);return originalRender.apply(this,a)}});
-  console.log('PERF idle check starting');let settled=false;for(let i=0;i<450&&!settled;i++){settled=await p.evaluate(()=>performance.now()-idleLast>3000);if(!settled)await p.waitForTimeout(200)}assert(settled,'Room never became idle after artwork loading');
-  await p.evaluate(()=>{idleDraws=0;idleStacks=[]});await p.waitForTimeout(1900);
-  const idle=await p.evaluate(()=>({draws:idleDraws,stacks:idleStacks,mode:House.mode,anims:[...House.anims.keys()],ambient:House.ambient.size}));console.log('IDLE CHECK',JSON.stringify(idle));assert.equal(idle.draws,0,'Settled idle room drew');await p.evaluate(()=>House.ren.render=originalRender);
+  // perf().frames counts only loop-requested house draws. Renderer calls also
+  // include shader warm-ups, benchmark helpers and the watchdog's pixel sample.
+  // Artwork may finish after the loading panel's deadline: require a complete
+  // quiet window, restarting it for late draws, within a bounded settling budget.
+  await p.evaluate(()=>{StoryGuide.setting('off');House.ambient.clear();House.anims.clear();House._.setMode('focus');House.hush()});
+  console.log('PERF idle check starting');
+  const idle=await p.evaluate(()=>new Promise(resolve=>{
+   const start=performance.now(),initial=House.perf().frames,render=House.ren.render;let last=start,frames=initial,quietTicks=0,restarts=0,rendererCalls=0;
+   House.ren.render=function(...args){rendererCalls++;return render.apply(this,args)};
+   function sample(now){
+    const next=House.perf().frames;
+    if(next!==frames||House.anims.size||House.ambient.size){last=now;quietTicks=0;restarts++;}
+    else quietTicks++;
+    frames=next;
+    // Enough callbacks as well as wall time: a starved or stopped loop cannot
+    // masquerade as an idle room simply because Node's sleep expired.
+    const settled=now-last>=3000+1900&&quietTicks>=12;
+    if(settled||now-start>=90000){House.ren.render=render;resolve({settled,loopDraws:frames-initial,rendererCalls,restarts,quietTicks,quietMs:now-last,elapsed:now-start,mode:House.mode,anims:[...House.anims.keys()],ambient:House.ambient.size})}
+    else requestAnimationFrame(sample);
+   }
+   requestAnimationFrame(sample);
+  }));
+  console.log('IDLE CHECK',JSON.stringify(idle));assert(idle.settled,'Settled idle room drew or never settled: '+JSON.stringify(idle));
   // Pacing: measured in a tiny buffer so software fill does not conceal it; never above the 120 Hz desktop cap.
-  const pacing=await p.evaluate(()=>new Promise(resolve=>{House.ren.setPixelRatio(1);House.ren.setSize(64,48,false);const start=performance.now(),initial=House.perf().frames;House.anims.set('stage0-cap',()=>true);setTimeout(()=>{House.anims.delete('stage0-cap');resolve({frames:House.perf().frames-initial,elapsed:performance.now()-start})},1600)}));assert(pacing.frames<=pacing.elapsed/1000*121+2,JSON.stringify(pacing));assert(pacing.frames>=10,'The loop kept drawing: '+JSON.stringify(pacing));
+  const pacing=await p.evaluate(()=>new Promise(resolve=>{
+   House.ren.setPixelRatio(1);House.ren.setSize(64,48,false);
+   const start=performance.now(),initial=House.perf().frames;let callbacks=0;
+   House.anims.set('stage0-cap',()=>true);
+   function sample(){
+    callbacks++;const elapsed=performance.now()-start,frames=House.perf().frames-initial;
+    // Give a starved browser enough opportunities, not an arbitrarily lower
+    // frame minimum. A house loop that skips healthy RAFs still fails below.
+    if(elapsed>=1600&&callbacks>=12||elapsed>=30000){House.anims.delete('stage0-cap');resolve({frames,callbacks,elapsed})}
+    else requestAnimationFrame(sample);
+   }
+   requestAnimationFrame(sample);
+  }));
+  assert(pacing.frames<=pacing.elapsed/1000*121+2,JSON.stringify(pacing));assert(pacing.frames>=10,'Animating house loop did not draw ten frames: '+JSON.stringify(pacing));
   assert.deepEqual(errors,[]);console.log('ONE LOOK PASS: options removed + migrated, sharp buffers, full textures, merged/self-healing statics, live screens, ladder, hidden counter, idle GPU work and pacing.',JSON.stringify({merge,ladder,pacing}));
  }finally{await f.browser.close()}
 });

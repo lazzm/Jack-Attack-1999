@@ -2,6 +2,7 @@
 // 1999 clock. Registers the owner account "Jack" (admin endpoint), so use disposable localhost data only:
 //   cd app && PORT=18197 DATA_DIR=/tmp/jhp-hw ADMIN_TOKEN=testtoken node server.js
 //   cd tests && node events-halloween.mjs http://localhost:18197
+// Add --tin-only to repeat the cupboard pickup/bowl and their exact ledger payments under load.
 // Checks: off on 10 Oct; decorations on 31 Oct; the porch light; filling the bowl; {sister}'s decorations; the full six-step
 // pumpkin carve with real mouse drags; trick-or-treaters answered at the front door (allergy refusal included); rewards paid
 // once only (also across the owner's "start again"); a refresh keeps everything; the morning-after wrappers; off again.
@@ -12,6 +13,7 @@ import {roomFixture} from './room-fixture.mjs';
 import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 import {reconcileRupees} from './rupee-ledger.mjs';
 const base=process.argv[2]||'http://localhost:18197';
+const tinOnly=process.argv.includes('--tin-only');
 assert(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Throwaway localhost server only');
 const shots=new URL('./shots/halloween/',import.meta.url).pathname;await mkdir(shots,{recursive:true});
 const password='Throwaway-1999',GY=353,EID='halloween99';
@@ -72,8 +74,18 @@ try{
  log('porch light: ok');
 
  // ---- 3. fill the bowl from the tin under the stairs
- await page.evaluate(()=>House.setDoor('cupboard',true,true));await page.waitForTimeout(400);
- await aim([383,GY-90,417],[348,GY-8,422]);await key('e');
+ await page.evaluate(()=>House.setDoor('cupboard',true,true));
+ await until(()=>House.DOORS.cupboard.open&&House.DOORS.cupboard.ang===1&&!House.anims.has('door:cupboard'));
+ await aim([383,GY-90,417],[348,GY-8,422]);
+ // The immediate door open has no animation to sleep through. Its world
+ // matrices, cupboard visibility and walking eye update on a house frame.
+ // E uses the actual centre ray: wait for that ray to reach the tin, rather
+ // than spending the whole timeout waiting for a pickup that already missed.
+ const tinAim=await page.evaluate(()=>{House.dirty();const hit=House.pick(innerWidth/2,innerHeight/2);return{frame:House.perf().frames,pick:hit?.spot,dist:hit?.dist,door:House.DOORS.cupboard.ang,eye:House.W.eyeNow,busy:House.busy,position:[House.P.x,House.P.y,House.P.z]}});
+ log('tin aim',JSON.stringify(tinAim));
+ await until(frame=>House.perf().frames>frame&&House.mode==='walk'&&!House.gliding&&!House.busy&&!House.ui.modalOpen()&&House.pick(innerWidth/2,innerHeight/2)?.spot==='hw.tin',tinAim.frame);
+ log('tin ready',await page.evaluate(()=>({frame:House.perf().frames,door:House.DOORS.cupboard.ang,eye:House.W.eyeNow,pick:House.pick(innerWidth/2,innerHeight/2)?.spot})));
+ await key('e');
  await until(()=>House.held()==='hw.tin');
  await aim([262,GY-EYE,640],[224,GY-70,663]);await key('e');
  await until(()=>!!Season.st('halloween99').obj['hw-bowl']);
@@ -82,6 +94,11 @@ try{
  await aim([290,GY-120,610],[224,GY-66,668]);await shot('03-sweets-bowl');
  log('bowl: ok');
 
+ if(tinOnly){
+  const rows=auditMoney(await economy(),15,'Halloween porch and tin');
+  assert.deepEqual(rows.filter(r=>r[2]==='season').map(r=>r[1]),[5,10],'exact porch and bowl payments');
+  assert.deepEqual((await st()).paid,{'hw-lights':5,'hw-bowl':10},'each completed objective paid once');
+ }else{
  // ---- 4. {sister}'s decorations: five things to five glowing places
  const places={bat:[[268,GY-EYE,470],[268,GY-250,420]],web:[[250,GY-EYE,130],[216,GY-255,71]],spider:[[260,GY-EYE,300],[208.6,GY-182,300]],lantern:[[-180,GY-EYE,442],[-239,GY-116,442]],ghost:[[-60,GY-EYE,640],[-60,180,686]]};
  for(const [id,[eye,target]] of Object.entries(places)){
@@ -199,6 +216,7 @@ try{
  assert(await page.evaluate(()=>!House.THINGS['hw.bowl']&&!House.SPOTS['hw.porch']&&Object.values(Halloween.DEC).every(d=>!d.group.visible)),'all gone on 2 Nov');
  await aim([300,GY-150,560],[300,GY-90,700]);await shot('16-off-2nov');
  log('off again: ok');
+ }
  await owner('clock',{clear:true});
  const bad=errors.filter(e=>!/GPU stall|ReadPixels|favicon/.test(e));
  assert.deepEqual(bad,[],'console errors');
