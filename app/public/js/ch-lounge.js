@@ -205,7 +205,7 @@
     const tex = K.tex('ch.cush' + i, 128, 128, (q, w, h) => { q.fillStyle = c1; q.fillRect(0, 0, w, h); q.strokeStyle = c2; q.lineWidth = 6; for (let k = -2; k < 6; k++) { q.beginPath(); q.moveTo(k * 32, 0); q.lineTo(k * 32 + 128, 128); q.stroke(); } q.fillStyle = c2; q.beginPath(); q.arc(64, 64, 12, 0, 7); q.fill(); A.grain(q, w, h, 900, 0.08, i + 4); });
     const g = new T.Group(), body = new T.Group(); body.position.set(0, -15, 0); g.add(body); g.userData.body = body;
     const B = K.into(body), m = M({ c: '#fff', map: tex, sh: 10 });
-    B.rbox(0, 0, 0, 30, 30, 9, 4.2, m);
+    B.geo(K.softBox(30,30,9,4.2,i+2),0,0,0,m);
     const path=new T.CurvePath(),v=(x,y)=>new T.Vector3(x,y,0),a=15,r=4.2,edgePoints=[[-a+r,-a],[a-r,-a],[a,-a+r],[a,a-r],[a-r,a],[-a+r,a],[-a,a-r],[-a,-a+r]],corners=[[a,-a],[a,a],[-a,a],[-a,-a]];
     for(let k=0;k<8;k++){const p=v(...edgePoints[k]),q=v(...edgePoints[(k+1)%8]);path.add(k%2?new T.CubicBezierCurve3(p,p.clone().lerp(v(...corners[(k-1)/2]),.55228475),q.clone().lerp(v(...corners[(k-1)/2]),.55228475),q):new T.LineCurve3(p,q))}
     B.geo(new T.TubeGeometry(path,32,.2,6,true),0,0,0,mat(c2,{sh:8}));

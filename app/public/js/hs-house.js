@@ -190,7 +190,7 @@
   const ceilingSwitches=new Map();
   function exteriorLightLook(r){
     if(!r)return;const night=phase()!=='day';
-    for(const [m,on,c]of [[r.porchGlow,night,'#ffd08a'],[r.streetGlow,night,'#ffb24a'],[r.bayGlow,night&&(lit('lounge')||standardLampOn()||HouseRooms.rooms.lounge?.fireOn),'#916039']]){
+    for(const [m,on,c]of [[r.gardenPathNight,night,'#060b13'],[r.shedLatch,night,'#0b1018'],[r.porchGlow,night,'#ffd08a'],[r.streetGlow,night,'#ffb24a'],[r.bayGlow,night&&(lit('lounge')||standardLampOn()||HouseRooms.rooms.lounge?.fireOn),'#916039']]){
       if(!m)continue;m.emissive.set(on?c:'#000');m.userData.e0=m.emissive.clone();
     }
   }
@@ -1001,15 +1001,15 @@
         room.peopleSeats.push({id:n===1?'armchair':'sofa'+i,room:'lounge',lvl:'G',x:x+cx*c+2*s,z:z-cx*s+2*c,face:ry,h:45,back:true,front:33,footForward:54,support});}
       // A small compression into the deck and back pads closes the former
       // daylight joins without hiding the separate cushion silhouettes.
-      S.rbox(cx, -37, 2, cw, 16, 62, 7, m, fabric);
-      cushionPiping(S,cx,-37,2,cw+.12,62.12,7,pipe);
-      S.rbox(cx, -64, -26, cw, 44, 16, 7, m, { rx: 8, uv: 60 });
+      S.geo(K.softBox(cw,16,62,7,i+1),cx,-37,2,m,fabric);
+      cushionPiping(S,cx,-37,2,cw-.1,61.9,7,pipe);
+      S.geo(K.softBox(cw,44,16,7,i+3),cx,-64,-26,m,{rx:8,uv:60});
     }
     [-1, 1].forEach(s => {
       S.rbox(s * (w / 2 - 9), -36, 4, 18, 40, 78, 8, m, fabric);
       S.rbox(s * (w / 2 - 9), -58, 4, 20, 8, 80, 4, m, fabric);
     });
-    if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',family:'fabric'}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',family:'fabric'}),{ry:-18,rx:12,rz:-4})}
+    if(n===3){S.geo(K.softBox(26,28,10,4.5,1),-w/2+34,-58,-13,M({c:'#7a2a2a',family:'fabric'}),{ry:12,rx:12,rz:6});S.geo(K.softBox(26,28,10,4.5,4),w/2-40,-58,-13,M({c:'#c8a850',family:'fabric'}),{ry:-18,rx:12,rz:-4})}
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => S.cyl(a * (w / 2 - 10), -3, 4 + b * 34, 3, 3.6, 6, 10, M('#3a2414'))); // feet
     if (n === 1) {
       // Keep the walking footprint, but let carried objects reach the real seat
@@ -1399,6 +1399,10 @@
       const p=mesh.geometry.attributes.position,n=mesh.geometry.attributes.normal,colours=[];
       for(let i=0;i<p.count;i++){
         const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+        if(kind==='turf'){
+          const fence=Math.min(x-REAR.x0,REAR.x1-x,z-REAR.z0),edge=Math.max(0,1-fence/28),wear=z>-1315&&z<-385?Math.max(0,1-Math.abs(x+220)/16):0,patch=.025*Math.sin(x*.029+z*.019)*Math.sin(z*.041);
+          colours.push(1-edge*.17-wear*.04+patch,1-edge*.11-wear*.09+patch,1-edge*.23-wear*.12+patch);continue;
+        }
         const shade=kind==='leaf'
           ? .88+.06*Math.sin(x*.075+z*.051)*Math.sin(y*.061)+.05*Math.max(0,-n.getY(i))
           : .91+.07*Math.sin(x*.023+z*.031);
@@ -1411,16 +1415,15 @@
   const mSlab = () => M({ c: '#fff', map: K.tex('hs.slab', 256, 256, (g, w, h) => { for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.fillStyle = ['#a8a49a', '#9e9a90', '#b0aca2'][(x + y * 3) % 3]; g.fillRect(x * 64, y * 64, 64, 64); } g.strokeStyle = '#5a5a52'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 64); g.lineTo(w, i * 64); g.stroke(); } A.grain(g, w, h, 4000, 0.07, 64); A.mottle(g, w, h, 12, 'rgba(40,60,20,.15)', 30, 65); }) });
   const mBrick=()=>M({c:'#fff',map:K.tex('hs.brick.v2',256,256,(g,w,h)=>{g.fillStyle='#a69b87';g.fillRect(0,0,w,h);const r=K.rnd(66);for(let y=0;y<24;y++)for(let x=-1;x<9;x++){g.fillStyle=['#98664e','#a26d51','#936049','#ac7859'][(r()*4)|0];g.fillRect(x*32+(y%2)*16+.7,y*h/24+.7,30.6,h/24-1.4)}A.grain(g,w,h,1500,.06,66)})});
   const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.07)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); }for(let n=0;n<950;n++){const x=r()*w,y=r()*h,size=1+r()*2.7;g.fillStyle=['#626362','#383b3b','#75736b'][n%3];g.beginPath();g.moveTo(x,y);g.lineTo(x+size,y+.2);g.lineTo(x+size*.7,y+size*.8);g.lineTo(x-.3,y+size*.7);g.closePath();g.fill()}g.strokeStyle='rgba(27,29,28,.7)';g.lineWidth=.7;g.beginPath();g.moveTo(0,86);g.lineTo(34,79);g.lineTo(51,92);g.lineTo(89,89);g.moveTo(34,79);g.lineTo(38,61);g.stroke(); }) });
-  function tree(B, x, z, hgt, spread) {
-    const trunk=M({c:'#fff',map:tex('oak'),family:'rawWood'}),leaf=M({c:'#436d35',vc:true,sh:2});leaf.userData.nature='leaf';
-    // Flared roots and a tapered trunk that forks into the overlapping crown.
-    const roots=new T.LatheGeometry([[0,-hgt*.65],[6,-hgt*.63],[9,-35],[12,-8],[16,0],[0,0]].map(([r,y])=>new T.Vector2(r,y)),10);
-    B.geo(roots,x,GY,z,trunk,{uv:45});
-    for(const [dx,dz,angle]of [[-15,-7,-24],[17,8,27]])B.cyl(x+dx,GY-hgt*.6,z+dz,3.2,6,hgt*.27,7,trunk,{rz:angle});
-    for(let i=0;i<10;i++){
-      const a=i*2.4,ring=i<7?spread*.57:spread*.23,rr=spread*(.63+(i%3)*.075);
-      B.ball(x+Math.cos(a)*ring,GY-hgt*.83+(i<7?Math.sin(i*1.7)*spread*.2:-spread*.48),z+Math.sin(a)*ring,rr,rr*.88,rr*.93,leaf,12);
+  function treeFoliage(){return K.tex('hs.tree.foliage',128,128,(g,w,h)=>{
+    const r=K.rnd(723);g.fillStyle='#b9c49d';g.fillRect(0,0,w,h);
+    for(let i=0;i<1350;i++){
+      const x=r()*w,y=r()*h,a=r()*Math.PI;g.fillStyle=['#97ab80','#cdd3ac','#acbb8c','#859b71'][i%4];g.beginPath();g.ellipse(x,y,1.4+r()*1.6,.6+r()*.5,a,0,Math.PI*2);g.fill();
     }
+  })}
+  function tree(B, x, z, hgt, spread, species=0,foliage=null) {
+    const trunk=M({c:species===1?'#d3c7a3':'#a8916d',map:tex('oak'),family:'rawWood'}),leaf=M({c:'#729452',vc:true,sh:2,map:treeFoliage()});leaf.userData.nature='leaf';
+    K.branchingTree(B,x,GY,z,hgt,spread,trunk,leaf,species,true,foliage);
     B.shadow(x,GY,z,spread*2.5,spread*2.5,.36);
   }
   let exteriorRoof=null;
@@ -1487,10 +1490,11 @@
     const batch = K.batch(), B = K.into(batch);
     const {x0,x1,z0,z1} = REAR; // (behind the kitchen; the extension rear wall is z = -176)
     r.wheelie=REAR.wheelie;r.waterButt=REAR.butt;
-    B.box((x0+x1)/2,GY+2,(z0+z1)/2,x1-x0,4,z1-z0,mGrass(),{uv:110});
+    const edgeTurf=mGrass().clone();edgeTurf.vertexColors=true;edgeTurf.userData.nature='turf';
+    B.geo(new T.BoxGeometry(x1-x0,4,z1-z0,26,1,30),(x0+x1)/2,GY+2,(z0+z1)/2,edgeTurf,{uv:110});
     B.box((205+x1)/2,GY+2,(z1-56)/2,x1-205,4,-56-z1,mGrass(),{uv:110});
     // Patio, 90 cm path, shed apron and the short turn joining path to patio. Adjacent edges share no faces.
-    const paving=mSlab();for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
+    const paving=r.gardenPathNight=mSlab().clone();for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
     // Original upper rear elevation; the kitchen below now projects 1.2 m under a shallow felt roof.
     solidWall(B,60,-62.6,180,[[-360,-196],[360,-196],[360,94],[-360,94]],mBrick(),.8,[...REAR.bedroomWindows.map(w=>[[w.x0-60,w.y0],[w.x1-60,w.y0],[w.x1-60,w.y1],[w.x0-60,w.y1]]),[[210,-137],[320,-137],[320,-14],[210,-14]]]);
@@ -1565,12 +1569,13 @@
     for(const [x,z]of [[-318,-186],[-306,-186],[428,-69]])for(let j=0;j<3;j++)B.ball(x+(j-1)*2.1,GY-3-(j%2)*1.5,z,1.5,4+j,1.2,weed,5,{rz:(j-1)*23});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
     const sh=B.at(REAR.shed.x,GY,REAR.shed.z,0,{sx:1.2,sy:.9}),shw=shedWood();
+    r.shedLatch=M({c:'#a0a597',sh:30,sp:'#505448'}).clone();exteriorLightLook(r);
     sh.geo(new T.BoxGeometry(150,200,120,1,6,1),0,-100,0,shw,{uv:60});
     const gable=new T.Shape();gable.moveTo(-75,-200);gable.lineTo(0,-221);gable.lineTo(75,-200);gable.closePath();sh.geo(new T.ExtrudeGeometry(gable,{depth:120,bevelEnabled:false}),0,0,-60,shw,{uv:60});
     const roof=new T.Shape();roof.moveTo(-81,-200);roof.lineTo(0,-224);roof.lineTo(81,-200);roof.lineTo(81,-194);roof.lineTo(0,-218);roof.lineTo(-81,-194);roof.closePath();sh.geo(new T.ExtrudeGeometry(roof,{depth:132,bevelEnabled:false}),0,0,-66,M({c:'#3d4140',sh:5}));
-    sh.box(20, -99, 61, 63.33, 194.4, 3, shw, { uv: 60 }); sh.box(20, -99, 63, 59, 186, 1, shedWood()); sh.box(50, -90, 64, 3, 10, 2, mMetal);
+    sh.box(20, -99, 61, 63.33, 194.4, 3, shw, { uv: 60 }); sh.box(20, -99, 63, 59, 186, 1, shedWood()); sh.box(50, -90, 64, 3, 10, 2, r.shedLatch);
     sh.box(-48,-120,60.5,30,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-64,-32])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-48,y,61.5,30,2,2,mWhite);sh.box(-48,-120,61.8,1.5,36,1,mWhite);
-    for(const y of [-160,-40]){sh.box(-10,y,63,9,2,1,mMetal);sh.cyl(-12,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
+    for(const y of [-160,-40]){sh.box(-10,y,63,9,2,1,mMetal);sh.cyl(-12,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,r.shedLatch);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
     const washingBatch=K.batch(),wl=K.into(washingBatch).at(REAR.dryer.x,GY,REAR.dryer.z);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
     for(let i=0;i<4;i++)wl.geo(new T.TorusGeometry(40+i*28,.5,4,32),0,-196+i*4,0,M('#ddd'),{rx:90});
@@ -1614,9 +1619,16 @@
     for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
     const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',family:'outdoorPlastic'}));wbt.cyl(0,-91,0,27,27,2,28,M({c:'#24482c',family:'outdoorPlastic'}));
     for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);
-    tree(B,330,-1335,250,58); tree(B,90,-1400,240,55);
+    // A spreading old apple and a slender pear: different branch rhythms and crowns.
+    const foliage=[];tree(B,330,-1335,250,62,0,foliage);tree(B,90,-1400,275,48,2,foliage);
+    const shrub=M({c:'#729452',vc:true,sh:2,map:treeFoliage()});shrub.userData.nature='leaf';
+    for(const [x,z,w,h]of [[382,-1438,30,37],[351,-1445,35,25],[168,-1442,32,30],[199,-1441,24,23]]){
+      foliage.push({matrix:K.xform(B.base,x,GY-h*.74,z,{sx:w,sy:h,sz:w*.76,ry:x}),seed:Math.round(x)});B.shadow(x,GY,z,w*2,w*1.6,.36);
+      H.block('G',x-w*.5,z-w*.4,x+w*.5,z+w*.4,{top:GY-h*1.74});
+    }
     B.box(-10,GY-1,-181,410,2,2,M('#6a6a62')); // grounded edging, not a floating bar
     natureColours(batch.build(r.group));
+    r.group.add(K.foliageInstances(foliage,shrub));
     H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',REAR.shed.x,GY-90,REAR.shed.z,180,180,120);
     H.spot('hs.wheelie', { label: 'The wheelie bin', act: sayLines('hs.wheelie', 'The wheelie bin', ['Bin day is Tuesday. Dad wheels it out at 6am like it\'s a race.', 'It smells. It always smells. Don\'t open it.']) });pickBox(r,'hs.wheelie',r.wheelie.x,GY-55,r.wheelie.z,60,116,82);
     H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', REAR.dryer.x, GY - 150, REAR.dryer.z, 190, 110, 190);
@@ -2047,7 +2059,7 @@
       lastPhase = ph;
       for (const t of phaseTextures) t.userData.repaintPhase();
       const drive = HouseRooms.rooms.drive;
-      exteriorLightLook(drive);
+      exteriorLightLook(drive);exteriorLightLook(HouseRooms.rooms.garden);
       const cupboard = HouseRooms.rooms.cupboard; if (cupboard) cupLight(cupboard);
       standardLampLook(HouseRooms.rooms.lounge);
       switchLook();

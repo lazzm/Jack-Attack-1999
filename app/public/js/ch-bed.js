@@ -366,11 +366,14 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       const x = duvBase[i * 2], y = duvBase[i * 2 + 1], u = x / W + 0.5, v = y / L + 0.5;
       // the way it was left (js/rm-room.js draws exactly this), and the way Mom wants it
       let base = -Math.sin(u * Math.PI) * 6; if (u < 0.08) base += (0.08 - u) * 190; if (u > 0.94) base += (u - 0.94) * 140;
-      const wr = -Math.sin(v * 9 + u * 5) * 3.5 - Math.sin(u * 13 - v * 4) * 2.8;
+      const wr = -Math.sin(v*9+u*5)*3.1-Math.sin(u*13-v*4)*2.2;
+      const hem=Math.pow(Math.abs(u-.5)*2,8),fold=Math.sin(v*18+u*4)*hem*1.1;
+      base+=fold;
       let neat = -Math.sin(u * Math.PI) * 2.6 - 0.6; if (u < 0.07) neat += (0.07 - u) * 240; if (u > 0.95) neat += (u - 0.95) * 160; if (v > 0.97) neat += (v - 0.97) * 90;
       const b = Math.max(0, Math.min(1, duvK.s * .55 + duvK.f * .45));
       const y2 = base + (neat - base) * b + wr * (1 - duvK.t) * (1 - 0.5 * b) - duvK.lift * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
-      p.setY(i,y+(1-duvK.s)*22*(1-v));
+      const edge=Math.pow(Math.abs(u-.5)*2,10),slump=Math.sin(v*10+1.2)*edge*1.5;
+      p.setX(i,x+slump);p.setY(i,y+(1-duvK.s)*22*(1-v)+Math.sin(u*8+.6)*Math.pow(v,12)*1.2);
       p.setZ(i,-y2+(duv.geometry.attributes.clothDepth?.getX(i)||0));
     }
     p.needsUpdate=true;duv.geometry.computeVertexNormals();duv.geometry.computeBoundingSphere();duv.geometry.boundingBox=null;H.softChanged?.('bedroom');H.dirty();
@@ -490,13 +493,13 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       // the duvet: ours now (the room's own one, which is exactly the same shape, is hidden)
       const dtex = A.t('duvet');
       r.group.traverse(o => { if (o.isMesh && o.material && o.material.map === dtex && !o.userData.ch) o.visible = false; });
-      const W=bw+14,L=bl-34,geo=K.thicken(new T.PlaneGeometry(W,L,22,30),.8);
+      const W=bw+14,L=bl-34,geo=K.thicken(new T.PlaneGeometry(W,L,22,30),1.5);
       duvBase = new Float32Array(geo.attributes.position.count * 2);
       for (let i = 0; i < geo.attributes.position.count; i++) { duvBase[i * 2] = geo.attributes.position.getX(i); duvBase[i * 2 + 1] = geo.attributes.position.getY(i); }
       const g = new T.Group(); r.group.add(g);
       duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; duv.userData.spot = 'bed'; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
       // The bed's only pillow starts on the floor, beside the pyjamas.
-      const pil = grp(G => { G.rbox(0, -5.5, 0, 75, 11, 50, 5.2, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -8, 0, 33, 4.1, 21, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 81, 56, 0.5, { sq: true }); });
+      const pil = grp(G => { G.geo(K.softBox(75,12.1,50,5.2,2),0,-6.05,0,M({c:'#fff',map:A.t('pillow'),sh:3})); G.shadow(0, 0, 0, 81, 56, 0.5, { sq: true }); });
       pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: () => CK.has('bed','pillow') || V().pillowDocked ? 'Pillow' : 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
       loosePjs = cloth('pjs', 34, 32);
       foldedPjs = grp(G => {

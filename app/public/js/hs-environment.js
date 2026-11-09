@@ -171,19 +171,26 @@
  const homes=[];
  function windowBay(b,x,y,z,ry,w,h,n){
   const f=b.at(x,y,z,ry),lit=n%4===1;
-  f.box(0,0,1,w,h,2,metal);
+  // The glass sits at the back of a thick reveal. Pale outer joinery, dark
+  // inner cheeks and an overhanging sill make the depth readable obliquely.
+  f.box(0,0,1,w+3,h+3,2,metal);
   f.box(0,-h*.23,2.7,w-10,h*.46-5,1.4,lit?occupied:glass);
   f.box(0,h*.23,2.7,w-10,h*.46-5,1.4,lit?occupied:glassShade);
   for(const side of [-1,1]){
-   f.box(side*(w/2-2.5),0,5,5,h,6,trim);
-   f.box(0,side*(h/2-2.5),5,w-10,5,6,trim);
-   f.box(side*(w/2-12),0,3.9,12,h-10,1,n%3?trim:leaf);
+   f.box(side*(w/2-2.5),0,7,5,h,12,trim);
+   f.box(0,side*(h/2-2.5),7,w-10,5,12,trim);
+   // Unequal drawn curtains with folds, leaving a generous central opening.
+   const cw=side<0?9+n%3*3:14-n%3*2;
+   const fold=new T.Shape();fold.moveTo(-cw/2,0);fold.lineTo(cw/2,0);fold.lineTo(0,1.7);fold.closePath();
+   const curtain=new T.ExtrudeGeometry(fold,{depth:h-10,bevelEnabled:false});curtain.rotateX(Math.PI/2);curtain.translate(0,(h-10)/2,0);
+   f.geo(curtain,side*(w/2-6-cw/2),0,4.1,n%3===0?render:trim);curtain.dispose();
   }
-  f.box(0,0,5,4,h-10,6,trim);f.box(0,-h*.12,5,w-10,4,6,trim);
-  f.box(0,h/2+3,5,w+12,6,18,paving);
-  f.box(0,-h/2-6,1,w+14,7,10,paving);
+  f.box(0,0,8,4,h-10,12,trim);f.box(0,-h*.12,8,w-10,4,12,trim);
+  f.box(0,h/2+3,10,w+16,7,28,paving);
+  f.box(0,-h/2-6,4,w+14,7,16,paving);
  }
- function tree(b,x,z,h,n){
+ function tree(b,x,z,h,n,near=false){
+  if(near){const species=Math.floor(n/3)%3;K.branchingTree(b,x,0,z,h,species===1?81:110,species===1?fence:earth,n%2?leaf:hedge,species);return;}
   b.cyl(x,-h*.33,z,7,13,h*.66,7,earth);
   for(const side of [-1,1])b.cyl(x+side*22,-h*.61,z,4,7,h*.26,6,earth,{rz:side*28});
   // Unequal overlapping crowns read as one branching tree, not a stack of balls.
@@ -226,7 +233,10 @@
   for(const xx of [cx-10,cx+10]){b.cyl(xx,chimTop-17,cz,6,8,26,8,earth);b.cyl(xx,chimTop-31,cz,8,8,4,8,metal)}
   for(const side of [-1,1]){
    const dx=side*(wallHalf-10),dz=-face-5;
-   b.cyl(dx,-eave/2,dz,3,3,eave,7,metal);
+   const pipeZ=side<0?face+7:dz;
+   b.cyl(dx,-eave/2,pipeZ,3,3,eave,7,metal);
+   b.box(dx,-7,pipeZ+3,7,10,14,metal);
+   if(side<0)for(const yy of [-90,-eave+25])b.box(dx,yy,face+3,10,3,9,metal);
    // A wider double casement on the upper floor and two rear sash windows.
    windowBay(b,side*w*.24,-eave+110,face+(type===1?1:0),0,type===3?112:98,104,n+(side===1?1:0));
    for(const yy of [-135,-eave+110])windowBay(b,side*w*.24,yy,-face,180,86,102,n+2);
@@ -242,8 +252,12 @@
   }else windowBay(b,bayX,-135,face,0,type===1?142:96,112,n);
   if(type===2)windowBay(b,w*.25,-135,face,0,86,112,n+1);
   const entry=b.at(doorX,0,face);
-  entry.box(0,-101,3,82,202,6,trim);entry.box(0,-99,7,70,196,4,[door,metal,roof,leaf][n%4]);
+  entry.box(0,-101,5,88,202,10,metal);
+  for(const side of [-1,1])entry.box(side*40,-102,12,8,204,16,trim);
+  entry.box(0,-202,12,88,8,16,trim);
+  entry.box(0,-99,7,70,196,4,[door,metal,roof,leaf][n%4]);
   entry.box(0,-153,10,48,64,2,glassShade);entry.box(0,-59,10,48,50,2,door);
+  for(const xx of [-14,14]){entry.box(xx,-59,11.4,23,52,1.2,metal);entry.box(xx,-59,12.2,19,46,1,door)}
   entry.box(0,-101,12,24,4,3,trim);entry.cyl(25,-91,12,2,2,3,7,trim,{rx:90});
   entry.box(0,-3,24,96,6,62,paving);
   // Solid coach lantern: dark backplate/cap surround a warm glass chamber.
@@ -280,7 +294,7 @@
   }
   const bedX=-w*.24,bedZ=face+105;
   b.box(bedX,-2,bedZ,160,4,66,earth);
-  for(let i=0;i<3;i++)b.ball(bedX-52+i*52,-22,bedZ,29,23+(i%2)*8,27,i%2?leaf:hedge,7);
+  for(let i=0;i<3;i++)b.geo(K.canopy(i+n),bedX-52+i*52,-22-(i%2)*6,bedZ+(i-1)*5,i%2?leaf:hedge,{sx:29,sy:23+(i%2)*8,sz:27,ry:i*53+n*31});
   if(type===1||type===3){
    b.box(wallHalf-38,-33,face+55,34,62,38,door);b.box(wallHalf-38,-66,face+55,38,5,42,metal);
    for(const xx of [wallHalf-53,wallHalf-23])b.cyl(xx,-6,face+41,6,6,5,7,metal,{rz:90});
@@ -297,7 +311,7 @@
     b.box(side*322,-68,zz,12,136,12,fence);b.box(side*322,-138,zz,15,4,15,fence);
    }
   }
-  if(n%3===0)tree(b,-240,-face-105,365+(n%2)*60,n);
+  if(n%3===0)tree(b,-240,-face-105,365+(n%2)*60,n,true);
  }
  // All front boundary walls sit 20cm inside the footpath edge. The varied roof
  // directions and restrained palette make one estate, rather than clone rows.
@@ -416,7 +430,19 @@
   for(const [x,z,h,grade]of [[2250,3200,510,1],[3200,3500,560,6],[-2260,3190,490,1],[-650,-3410,520,1],[820,-3480,480,6],[2140,-3250,540,1],[-2650,-1450,460,1]])tree(b.at(0,GY+grade,0),x,z,h,2);
   cornerShop(b);green(b)});
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
- group.traverse(o=>{o.userData.noPick=true;if(!o.geometry)return;const n=o.geometry.attributes.normal,colours=new Float32Array(n.count*3);for(let i=0;i<n.count;i++){const p=o.geometry.attributes.position,y=p.getY(i),contact=1-.16*Math.max(0,Math.min(1,(y-(GY-70))/70)),shade=(.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light)))*contact;colours.fill(shade,i*3,i*3+3)}o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;});
+ group.traverse(o=>{
+  o.userData.noPick=true;if(!o.geometry)return;
+  const n=o.geometry.attributes.normal,p=o.geometry.attributes.position,colours=new Float32Array(n.count*3),wall=[masonry,paleBrick,render].includes(o.material);
+  for(let i=0;i<n.count;i++){
+   const x=p.getX(i),y=p.getY(i),z=p.getZ(i),contact=1-.16*Math.max(0,Math.min(1,(y-(GY-70))/70)),shade=(.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light)))*contact;
+   // Near masonry has modest whole-house colour differences, in the existing
+   // vertex bake: no extra materials, maps, lighting or animation work.
+   const home=wall?homes.findIndex(h=>Math.abs(x-h.x)<=h.width/2+22&&Math.abs(z-h.z)<=h.depth/2+55):-1;
+   const tint=home<0?[1,1,1]:[[1,.98,.95],[.94,.97,1],[1,.96,.91],[.97,1,.96]][home%4];
+   for(let c=0;c<3;c++)colours[i*3+c]=shade*tint[c];
+  }
+  o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;
+ });
 
  // Painted sodium falloff, clipped to each receiving surface and batched once.
  // No blur, real lights, moving buffers or per-frame work; depth testing stays on.
