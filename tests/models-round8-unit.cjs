@@ -10,18 +10,18 @@ const step=(r,n=1)=>{for(let i=0;i<n;i++){clock+=1000/60;r.update(1/60,true)}};
 const frame=r=>{r.group.updateMatrixWorld(true);r.mesh.skeleton.update()};
 const point=(r,k,p=new T.Vector3())=>r.bones[k].localToWorld(p);
 const report={beats:[],props:[],pivots:[]};
-assert.equal(Object.keys(w.NPCBeats).length,80);
+assert.equal(Object.keys(w.NPCBeats).length,133);
 for(const [id,direction]of Object.entries(w.NPCBeats)){
- const text=w.VoiceLines[id][1],r=w.NPCRig.create(w.VoiceLines[id][0],{tier:'low'});let source=-.3;
- const v={lineId:id,dur:direction.dur+.83,nameId:'fixture',nameDur:.73,started:true,ended:false,level:()=>.65,progress:()=>Math.max(0,(source+.83)/v.dur),sourceTime:()=>source};
+ const text=w.VoiceLines[id][1],r=w.NPCRig.create(w.VoiceLines[id][0],{tier:'low'});let source=-.3, textProgress=0;
+ const v={lineId:id,dur:direction.dur+.83,nameId:'fixture',nameDur:.73,started:true,ended:false,level:()=>.65,progress:()=>direction.file?Math.max(0,(source+.83)/v.dur):textProgress,sourceTime:()=>source};
  r.talk(v.dur*1000,text,v,w.VoiceDirections[id]);step(r,30);assert.equal(r.st.directed,direction);assert.equal(r.st.beatSmile,0,id+' acts over the joined name');
  for(const [kind,a,b,fraction,anchor]of direction.beats){
   assert(a>=0&&a<=direction.dur&&b>a&&fraction>=0&&fraction<=1,id+' invalid authored window');assert(text.toLowerCase().includes(anchor.toLowerCase()),id+' missing anchor');
-  source=a-.01;step(r,1);const before=kind==='joke'||kind==='warm'?r.st.beatSmile:kind==='question'?r.st.beatBrow:r.st.beatNod;
-  source=Math.min(a+.16,(a+b)*.5);step(r,30);const value=kind==='joke'||kind==='warm'?r.st.beatSmile:kind==='question'?r.st.beatBrow:kind==='thought'?r.st.beatThought:kind==='firm'?r.st.beatFirm:r.st.beatNod;
+  source=a-.01;textProgress=Math.max(0,fraction-.01/v.dur);step(r,1);const before=kind==='joke'||kind==='warm'?r.st.beatSmile:kind==='question'?r.st.beatBrow:r.st.beatNod;
+  source=Math.min(a+.16,(a+b)*.5);textProgress=fraction+.16/v.dur;step(r,30);const value=kind==='joke'||kind==='warm'?r.st.beatSmile:kind==='question'?r.st.beatBrow:kind==='thought'?r.st.beatThought:kind==='firm'?r.st.beatFirm:r.st.beatNod;
   assert(value>.2,id+' '+kind+' has no directed peak');report.beats.push({id,kind,anchor,a,b,peak:value,before});
  }
- source=direction.dur+2;step(r,60);assert.equal(r.st.beatSmile,0,id+' beat never releases');
+ source=direction.dur+2;textProgress=1.2;if(!direction.file)v.ended=true;step(r,60);assert.equal(r.st.beatSmile,0,id+' beat never releases');
  r.talk(8000,text,null,w.VoiceDirections[id],id);assert.equal(r.st.directed,direction,'sound-off loses line identity');r.talk(8000,'First! '+text,null,w.VoiceDirections[id],id);assert(r.st.beatOffset>0&&r.st.beatScale<1,'silent name prefix is not accounted for');r.hush();step(r,90);assert(r.mesh.material.userData.np.npAct.value.y<.002,'hush leaks authored smile');r.dispose();
 }
 // A replaced clip must not make the audience react at stale source times.
@@ -116,4 +116,4 @@ for(const tier of ['low','potato'])for(const id of ['mom','dad','sister']){
  }
  r.dispose();
 }
-fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/r8-acting-unit.json',JSON.stringify(report,null,2));console.log('PASS 80 lines / '+report.beats.length+' source beats, joined-prefix hold, release, sound-off identity, held reading contacts, drinking, four planted wide-group pivots');
+fs.mkdirSync(__dirname+'/shots/models',{recursive:true});fs.writeFileSync(__dirname+'/shots/models/r8-acting-unit.json',JSON.stringify(report,null,2));console.log('PASS 133 lines / '+report.beats.length+' source beats, joined-prefix hold, release, sound-off identity, held reading contacts, drinking, four planted wide-group pivots');
