@@ -301,7 +301,7 @@
     B.geo(geo,0,0,0,material);
   }
   function hallCoat(B,c,h,w,type) {
-    const cloth=M({c,sh:2,sp:'#080808'}),scale=w/9.2,hood=type==='anorak'||type==='child',mac=type==='mac';
+    const cloth=M({c,map:K.tex('hs.coat.twill',128,128,(g,w,h)=>{g.fillStyle='#f3f1e9';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=3)for(let x=0;x<w;x+=3){g.fillStyle='rgba(32,28,23,.2)';g.fillRect(x,y,2,1);g.fillStyle='rgba(255,255,247,.35)';g.fillRect(x+(y%6?1:0),y+1,1,2)}},{world:7,family:'fabric'}),family:'fabric'}),scale=w/9.2,hood=type==='anorak'||type==='child',mac=type==='mac';
     B.geo(new T.TorusGeometry(2.7*scale,.55,6,12),0,0,0,cloth);
     clothBody(B,[[0,3,0,4*scale,2.4],[0,8,0,w,4.5],[0,h*.35,.6,w-(mac?2:1.2),4],[0,h-6,1,w+(mac?.8:0),5],[0,h,1,w-(mac?0:1),4.1]],cloth);
     for(const side of [-1,1]){
@@ -315,7 +315,7 @@
       B.rbox(0,3*scale,3*scale,5*scale,7*scale,.5,1,M({c:'#222b31',sh:2,sp:'#080808'}));
     }
     const front=y=>y<h*.35?4.5:4.6+(y-h*.35)/(h*.65)*1.4;
-    B.geo(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,8,4.6),new T.Vector3(0,h*.35,4.7),new T.Vector3(0,h-7,6)]),8,.25,4,false),0,0,0,cloth);
+    B.geo(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,8,4.6),new T.Vector3(0,h*.35,4.7),new T.Vector3(0,h-7,6)]),8,.25,4,false),0,0,0,mac?cloth:mDark);
     B.ball(0,8,4.6,.25,.25,.25,cloth,6);B.ball(0,h-7,6,.25,.25,.25,cloth,6);
     for(let y=mac?22:15;y<h-8;y+=mac?16:13)for(const x of mac?[-2.3,2.3]:[1])B.ball(x,y,front(y)+.15,.55,.55,.3,mDark,6);
     if(mac)B.rbox(0,h*.46,5.2,w*1.65,1.8,.8,.25,cloth);
@@ -354,10 +354,11 @@
     // The hall owns the lower portions; do not draw them twice with two rigs.
     solidWall(B,410,415,-90,[[-285,UC],[285,UC],[285,GC],[185,GC],[185,GY],[-165,GY],[-165,GC],[-285,GC]],wall,4,[[[-15,-80],[65,-80],[65,60],[-15,60]]]);
     // the landing window (frosted, bubbly 70s glass Dad never replaced)
-    B.box(414, -10, 440, .65, 140, 80, M({ c: '#fff', o: 0.62, tr: true, dw:false, sh: 26, sp: '#53635e', map: K.tex('hs.obscureglass', 128, 128, (g, w, h) => { // 1970s "bubble" obscure glass: dimples catch the light
+    B.box(414, -10, 440, .65, 140, 80, M({ c: '#fff', o: 0.62, tr: true, dw:false, family:'glass', reflect:.1, map: K.tex('hs.obscureglass', 128, 128, (g, w, h) => { // 1970s "bubble" obscure glass: dimples catch the light
       g.fillStyle = '#d4dde6'; g.fillRect(0, 0, w, h); const r = K.rnd(4410);
       for (let i = 0; i < 260; i++) { const x = r() * w, y = r() * h, rr = 2 + r() * 5, gr = g.createRadialGradient(x - rr * 0.3, y - rr * 0.3, 0, x, y, rr); gr.addColorStop(0, 'rgba(255,255,255,.55)'); gr.addColorStop(0.6, 'rgba(190,205,220,.25)'); gr.addColorStop(1, 'rgba(120,140,160,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 7); g.fill(); }
     }, { rep: [3, 5] }) }));
+    for(const z of [403.8,476.2])B.box(413.55,-10,z,.7,132,.5,K.glassEdge());
     // The common outdoor scene is visible through the frosted glass.
     [[400, -80, 440, 1, 6, 80], [400, 60, 440, 1, 6, 80], [400, -10, 400, 1, 146, 6], [400, -10, 480, 1, 146, 6]].forEach(([x, y, z, w, h, d]) => B.box(x + 8.75, y, z, 1.5, h, d, mWhite));
     B.rbox(408.5, 62, 440, 3, 3, 90, 0.8, mWhite);
@@ -569,7 +570,7 @@
     mi.rbox(0,0,1.3,40,60,2.6,.5,oak);mi.box(0,0,2.75,35,55,.5,hallMirror());
     for(const side of [-1,1]){mi.rbox(side*19,0,3.1,2,60,1.2,.3,oak);mi.rbox(0,side*29,3.1,36,2,1.2,.3,oak);}
     mi.wshadow(0,1,-.1,45,65,.24,{m:3});
-    const bag=B.at(214,GY-100,579,90),canvas=M({c:'#5a6554',sh:2,sp:'#080808'});
+    const bag=B.at(214,GY-100,579,90),canvas=M({c:'#5a6554',family:'fabric'});
     bag.rbox(0,0,1,21,30,11,3,canvas);bag.rbox(0,6,7.5,17,13,3,1.5,canvas);bag.rbox(0,-6,7,19,13,1.4,1,canvas);
     for(const x of [-6,6])bag.rbox(x,2,9.1,2,14,.7,.3,mDark);
     bag.geo(new T.TorusGeometry(3,.75,6,12,Math.PI),0,-15,0,canvas,{rz:180});
@@ -750,7 +751,7 @@
     // Low storage: paired moulded wellies and the tree carton, with real
     // soles, shafts, lid and packing straps; reuse the cupboard's paints.
     for(const z of [476,490]){
-      const boot=B.at(345,GY,z),rubber=mDark,scuff=M('#5a5a5e');
+      const boot=B.at(345,GY,z),rubber=M({c:'#29352e',map:K.tex('hs.boot.rubber',128,128,(g,w,h)=>{g.fillStyle='#d6d7ce';g.fillRect(0,0,w,h);const r=K.rnd(515);for(let n=0;n<1100;n++){g.fillStyle=n%3?'rgba(26,34,26,.18)':'rgba(221,215,189,.22)';g.fillRect(r()*w,r()*h,.8+r()*2,.6+r())}for(let n=0;n<30;n++){const x=r()*w,y=r()*h;g.strokeStyle='rgba(234,225,194,.26)';g.lineWidth=.65;g.beginPath();g.moveTo(x,y);g.lineTo(x+2+r()*8,y+1);g.stroke()}},{world:20}),sh:7,sp:'#1d2521'}),scuff=M('#5a5a5e');
       // Rounded toe and instep extruded across the foot, with a distinct heel,
       // thick treaded outsole and tapered hollow shaft. Both boots are solid.
       boot.rbox(0,-1.3,0,22,2.6,11,1.1,rubber);boot.rbox(-7,-2.8,0,6,3,10,.6,rubber);
@@ -830,14 +831,14 @@
     r.peopleSeats=[]; // Original model surfaces for rig contacts; no extra destinations.
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallpaperLounge') });
-    shell(B, { x0: -280, z0: 305, x1: 195, z1: 700, fy: GY, cy: GC, wall, fadedSide:'s',fadedWall:M({c:'#fff',map:K.tex('hs.paper.sunfade',512,512,(q,w,h)=>{q.drawImage(tex('wallpaperLounge').image,0,0);q.fillStyle='rgba(250,244,216,.2)';q.fillRect(0,0,w,h)},{world:128,family:'plaster'})}),floor: false, fuv: 44, thin: { s: 0.8 }, holes: { e: [[480, 560, GY - 205, GY]], s: [[-170, 50, 150, 300]] } });
+    shell(B, { x0: -280, z0: 305, x1: 195, z1: 700, fy: GY, cy: GC, wall, fadedSide:'s',fadedWall:M({c:'#fff',map:K.tex('hs.paper.sunfade',512,512,(q,w,h)=>{q.drawImage(tex('wallpaperLounge').image,0,0,w,h);q.fillStyle='rgba(250,244,216,.2)';q.fillRect(0,0,w,h)},{world:128,family:'plaster'})}),floor: false, fuv: 44, thin: { s: 0.8 }, holes: { e: [[480, 560, GY - 205, GY]], s: [[-170, 50, 150, 300]] } });
     thresholdFloor(B,305,700,520,M({c:'#fff',map:tex('carpetRed')}),44);
     // a picture rail and a dado-ish border
     const rail = M({ c: '#fff', map: tex('oak') });
     [[-42.5, 305.8, 475, 0], [-280 + 0.8, 502.5, 395, 90]].forEach(([x, z, len, ry]) => B.box(x, GC + 40, z, len, 3, 1.6, rail, { ry }));
     // the bay window at the front: net curtains, heavy curtains, the street outside
     const sw = -60;
-    B.plane(sw, (150 + 300) / 2, 700 + 8, 220, 150, M({ c: '#fff', o: 0.18, tr: true, sh: 80, sp: '#fff' }), { ry: 180 });
+    B.box(sw,225,708,220,150,.45,K.glazing(.36));
     // Shared solid neighbourhood beyond the glass, not a painted street card.
     [[sw - 110, 0], [sw + 110, 0], [sw, 0]].forEach(([x], i) => B.box(x, 225, 703, i === 2 ? 5 : 8, 150, 8, M({ c: '#f2f0ea', sh: 40 })));
     B.box(sw, 147, 703, 220, 6, 8, M('#f2f0ea')); B.box(sw, 300, 708, 236, 4, 18, mWhite); B.box(sw, 297, 700 - 4, 236, 3, 9.6, mWhite);
@@ -926,7 +927,7 @@
     for(let side=0;side<2;side++){
       const door=new T.Group(),base=-222+side*42;door.position.set(base,GY,336+side*2.3);r.group.add(door);const D=K.into(door);
       for(const x of [1,41])D.box(x,-60,0,2,116,2,oak,{uv:50});for(const y of [-117,-3])D.box(21,y,0,40,2,2,oak,{uv:50});
-      D.box(21,-60,-0.2,38,110,0.4,M({c:'#fff',map:K.tex('hs.cabinet.reflection',128,256,(q,w,h)=>{q.fillStyle='rgba(147,169,178,.12)';q.fillRect(0,0,w,h);q.fillStyle='rgba(221,232,224,.58)';q.beginPath();q.moveTo(67,15);q.lineTo(116,37);q.lineTo(82,225);q.lineTo(42,205);q.closePath();q.fill();q.strokeStyle='rgba(66,87,88,.45)';q.lineWidth=3;q.beginPath();q.moveTo(91,26);q.lineTo(61,216);q.moveTo(55,112);q.lineTo(100,131);q.stroke();q.fillStyle='rgba(245,244,221,.24)';q.fillRect(3,0,2,h)},{clamp:true}),o:.42,tr:true,dw:false,family:'glass'}));D.rbox(side?34:8,-64,1.4,1.2,7,1.2,0.3,mBrass);
+      D.box(21,-60,-.2,38,110,.55,K.glazing(.48));D.rbox(side?34:8,-64,1.4,1.2,7,1.2,0.3,mBrass);
       H.openable('hs.display.'+side,{label:()=>H.OPEN['hs.display.'+side].open?'Slide the glass door shut':'Slide the glass door open',pivot:door,type:'slide',axis:'x',base,amt:side?-38:38});
     }
     [[-25,'#f4f0f8'],[0,'#d8b880'],[24,'#a8d8c8']].forEach(([x,c])=>{dc.lathe(x,-93,8,[[0,-11],[2,-11],[3,-10],[5,-4],[2.5,0],[0,0]],24,M({c,sh:65,sp:'#777'}));dc.cyl(x,-104.5,8,2,2,1,16,mBrass)});
@@ -1062,25 +1063,35 @@
 
   // ---- the family telly: a 21-inch, on a black ash stand with glass doors, the video recorder, the tapes
   function buildTelly(r, B) {
+    const shell=M({c:'#343438',map:K.tex('hs.av.satin',128,128,(g,w,h)=>{g.fillStyle='#e7e7e2';g.fillRect(0,0,w,h);const r=K.rnd(814);for(let n=0;n<6000;n++){g.fillStyle=n%2?'rgba(14,16,18,.1)':'rgba(255,254,235,.12)';g.fillRect(r()*w,r()*h,1,1)}for(let n=0;n<18;n++){const x=r()*w,y=r()*h;g.strokeStyle='rgba(215,212,190,.17)';g.lineWidth=.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+2+r()*8,y+1);g.stroke()}},{world:18}),family:'plastic'});
+    const ash=M({c:'#383338',map:tex('oak'),family:'wood'});
+    const compact=(root,keep)=>{const b=K.batch();for(const mesh of root.children.slice())if(mesh.isMesh&&!keep.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){b.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);root.remove(mesh);mesh.geometry.dispose()}b.build(root)};
+
     const st = B.at(LT.x, GY, LT.z);
-    st.box(0, -24, 0, 96, 3, 44, M({ c: '#222024', sh: 30, sp: '#333' })); st.box(0, -1.5, 0, 96, 3, 44, M('#222024')); [-46.5, 46.5].forEach(x => st.box(x, -12.5, 0, 3, 22, 44, M('#222024')));
-    st.box(0, -46, 0, 96, 3, 44, M({ c: '#222024', sh: 30, sp: '#333' })); [-46.5, 46.5].forEach(x => st.box(x, -35, 0, 3, 22, 44, M('#222024')));
-    st.plane(0, -35, 22.2, 90, 20, M({ c: '#8090a0', o: 0.25, tr: true, sh: 120, sp: '#fff' }));
+    st.box(0, -24, 0, 96, 3, 44, ash); st.box(0, -1.5, 0, 96, 3, 44, ash); [-46.5, 46.5].forEach(x => st.box(x, -12.5, 0, 3, 22, 44, ash));
+    st.box(0, -46, 0, 96, 3, 44, ash); [-46.5, 46.5].forEach(x => st.box(x, -35, 0, 3, 22, 44, ash));
+    st.box(0,-35,22.2,90,20,.5,K.glazing(.48));
     st.shadow(0, 0, 0, 104, 52, 0.75, { sq: true });
     // the telly
     const tv = new T.Group(); tv.position.set(LT.x, GY - 47.5, LT.z - 4); r.group.add(tv); const TV = K.into(tv);
-    TV.rbox(0, -25, 6, 66, 50, 16, 2.4, M({ c: '#2a2a2e', sh: 30, sp: '#333' })); TV.geo(taperG(56, 42, 30, 0.6), 0, -25, -16, M('#222226'));
+    TV.rbox(0, -25, 6, 66, 50, 16, 2.4, shell); TV.geo(taperG(56, 42, 30, 0.6), 0, -25, -16, M('#222226'));
     TV.box(0, -2.4, 14.3, 60, 4, 0.4, M('#1c1c20'));
     const scr = new T.Mesh(new T.PlaneGeometry(50, 37.5), new T.MeshBasicMaterial({ color: 0xffffff, map: tex('screenOff') })); flipUV(scr.geometry); scr.position.set(-4, -27, 14.25); tv.add(scr);
     r.tvScreen = scr; r.tvGroup = tv;
     TV.box(26, -26, 14.3, 6, 30, 0.4, M('#1a1a1c')); [-14, -8, -2, 4].forEach(y => TV.box(26, -26 + y, 14.6, 3.6, 2.4, 0.6, M('#333'))); r.tvLed = TV.ball(26, -40, 14.5, 0.7, 0.7, 0.3, M({ c: '#e01a1a', e: '#900' }).clone(), 6);
+    for(let j=0;j<17;j++)TV.box(-27+j*2.8,-6.4,14.18,.65,1.7,.45,M('#1a1a1c'));
+    TV.box(0,-3.5,14.7,20,.45,.45,M('#333')); // mould parting line
+    for(const side of [-1,1]){for(let n=0;n<7;n++)TV.box(side*33.05,-30+n*1.7,5,.3,.5,10,M('#1a1a1c'));for(const y of [-31,-18.8])TV.box(side*33.16,y,5,.5,.6,11.2,shell);for(const z of [-.5,10.5])TV.box(side*33.16,-24.9,z,.5,12,.6,shell);}
     TV.shadow(0, 0, 0, 70, 46, 0.5, { sq: true });
+    compact(tv,[scr,r.tvLed]);
     // the video recorder (the clock flashes 12:00, of course)
     const vcr = new T.Group(); vcr.position.set(LT.x - 8, GY - 26, LT.z + 2); r.group.add(vcr); const VC = K.into(vcr);
-    VC.rbox(0, -4.5, 0, 42, 9, 30, 0.8, M({ c: '#2a2a2e', sh: 40, sp: '#444' })); VC.box(-6, -5, 15.1, 20, 3, 0.4, M('#101012'));
+    VC.rbox(0, -4.5, 0, 42, 9, 30, 0.8, shell); VC.box(-6, -5, 15.1, 20, 3, 0.4, M('#101012'));
     r.vcrTex = K.tex('hs.vcrclock', 128, 32, () => {}, { clamp: true });
     const vd = new T.Mesh(new T.PlaneGeometry(9, 2.4), new T.MeshBasicMaterial({ map: r.vcrTex })); flipUV(vd.geometry); vd.position.set(12, -5, 15.15); vcr.add(vd);
     [0, 1, 2, 3, 4].forEach(i => VC.box(-14 + i * 4, -1.5, 15.2, 3, 1.2, 0.5, M('#5a5a5e')));
+    for(let n=0;n<10;n++)VC.box(-17+n*3.7,-9.15,-4,.7,.35,13,M('#101012'));
+    compact(vcr,[vd]);
     r.vcr = vcr; VC.shadow(0, 0, 0, 44, 32, 0.5, { sq: true });
     // tapes on the bottom shelf, and a remote control on the coffee table
     const rm = new T.Group(); rm.position.set(-30, GY - 45, 440); rm.rotation.y = 30 * D2R; r.group.add(rm); const RM = K.into(rm);
@@ -1106,7 +1117,7 @@
     const wall = M({ c: '#fff', map: tex('wallKitchen') });
     B.rbox(-60,GC+2,120,120,4,16,.8,mWhite);
     B.rbox(-60,GC+5.6,120,113,3.2,12,1.2,ceilingGlow(r,'#e7e8dc','#a4a89b'));
-    shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: false, fuv: 60, holes: { e: [[-160,-80,143,235],[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
+    shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, fadedSide:'n',fadedWall:M({c:'#fff',map:K.tex('hs.kitchen.sunfade',512,512,(q,w,h)=>{q.drawImage(tex('wallKitchen').image,0,0,w,h);q.fillStyle='rgba(246,238,209,.18)';q.fillRect(0,0,w,h)},{world:48,family:'plaster'})}), uv: 48, cove: true, thin: { n: 0.7 }, floor: false, fuv: 60, holes: { e: [[-160,-80,143,235],[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
     thresholdFloor(B,REAR.z1,295,190,M({c:'#fff',map:tex('lino')}),60);
     // the window over the sink and the back door (half glass): the garden outside
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
@@ -1117,7 +1128,7 @@
     for(const z of [-157,-120,-83])B.box(202,189,z,8,86,z===-120?5:6,sideFrame);
     for(const y of [143,235])B.box(198,y,-120,10,.8,80,M('#d8d4c8'));
     for(const z of [-160,-80])B.box(198,189,z,10,92,.8,M('#d0ccc0'));
-    B.box(201.8,189,-120,.35,86,74,M({c:'#c8d8f0',o:.12,tr:true,sh:90,sp:'#fff'}));
+    B.box(201.8,189,-120,.4,80.2,68.2,K.glazing(.36));
     B.rbox(195,236.5,-120,20,3,88,.8,sideFrame);
     H.support('kitchen',185,-164,205,-76,235);
 
@@ -1178,12 +1189,12 @@
     // the fridge-freezer (the magnets and notes are the fridge door: js/hs-life.js)
     r.fridgeFrame={x:-247.5,z:-140,w:60,h:170,d:64};
     // warm white enamel (pure white blew out under the window light), a dark door seal line, and a busy door
-    const fr = WB.at(r.fridgeFrame.x,GY,-20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', family: 'ceramic' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
+    const fr = WB.at(r.fridgeFrame.x,GY,-20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({c:'#fff',map:fridgePaint(),family:'ceramic'})); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));for(const x of [-28.5,28.5])fr.box(x,-85,32.3,.55,164,.4,M('#8e8a82'));for(let x=-20;x<=20;x+=5)fr.box(x,-7,32.25,3,5,.7,M('#1a1a1a'));
     for (const [x, y, c] of [[-18, -128, '#d02a2a'], [-9, -131, '#2a5ad0'], [3, -126, '#e8c020'], [-12, -98.5, '#2a8a3a'], [6, -101, '#d02a2a'], [-4, -64, '#e8c020'], [10, -60, '#2a5ad0']]) fr.rbox(x, y, 32.6, 2.6, 2.2, 1, 0.4, M(c)); // (same plastics as the notice-board pins: one draw each)
     fr.box(-12, -88, 32.15, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: -3 }); fr.box(6, -92, 32.2, 13, 17, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: 4 });
     fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 2 });
-    [[-130, 36], [-70, 46]].forEach(([y, hh]) => { fr.rbox(26, y, 33.6, 2.2, hh, 2.2, 0.8, M({ c: '#e0dcd4', sh: 60, sp: '#888' })); fr.box(26, y - hh / 2 + 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); fr.box(26, y + hh / 2 - 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); });
-    fr.plane(-14, -160, 32.3, 16, 4, M({ c: '#fff', map: K.tex('hs.frlogo', 128, 32, (g) => { g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 128, 32); A.text(g, 'FROSTMASTER', 64, 22, '700 15px ' + A.UIF, '#8a8a8a', 'center'); }) }));
+    [[-130, 36], [-70, 46]].forEach(([y, hh]) => { fr.rbox(26, y, 33.6, 2.2, hh, 2.2, 0.8, M({c:'#e0dcd4',family:'glossPaint'})); fr.box(26, y - hh / 2 + 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); fr.box(26, y + hh / 2 - 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); });
+    fr.box(-14, -160, 32.05, 16, 4, .3, {f:M({ c: '#fff', map: K.tex('hs.frlogo', 128, 32, (g) => { g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 128, 32); A.text(g, 'FROSTMASTER', 64, 22, '700 15px ' + A.UIF, '#8a8a8a', 'center'); }) }),all:M({c:'#fff',map:fridgePaint(),family:'ceramic'})});
     fr.box(0, -2.1, 20, 56, 4, 24, M('#1a1a1a')); // the plinth (a hair off the floor plane the cabinet stands on)
     fr.shadow(0, 0, 0, 68, 70, 0.7, { sq: true });
     // things on the worktop: the kettle, the toaster, the bread bin, the microwave, the radio (the biscuit tin is its own)
@@ -1286,16 +1297,28 @@
     H.support('kitchen',-39,-175,19,-117,GY-94);H.support('kitchen',20,-176,80,-110,GY-93);H.support('kitchen',-277.5,-172,-217.5,-108,GY-170);H.support('kitchen',-120,70,0,150,GY-76);
     for(const x of [-24,4])for(const z of [-158,-134])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
   }
-  function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', family: 'glossPaint' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, family:'glass' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
+  function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', family: 'glossPaint' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.box(cx,cy,fz-1,w-11.8,h-11.8,.4,K.glazing(.36)); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   // a lathe-turned table/chair leg with a square top block (for the aprons) and a turned lower part
   function turnedLeg(B, x, yTop, z, h, w, m) {
     const blk = Math.min(14, h * 0.2), f = t => yTop + blk + (h - blk) * t;
     B.rbox(x, yTop + blk / 2, z, w, blk, w, 0.4, m, { uv: 40 });
     B.lathe(x, 0, z, [[w * 0.36, f(0)], [w * 0.5, f(0.04)], [w * 0.34, f(0.1)], [w * 0.42, f(0.22)], [w * 0.36, f(0.35)], [w * 0.3, f(0.8)], [w * 0.36, f(0.9)], [w * 0.28, f(0.98)], [w * 0.26, f(1)]], 12, m);
   }
+  function cupboardPaint(){return K.tex('hs.unit.paint',256,512,(g,w,h)=>{
+    g.fillStyle='#e7ddc3';g.fillRect(0,0,w,h);const r=K.rnd(812);
+    for(let x=0;x<w;x+=2){g.fillStyle='rgba(103,87,49,'+(.025+r()*.055)+')';g.fillRect(x,r()*8,.65,h-8)}
+    g.strokeStyle='rgba(93,75,43,.24)';g.lineWidth=2;g.strokeRect(2,2,w-4,h-4);g.strokeStyle='rgba(255,249,222,.46)';g.strokeRect(5,5,w-10,h-10);
+    for(const yy of [h*.84,h*.13])for(let n=0;n<35;n++){g.strokeStyle='rgba(109,91,59,.07)';g.lineWidth=.8;g.beginPath();g.ellipse(w*.89,yy,5+n*.24,7+n*.4,.1,.3,2.7);g.stroke()}
+    for(let n=0;n<30;n++){const x=r()<.5?2+r()*5:w-7+r()*5,y=r()*h;g.fillStyle='rgba(115,96,59,.24)';g.fillRect(x,y,1,1+r()*4)}
+  },{clamp:true,family:'glossPaint'})}
+  function fridgePaint(){return K.tex('hs.fridge.enamel',256,512,(g,w,h)=>{
+    g.fillStyle='#e0dcd1';g.fillRect(0,0,w,h);const r=K.rnd(813);for(let n=0;n<18000;n++){g.fillStyle=n%2?'rgba(91,91,80,.05)':'rgba(255,255,243,.11)';g.fillRect(r()*w,r()*h,1,1)}
+    g.fillStyle='rgba(112,104,77,.13)';g.fillRect(0,h-7,w,7);for(let n=0;n<40;n++){g.strokeStyle='rgba(126,119,94,.045)';g.lineWidth=.65;g.beginPath();g.ellipse(w*.94,h*.48,3+n*.3,9+n*.6,-.1,.2,2.8);g.stroke()}
+    g.strokeStyle='rgba(91,96,85,.15)';g.lineWidth=1;g.strokeRect(1,1,w-2,h-2);
+  },{clamp:true,family:'ceramic'})}
   // shaker-style kitchen unit doors (cream, with a darker moulded frame and brass bar handles)
   function unitDoors(B, cx, cy, z, w, h, s, wall) {
-    const n = Math.max(1, Math.round(w / 52)), dw = w / n - 0.6, door = M({ c: '#e9e0c6', sh: 14, sp: '#222' }), frame = M({ c: '#d9cba6', sh: 18, sp: '#222' }), brass = mBrass;
+    const n = Math.max(1, Math.round(w / 52)), dw = w / n - 0.6, door = M({c:'#fff',map:cupboardPaint(wall),family:'glossPaint'}), frame = M({c:'#c7b992',family:'glossPaint'}), brass = mBrass;
     for (let i = 0; i < n; i++) {
       const x = cx - w / 2 + (i + 0.5) * (w / n), fz = z + s * 0.9;
       B.rbox(x, cy, fz, dw, h - 0.6, 1.8, 0.6, door);
@@ -1387,7 +1410,7 @@
   const mGrass = () => M({ c: '#fff', map: K.tex('hs.grass', 256, 256, (g, w, h) => { g.fillStyle = '#465e35'; g.fillRect(0, 0, w, h); const r = K.rnd(62); for (let i = 0; i < 14000; i++) { const v = r(); g.fillStyle = v < 0.4 ? 'rgba(35,58,25,.35)' : v < 0.9 ? 'rgba(102,136,75,.25)' : 'rgba(160,151,88,.18)'; g.fillRect(r() * w, r() * h, 1, 1 + r() * 2); } A.mottle(g, w, h, 20, 'rgba(0,0,0,.08)', 40, 63); }) });
   const mSlab = () => M({ c: '#fff', map: K.tex('hs.slab', 256, 256, (g, w, h) => { for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.fillStyle = ['#a8a49a', '#9e9a90', '#b0aca2'][(x + y * 3) % 3]; g.fillRect(x * 64, y * 64, 64, 64); } g.strokeStyle = '#5a5a52'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 64); g.lineTo(w, i * 64); g.stroke(); } A.grain(g, w, h, 4000, 0.07, 64); A.mottle(g, w, h, 12, 'rgba(40,60,20,.15)', 30, 65); }) });
   const mBrick=()=>M({c:'#fff',map:K.tex('hs.brick.v2',256,256,(g,w,h)=>{g.fillStyle='#a69b87';g.fillRect(0,0,w,h);const r=K.rnd(66);for(let y=0;y<24;y++)for(let x=-1;x<9;x++){g.fillStyle=['#98664e','#a26d51','#936049','#ac7859'][(r()*4)|0];g.fillRect(x*32+(y%2)*16+.7,y*h/24+.7,30.6,h/24-1.4)}A.grain(g,w,h,1500,.06,66)})});
-  const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.07)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }) });
+  const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.07)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); }for(let n=0;n<950;n++){const x=r()*w,y=r()*h,size=1+r()*2.7;g.fillStyle=['#626362','#383b3b','#75736b'][n%3];g.beginPath();g.moveTo(x,y);g.lineTo(x+size,y+.2);g.lineTo(x+size*.7,y+size*.8);g.lineTo(x-.3,y+size*.7);g.closePath();g.fill()}g.strokeStyle='rgba(27,29,28,.7)';g.lineWidth=.7;g.beginPath();g.moveTo(0,86);g.lineTo(34,79);g.lineTo(51,92);g.lineTo(89,89);g.moveTo(34,79);g.lineTo(38,61);g.stroke(); }) });
   function tree(B, x, z, hgt, spread) {
     const trunk=M({c:'#fff',map:tex('oak'),family:'rawWood'}),leaf=M({c:'#436d35',vc:true,sh:2});leaf.userData.nature='leaf';
     // Flared roots and a tapered trunk that forks into the overlapping crown.
@@ -1740,10 +1763,10 @@
     const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily?.ready, travelled: false, group: carGroup };
     const riding = t => t.at.room === 'drive' && ['rest','snap'].includes(t.st) && H.held() !== t.id && !t.at.hide && t.at.y < GY-6 && t.at.y >= GY-170 && Math.abs(t.at.x-frame.x)<=91*frame.s && Math.abs(t.at.z-frame.z)<=205*frame.s;
     r.awayThing = t => !parked.present && riding(t);
-    const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
-    const rubber=M({c:'#24262a',sh:9,sp:'#17191b'}),chrome=M({c:'#a3a6a8',sh:48,sp:'#8b9399'});
-    const glassPrint=K.tex('hs.car.glass',128,128,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h)},{clamp:true});
-    const gl=M({c:'#fff',map:glassPrint,sh:58,sp:'#6c7c85'});
+    const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({c:'#fff',map:K.tex('hs.car.paint',256,256,(g,w,h)=>{g.fillStyle='#752637';g.fillRect(0,0,w,h);const r=K.rnd(840);for(let n=0;n<14000;n++){g.fillStyle=n%3?'rgba(24,10,14,.07)':'rgba(219,142,153,.09)';g.fillRect(r()*w,r()*h,1,1)}for(let n=0;n<26;n++){const x=r()*w,y=r()*h;g.strokeStyle='rgba(196,126,139,.15)';g.lineWidth=.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+3+r()*12,y+.7);g.stroke()}},{world:120}),sh:62,sp:'#64535d',reflect:.13,vc:true});
+    const rubber=M({c:'#25282a',map:K.tex('hs.car.rubber',128,128,(g,w,h)=>{g.fillStyle='#deded5';g.fillRect(0,0,w,h);const r=K.rnd(841);for(let n=0;n<6000;n++){g.fillStyle=n%2?'rgba(18,20,18,.09)':'rgba(255,253,235,.09)';g.fillRect(r()*w,r()*h,1,1)}g.strokeStyle='rgba(47,50,44,.18)';g.lineWidth=1;for(let y=0;y<h;y+=12){g.beginPath();g.moveTo(0,y);g.lineTo(w*.5,y+6);g.lineTo(w,y);g.stroke()}},{world:16}),sh:6,sp:'#101312'}),chrome=M({c:'#a3a6a8',family:'metal',reflect:.12});
+    const glassPrint=K.tex('hs.car.glass',256,256,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h);g.fillStyle='rgba(185,207,214,.25)';g.beginPath();g.moveTo(0,h*.17);g.lineTo(w*.4,h*.04);g.lineTo(w,h*.3);g.lineTo(w,h*.42);g.lineTo(w*.4,h*.19);g.lineTo(0,h*.32);g.closePath();g.fill();g.fillStyle='rgba(22,49,39,.23)';for(let n=0;n<7;n++){const x=n*w/6;g.beginPath();g.moveTo(x-14,h);g.lineTo(x,h*.55);g.lineTo(x+20,h);g.fill()}g.strokeStyle='rgba(47,90,80,.72)';g.lineWidth=5;g.strokeRect(2,2,w-4,h-4)},{clamp:true});
+    const gl=M({c:'#fff',map:glassPrint,family:'glass',reflect:.12});
     car.rbox(0, -52, 40, 170, 46, 320, 9, cm);
     // Hollow boot: a solid floor, wheel-side walls and rear valance under a hinged lid.
     car.box(0,-20,-157,166,5,86,cm);
@@ -1789,6 +1812,7 @@
     for(let y=-88;y>=-116;y-=7){const z=-119+(y+75)*(-22.3/47)-.35;trim([-64,y,z],[64,y,z],M('#786552'),.28)}
     [[-80,140],[80,140],[-80,-140],[80,-140]].forEach(([x,z])=>{
       const side=x>0?1:-1;car.cyl(x,-30,z,30,30,20,24,rubber,{rz:90});
+      for(let n=0;n<24;n++){const a=n*Math.PI/12;if(Math.sin(a)>.94)continue;car.box(x,-30+Math.sin(a)*30,z+Math.cos(a)*30,17,.75,2.5,rubber,{rx:90-n*15})}
       car.geo(new T.TorusGeometry(26.5,2.8,8,24),x+side*8.5,-30,z,rubber,{ry:90});
       car.cyl(x+side*10.5,-30,z,18,18,1.5,24,chrome,{rz:90});car.cyl(x+side*11.4,-30,z,6,6,1,12,M('#5b5c60'),{rz:90});
       for(let n=0;n<8;n++){const a=n*Math.PI/4;car.cyl(x+side*11.45,-30+Math.sin(a)*12.5,z+Math.cos(a)*12.5,1.9,1.9,.35,8,rubber,{rz:90})}
@@ -1810,7 +1834,10 @@
     for(const side of [-1,1]){car.box(side*76,-92,65,10,2.4,3,rubber);car.rbox(side*83,-94,65,8,8,17,1.5,rubber);car.box(side*87.1,-94,65,.4,5.8,13.8,M({c:'#8199a4',sh:80,sp:'#b7c9cf'}));}
     car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
-    carBatch.build(carGroup);
+    hinge.traverse(o=>{if(o.isMesh&&o.material===cm&&!o.geometry.attributes.color){const colors=new Float32Array(o.geometry.attributes.position.count*3);colors.fill(1);o.geometry.setAttribute('color',new T.BufferAttribute(colors,3))}});
+    const carMeshes=carBatch.build(carGroup);
+    for(const mesh of carMeshes)if(mesh.material===cm){const p=mesh.geometry.attributes.position,colors=[];for(let i=0;i<p.count;i++){const y=(p.getY(i)-frame.y)/frame.s,dirt=Math.max(0,Math.min(1,(y+68)/45));colors.push(1-.13*dirt,1-.18*dirt,1-.16*dirt)}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(colors,3))}
+
     natureColours(batch.build(r.group));
     H.spot('hs.carboot',{obj:r.carBoot.hinge,label:'Car boot',range:185,act:()=>r.carBoot.toggle()});
     H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every weekend "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',frame.x,GY-70*frame.s,frame.z+40*frame.s,170*frame.s,120*frame.s,300*frame.s);

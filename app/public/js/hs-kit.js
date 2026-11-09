@@ -54,7 +54,7 @@
     plaster: { sh: 1, sp: '#020202' }, paper: { sh: 1, sp: '#000000', tile: 12 },
     carpet: { sh: 2, sp: '#040404' }, fabric: { sh: 3, sp: '#090909', tile: 8 },
     rawWood: { sh: 3, sp: '#090806' }, wood: { sh: 26, sp: '#29241d' },
-    glossPaint: { sh: 38, sp: '#353129', tile:32 }, lino: { sh: 18, sp: '#1b1915' },
+    glossPaint: { sh: 58, sp: '#615b49', tile:32 }, lino: { sh: 18, sp: '#1b1915' },
     plastic: { sh: 13, sp: '#1c1d1e', tile: 16 },
     outdoorPlastic: { sh: 8, sp: '#141813', tile: 40 },
     glossPlastic: { sh: 28, sp: '#292a2c', tile: 16 },
@@ -122,12 +122,12 @@
       for(let y=0;y<h;y+=3)for(let x=(y%6?1:0);x<w;x+=3){const xx=x+r(),yy=y+r();g.fillStyle='rgba(20,17,13,.18)';g.fillRect(xx,yy,2,2);g.fillStyle='rgba(242,229,201,.19)';g.fillRect(xx,yy,1,1)}
     }
     if(/wallpaper(?:Hall|Lounge)$|wallKitchen$/.test(key)){
-      const step=w*53/128;for(let x=step*.3;x<w;x+=step){g.fillStyle='rgba(94,82,57,.18)';g.fillRect(x,0,.8,h);g.fillStyle='rgba(255,249,221,.3)';g.fillRect(x+1,0,.8,h)}
-      for(let n=0;n<w*h/13;n++){const x=r()*w,y=r()*h;g.fillStyle=n%2?'rgba(255,251,233,.14)':'rgba(91,76,53,.09)';g.fillRect(x,y,1,2+r()*3)}
+      const step=w/2;for(let x=0;x<w;x+=step){g.fillStyle='rgba(83,70,44,.25)';g.fillRect(x,0,1,h);g.fillStyle='rgba(255,249,221,.46)';g.fillRect(x+1,0,1,h)}
+      for(let n=0;n<w*h/13;n++){const x=r()*w,y=r()*h;g.fillStyle=n%2?'rgba(255,251,233,.25)':'rgba(91,76,53,.16)';g.fillRect(x,y,.7,2+r()*3)}
     }
     if(/whiteGloss$|finish:glossPaint$/.test(key)){
       g.fillStyle='rgba(166,128,49,.065)';g.fillRect(0,0,w,h);
-      for(let x=0;x<w;x+=2){g.fillStyle='rgba(85,66,36,'+(.025+r()*.065)+')';const y=r()*h*.2;g.fillRect(x,y,.6,h*(.5+r()*.5))}
+      for(let x=0;x<w;x+=2){const a=.04+r()*.13;g.fillStyle='rgba(85,66,36,'+a+')';const y=r()*h*.18;g.fillRect(x,y,.7,h*(.65+r()*.35));g.fillStyle='rgba(255,251,225,'+(a*.9)+')';g.fillRect(x+.8,y,.55,h*(.65+r()*.35))}
     }
     if(/pc\.(?:monfront|towfront)$/.test(key)){
       const shade=g.createLinearGradient(0,0,w,0);shade.addColorStop(0,'rgba(149,109,27,.22)');shade.addColorStop(.2,'rgba(186,145,63,.03)');shade.addColorStop(.83,'rgba(165,117,30,.08)');shade.addColorStop(1,'rgba(135,95,23,.25)');g.fillStyle=shade;g.fillRect(0,0,w,h);
@@ -707,6 +707,18 @@
     m.userData=Object.assign({},base.userData,{decal:true});DECALS.set(base,m);return m;
   }
 
+  function glassPrint(){
+    return tex('finish:clear-glazing',256,256,(g,w,h)=>{
+      g.fillStyle='rgba(117,156,143,.045)';g.fillRect(0,0,w,h);
+      g.fillStyle='rgba(224,236,224,.44)';g.beginPath();g.moveTo(52,19);g.lineTo(173,38);g.lineTo(221,235);g.lineTo(100,211);g.closePath();g.fill();
+      g.strokeStyle='rgba(78,113,108,.31)';g.lineWidth=3;g.beginPath();g.moveTo(111,28);g.lineTo(162,223);g.moveTo(76,115);g.lineTo(197,137);g.stroke();
+      g.strokeStyle='rgba(75,130,106,.94)';g.lineWidth=3;g.strokeRect(1.5,1.5,w-3,h-3);g.strokeStyle='rgba(233,244,234,.55)';g.lineWidth=.8;g.strokeRect(4,4,w-8,h-8);
+      const r=rnd(991);for(let n=0;n<15;n++){const x=r()*w,y=r()*h;g.strokeStyle='rgba(136,164,149,.11)';g.lineWidth=.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+3+r()*10,y+1);g.stroke()}
+    },{clamp:true});
+  }
+  function glazing(opacity=.42){return mat({c:'#fff',map:glassPrint(),family:'glass',reflect:.15,o:opacity,tr:true,dw:false})}
+  function glassEdge(){return mat({c:'#6b9687',family:'glass',o:.66,tr:true,dw:false})}
+
   // ================================================================ merging static geometry: one draw call per material
   const _v = new T.Vector3(), _n = new T.Vector3(), _nm = new T.Matrix3();
   const FACE = ['r', 'l', 'u', 't', 'f', 'b']; // BoxGeometry's groups: +x -x +y(underneath: y is down) -y(top) +z -z
@@ -999,7 +1011,7 @@
       }
     }
     const exposed=o.hinge||o.brass; // warm exposed undercoat shares the existing hardware batch
-    for(const side of [-1,1])for(const face of [-1,1]){const shape=new T.Shape();shape.moveTo(-.8,-1.2);shape.lineTo(.3,-1.5);shape.lineTo(.9,.3);shape.lineTo(.2,1.5);shape.lineTo(-.7,.8);shape.closePath();B.geo(new T.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false,curveSegments:1}),side*(w/2-1.05),h/2-2.2,face>0?t2-.015:-t2-.105,exposed);}
+    for(const side of [-1,1])for(const face of [-1,1]){const shape=new T.Shape();shape.moveTo(-1.2,-2.5);shape.lineTo(.7,-2.1);shape.lineTo(1.05,.2);shape.lineTo(.3,2.7);shape.lineTo(-.9,1.2);shape.closePath();B.geo(new T.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false,curveSegments:1}),side*(w/2-1.3),h/2-3.1,face>0?t2-.015:-t2-.105,exposed);}
     const vfxLevers=[];
     for (const s of [-1, 1]) {
       for (const [pu, pv2] of panels) {
@@ -1026,5 +1038,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { glazing, glassEdge, FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

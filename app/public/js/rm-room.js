@@ -317,7 +317,7 @@
     B.box(W.x0 + 3, cy, fz, 6, h, 6, fm); B.box(W.x1 - 3, cy, fz, 6, h, 6, fm);
     B.box(cx, cy, fz, 5, h, 6, fm); if(!high)B.box(cx, W.y0 + 30, fz, w, 5, 6, fm);
     B.box(cx + 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite); B.box(cx - 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite);
-    B.box(cx, cy, fz - 1, w - 6, h - 6, .35, M({ c: '#c8d8f0', o: 0.12, family:'glass', tr: true }), {});
+    B.box(cx,cy,fz-1,w-11.8,h-11.8,.4,K.glazing(.36));
     // the sill: a dead cactus on it
     B.rbox(cx, W.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
     B.shadow(cx, W.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
@@ -1270,6 +1270,7 @@
     G.box(0,-1,-14.5,78,148,.8,M('#715336'));
     for(const x of [-39,39])G.rbox(x,-1,0,2,148,30,.4,wood,{uv:45});
     for(const y of boards)G.rbox(0,y,0,76,1.8,29.5,.35,wood,{uv:45});
+    for(const y of boards)G.rbox(0,y+.1,14.8,76,2.1,.85,.3,wood,{uv:45});
     G.rbox(0,-76.6,0.6,82,1.6,31.6,.5,wood,{uv:45}); // a lipped top that overhangs the sides
     G.box(0,72,11,76,2,1.6,M('#815f3b'));G.shadow(0,73,0,92,40,.55,{sq:true});
     // the back panel falls into shadow under each shelf (the shelves are open at the front)
@@ -1297,7 +1298,7 @@
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
       const print=A.printed('reading.print.'+id,256,mag?340:Math.round(256*21.52/14),(c,w,h)=>{
-        c.textAlign='left';c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);
+        c.textAlign='left';c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#eee3c9';c.fillRect(0,h-16,w,16);for(let x=0;x<w;x+=2){c.fillStyle='rgba(111,92,54,.2)';c.fillRect(x,h-16,.65,16)}const wear=K.rnd(830+index);for(let n=0;n<90;n++){c.fillStyle=n%3?'rgba(232,214,177,.32)':'rgba(30,23,15,.22)';const x=n%2?wear()*5:w-5+wear()*5;c.fillRect(x,wear()*h,1,1+wear()*4)}c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);
         c.font='bold 26px Georgia';const end=K.wrapText(c,title,20,64,w-40,31);
         c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);
         if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}
@@ -1305,7 +1306,7 @@
         const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):id,artY=Math.max(h*.46,end+16),artH=h-72-artY;
         if(!window.PrintArt?.paint(c,art,20,artY,w-40,artH)){c.save();c.beginPath();c.rect(20,artY,w-40,artH);c.clip();c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,artY+10+k*11,105,70);c.restore()}
       },{clamp:true,identity:id.startsWith('reading.school.')});
-      const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
+      const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.strokeStyle='rgba(240,222,181,.33)';c.lineWidth=1.5;c.strokeRect(2,2,w-4,h-4);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
       if(mag){
         const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
         // Opposite paper faces need opposite UV orientation, not a new cover.
@@ -1314,7 +1315,14 @@
         for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;
         O.shadow(0,0,0,22,29,.25,{sq:true});
       }
-      else{O.box(0,-11,0,14,21.52,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
+      else{
+        const cover=M(col),printMat=M({c:'#fff',map:print});
+        const block=O.box(0,-11,0,14,21.52,2,{f:printMat,b:printMat,l:M({c:'#fff',map:spine}),all:printMat});
+        const pos=block.geometry.attributes.position,uv=block.geometry.attributes.uv;
+        for(const group of block.geometry.groups)if([0,2,3].includes(group.materialIndex))for(let n=group.start;n<group.start+group.count;n++){const i=block.geometry.index.getX(n);uv.setXY(i,(pos.getY(i)+10.76)/21.52,8/print.image.height)}uv.needsUpdate=true;
+        O.box(0,-.12,0,14.2,.24,2.2,cover);O.box(0,-21.88,0,14.2,.24,2.2,cover);O.rbox(-6.95,-11,0,.9,21.6,2.4,.25,{l:M({c:'#fff',map:spine}),all:cover});
+        const bookBatch=K.batch();for(const mesh of obj.children.slice())if(mesh.isMesh){bookBatch.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);obj.remove(mesh);mesh.geometry.dispose()}bookBatch.build(obj);O.shadow(0,0,0,16,4,.3,{sq:true});
+      }
       const home={...pose(n,mag),snap:'reading.slot.'+n},t=H.thing(id,{obj,home:start||home,kind:mag?'reading.mag':'reading.book',label:title,holdD:38,useLabel:'Read / inspect',use:()=>H.inspect(id)});
       if(!start){t.st='snap';t.snap=home.snap;t.rx=home.rx;H.place(t)}H.restoreThing(t);t.home=home;
       // Correct only April's old factory overlap; keep every player placement.
@@ -1688,7 +1696,7 @@
   function trayMove(open) {
     if (!H.stood) { say('CD drive', 'The tray won\'t come out with the PC switched off. ({mate1} says you can poke a paperclip in the little hole. {mate1} says a lot of things.)'); return; }
     trayBuild(); const d = drv.cd; if (d.open === open) return;
-    d.open = open; tray.visible = true; pb.classList.add('hs-trayout');
+    d.open = open;if(R.pcCDcover)R.pcCDcover.visible=false; tray.visible = true; pb.classList.add('hs-trayout');
     const from = d.k, to = open ? 1 : 0, t0 = performance.now(), L = L0(), front = trayFront();
     H.sfx.noise(0.6, 0.05, 900, 0, 'bandpass', 400); H.sfx.tone(60, 0.5, 'sawtooth', 0.02);
     const t = d.thing && H.THINGS[d.thing];
@@ -1698,7 +1706,7 @@
       tray.position.z = front + d.k * 14.5;
       if (t) { t.obj.position.set(L.tx, -39.3, tray.position.z - 7); t.at.z = tray.position.z - 7; }
       if (k < 1) return true;
-      if (!open) { tray.visible = false; pb.classList.remove('hs-trayout'); if (t) { t.at.hide = true; t.obj.visible = false; H.saveThings(); emit('drive', { drive: 'cd', thing: t.id, inserted: true }); secret('hs.disc'); } }
+      if (!open) { if(R.pcCDcover)R.pcCDcover.visible=true;tray.visible = false; pb.classList.remove('hs-trayout'); if (t) { t.at.hide = true; t.obj.visible = false; H.saveThings(); emit('drive', { drive: 'cd', thing: t.id, inserted: true }); secret('hs.disc'); } }
       else if (t) emit('drive', { drive: 'cd', thing: t.id, inserted: false });
       return false;
     });
@@ -1763,7 +1771,7 @@
       c.fillStyle = '#cfc5a7'; c.beginPath(); c.arc(17 * s, 21.1 * s, 0.52 * s, 0, 7); c.fill();
       c.fillStyle = '#fff2a0'; c.save(); c.translate(1.2 * s, 25.5 * s); c.rotate(-0.1); c.fillRect(0, 0, 6.4 * s, 2.6 * s); c.font = `${0.9 * s}px Impact,sans-serif`; c.fillStyle = '#1a3a9a'; c.textAlign = 'left'; c.fillText('MINE!', 0.6 * s, 1.8 * s); c.restore();
       for (let y = 27.6; y < 37; y += 0.7) { c.fillStyle = '#3b3426'; c.fillRect(3.2 * s, y * s, 13.6 * s, 0.28 * s); }
-      c.fillStyle = '#20202a'; c.fillRect(12.6 * s, 37.7 * s, 6.4 * s, 2.3 * s); c.font = `bold ${0.55 * s}px Verdana`; c.fillStyle = '#f3d266'; c.fillText('JACKCORE II', 13.2 * s, 39.1 * s);
+      c.fillStyle = '#20202a'; c.fillRect(12.6 * s, 37.7 * s, 6.4 * s, 2.3 * s); c.font = `bold ${0.55 * s}px Verdana`; c.fillStyle = '#f3d266';c.textAlign='left'; c.fillText('JACKCORE II', 13.2 * s, 39.1 * s);
       c.fillStyle = '#c4ba9a'; c.fillRect(0, 40.8 * s, w, 1.2 * s);
     }, { clamp: true });
     const kbTex = K.tex('pc.kbd', 512, 172, (c, w, h) => {
@@ -1796,14 +1804,35 @@
     P.shadow(L.mx, 0, -8.5, 30, 28, 0.55);
     // the tower
     P = section('tower');
-    P.rbox(L.tx, -21.6, L.tz, 19.5, 41.4, 34, 0.6, BEI2);
-    P.rbox(L.tx, -21.6, L.tz + 17.65, 20, 42, 1.3, 0.45, BEI); P.plane(L.tx, -21.6, L.tz + 18.32, 19.4, 41.4, M({ c: '#fff', map: towTex, e: '#262218', sh: 16, sp: '#222' }));
-    const btn = P.rbox(L.tx, -19.7, L.tz + 18.55, 4.6, 4.6, 0.9, 0.7, BEI);
+    // Folded steel shell: real openings through both side skins, with the
+    // dark chassis a centimetre behind the slots. No black surface stripes.
+    for(const y of [-41.9,-1.2])P.rbox(L.tx,y,L.tz,19.5,.8,34,.25,BEI2);
+    P.box(L.tx,-21.6,L.tz-16.6,18.5,40.6,.8,BEI2);
+    for(const side of [-1,1]){
+      const shape=new T.Shape();shape.moveTo(-17,-41.5);shape.lineTo(17,-41.5);shape.lineTo(17,-1.6);shape.lineTo(-17,-1.6);shape.closePath();
+      for(let j=0;j<6;j++){const y=-35+j*1.6,hole=new T.Path();hole.moveTo(-9.5,y-.34);hole.lineTo(1.5,y-.34);hole.lineTo(1.5,y+.34);hole.lineTo(-9.5,y+.34);hole.closePath();shape.holes.push(hole)}
+      P.geo(new T.ExtrudeGeometry(shape,{depth:.55,bevelEnabled:false,curveSegments:1}),L.tx+(side>0?9.25:-9.8),0,L.tz,BEI2,{ry:90});
+      P.box(L.tx+side*8.55,-31,L.tz+4,.35,11.2,13,M('#1c1814'));
+      for(const y of [-36.1,-25.1])P.rbox(L.tx+side*9.88,y,L.tz+4,.3,.6,12.8,.12,DK);
+      for(const z of [-2.1,10.1])P.rbox(L.tx+side*9.88,-30.6,L.tz+z,.3,10.8,.6,.12,DK);
+      for(let j=0;j<6;j++)P.box(L.tx+side*9.12,-34.58+j*1.6,L.tz+4,.65,.22,11,BEI2,{rz:side*16});
+    }
+    P.rbox(L.tx, -21.6, L.tz + 17.65, 20, 42, 1.3, 0.45, BEI);
+    const towerPrint=M({ c: '#fff', map: towTex, e: '#262218', sh: 16, sp: '#222' });
+    const facePanel=(dx,y,w,h,z,depth)=>{const mesh=P.box(L.tx+dx,y,L.tz+z,w,h,depth,{f:towerPrint,all:BEI});const pos=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv;const face=mesh.geometry.groups.find(g=>mesh.material[g.materialIndex]===towerPrint),verts=new Set();for(let n=face.start;n<face.start+face.count;n++)verts.add(mesh.geometry.index.getX(n));for(const i of verts)uv.setXY(i,(pos.getX(i)+dx+10)/20,1-(pos.getY(i)+y+42.3)/41.4);uv.needsUpdate=true;return mesh};
+    facePanel(0,-21.6,19.4,41.4,18.34,.12);
+    for(const y of [-38.8,-33.7]){P.rbox(L.tx,y,L.tz+18.6,17.3,4.7,.6,.18,DK);facePanel(0,y,16.7,4.1,19.02,.4)}
+    const closedCD=facePanel(0,-38.5,15.9,2.1,18.95,.35);R.pcCDcover=closedCD;closedCD.visible=!drv.cd.open; // same frontage as the moving tray
+    facePanel(0,-29.4,11.2,2.9,18.95,.6);P.box(L.tx,-29.95,L.tz+19.3,9.4,.6,.35,M('#1c1814'));
+    P.rbox(L.tx,-26.0,L.tz+18.7,10.9,2.35,.65,.16,DK);facePanel(0,-26,10.4,1.85,19.08,.25);
+    P.rbox(L.tx,-19.7,L.tz+18.65,5.8,5.8,.55,.35,DK);
+    const btn = P.rbox(L.tx, -19.7, L.tz + 19.05, 4.6, 4.6, 0.9, 0.4, BEI);
+    P.box(L.tx,-10.6,L.tz+18.55,14,10,.4,M('#1c1814'));
+    for(let j=0;j<13;j++)P.box(L.tx,-15.1+j*.72,L.tz+19.05,13.6,.32,.75,BEI,{rx:14});
     for (const dx of [-7, 7]) for (const dz of [-14, 14]) P.box(L.tx + dx, -0.3, L.tz + dz, 3.2, 0.6, 2, M('#1c1814'));
     // Removable side-panel seams, steel screw heads and real recessed vent lips.
     const caseDark=M('#1c1814');
     for(const side of [-1,1]){
-      for(const y of [-35,-33.4,-31.8,-30.2,-28.6,-27])P.box(L.tx+side*9.78,y,L.tz+4,.18,.55,11,caseDark);
       for(const z of [-14,14])P.box(L.tx+side*9.77,-22,L.tz+z,.15,33,.16,caseDark);
       for(const y of [-39,-4])P.cyl(L.tx+side*9.82,y,L.tz-13,.45,.45,.22,6,caseDark,{rz:90});
     }
@@ -1824,7 +1853,7 @@
     // Keep the original batching budget inside each removable assembly.
     for(const part of Object.values(parts)){
       const staticBatch=K.batch();
-      for(const mesh of part.children.slice())if(mesh.isMesh&&mesh!==btn&&!leds.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){
+      for(const mesh of part.children.slice())if(mesh.isMesh&&mesh!==btn&&mesh!==closedCD&&!leds.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){
         staticBatch.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);part.remove(mesh);mesh.geometry.dispose();
       }
       staticBatch.build(part);

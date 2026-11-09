@@ -1,7 +1,7 @@
 // Native compositor stills: suspend page animation callbacks during export only.
 // Gameplay, geometry, viewport, device pixels and performance measurements stay intact.
 import {writeFile} from 'node:fs/promises';
-export async function stillCapture(page){
+export async function stillCapture(page,{hold=false}={}){
  await page.addInitScript(()=>{
   let paused=false,serial=0;const frames=new Map(),request=requestAnimationFrame.bind(window),cancel=cancelAnimationFrame.bind(window);
   const schedule=f=>{f.real=request(t=>{f.real=0;if(paused||!frames.has(f.id))return;frames.delete(f.id);f.callback(t)})};
@@ -18,6 +18,6 @@ export async function stillCapture(page){
   try{
    const shot=await Promise.race([cdp.send('Page.captureScreenshot',{format,...(format==='jpeg'?{quality:options.quality??100}:{}),fromSurface:true,captureBeyondViewport:false,optimizeForSpeed:true}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Native still capture timed out')),options.timeout||90000)})]);
    const bytes=Buffer.from(shot.data,'base64');if(options.path)await writeFile(options.path,bytes);return bytes;
-  }finally{clearTimeout(timer);await page.evaluate(()=>window.__stillResume()).catch(()=>{})}
+  }finally{clearTimeout(timer);if(!hold)await page.evaluate(()=>window.__stillResume()).catch(()=>{})}
  };
 }
