@@ -311,7 +311,7 @@
         let use = short(hold.querySelector('[data-h=use]')?.textContent) || 'Use'; if (use.length > 12) use = use.split(/\s*\/\s*/)[0].length <= 12 ? use.split(/\s*\/\s*/)[0] : verbOf(use);
         const ownUse = H.THINGS[held]?.use && !/^(Inspect|Read|Look closely)\b/i.test(H.THINGS[held].useLabel || 'Inspect');
         const contextualUse = ownUse || /^(Open|Shut|Close|Sit|Answer|Water|Feed|Eat|Drink|Wash|Mow|Empty)/i.test(use);
-        buttons = btn('e', drag ? 'grab' : 'place', drag ? 'Let go' : snap ? 'Put in' : 'Put down', 'ht-main', blocked && !drag) +
+        buttons = btn('e', drag ? 'grab' : 'place', drag ? 'Let go' : snap ? 'Put in' : 'Place', 'ht-main', blocked && !drag) +
           (!snap ? btn('r', 'turn', 'Turn', 'ht-secondary') : '') + btn('q', 'back', 'Return', 'ht-secondary') + btn('more', 'menu', carryMore ? 'Less' : 'More', 'ht-secondary');
         if (contextualUse || carryMore) buttons += btn('f', use === 'Look closely' ? 'look' : use.startsWith('Sit') ? 'sit' : 'use', use, 'ht-use');
         if (carryMore && !drag) buttons += btn('x', 'drop', 'Drop', 'ht-extra');

@@ -2651,7 +2651,7 @@
       <canvas class="hs-map" width="84" height="84" aria-hidden="true"></canvas>
       <div class="hs-cross" aria-hidden="true"></div>
       <div class="hs-tip" aria-hidden="true"></div>
-      <div class="hs-hold" hidden><small class="hs-hmode">CARRYING</small><span class="hs-hname"></span><span class="hs-hkeys"></span><small class="hs-carry-help">Wheel: turn · Right click / Q: return · Esc: menu</small><span class="hs-hbtn"><button type="button" data-h="near" aria-label="Nearer">&minus;</button><button type="button" data-h="far" aria-label="Further">+</button><button type="button" data-h="turn">Turn</button><button type="button" data-h="use" hidden></button><button type="button" data-h="put">Place [E]</button><button type="button" data-h="drop">Drop [X]</button><button type="button" data-h="back">Return [Q]</button></span></div>
+      <div class="hs-hold" hidden><small class="hs-hmode">CARRYING</small><span class="hs-hname"></span><span class="hs-hkeys"></span><small class="hs-carry-help">Wheel: turn · Right click / Q: return · Esc: menu</small><span class="hs-hbtn"><button type="button" data-h="put">Place [E]</button><span class="hs-hsecondary" aria-label="Other carrying controls"><button type="button" data-h="use" hidden></button><button type="button" data-h="turn" title="R or wheel: turn">Turn [R]</button><button type="button" data-h="near" aria-label="Nearer" title="Minus or Shift+wheel: nearer">&minus;</button><button type="button" data-h="far" aria-label="Further" title="Plus or Shift+wheel: further">+</button><button type="button" data-h="drop">Drop [X]</button><button type="button" data-h="back">Return [Q]</button></span></span></div>
       <button type="button" class="hs-getup" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 3 6 10l7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Get up</span></button>
       <div class="hs-note rm-note"><b></b><p></p><button type="button" class="rm-x" aria-label="Close">&times;</button></div>
       <div class="hs-toast rm-toast"></div>
@@ -2699,11 +2699,14 @@
         const a=aimedAction(),label=typeof t.label==='function'?t.label():t.label,drag=!!(g&&g.drag);
         const f=a?a.label:drag&&t.seat?'Sit down':actionLabel(t);
         let mode='CARRYING',cls='',help,keys;
-        if(drag){mode='MOVING';cls='drag';keys=[['E','Let go'],['F',f],['R','Turn'],['Q','Return']];help='Walk to slide it along the floor · Wheel: turn · Esc: menu';}
-        else if(g&&g.snap){const hint=String(g.snap.hint||'Place here').replace(/^(?:Click\/E to |Let go(?: to|:)\s*|E:\s*)/i,'');mode='PLACE HERE';cls='snap';keys=[['E',hint.charAt(0).toUpperCase()+hint.slice(1)],a?['F',a.label]:null,['X','Drop'],['Q','Return']];help='The gold outline shows where it goes';}
-        else if(g&&g.ok){cls='fit';keys=[['E','Place'],['X','Drop'],['F',f],['R','Turn'],['Q','Return']];help='Green ghost: it fits there · Wheel: turn · Shift+Wheel: nearer/further';}
+        if(drag){mode='MOVING';cls='drag';keys=[['E','Let go'],['F',f],['R','Turn'],['Q','Return']];help='Walk to slide it along the floor';}
+        else if(g&&g.snap){const hint=String(g.snap.hint||'Place here').replace(/^(?:Click\/E to |Let go(?: to|:)\s*|E:\s*)/i,'');mode='PLACE HERE';cls='snap';keys=[['E',hint.charAt(0).toUpperCase()+hint.slice(1)],a?['F',a.label]:null,['X','Drop'],['Q','Return']];help='Gold outline: '+hint;}
+        else if(g&&g.ok){cls='fit';keys=[['E','Place'],['X','Drop'],['F',f],['R','Turn'],['Q','Return']];help='Green ghost: fits here';}
         else if(g){mode="WON'T FIT";cls='blocked';keys=[['X','Drop'],['F',f],['R','Turn'],['Q','Return']];help=whyText(g.why)+'. Aim somewhere clear.';}
-        else{keys=[['E','Place'],['F',f],['R','Turn'],['Q','Return']];help='Wheel: turn · Right click / Q: return · Esc: menu';}
+        else{keys=[['E','Place'],['F',f],['R','Turn'],['Q','Return']];help='Aim at a clear surface';}
+        // Keep the first cartridge's next step in the single status line now
+        // that the redundant CARRYING heading is no longer shown.
+        if(cls!=='blocked'&&cls!=='snap'&&window.st?.current?.()?.id==='lad'&&t.gameId?.startsWith('gb.'))help='Put this in your Game Lad. Look for the gold outline.';
         keys=keys.filter(Boolean);
         // A family reply already owns the face caption, including while an
         // object is held. Keep F available in the carry controls below it.
@@ -2715,7 +2718,7 @@
         hold.querySelector('.hs-hkeys').innerHTML=keys.map(([k,v])=>'<span><kbd>'+k+'</kbd> '+esc(v)+'</span>').join('');
         hold.querySelector('.hs-carry-help').textContent=help;
         const use=hold.querySelector('[data-h=use]');use.hidden=false;use.textContent=f+' [F]';
-        hold.querySelector('[data-h=put]').textContent=drag?'Let go [E]':'Place [E]';hold.querySelector('[data-h=drop]').hidden=drag;
+        const put=hold.querySelector('[data-h=put]');put.textContent=drag?'Let go [E]':cls==='snap'?'Place here [E]':'Place [E]';put.disabled=cls==='blocked';hold.querySelector('[data-h=drop]').hidden=drag;
       },
       snapHint(s){if(held)this.carry(THINGS[held.id],s?{snap:s,ok:true}:null);},
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
@@ -3215,9 +3218,15 @@
     const g = window.House && House.pcGL, gl = g && g.userData.glass;
     const centre=monitorCentre();
     const width = gl && gl.w || GW, height = width * 3/4;
-    const availableW=vw,availableH=vh;
+    // The glass and its real bezel share the usable window with the touch
+    // controls. Move the camera's centre too: just shrinking the glass still
+    // leaves its taskbar centred behind the bottom chin in short landscape.
+    const touch=!!window.GameInput?.touch,hud=touch&&document.querySelector('.ht-hud'),safe=hud&&getComputedStyle(hud);
+    const top=parseFloat(safe?.paddingTop)||0,bottom=touch?54+(parseFloat(safe?.paddingBottom)||0):0;
+    const left=parseFloat(safe?.paddingLeft)||0,right=parseFloat(safe?.paddingRight)||0;
+    const availableW=Math.max(1,vw-left-right),availableH=Math.max(1,vh-top-bottom);
     const distance = Math.max(width * PERSP * em / (availableW * .88), height * PERSP * em / (availableH * .82));
-    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U', zm: 1 };
+    return { x: centre.x-(left-right)*distance/(2*PERSP*em), y: centre.y-(top-bottom)*distance/(2*PERSP*em), z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U', zm: 1 };
   }
   function preparePCView() {
     if (window.Room && Room.prepare) Room.prepare();
@@ -3512,6 +3521,9 @@
 
   // ================================================================ resizing, rotating, the tab going away
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
+  // A real finger can replace the mouse without a resize (hybrid laptops and
+  // tablets with keyboards). Reframe only the PC camera, never its saved pose.
+  document.addEventListener('game-input-change',()=>{if(live&&monitor&&(mode==='monitor'||mode==='pcboot')){Object.assign(P,monitorPose());glass.fitKey=null;dirty()}});
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0;lastDraw=0;perfLast=0;perfCount=0;lastR=0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
   // The diagnostic/placement grid covers the same complete plot as continuous walking and the family navigator.
