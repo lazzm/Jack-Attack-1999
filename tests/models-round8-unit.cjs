@@ -52,6 +52,32 @@ for(const id of ['mom','dad','sister'])for(const angle of [0,45,80,-80]){
  for(let i=0;i<4;i++){clock+=250;r.update(1/60,true)}r.hush();let peak=0;
  for(let i=0;i<16;i++){clock+=250;r.update(1/60,true);peak=Math.max(peak,r.st.sipK)}assert(peak>.8,'capped frame dt prevents a between-line sip');report.props.push({id:'mom',action:'slow-render-sip',peak});r.dispose();
 }
+// The production maintenance loop can run near=false between visible frames.
+// It must not cancel a live sip: near controls detail, not the held action.
+{
+ const r=w.NPCRig.create('mom',{tier:'low'});r.floor=()=>0;r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'tea'});step(r,180);r.st.sipAt=-1;r.st.sipRest=0;r.st.sipQuiet=0;
+ r.talk(1000,'I will listen to your answer.');for(let i=0;i<4;i++){clock+=250;r.update(.1,true)}r.hush();let peak=0,resets=0;
+ for(let i=0;i<24;i++){
+  clock+=100;r.update(.1,true);peak=Math.max(peak,r.st.sipK);
+  const at=r.st.sipAt;clock+=210;r.update(.21,false);peak=Math.max(peak,r.st.sipK);
+  if(at>=0&&r.st.sipAt<0&&r.st.sipClock-at<2.25)resets++;
+  if(r.st.sipK>.97)break;
+ }
+ assert(peak>.94,'maintenance updates repeatedly cancel the listener sip: peak '+peak);assert.equal(resets,0,'detail-only update cancels an unfinished sip');
+ const interruptedAt=r.st.sipK;assert(interruptedAt>.97,'speech interruption fixture did not begin with a raised mug');r.talk(6000,'My cup comes down while I speak.');for(let i=0;i<4;i++){clock+=250;r.update(.1,i%2===0)}assert(r.st.sipK<.02,'own recorded turn does not lower the mug across mixed-detail updates');
+ report.props.push({id:'mom',action:'mixed-detail-sip',peak,resets,interruptedAt,ownSpeechSip:r.st.sipK});r.dispose();
+}
+// A sip follows the current solved head when a live listener changes addressee.
+// Static-facing fixtures alone cannot catch a one-frame head/arm solve lag.
+{
+ const r=w.NPCRig.create('mom',{tier:'low'});r.floor=()=>0;r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'tea',look:{x:0,y:-120,z:170}});step(r,180);r.st.sipAt=-1;r.st.sipRest=0;r.st.sipQuiet=0;
+ let worst=0,count=0;
+ for(let i=0;i<80;i++){
+  const angle=(Math.floor(i/4)%2?80:-80)*Math.PI/180;r.set({look:{x:Math.sin(angle)*170,y:-120,z:Math.cos(angle)*170}});clock+=100;r.update(.1,i%3!==0);
+  if(i%3!==0&&r.st.sipK>.97){frame(r);worst=Math.max(worst,point(r,'p_mug',new T.Vector3(3.2,4.5,-3.5)).distanceTo(point(r,'mouth')));count++;}
+ }
+ assert(count>0,'no live head-turn sip contact samples');assert(worst<2.5,'mug follows the previous head pose instead of the drinking mouth: '+worst);report.props.push({id:'mom',action:'turning-listener-sip',worstRimGap:worst,count});r.dispose();
+}
 // A seated child keeps the crayon and pad while talking. The nib stays
 // on the same pad, and the drawing clock resumes from the paused phase.
 {

@@ -1449,6 +1449,16 @@
       cupOffset.set(4.7,4.5-S.handLen*.48,-1).applyQuaternion(cupQ);cupLip.sub(cupOffset);
       return { ik: [lerp(tea?-11:-9,cupLip.x,s),lerp(restY,cupLip.y,s),lerp(restZ,cupLip.z,s)], pole: [-.9,-.5,-.3],hand:[pitch/D2R,yaw/D2R,0],worldHand:true };
     }
+    function cupContact(H) {
+      // The main arm pass precedes the head solve. Near the mouth, constrain
+      // the held rim to this frame's head instead of chasing its previous pose.
+      // The sip curve already eases the lift; blend in contact before drinking.
+      if (st.walking || (st.action !== 'tea' && st.action !== 'mug')) return;
+      const k = smooth(clamp((st.sipK-.55)/.35,0,1)); if (!k) return;
+      const a = cupArm(H,st.action === 'tea');
+      tgt.set(...a.ik); pole.set(...a.pole).normalize();
+      armIK('R',tgt,pole,k,eul(...a.hand),true);
+    }
     const paperAxis = new T.Vector3(1,0,0), paperQ = new T.Quaternion().setFromAxisAngle(paperAxis, 20 * D2R), paperP = new T.Vector3();
     const paperHeld = new T.Vector3(), paperHeldQ = new T.Quaternion(); let paperHeading = 0, paperPlaced = false;
     const magHeld=new T.Vector3();let magHeading=0,magPlaced=false;
@@ -1576,7 +1586,9 @@
       st.sipWall=now;st.sipClock=(st.sipClock??t-sipDt)+sipDt;
       const sipTime=st.sipClock;
       st.sipQuiet = talking ? 0 : st.sipQuiet+sipDt;
-      if (mug && near && !st.walking) {
+      // The maintenance loop can submit near=false between visible frames.
+      // That controls cosmetic detail, not whether a held sip is still live.
+      if (mug && !st.walking) {
         if (st.sipAt < 0 && sipTime >= st.sipRest && st.sipQuiet > (st.engage?.65:1.2)) st.sipAt=sipTime;
         const age = st.sipAt < 0 ? -1 : sipTime-st.sipAt;
         const target = !talking && age >= 0 && age < 2.25 ? smooth(age/.7)*(1-smooth((age-1.55)/.7)) : 0;
@@ -1830,6 +1842,7 @@
       // secondary hair and painted face work. Refresh the cached head frame.
       if (!near) {
         B.neck.quaternion.identity(); B.head.quaternion.identity(); fk('neck'); fk('head');
+        cupContact(hy);
         if (st.cosmeticNear !== false) { B.hairL.rotation.set(0,0,kind === 'sister' ? .05 : 0); B.hairR.rotation.set(0,0,kind === 'sister' ? -.05 : 0); st.hairS = st.hairV = 0; }
         st.cosmeticNear = false; useLod(false); setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0,0); U.npBrow.value = 0; return;
       }
@@ -1866,6 +1879,7 @@
       if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
       else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (st.listen ? .009 : S.familyHands ? .025 : .03), 'YXZ'));
       slerpTo('head', _q, k * 0.7); fk('head');
+      cupContact(hy);
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
         _v.set(0,0,1).applyQuaternion(W.head.q);

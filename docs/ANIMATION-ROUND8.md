@@ -1,5 +1,70 @@
 # Models and animation, round 8
 
+## Round 8b follow-up (base `6071527`)
+
+Live between-turn sipping is resolved; both complete exchange runs and the final full smoke pass.
+
+The remaining sip blocker was caused by the maintenance animation path, not by speech selection, the listening target, held-prop priority or capped locomotion time. `np-life.js` can call `rig.update(dt, false)` between visible frames when more than 300 ms have passed since the last family frame. In `np-rig.js`, that `near=false` detail flag entered the no-mug/walking branch, cleared `sipAt` and eased the mug down. The next visible update started a fresh sip, which could be cancelled again before reaching the mouth.
+
+A real six-turn replay of the committed rig recorded **41 premature cancellations, all on `near=false` updates**, with Mom seated, holding tea, not speaking and not walking. For example, while the sister spoke at wall time 41.163 s, quiet time was already 3.556 s; a maintenance call cancelled a sip only 0.356 s old. The replay's sampled sip peak was 0.465. The initial quiet-host check happened to pass, illustrating that the failure depends on the interleaving of the two update loops. Trace: `tests/shots/models/r8-exchanges/r8b-before-trace/report.json`.
+
+The scheduling fix removes the `near` condition from the held-sip branch. The existing elapsed-time scheduling, cooldown, quiet interval, lowering on the owner's own speech and action/walking guards remain in place. Native review then exposed a second contact problem: the main arm pass precedes the head solve, so a listener changing addressee could drink towards the previous head pose. A blended final cup constraint now follows the solved head near the top of the sip, retaining the existing hand/handle attachment. A moving-head test reduces its worst sampled rim gap from **9.166 cm to 2.275 cm**. Static cup, paper and drawing contacts remain checked by the existing suite. No speech controller/selection, audio, mesh, material, triangle or draw-call changes are included.
+
+A regression alternates real visible and maintenance rig updates. It fails on the old branch with a sip peak of 0.00000447, then passes with **0.981881** lift and zero premature resets. Interrupting that raised mug with the next own line lowers its sip blend to **0.00000603** after one second of mixed-detail updates. The live exchange now records both update paths and checks held mugs, actual drinking during another speaker's turn, and lowering after 650 ms of the owner's next line.
+
+The first full smoke returned 11/12 because its second T was sent to Notepad's textarea after LOCK IN restored editor focus. A read-only key trace confirmed the first T targeted BODY (unlocked → locked), while the second targeted TEXTAREA and correctly left the desktop locked. The focused diagnostic exited 1 with the same assertion. `tests/smoke.mjs` now waits for the first transition to settle and releases editor focus before the second house-control keypress. No game control code changes are included. After this fixture correction, the full rerun exited 0 with 12/12 passing; the original full run remains recorded at exit 1 (11/12).
+
+The first combined regression runner was terminated with exit 143 during the front-door passage case, after recording the two passing full exchanges and all three passing character cases. That passage attempt has no completed test exit; passage, voices and smoke were completed as separate short jobs. The resume helper retains earlier failures in its aggregate exit; the table below records each actual child command's return code.
+
+<!-- R8B_RESULTS -->
+| Check / exact command | Real result |
+|---|---|
+| `node --check app/public/js/np-rig.js` | exit 0 |
+| `node --check tests/models-exchanges-r8.mjs` | exit 0 |
+| `node --check tests/models-round8-unit.cjs` | exit 0 |
+| `node --check tests/smoke.mjs` | exit 0 |
+| `MODELS_ROUND=r8b python3 tests/models-units.py` | exit 0; 84 suites, 0 failures |
+| `node tests/models-exchanges-r8.mjs --devices=desktop --turns=4 --sip-strip=front` | exit 0; 61.0 s; output `r8b-after-native-final` |
+| `node tests/models-exchanges-r8.mjs --devices=desktop --turns=4 --sip-strip=oblique` | exit 0; 61.4 s; output `r8b-after-oblique` |
+| `node tests/models-exchanges-r8.mjs` | exit 0; 248.1 s; output `r8b-after-1` |
+| `node tests/models-exchanges-r8.mjs` | exit 0; 248.8 s; output `r8b-after-2` |
+| `node tests/characters.mjs --only=day,space,bump` | exit 0; 94.6 s |
+| `node tests/people-pass.mjs --desktop --skip-perf` | exit 0; 159.1 s |
+| `SMOKE_SCALE=3 node tests/voices.mjs http://127.0.0.1:18080` | exit 0; 447.2 s |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | exit 1; 201.7 s |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs --only=pc-controls --keep-shots` | exit 1; 36.7 s |
+| `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` | exit 0; 170.8 s |
+
+These runs are serial, using one Chromium instance at a time and fresh throwaway servers/data under `/tmp`. Functional fixture rendering uses a .25 raster cap on SwiftShader; the PNG captures explicitly render at native viewport resolution. The old rig is routed from task base `6071527`; candidate runs serve the working-tree files. Older candidate JSONs retain main as their comparison `base` field; the task base is still `6071527`. There is no new performance measurement. Server logs are checked for module-load failures; browser errors/warnings use the existing fixture gate.
+
+Independent full exchange results:
+
+| Run / viewport | Recorded turns | Timing samples | Sip peak | Premature resets | Own-speech sip maximum after 650 ms | Drinking rim-gap range cm |
+|---|---:|---:|---:|---:|---:|---:|
+| r8b-after-1 / desktop | 12 | 180 | 0.999986 | 0 | 1.34e-20 | 1.439–2.063 |
+| r8b-after-1 / landscape | 12 | 189 | 0.999976 | 0 | 7.87e-21 | 1.445–1.793 |
+| r8b-after-2 / desktop | 12 | 182 | 0.999985 | 0 | 5.59e-21 | 1.453–1.644 |
+| r8b-after-2 / landscape | 12 | 198 | 0.999982 | 0 | 8.16e-21 | 1.447–2.476 |
+
+Before/after evidence:
+
+- [Native before/after sip strip](../tests/shots/models/r8b/before-after-sip.png), with separate [before](../tests/shots/models/r8b/before-sip-strip.png) and [after](../tests/shots/models/r8b/after-sip-strip.png) rows. Original 1366×860 frames are under `tests/shots/models/r8-exchanges/r8b-before-native/` and `r8b-after-native-final/`.
+- [Oblique drinking frame](../tests/shots/models/r8-exchanges/r8b-after-oblique/desktop-turn-01-sip-0.png). The real room, furniture, hands, mug and face remain visible.
+- These are native-pixel crops with no resizing or generated imagery. The same line sequence and camera are used; the listening picture selects a full sip in the fixed run and a mid-line sample in the old run. Poll progress values are labelled, so the strips do not claim identical audio timestamps. RAF pauses only during PNG readback, with audio and maintenance timers live. No sip phase is manually injected.
+
+Diagnostic history retained: the initial committed-rig six-turn check exited 0 on the quiet host. The traced committed replay (`MODELS_EXCHANGE_REF=HEAD ... --baseline --devices=desktop --turns=6`) exited 0 because baseline mode omits candidate assertions, but recorded the 41 premature cancellations and sampled peak 0.465. The new mixed-detail unit exited 1 before the scheduling fix. The new moving-head contact unit exited 1 before the final head constraint. Native before and intermediate capture runs exited 0; the final candidate gate above is the release evidence.
+
+Ledgers: `tests/shots/models/r8b-{test,unit,syntax}-results.json`. All individual unit commands/exits are retained, including `norepeat-unit.cjs`, `welcome-unit.cjs` and `voices-unit.cjs`. The serial runner logs are `/tmp/r8b-gate-*.log`; the two full exchange JSONs preserve every sampled timing and detail transition.
+
+Limits: no physical-device or gamepad review was performed. Phone landscape is exercised twice by the live exchange; the requested smoke covers its existing phone cases. Git metadata is read-only, so the five changed tracked files remain uncommitted. Pre-existing untracked voice/audio-authoring paths are untouched. No deployment, Docker, version, CHANGELOG, AGENTS, live data or `site/` changes.
+<!-- /R8B_RESULTS -->
+
+The round 8 report below is retained as historical evidence. The owner supplied a quiet-host paired performance result confirming parity with main; round 8b does not repeat that investigation.
+
+---
+
+## Original round 8 report (historical)
+
 Live between-turn drinking remains unfinished: both the full and focused exchange checks fail that assertion. The other authored beats, body pivots, held contacts, profile expressions and joined-name cues are implemented.
 
 Base: `bbe75c4` (main 2.83.1). Changes remain in the `models` working tree. No deployment, commit, version, CHANGELOG, AGENTS, production-data or container changes.
