@@ -66,6 +66,23 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
   panel, objective line, map and touch controls. The bottom box is the "Subtitles" setting (pause menu) and the
   fallback for lines with nobody in the house to hang a balloon on.
 - The fragment shader picks the frames from uniforms, so blinking and talking cost no geometry or texture uploads.
+- Round 7: the front-of-head mask also supplies a warm minimum face brightness in the existing Lambert/Phong
+  material. It preserves brighter room lighting and the painted dark eyes/lips; hair, clothing and the back of the
+  head keep their world shading. No light, material, draw or geometry is added. Mouth width is 1.4 times the round-6
+  range, with a larger continuous aperture, broader brows and stronger smile squash. The painted happy-eye curve is
+  reserved for a smile's peak.
+- Forty priority recordings have clip-time painted-mouth cues in `app/public/audio/voice-phonemes.json`: two welcomes,
+  23 Chapter 1 lines and fifteen time-of-day talk lines. These are a curated priority set, not measured production
+  frequency rankings. The offline helper `tools/audio/author-mouth-cues.py` constrains directed phonetic sequences
+  to recorded word spans using the host's existing acoustic model; sub-word timings remain estimates. It never writes
+  recordings. The source review is in `tests/shots/models/r7-phoneme-alignment.json` after running it. Playback rejects
+  a different file/duration, accounts for the actual joined-name duration and gap, and retains activity-weighted
+  articulation for other clips, names and unmatched voiced lead-ins. Contact closures can reach their frame within
+  16 ms; other mouths retain a short blend. Recorded phrase endings and joke cues share that same source clock.
+- Listening targets hold for 850 ms through a turn gap, then release; a new nearby speaker takes over immediately.
+  Small eye darts and head roll stay restrained while listening. Warm line endings and heard punchlines can produce
+  a bounded response smile that survives the turn boundary. These presentation layers do not select speech, change
+  dialogue history or consume additional shared random numbers.
 
 ### Budgets
 - Draw calls per person: 2 (body + contact shadow).
@@ -121,3 +138,11 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
 - Personal space: standing bodies use radii of 25 cm (Dad), 22 cm (Mom) and 18 cm (the sister). Route sampling must stop a blocked walker rather than let them creep through another body. People walk around one another, ask a standing person to move, or retreat into reachable open space; an aside uses its checked avoidance route. They resume when the other person has passed and their destination is free. `characters.mjs --only=day,space` checks three routine days, body separation and kitchen/hall crossings; seated transitions are measured separately.
 
 Foot IK uses the solid 25 cm treads / 20 cm rises from the family house; the navigation body retains its continuous ramp. The small callback in `np-life.js` crosses the floor-level seam without changing navigation or the space below the flight.
+The same height test now keeps a person on the flight in the hall's open stair render parent, independently of the
+route's changing floor tag. Their logical floor/room remains available to dialogue and sound. Both ends of the open
+stair air volume remain visible when either one is seen through a neighbouring doorway, including on short-distance
+tiers. A cupboard occupant below the flight retains the cupboard's parent and ground height.
+An initial/restored foot point inside a doorway reveal gets the nearest room on its floor (within navigation
+clearance), so it cannot inherit an unrelated hidden parent and advance on the coarse off-screen timer. After an
+avoidance has cleared its route, an ambient spoken line can finish while the person resumes their destination;
+explicit player conversations retain their normal hold.

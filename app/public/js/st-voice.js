@@ -20,14 +20,14 @@
   const build = (document.currentScript?.src || '').match(/[?&]v=([^&]+)/);
   const stamp = build ? '?v=' + build[1] : '';
   const asset = file => BASE + file + stamp;
-  let manifest = null, names = null, loading = null;
+  let manifest = null, names = null, phonemes = null, loading = null;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const own = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   function loadManifest() {
     if (manifest || loading) return loading;
     const get = file => fetch(asset(file), { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
-    loading = Promise.all([get('manifest.json'), get('names/manifest.json')]).then(([m, n]) => {
-      manifest = m && typeof m === 'object' ? m : {}; names = n && typeof n === 'object' ? n : {}; return manifest;
+    loading = Promise.all([get('manifest.json'), get('names/manifest.json'), get('../voice-phonemes.json')]).then(([m, n, p]) => {
+      manifest = m && typeof m === 'object' ? m : {}; names = n && typeof n === 'object' ? n : {}; phonemes = p?.lines || {}; return manifest;
     });
     return loading;
   }
@@ -225,7 +225,24 @@
     if (!on()) { note(id, 'off'); return null; }
     const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') { note(id, 'no-context'); return null; }
     const n = nameInfo(id,o);
+    const authored = phonemes?.[window.VoiceLineAliases?.[id] || id];
+    let track = null, cueIndex = 0;
     const h = { lineId: id, nameId: n?.id || null, nameDur: n?.dur || 0, dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
+      // Seconds in the base clip, after a joined first name and its real gap.
+      // null keeps the activity-weighted fallback for names/unmarked clips.
+      phoneme() {
+        if (!track || !h.started || h.ended || c.state !== 'running') return null;
+        const t = c.currentTime - h.t0 - (n ? h.nameDur + .10 : 0) + .012;
+        if (t < 0) return null;
+        const cues = track.cues;
+        if (cues[cueIndex][0] > t) cueIndex = 0;
+        while (cueIndex < cues.length - 1 && cues[cueIndex + 1][0] <= t) cueIndex++;
+        return cues[cueIndex][1] < 0 ? null : cues[cueIndex][1];
+      },
+      speechCue(kind) {
+        if (!track || track.beats?.[kind] === undefined || !h.started || h.ended || c.state !== 'running') return null;
+        return c.currentTime - h.t0 - (n ? h.nameDur + .10 : 0) >= track.beats[kind];
+      },
       level() {
         if (!h.started || h.ended || !h.envelope || c.state !== 'running') return 0;
         const t = c.currentTime - h.t0; if (t < 0 || t >= h.dur) return 0;
@@ -251,6 +268,12 @@
       if (h.cancelled || !on()) { done('cancelled'); return; }
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
       const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0; h.envelope = speechEnvelope(buf);
+      // Reject stale timing if a recording was replaced. Never apply a base
+      // clip's cues to its joined name, or to a differently cut recording.
+      if (authored?.file === m.file && Math.abs(h.dur - (n ? h.nameDur + .10 : 0) - authored.dur) < .035 && authored.cues?.length) {
+        track = authored;
+        h.phraseEnds = (track.phrases || []).map(t => (t + (n ? h.nameDur + .10 : 0)) / h.dur);
+      }
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
       const g = c.createGain(); g.gain.value = o.gain ?? 1; h.out = g;
       let node = src;

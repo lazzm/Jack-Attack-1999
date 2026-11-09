@@ -1,4 +1,5 @@
 import {chromium} from 'playwright';
+import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import os from 'node:os';
 import {stillCapture} from './still-capture.mjs';
@@ -18,6 +19,10 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader'],...launchOptions});
  const page=await browser.newPage({...contextOptions,viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
  await onPage?.(page);
+ if(process.env.MODELS_BASELINE_REF){
+  const ref=process.env.MODELS_BASELINE_REF;assert(/^[a-zA-Z0-9_.\/-]+$/.test(ref));
+  for(const file of ['np-rig.js','np-life.js','hs-world.js','st-voice.js'])await page.route('**/js/'+file+'*',route=>route.fulfill({contentType:'application/javascript',body:execFileSync('git',['show',ref+':app/public/js/'+file],{cwd:new URL('../',import.meta.url),encoding:'utf8'})}));
+ }
  if(process.env.FIXTURE_STILL_CAPTURE==='1')await stillCapture(page);
  // Optional CPU-host raster cap for functional regressions; layout and input stay in CSS pixels.
  await fixtureRaster(page);

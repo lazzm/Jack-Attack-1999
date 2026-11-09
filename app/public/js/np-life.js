@@ -199,11 +199,31 @@
   }
   function placeRig(c) {
     if (!c.rig) return;
-    const r = roomAt(c.x, c.z, c.lvl) || H.ROOMS[c.room];
+    // The flight passes ABOVE the cupboard's ground-floor rectangle. The
+    // route's floor tag changes halfway up; neither tag identifies its render
+    // owner. Keep the whole flight in the open stair/hall portal, including
+    // during a conversation or an avoidance stop. A person below it stays in
+    // the cupboard (the same height test as the tread contact callback).
+    const flight = NV.onFlight(c.x, c.z) && (c.lvl === 'U' ? c.z < 440 : c.z > 410);
+    let r = (flight ? H.ROOMS[c.lvl === 'U' ? 'landing' : 'hall'] : roomAt(c.x, c.z, c.lvl)) || H.ROOMS[c.room];
+    // A restored/initial pose can be in the few centimetres occupied by a
+    // doorway reveal, outside both floor rectangles. Give it the nearest room
+    // on this floor instead of retaining an unrelated hidden parent. Otherwise
+    // its coarse off-screen timer becomes a visible jump at the next jamb.
+    if (!r) {
+      let nearest = (NV.NEED || 25.5) ** 2;
+      for (const id in H.ROOMS) { const q = H.ROOMS[id]; if (q.lvl !== c.lvl) continue;
+        for (const a of q.area || []) { const dx = Math.max(a[0] - c.x, 0, c.x - a[2]), dz = Math.max(a[1] - c.z, 0, c.z - a[3]), d = dx * dx + dz * dz;
+          if (d < nearest) { nearest = d; r = q; }
+        }
+      }
+    }
     if (r && c.room !== r.id) { c.room = r.id; H.buildRoom(r); }
-    const g = c.rig.group, parent = H.ROOMS[c.room]?.group;
+    // Keep the logical floor/room for dialogue and sound. Only the render
+    // ancestry shares the hall's flight; both ends form one open air volume.
+    const g = c.rig.group, parent = (flight ? H.ROOMS.hall : H.ROOMS[c.room])?.group;
     if (parent && g.parent !== parent) parent.add(g);
-    const y = NV.onFlight(c.x, c.z) && c.x > 340 ? NV.ramp(c.z) : H.LV[c.lvl];
+    const y = flight ? NV.ramp(c.z) : H.LV[c.lvl];
     // A tight shuffle uses the rig's planted-foot adjustment steps. Its back
     // stays against the wall; a forward walk cycle would put toes into it.
     c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow || c.backoff ? 0 : c.v);
@@ -553,13 +573,13 @@
   const frustum = new T.Frustum(), pm = new T.Matrix4(), sph = new T.Sphere(), wp = new T.Vector3();
   function seen(c) {
     if (!c.present || !c.rig || !H.live) return false;
-    const r = H.ROOMS[c.room]; if (!r || !r.group.visible) return false;
+    const parent = c.rig.group.parent || H.ROOMS[c.room]?.group; if (!parent?.visible) return false;
     if (H.mode !== 'walk' && H.mode !== 'focus' && H.mode !== 'glide') return false;
     H.camera.updateMatrixWorld(); pm.multiplyMatrices(H.camera.projectionMatrix, H.camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pm);
     c.rig.group.getWorldPosition(wp); wp.y += 80; sph.set(wp, 110);
     return frustum.intersectsSphere(sph);
   }
-  const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!H.ROOMS[c.room]?.group.visible;
+  const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!(c.rig?.group?.parent || H.ROOMS[c.room]?.group)?.visible;
 
   // ================================================================ speech: one line at a time, in person or shouted
   const speech = { q: [], cur: null, until: 0, hard: 0, last: 0, voice: null, bub: null };
@@ -588,7 +608,7 @@
   }
   // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
   // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
-  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!(c.rig.group.parent || H.ROOMS[c.room]?.group)?.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
   const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
   let V3 = null, voiceDirection = null;
   function speechTick() {
@@ -1047,18 +1067,27 @@
       if (speaking || c.talking || c.hold > 0 || off < 1.7) look = eyes();
     }
     const speaker=speech.cur?.c, listening=c.present&&speaker&&speaker!==c&&speaker.present&&speaker.room===c.room&&sameFloor(c,speaker)&&dist(c,speaker)<330;
-    if(listening&&!c.hold&&!show)look=speaker.rig.eyeWorld(c.listenEye||(c.listenEye=new T.Vector3()));
-    c.rig.set({ look, listen: listening?speaker.rig:null, engage: c.present && c.hold > 0 });
+    // Keep the last addressee through the short silence between queue turns.
+    // Do not swing back to the player for one frame between every sentence.
+    if (listening) { c.listenTo = speaker; c.listenUntil = nowMs() + 850; c.wasListening = true; }
+    else if (c.wasListening) { c.listenUntil = nowMs() + 850; c.wasListening = false; }
+    const last = c.listenTo, heldListen = !c.talking && !c.hold && last?.present && nowMs() < c.listenUntil && last.room === c.room && sameFloor(c,last) && dist(c,last) < 330;
+    const listenerTarget = listening ? speaker : heldListen ? last : null;
+    if(listenerTarget&&!c.hold&&!show)look=listenerTarget.rig.eyeWorld(c.listenEye||(c.listenEye=new T.Vector3()));
+    c.rig.set({ look, listen: listenerTarget?listenerTarget.rig:null, engage: c.present && c.hold > 0 });
   }
 
   // ================================================================ the loop
   let ready = false, lastT = 0, lastFrame = 0, simMode = false;
-  const visible = c => c.present && c.rig && H.ROOMS[c.room]?.group.visible;
+  const visible = c => c.present && c.rig && (c.rig.group?.parent || H.ROOMS[c.room]?.group)?.visible;
   function dialogueHeld(c) {
     if (c.pass && nowMs() < c.pass.until) return false; // walking away releases the pose, never the spoken line
     if (c.goal?.key === 'aside' && !c.aside && c.hold <= 0) return false; // the player left; a passing line may finish back at work
     if (c.hold > 0) return true;
     const line = speech.cur;
+    // A passing line must not strand a cleared avoidance goal.
+    // Explicit conversations and Chapter 1 instructions keep their pose hold.
+    if (!c.goal && !c.aside && line?.c === c && !line.talk && !line.requested && !/^c\d\.|^st\.opening\./.test(line.lineId)) return false;
     // A passing remark can continue while its speaker steps out of the way.
     // It is not a conversation lock, and must not leave a yielded goal null.
     return !!(c.talking && line?.c === c && (line.talk || !/^bark\./.test(line.lineId)));

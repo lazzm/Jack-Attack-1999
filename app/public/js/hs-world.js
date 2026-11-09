@@ -314,7 +314,10 @@
       }
     };
     walk(cur,0,[],new Set(cur?[cur.id]:[]));
-    if (cur && ['hall','landing','cupboard'].includes(cur.id)) for(const id of ['hall','landing']){vs.add(id);route(id,null);}
+    // The open flight is shared architecture, even when viewed through the
+    // bedroom/lounge door on a short-distance device tier. Never cull one end
+    // while a person on the other end is still visible through that portal.
+    if (vs.has('hall') || vs.has('landing') || cur?.id === 'cupboard') for(const id of ['hall','landing']){vs.add(id);route(id,null);}
     // Room groups include shared wall faces: retain their architecture. Only dense vegetation uses these routes.
     const connected = [...vs];
     for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) {

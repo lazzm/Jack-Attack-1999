@@ -40,9 +40,9 @@
   // Paint directions are independent of articulation and gaze. Cross stays
   // gentle, cheeky stays warm; explicit direction wins over simple text cues.
   const MOOD = {
-    neutral: [0, 0, 0, 0, 0], happy: [-.04, .13, 0, .024, .21],
-    cross: [.30, -.025, 0, -.025, .055], tired: [-.04, -.025, 0, -.015, .29],
-    cheeky: [-.04, .11, .018, .008, .13], sad: [-.30, -.07, 0, .008, .15],
+    neutral: [0, 0, 0, 0, 0], happy: [-.08, .19, 0, .036, .34],
+    cross: [.38, -.035, 0, -.034, .055], tired: [-.06, -.025, 0, -.020, .32],
+    cheeky: [-.07, .16, .022, .016, .24], sad: [-.38, -.08, 0, .016, .19],
   };
   function lineMood(text, direction) {
     const tag = typeof direction === 'string' ? direction : direction?.mood;
@@ -387,8 +387,8 @@
       g.save(); g.globalAlpha = 0.22; P2.stroke(g, mixHex(skin, '#7a3a24', 0.6), 0.32, q => { q.moveTo(-0.55, ny + 0.2); q.quadraticCurveTo(0, ny - 0.18, 0.55, ny + 0.2); }); g.restore();
       if (f.freckles) { g.save(); g.globalAlpha = 0.26; for (const [x, y] of [[-3.3, -3.1], [-2.4, -3.7], [-4.0, -3.9], [3.2, -3.2], [2.3, -3.8], [4.0, -3.8]]) P2.ell(g, x * rx / 13.7, ey + y * 0.85, 0.17, 0.17, '#b06a3a'); g.restore(); }
       for (const k of [1, -1]) { // brows: short soft arches, the inner end a touch lower (friendly)
-        const bx = k * ex, by = ey + f.browY * ry, w = 0.135 * rx;
-        P2.stroke(g, S.brow, f.brow * ry, q => { q.moveTo(bx - k * w, by - 0.1); q.quadraticCurveTo(bx, by + 0.85, bx + k * w, by - 0.15); });
+        const bx = k * ex, by = ey + f.browY * ry, w = 0.17 * rx;
+        P2.stroke(g, S.brow, f.brow * ry * 1.25, q => { q.moveTo(bx - k * w, by - 0.1); q.quadraticCurveTo(bx, by + 1.05, bx + k * w, by - 0.15); });
       }
       O.paintFace && O.paintFace(g, S, P2);
     });
@@ -435,7 +435,7 @@
       P2.stroke(g, mixHex(skin, lip, .3), .17, q => { q.moveTo(-w * .09, -h * .065); q.quadraticCurveTo(0, -h * .10, w * .09, -h * .065); });
     });
     mbox(MOUTH.sad, g => P2.stroke(g, lip, .32, q => { q.moveTo(-w * .19, -h * .08); q.quadraticCurveTo(0, h * .12, w * .19, -h * .08); }));
-    return { eye: [f.ex, f.ey, f.ew, f.ew * rx / ry], mouth: [0, f.my, f.mw * .5, f.mh] };
+    return { eye: [f.ex, f.ey, f.ew, f.ew * rx / ry], mouth: [0, f.my, f.mw * .70, f.mh * 1.35] };
   }
   // circumference of a ring (Ramanujan)
   const circ = (a, b) => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
@@ -1106,10 +1106,14 @@
     }`;
   // a soft warm rim (Medium/High: the Phong path): lifts the people off the walls, like the illustrated games did
   const RIM_FRAG = '\n  totalEmissiveRadiance += npRim * pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 3.0) * diffuseColor.rgb;';
+  // Painted bounce, restricted to the front of the skull. A lighting floor
+  // preserves the dark eyes/lips and the room's brighter illumination; unlike
+  // adding a light it costs no draw, light slot, texture or extra material.
+  const FACE_FILL = '\n outgoingLight = mix(outgoingLight, max(outgoingLight, diffuseColor.rgb * vec3(0.36, 0.33, 0.30)), clamp(vNpFace.z, 0.0, 1.0) * (1.0 - smoothstep(0.74, 1.02, abs(vNpFace.y))));\n';
   function npCompile(shader) {
     Object.assign(shader.uniforms, this.userData.np);
     shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nattribute vec3 npFace;\nvarying vec3 vNpFace;').replace('#include <uv_vertex>', '#include <uv_vertex>\n  vNpFace = npFace;');
-    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\n' + FACE_DECL).replace('#include <color_fragment>', '#include <color_fragment>' + FACE_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\n' + FACE_DECL).replace('#include <color_fragment>', '#include <color_fragment>' + FACE_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', FACE_FILL + 'gl_FragColor = vec4( outgoingLight, diffuseColor.a );');
   }
   function material(low, tex, uni) {
     const P = { vertexColors: true, skinning: true, map: tex };
@@ -1117,7 +1121,7 @@
     m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
     Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() } });
     m.onBeforeCompile = npCompile;
-    m.customProgramCacheKey = () => 'np-painted-face-r6';
+    m.customProgramCacheKey = () => 'np-painted-face-r7';
     return m;
   }
   let shadowMat = null;
@@ -1490,7 +1494,7 @@
       // Punctuation is indexed once when a line begins; render-time work is
       // a short scalar comparison, using the recording's existing progress.
       let endNod=0;
-      if(near&&talking&&(!voice||voiceActive))for(const end of st.phraseEnds||[]){const d=progress-end;if(d>-.1&&d<.08)endNod=Math.max(endNod,Math.sin(Math.PI*clamp((d+.1)/.18,0,1))**2*.075);}
+      if(near&&talking&&(!voice||voiceActive))for(const end of voice?.phraseEnds||st.phraseEnds||[]){const d=progress-end;if(d>-.1&&d<.08)endNod=Math.max(endNod,Math.sin(Math.PI*clamp((d+.1)/.18,0,1))**2*.075);}
       st.endNod=endNod;
       // A listener answers selected phrase endings, slightly after the speaker.
       // It shares the existing speech clock, never line selection or memory.
@@ -1499,7 +1503,8 @@
       if(partner&&now<partner.talkUntil&&(!pv||pv.started&&!pv.ended)){
         const lp=pv?clamp(pv.progress(),0,1):clamp((now-partner.talkStart)/Math.max(1,partner.talkUntil-partner.talkStart),0,1);
         const delay=(kind==='sister'?.24:kind==='dad'?.36:.3)/Math.max(1,(partner.talkUntil-partner.talkStart)/1000);
-        for(let i=0;i<(partner.phraseEnds?.length||0);i++)if((i+(kind==='dad'?1:0))%2===0){const d=lp-partner.phraseEnds[i]-delay,w=.65/Math.max(1,(partner.talkUntil-partner.talkStart)/1000);if(d>0&&d<w)listenNod=Math.max(listenNod,Math.sin(Math.PI*d/w)**2*.085);}
+        const ends=pv?.phraseEnds||partner.phraseEnds||[];
+        for(let i=0;i<ends.length;i++)if((i+(kind==='dad'?1:0))%2===0){const d=lp-ends[i]-delay,w=.65/Math.max(1,(partner.talkUntil-partner.talkStart)/1000);if(d>0&&d<w)listenNod=Math.max(listenNod,Math.sin(Math.PI*d/w)**2*.085);}
       }
       if(listenNod>.06&&st.listenNod<=.06){st.blinkT=.18;st.blinkAt=t+2.5+st.seed*.15;}
       st.listenNod=listenNod;
@@ -1758,7 +1763,7 @@
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
       slerpTo('neck', _q, k * 0.7); fk('neck');
       if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
-      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (S.familyHands ? .025 : .03), 'YXZ'));
+      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (st.listen ? .009 : S.familyHands ? .025 : .03), 'YXZ'));
       slerpTo('head', _q, k * 0.7); fk('head');
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
@@ -1786,7 +1791,9 @@
       _q2.copy(W.chest.q).invert().multiply(W.head.q); _v.set(0, 0, 1).applyQuaternion(_q2);
       const actualYaw = Math.atan2(_v.x, _v.z), actualPitch = Math.atan2(_v.y, Math.hypot(_v.x, _v.z));
       const resY = look ? clamp(lookYawRaw - actualYaw, -0.6, 0.6) : 0, resP = look ? clamp(lookPitchRaw - actualPitch, -0.5, 0.5) : 0;
-      const gazeX = thinking ? (kind === 'sister' ? 1 : -1) * .12 : st.gaze.x, gazeY = thinking ? .045 : st.gaze.y;
+      // Continue consuming the shared random schedule, but keep a listener's
+      // little eye darts on their partner rather than repeatedly looking away.
+      const gazeX = thinking ? (kind === 'sister' ? 1 : -1) * .12 : st.gaze.x * (st.listen ? .18 : 1), gazeY = thinking ? .045 : st.gaze.y * (st.listen ? .18 : 1);
       U.npGaze.value.set(clamp(resY * 0.09 + gazeX * 0.25, -0.05, 0.05), clamp(resP * 0.08 + gazeY * 0.25, -0.035, 0.035));
       // Long enough audible silence marks an occasional phrase blink. Its latch
       // prevents a long pause retriggering every frame. Idle blinking remains.
@@ -1798,6 +1805,7 @@
       if (index && (units[index - 1]?.[key] || 0) > phase) index = 0;
       while (index < units.length - 1 && (units[index][key] <= phase || voicedClock && units[index].pause)) index++;
       st.speechIndex = index; const unit = units[index];
+      const authoredShape = voiceActive && v.phoneme ? v.phoneme() : null;
       const quiet = talking && near && (!v ? !!unit?.pause : voiceActive && voiceOpen < .055);
       st.quiet = quiet ? st.quiet + dt : 0;
       if (!quiet) st.pauseBlinked = false;
@@ -1820,20 +1828,27 @@
       // One delayed, closed-mouth listener smile at a joke; it fades instead of
       // becoming a permanent grin or another source of speech selection.
       let reaction = 0;
-      if (partner && partner.joke && now < partner.talkUntil + 400 && (!pv || pv.started) && (!pv?.ctx || pv.ctx.state === 'running')) {
+      const heardEnd = partner && now - (partner.heardEnd ?? -1e9) < 400;
+      if (partner && (now < partner.talkUntil + 400 || heardEnd) && (!pv || pv.started) && (!pv?.ctx || pv.ctx.state === 'running')) {
         const lp = pv ? pv.speechProgress ? pv.speechProgress() : pv.progress() : (now - partner.talkStart) / Math.max(1, partner.talkUntil - partner.talkStart);
-        if (lp >= partner.jokeAt && (st.reactSpeaker !== partner || st.reactLine !== partner.talkSerial)) {
-          st.reactSpeaker = partner; st.reactLine = partner.talkSerial; st.reactAt = now + 220 + (kind === 'dad' ? 60 : 0);
+        const heard = pv?.speechCue?.('joke');
+        const joke = partner.joke && (heardEnd || (heard === null || heard === undefined ? lp >= partner.jokeAt : heard));
+        const warmEnding = !partner.joke && partner.mood === 'happy' && (pv ? pv.progress() : lp) >= .96;
+        if ((joke || warmEnding) && (st.reactSpeaker !== partner || st.reactLine !== partner.talkSerial)) {
+          st.reactSpeaker = partner; st.reactLine = partner.talkSerial; st.reactAt = now + (joke ? 220 : 100) + (kind === 'dad' ? 60 : 0); st.reactStrength = joke ? 1 : .5;
         }
       }
       const reactionAge = (now - (st.reactAt ?? -1e9)) / 1000;
-      if (near && !talking && reactionAge >= 0 && reactionAge < 1.3) reaction = smooth(reactionAge / .24) * (1 - smooth((reactionAge - .65) / .65));
+      if (near && (!talking || progress < .12) && reactionAge >= 0 && reactionAge < 1.3) reaction = smooth(reactionAge / .24) * (1 - smooth((reactionAge - .65) / .65)) * (st.reactStrength ?? 1);
       const mk = st.moodK, ak = 1 - Math.exp(-dt * 7), acting = U.npAct.value;
       acting.x += (mood[0] * mk - acting.x) * ak;
-      acting.y += (mood[1] * mk + reaction * .085 - acting.y) * ak;
+      acting.y += (mood[1] * mk + reaction * .12 - acting.y) * ak;
       acting.z += (mood[2] * mk - acting.z) * ak;
-      const squint = mood[4] * mk + reaction * .16;
+      const squint = mood[4] * mk + reaction * .26;
       U.npLid.value = clamp((1 - squint) * (1 - blink * .86), .12, 1);
+      // The painted happy curve reads at a few pixels. Reserve it for the
+      // peak of a smile; the lead-in/out keep the continuous eye squash.
+      if (blink < .1 && (reaction > .55 || mk > .7 && st.mood === 'happy' && progress > .82)) eye = EYE.happy;
       st.brow += ((talking ? st.accent * 0.032 + question : 0) + mood[3] * mk - st.brow) * k; U.npBrow.value = st.brow;
       // Keep the consumed audio scalar continuous for voice/body diagnostics.
       // Lip closure and teeth are visual constraints layered on top of it.
@@ -1847,11 +1862,13 @@
       }
       st.mouth += (open - st.mouth) * (1 - Math.exp(-dt * (open > st.mouth ? 34 : 24)));
       const rest = mk > .45 && st.mood === 'sad' ? MOUTH.sad : mk > .45 && st.mood === 'cross' ? MOUTH.closed : MOUTH.smile;
-      const m = st.mouth < .065 || !talking || v && !voiceActive || !unit ? rest : unit.shape;
+      const m = talking && authoredShape !== null ? authoredShape : st.mouth < .065 || !talking || v && !voiceActive || !unit ? rest : unit.shape;
       setFace(eye, m);
-      st.faceBlend = Math.min(1, st.faceBlend + dt / .045); U.npMouthMix.value = smooth(st.faceBlend);
+      // A 30ms plosive must reach full closure before its release; longer
+      // crossfades erased the shortest authored contacts on phone displays.
+      st.faceBlend = Math.min(1, st.faceBlend + dt / (authoredShape === MOUTH.closed ? .016 : .035)); U.npMouthMix.value = smooth(st.faceBlend);
       const articulated = m !== MOUTH.smile && m !== MOUTH.closed && m !== MOUTH.sad;
-      U.npJaw.value = articulated ? m === MOUTH.teeth ? .72 + st.mouth * .28 : .30 + st.mouth * .70 : 1;
+      U.npJaw.value = articulated ? m === MOUTH.teeth ? .82 + st.mouth * .28 : .40 + st.mouth * .90 : 1;
     }
 
     // shadows: under the hips, and under each foot (fading as it lifts)
@@ -1888,13 +1905,19 @@
         st.seat = o.seat || null; if (st.seat) st.seatPose = st.seat;
       } if ('look' in o) st.look = o.look || null; if ('listen' in o) st.listen = o.listen || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
-      talk(ms, text, voice, direction) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length);
+      talk(ms, text, voice, direction) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.heardEnd = null; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false;st.question=st.talkText.includes('?');st.phraseEnds=[];for(let i=0;i<st.talkText.length;i++)if(/[.!?]/.test(st.talkText[i]))st.phraseEnds.push((i+1)/st.talkText.length);
         st.speechUnits = speechTrack(st.talkText); st.speechIndex = 0; st.mood = lineMood(st.talkText, direction); st.thinking = /\b(hmm|um|wonder)\b|let me think/i.test(st.talkText);
         const joke = /\b(funny|joke|haha|secret)\b|ha ha|only joking|just kidding|bet you|think.*retired|working out how I win/i.exec(st.talkText);
         st.joke = !/not (?:a )?joke|not funny|no joke/i.test(st.talkText) && (st.mood === 'cheeky' || !!joke); st.jokeAt = joke ? clamp((joke.index + joke[0].length) / Math.max(1, st.talkText.length), .12, .94) : .78; st.talkSerial = (st.talkSerial || 0) + 1;
         st.quiet = 0; st.pauseBlinked = false;
       },
-      hush() { st.talkUntil = 0; st.talkVoice = null; },
+      hush() {
+        // A busy frame can skip the final syllable's render window. Remember
+        // a naturally completed recording until listeners have seen its end;
+        // interrupted/cancelled speech must never invent a punchline reaction.
+        if (st.talkVoice?.started && st.talkVoice.ended && !st.talkVoice.cancelled) st.heardEnd = performance.now();
+        st.talkUntil = 0; st.talkVoice = null;
+      },
       acknowledge(kind) { rig.hush(); st.gestureStart = performance.now(); st.gestureKind = kind === 'smile' ? 'smile' : 'nod'; },
       headTop(out) { // world position just above the hair (speech bubbles hang from here)
         B.head.updateWorldMatrix(true, false); B.head.getWorldPosition(out);
