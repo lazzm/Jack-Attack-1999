@@ -21,6 +21,21 @@ html.house-entering .powerscr>.pc-stage,html.house-entering .powerscr>.pc-room,h
 .hs-gl{z-index:0}
 .hs-ui kbd,.hs-pause kbd,.hs-inspect kbd{display:inline-block;min-width:1.1em;padding:0 4px;border:1px solid #a69873;border-bottom-width:2px;border-radius:2px;background:#242c2e;color:#f0dfae;font:700 11px/1.6 "Courier New",monospace;white-space:nowrap;vertical-align:baseline}
 .hs-phone-key:focus-visible{outline:1px solid #dbc172;outline-offset:1px}
+.hs-phone-key{color:transparent;font-size:0}
+.hs-ui.hs-mobile-open :is(.hs-top,.hs-map,.hs-tin,.ch-jobs,.ch-chip,.rm-coin,.rm-found,.rm-hunt,.st-objective,.se-objective,.st-marker,.st-target){visibility:hidden}
+/* A short phone screen gives the live 3D LCD the left page, and the original
+   operative keys the right page. These are HUD controls, like a console pad. */
+.hs-phone-pad{position:fixed;right:calc(env(safe-area-inset-right,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:max-content;margin-block:auto;box-sizing:border-box;width:236px;padding:10px;display:grid;gap:8px;background:linear-gradient(105deg,#f8f1d9,#e8ddbc);border:1px solid #7e887e;border-top:3px solid #637b86;box-shadow:2px 3px 0 #17232b88;color:#25394c;pointer-events:auto}
+.hs-phone-pad-title{font:700 11px/18px "Courier New",monospace;letter-spacing:.06em;text-align:center}
+.hs-phone-nav,.hs-phone-digits{display:grid;gap:6px;grid-template-columns:repeat(3,minmax(44px,1fr))}
+.hs-phone-nav{grid-template-columns:repeat(4,minmax(44px,1fr))}
+.hs-phone-pad .hs-phone-key.hs-surf{position:relative!important;inset:auto!important;transform:none!important;visibility:visible!important;box-sizing:border-box;width:100%!important;height:44px!important;min-width:44px;min-height:44px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;border:1px solid #1b2431!important;border-bottom:3px solid #182130!important;border-radius:4px;background:linear-gradient(#46546a,#303b4d)!important;color:#f9f0d9;font:700 19px/1 Tahoma,Arial,sans-serif;box-shadow:inset 0 1px #738097;touch-action:manipulation}
+.hs-phone-pad .hs-phone-key small{font:700 9px/1 Tahoma,Arial,sans-serif;letter-spacing:.05em}
+.hs-phone-nav .hs-phone-key{font-size:13px!important}
+.hs-phone-nav .hs-phone-key[aria-label="Phone Menu / Select"]{background:linear-gradient(#6287b6,#456389)!important}
+.hs-phone-pad .hs-phone-key:active{background:#687b95!important;border-bottom-width:1px!important}
+.hs-phone-pad .hs-phone-key:focus-visible{outline:2px dashed #25394c;outline-offset:2px}
+@media(max-height:330px){.hs-phone-pad{padding:6px;gap:4px}.hs-phone-pad-title{line-height:14px}.hs-phone-nav,.hs-phone-digits{gap:4px}}
 .hs-gl2{pointer-events:none;z-index:2}
 html.hs-standing>.hs-gl2{position:fixed;z-index:20003}
 .powerscr .pc-stage{z-index:1}

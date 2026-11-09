@@ -214,6 +214,34 @@ html.hs-live {
 .hs-ui .hs-hbtn button:active, .hs-ui .hs-getup:active { border-bottom-width: 1px; }
 .hs-ui .hs-hbtn button:focus-visible, .hs-ui .hs-getup:focus-visible { outline: 2px dashed #fff7dc; outline-offset: 3px; }
 
+/* One carrying decision, then one small legend. The same buttons work with a
+   free mouse; pointer lock keeps their key labels in the same places. */
+.hs-ui .hs-hold{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:5px 14px;padding:9px 12px;max-width:min(480px,calc(100vw - 36px))}
+.hs-ui .hs-hold[hidden]{display:none!important}
+.hs-ui .hs-hold :is(.hs-hmode,.hs-hkeys){display:none}
+.hs-ui .hs-hold .hs-hname{grid-area:1/1;text-align:left}
+.hs-ui .hs-hold .hs-carry-help{grid-area:2/1;text-align:left;max-width:300px}
+.hs-ui .hs-hold .hs-hbtn,.hs-ui.locked .hs-hold .hs-hbtn{display:contents}
+.hs-ui .hs-hbtn>[data-h="put"]{grid-area:1/2/3/3;min-width:92px;max-width:150px;padding:8px 12px;font-weight:700;background:#d8e1ba;border-color:#6e8059}
+.hs-ui .hs-hold.blocked .hs-hbtn>[data-h="put"]{background:#e6d7c5;color:#825b4d;opacity:.65;cursor:default}
+.hs-ui .hs-hsecondary{grid-area:3/1/4/3;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3px 12px;border-top:1px solid #a2afad80;padding-top:4px;pointer-events:auto}
+.hs-ui .hs-hbtn .hs-hsecondary button{min-width:0;min-height:26px;padding:2px 0;border:0;border-bottom:1px dotted #61716f;border-radius:0;background:transparent;box-shadow:none;font:11px/1.4 Tahoma,Arial,sans-serif}
+.hs-ui .hs-hbtn .hs-hsecondary button:hover{background:#fff7dc}
+.hs-ui .hs-hbtn .hs-hsecondary [data-h="turn"]{display:inline-block!important}
+html[data-game-touch="true"] .hs-ui .hs-hold{display:flex;align-items:flex-start;gap:3px;padding:8px 10px}
+html[data-game-touch="true"] .hs-ui .hs-hold .hs-carry-help{display:block!important;font-size:11px;line-height:1.35;max-width:100%}
+@media(orientation:landscape) and (max-height:500px){.ht-acts.ht-carrying{transform:none}}
+
+/* Resume and the ways back stay on the notebook's top edge as its settings
+   scroll. Keep the labels and finger targets; remove empty form spacing. */
+.hs-pause-head{padding:12px 16px}
+.hs-pause-main{gap:10px;padding:12px 16px}
+.hs-pause-actions{position:sticky;top:0;z-index:3;margin:-12px -16px 0;padding:10px 16px;background:#202628;border-bottom:1px solid #685f4c}
+.hs-pause-main>fieldset{padding:8px 10px}
+.hs-pause label{margin-bottom:6px}
+.hs-pause label:last-child{margin-bottom:0}
+html[data-game-touch="true"] .hs-pause label:has(>input[type="checkbox"]):not(:has(small)){display:flex;align-items:center;gap:6px}
+
 @media (max-width: 900px) {
   .hs-ui :is(.st-objective, .se-objective) {
     top: calc(var(--hud-safe-top) + 118px);

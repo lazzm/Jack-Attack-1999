@@ -17,8 +17,9 @@
   const psave = o => { try { localStorage.setItem(PK, JSON.stringify(Object.assign(pst(), o))); } catch (e) {} };
   const letters = {2:'ABC', 3:'DEF', 4:'GHI', 5:'JKL', 6:'MNO', 7:'PQRS', 8:'TUV', 9:'WXYZ', 0:'SPACE'};
   const phoneKeys = [
-    {k:'c', x:-1.5, z:-1.2, w:.9, d:.7}, {k:'sel', x:0, z:-1.2, w:1.6, d:.8},
-    {k:'up', x:1.5, z:-1.45, w:.9, d:.44}, {k:'down', x:1.5, z:-.92, w:.9, d:.44},
+    // Four separate rubber navigation keys: the old stacked arrows were half
+    // the height of the number keys, even with the phone right up to your face.
+    ...['c','sel','up','down'].map((k,i)=>({k,x:-1.62+i*1.08,z:-1.2,w:.94,d:.82})),
     ...Array.from({length:12}, (_, i) => ({k:'123456789*0#'[i], x:-1.3+(i%3)*1.3, z:.2+Math.floor(i/3)*1.05, w:1.12, d:.88}))
   ];
   const keyLabel = key => key.k === 'sel' ? 'Menu / Select' : key.k === 'up' ? 'Up' : key.k === 'down' ? 'Down' : key.k.toUpperCase() + (letters[key.k] ? ' ' + letters[key.k] : '');
@@ -118,11 +119,13 @@
     thing.obj.updateWorldMatrix(true, false);
     return new T.Matrix4().copy(H.root.matrixWorld).invert().multiply(thing.obj.matrixWorld);
   }
+  const besideKeys=()=>!!window.GameInput?.touch&&innerWidth>innerHeight&&innerHeight<540;
   function closePose() {
     const m = phoneMatrix(), width = innerWidth, height = innerHeight;
     // In a short landscape view concentrate on the working face: the aerial
     // and microphone can be outside the frame, but every screen pixel/key fits.
-    const short = height < 540, z0 = short ? -5.22 : -8.45, z1 = short ? 4.08 : 6.7;
+    const beside=besideKeys(),touch=!!window.GameInput?.touch,short=height<540||touch;
+    const z0=beside?-5.22:touch?-4.95:short?-5.22:-8.45,z1=beside?-1.9:touch?3.85:short?4.08:6.7;
     const centre = new T.Vector3(0, -1.35, (z0+z1)/2).applyMatrix4(m);
     const normal = new T.Vector3(0, -Math.cos(6*D2R), Math.sin(6*D2R)).transformDirection(m);
     const f = normal.clone().negate(), ry = Math.atan2(f.x, -f.z)/D2R, rx = Math.asin(Math.max(-1,Math.min(1,-f.y)))/D2R;
@@ -130,15 +133,32 @@
     const up = new T.Vector3().crossVectors(right, f).normalize();
     const top = 48, bottom = Math.min(86, height*.2), margin = 16;
     const tan = Math.tan(H.camera.fov*D2R/2), aspect = width/height;
-    const fitX = Math.max(.2, (width-2*margin)/width), fitY = Math.max(.2, (height-top-bottom)/height);
+    // Short landscape pairs a large, live physical LCD with the same sixteen
+    // keys on a paper keypad beside it. No second screen or phone program.
+    const reserve=beside?260:0;
+    const fitX = Math.max(.2, (width-2*margin-reserve)/width), fitY = Math.max(.2, (height-top-bottom)/height);
     let d = 4;
     for (const x of [-2.4,2.4]) for (const y of [-2.68,0]) for (const z of [z0,z1]) {
       const v = new T.Vector3(x,y,z).applyMatrix4(m).sub(centre), depth = v.dot(f);
       d = Math.max(d, (H.camera.near||6)+.7-depth, Math.abs(v.dot(right))/(tan*aspect*fitX)-depth, Math.abs(v.dot(up))/(tan*fitY)-depth);
     }
     d *= 1.025;
-    const eye = centre.clone().addScaledVector(normal,d).addScaledVector(up,d*tan*(top-bottom)/height);
+    const eye = centre.clone().addScaledVector(normal,d).addScaledVector(up,d*tan*(top-bottom)/height).addScaledVector(right,d*tan*reserve/height);
     return {x:eye.x, y:eye.y, z:eye.z, rx, ry, lvl:H.W.lvl, seat:1};
+  }
+  let keypad=null;
+  function layoutKeys(){
+    if(!surf)return;
+    if(besideKeys()&&!keypad){
+      keypad=document.createElement('div');keypad.className='hs-phone-pad';keypad.setAttribute('role','group');keypad.setAttribute('aria-label','Talkbrik keypad');
+      const label=document.createElement('b');label.className='hs-phone-pad-title';label.textContent='TALKBRIK · KEYPAD';keypad.appendChild(label);
+      for(const [name,keys]of [['nav',surf.slice(0,4)],['digits',surf.slice(4)]]){
+        const group=document.createElement('div');group.className='hs-phone-'+name;keys.forEach(s=>group.appendChild(s.el));keypad.appendChild(group);
+      }
+      H.ui.el.appendChild(keypad);
+    }else if(!besideKeys()&&keypad){
+      surf.forEach(s=>H.ui.el.appendChild(s.el));keypad.remove();keypad=null;
+    }
   }
   function use(arg) {
     if (!thing || session || H.paused || !H.live || !(['walk','glide'].includes(H.mode)||H.mode==='focus'&&H.seated)) return;
@@ -220,10 +240,13 @@
         surf = phoneKeys.map(key => {
           const b = document.createElement('button'); b.type='button'; b.className='hs-phone-key';
           b.setAttribute('aria-label','Phone '+keyLabel(key)); b.title=keyLabel(key);
+          b.innerHTML='<b>'+esc(key.k==='sel'?'Select':key.k==='up'?'▲':key.k==='down'?'▼':key.k.toUpperCase())+'</b>'+(letters[key.k]?'<small>'+letters[key.k]+'</small>':'');
           b.style.cssText='padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation';
           b.addEventListener('click', () => { if (session === s && !H.paused) FamilyPhone.press(key.k); });
           return H.surface(b,quad(key),{w:80,h:60});
         });
+        H.ui.el.classList?.add('hs-mobile-open');
+        layoutKeys();
         H.setWalkFrom(s.back); // camera focus must not turn the walking state into a seat
         Object.assign(H.P, closePose());
         H.ui.focusBar('Lean back'); H.dirty();
@@ -236,7 +259,9 @@
   }
   function unmount() {
     const s = session; session = null; usingT = 0;
+    H.ui.el.classList?.remove('hs-mobile-open');
     if (surf) { surf.forEach(s=>s.close()); surf = null; }
+    if(keypad){keypad.remove();keypad=null;}
     if (stopLCD) { stopLCD(); stopLCD = null; }
     if (win) { try { win.close(); } catch (e) {} win = null; }
     if (s?.held) {
@@ -266,12 +291,14 @@
     if (!session?.held || H.paused || ev.target?.closest?.('button,input,select,textarea,dialog')) return;
     ev.preventDefault(); ev.stopImmediatePropagation();
   }, {capture:true, passive:false});
-  addEventListener('resize', () => {
+  function resizePhone(){
     if (!session || !H.focused) return;
     // The inspector's resize callback runs first: undo its temporary model pose.
     if (session.held) { thing.obj.position.copy(session.position); thing.obj.rotation.copy(session.rotation); }
-    if (!usingT) { Object.assign(H.P,closePose()); H.dirty(); }
-  });
+    if (!usingT) { layoutKeys();Object.assign(H.P,closePose()); H.dirty(); }
+  }
+  addEventListener('resize',resizePhone);
+  document.addEventListener('game-input-change',resizePhone);
   // a text arrives: the phone buzzes where it lies (and tells you where that is)
   let stopBuzz = null;
   function buzz(it) {

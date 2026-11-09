@@ -9,6 +9,8 @@ html[data-game-touch="true"][data-touch-state="off"] .ht-hud,html.hs-paused .ht-
 .ht-hud{--ht-ink:#eee4ca;--ht-gold:#ffd84a;--ht-panel:rgba(20,23,25,.62);--ht-rim:rgba(216,207,184,.42);
   --sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
   position:fixed;inset:0;z-index:20020;pointer-events:none;font:700 10px/1.1 "Courier New",monospace;color:var(--ht-ink);-webkit-user-select:none;user-select:none}
+/* Resolved padding exposes the same safe rectangle to physical PC framing. */
+.ht-hud{box-sizing:border-box;padding:var(--st) var(--sr) var(--sb) var(--sl)}
 
 /* the floating stick exists only while pressed; releasing it clears the ring and its position */
 .ht-stick{position:absolute;left:calc(var(--sl) + 92px);top:calc(100% - var(--sb) - 132px);width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;
