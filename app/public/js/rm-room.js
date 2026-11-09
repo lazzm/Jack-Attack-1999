@@ -682,9 +682,11 @@
     // One closed fabric skin: a depressed seat, raised back and squashy floor contact.
     const profile = [[0,-17],[5,-17],[10,-18],[15,-21],[20,-26],[24,-29],[28,-27],[31,-21],[32,-13],[31,-6],[28,-1],[20,-0.1],[0,-0.1]];
     const clothPoint = (rad,y,a) => {
-      const fold = Math.sin(a*6+0.4)*0.55*Math.sin(Math.PI*rad/32);
+      const ring=Math.sin(Math.PI*rad/32),foldWeight=Math.min(1,rad/5)*(.25+.75*ring);
+      const fold=(Math.sin(a*6+0.4)*2+Math.sin(a*11+rad*.13)*.65)*foldWeight;
       const squash=(Math.max(0,Math.cos(a))*7-Math.max(0,-Math.cos(a))*12)*Math.sin(Math.PI*rad/32);
-      return new T.Vector3(Math.sin(a)*(rad+fold)*1.4,Math.min(-.1,y+squash)*1.45,Math.cos(a)*(rad+fold)*1.232);
+      const slump=2.1*Math.sin(a*3+.7)*foldWeight*Math.max(0,(-y-8)/21);
+      return new T.Vector3(Math.sin(a)*(rad+fold)*1.4,Math.min(-.1,y+squash+slump)*1.45,Math.cos(a)*(rad+fold)*1.232);
     };
     const skin = new T.LatheGeometry(profile.map(([rad,y])=>new T.Vector2(rad,y)),48), pos=skin.attributes.position;
     for(let i=0;i<pos.count;i++){const a=Math.atan2(pos.getX(i),pos.getZ(i)),p=clothPoint(Math.hypot(pos.getX(i),pos.getZ(i)),pos.getY(i),a);pos.setXYZ(i,p.x,p.y,p.z)}
@@ -695,11 +697,14 @@
       for(let i=1;i<points.length;i++)SB.geo(new T.TubeGeometry(new T.LineCurve3(points[i-1],points[i]),1,0.055,4),0,0,0,seamM);
     }
     seams.build(bb);
-    BG.rbox(0,-5.8,-37.66,7,0.7,1,0.2,M({c:'#601b20',sh:3})); // concealed refill zip and pull, above the carpet
-    BG.box(3.1,-6.5,-37.94,0.7,0.25,1.1,mMetal);
+    // The refill zip follows the actual lower cloth panel, rather than hanging
+    // below its curved underside. It shares the same deformed skin point.
+    const zip=clothPoint(31,-6,Math.PI);
+    BG.rbox(zip.x,zip.y,zip.z-.25,7,.7,1,.2,M({c:'#601b20',sh:3}));
+    BG.box(zip.x+3.1,zip.y-.7,zip.z-.55,.7,.25,1.1,mMetal);
     BG.shadow(0,0,0,94,84,0.65);
     loose('beanbag',bb,{room:'bedroom',x:TX+62,y:FY,z:82,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4,person:{h:24.65,hipForward:0,footForward:36,back:false}},
-      physics:{parts:[{t:'cyl',x:0,z:0,r:41,lo:0,hi:25},{t:'box',x:0,z:-25,hx:28,hz:10,lo:25,hi:51}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
+      physics:{parts:[{t:'cyl',x:0,z:0,r:41,lo:0,hi:25},{t:'box',x:0,z:-25,hx:28,hz:10,lo:25,hi:57}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.
     // Open media rack: twenty separate slots, with enough clearance for a disc
@@ -969,10 +974,12 @@
       // cell around it so no triangle leaves the solid cover hovering on a fold.
       const dx=cx+p.getX(i)-172,dz=cz+14+p.getY(i)-29,c=Math.cos(-6*D2R),s=Math.sin(-6*D2R);
       const edge=Math.max(Math.abs(c*dx-s*dz)-17.5,Math.abs(s*dx+c*dz)-21),fade=Math.max(0,Math.min(1,edge/6)),blend=1-fade*fade*(3-2*fade);
-      y+=(30.2-36-y)*blend;p.setZ(i,-y);
+      y+=(30.2-36-y)*blend;
+      p.setX(i,p.getX(i)+Math.sin(v*10+1.2)*Math.pow(Math.abs(u-.5)*2,10)*1.5);
+      p.setY(i,p.getY(i)+Math.sin(u*8+.6)*Math.pow(v,12)*1.2);p.setZ(i,-y);
     }
     dg.computeVertexNormals();
-    const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
+    const duvet=B.geo(K.thicken(dg,1.5),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
     // things put on the bed lie on the rumpled duvet (or the mattress at the head end), never sunk into it
