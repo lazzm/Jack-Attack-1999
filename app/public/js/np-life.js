@@ -381,7 +381,8 @@
     } else if (s.k === 'act') {
       c.v = 0;
       if (!s.arrived) { s.arrived = true; c.arrivedAt = nowMs(); arrive(c); }
-      if (!c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
+      const listening = listenerTurn(c, dt);
+      if (!listening && !c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
       if (!c.seated && !c.aside && s.t > 0.5 && doorZone(c.x, c.z, c.lvl, 12)) { c.pushT = nowMs(); c.pushN = 6; } // (never stand about in a doorway)
       stepAside(c, dt);
     } else if (s.k === 'yield') {
@@ -470,6 +471,23 @@
   const prio = c => ({ mom: 3, dad: 2, sister: 1 })[c.id];
   const travelAction = c => c.goal?.away && c.goal.away !== 'bed' ? 'leave' : null;
   function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
+  // Listening is presentation only: no route, position, dialogue or random draw
+  // changes. A wide group gets small turns with a pause between them. The rig's
+  // existing exclusive support-foot solve lifts one shoe while the other stays.
+  function listenerTurn(c, dt) {
+    const other = c.listenTo, now = nowMs();
+    if (c.seated || c.hold || c.talking || c.aside || c.pass && now < c.pass.until || c.goal?.key?.startsWith('bf.') || /^(washup|cook|wipe|water|carwash|phone|draw)$/.test(c.rig?.st.action||'') || NV.onFlight(c.x,c.z) || !other?.present || now >= c.listenUntil || other.room !== c.room || !sameFloor(c,other) || dist(c,other) >= 330) { c.listenPivot = null; return false; }
+    let pivot = c.listenPivot;
+    if (!pivot || pivot.other !== other) pivot = c.listenPivot = { other, at: now + 320, to: c.h, until: 0 };
+    if (now < pivot.at) return true;
+    if (now >= pivot.until) {
+      const off = angd(c.h,Math.atan2(other.x-c.x,other.z-c.z));
+      if (Math.abs(off) < .60) return true;
+      pivot.to = c.h + clamp(off-Math.sign(off)*.28,-.44,.44); pivot.until = now + 800;
+    }
+    c.h += clamp(angd(c.h,pivot.to),-.8*dt,.8*dt);
+    return true;
+  }
   function displaySpeaking(c) { return speech.cur?.c === c && !!c.rig?.talking; }
   function lookingAtPlayer(c) { return c.goal?.key?.startsWith('bf.') ? displaySpeaking(c) : c.hold > 0 || c.talking; }
   // at the spot: the action, the props
@@ -659,12 +677,12 @@
     // Ordinary chats have an authored expression, including quoted warnings
     // and jokes about chores. Their words alone do not make a reprimand.
     const direction = window.NPCDialogue?.[n.lineId]?.mood || window.VoiceDirections?.[n.lineId];
-    if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice, direction);
+    if (here && !n.gesture) c.rig.talk(ms - 300, n.text, voice, direction, n.lineId);
     if (here && n.gesture) c.rig.acknowledge(/smile/i.test(n.text)?'smile':'nod');
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
       if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
       speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
-      if (here) c.rig.talk(end - nowMs(), n.text, h, direction);
+      if (here) c.rig.talk(end - nowMs(), n.text, h, direction, n.lineId);
     };
     if (n.person) c.talking = true;
     speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
