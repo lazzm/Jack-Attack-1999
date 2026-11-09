@@ -1,7 +1,7 @@
 /* BOUNCE QUEST 64 (N64, in Jack's room): a proper 3D collect-a-thon. King Grumpus has pinched the golden acorns of
  * Biscuit Island and hidden them all over the place. Bopper hops round the island (9 acorns) and through the magic
- * doors in Acorn Plaza into five worlds (Custard Cove, Frosty Flapjack Peaks, Ghoulish Ginger Manor, Tick-Tock Tower, Custard Grotto),
- * seven or eight named acorns in each, three outfit stages, three more in the enclosed Cocoa Coaster, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 54 in all.
+ * doors in Acorn Plaza into six worlds (Custard Cove, Frosty Flapjack Peaks, Ghoulish Ginger Manor, Tick-Tock Tower, Custard Grotto, Treacle Troubleworks),
+ * six to eight named acorns in each, three outfit stages, three more in the enclosed Cocoa Coaster, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 60 in all.
  * Moves: jump, land-and-jump-again for a double then triple jump, a twirl in the air, long jump (run, hold Z, press A),
  * side flip (reverse and jump while running), backflip (stand still, hold Z, press A), ground pound (Z in the air), wall kick (jump at a wall, press A as you touch
  * it), punch-punch-kick (B), jump kick (B in the air). Camera: L / R turn it round (like the yellow C buttons).
@@ -14,7 +14,7 @@
   const GID = 'n64.hop';
   const SECRETS = [
     ['rm.hop.king', 'Crumbs!', 'Somebody very grumpy is waiting behind the crowned door in Bounce Quest 64.'],
-    ['rm.hop.every', 'Every Last Acorn', 'There are fifty-four golden acorns in Bounce Quest 64. Find the lot.'],
+    ['rm.hop.every', 'Every Last Acorn', 'There are sixty golden acorns in Bounce Quest 64. Find the lot.'],
     ['rm.hop.wall', 'Wall Kicker', 'In Bounce Quest 64, a certain golden acorn can only be reached by kicking off walls.'],
   ];
   for (const [id, n, h] of SECRETS) { try { if (window.Apps && Apps.defineSecret && !(Apps.secrets && Apps.secrets[id])) Apps.defineSecret(id, n, h); } catch (e) {} }
@@ -68,6 +68,8 @@
     grotto: { bpm: 88, wave: 'sine', vol: .085, bassWave: 'triangle',
       lead: [74,-1,0,81,-1,0,78,-1,76,-1,0,73,-1,0,69,-1,71,-1,0,78,-1,0,76,-1,74,-1,0,69,71,-1,73,-1,74,-1,0,81,-1,0,85,-1,83,-1,81,-1,78,-1,76,-1,74,-1,73,-1,71,-1,69,-1,74,-1,-1,-1,0,0,0,0],
       bass: [38,0,0,0,45,0,0,0,42,0,0,0,45,0,0,0,43,0,0,0,50,0,0,0,45,0,0,0,49,0,0,0], drums:'........x.......' },
+    foundry:{bpm:126,wave:'triangle',vol:.07,bassWave:'square',lead:[67,0,70,72,0,75,74,0,72,70,67,0,65,0,67,0,63,0,67,70,0,74,72,0,70,67,65,0,63,-1,0,0,67,70,72,75,0,79,77,75,74,0,72,70,67,0,65,0,63,65,67,70,72,0,70,67,65,0,63,62,60,-1,0,0],bass:[36,0,43,0,39,0,43,0,41,0,48,0,43,0,46,0],drums:'o...x.o.o...x.x.'},
+    foundryBoss:{bpm:148,wave:'square',vol:.04,bassWave:'triangle',lead:[60,0,63,0,67,66,63,0,58,0,62,0,65,64,62,0,60,0,67,0,70,69,67,0,63,0,62,58,60,-1,0,0],bass:[36,0,36,43,0,36,0,43,34,0,34,41,0,34,0,41],drums:'o.x.o...o.x.x...'},
     ending: { bpm: 104, wave: 'triangle', vol: 0.08, bassWave: 'sine',
       lead: [72, -1, 76, -1, 79, -1, 84, -1, 83, -1, 79, -1, 81, -1, -1, -1, 77, -1, 81, -1, 84, -1, 86, -1, 84, -1, 81, -1, 79, -1, -1, -1,
         76, -1, 79, -1, 84, -1, 88, -1, 86, -1, 84, -1, 83, -1, 81, -1, 79, -1, 77, -1, 76, -1, 74, -1, 72, -1, -1, -1, -1, -1, -1, -1],
@@ -173,13 +175,14 @@
       // the door paintings: one per world
       function doorTex(k) {
         return tex('door' + k, 64, 96, g => {
-          const P = [['#2a9ad8', '#ffe08a'], ['#a8d0f0', '#ffffff'], ['#3a2a5a', '#c8a0ff'], ['#e88a3a', '#ffe0a0'], ['#5a0a0a', '#ffb02a'], ['#246c89', '#8bdad5']][k];
+          const P = [['#2a9ad8', '#ffe08a'], ['#a8d0f0', '#ffffff'], ['#3a2a5a', '#c8a0ff'], ['#e88a3a', '#ffe0a0'], ['#5a0a0a', '#ffb02a'], ['#246c89', '#8bdad5'], ['#af7274','#8de0d0']][k];
           const gr = g.createLinearGradient(0, 0, 0, 96); gr.addColorStop(0, P[0]); gr.addColorStop(1, '#101020'); g.fillStyle = gr; g.fillRect(0, 0, 64, 96);
           g.save(); g.translate(32, 44);
           if (k === 0) { g.fillStyle = '#ffe08a'; g.beginPath(); g.ellipse(0, 26, 30, 10, 0, 0, 7); g.fill(); g.fillStyle = '#f08ab0'; g.beginPath(); for (let i = 0; i <= 8; i++) { const a = Math.PI + i / 8 * Math.PI; g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16 + 4); } g.fill(); g.strokeStyle = '#a04a70'; g.lineWidth = 1.5; for (let i = 1; i < 8; i++) { const a = Math.PI + i / 8 * Math.PI; g.beginPath(); g.moveTo(0, 4); g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16 + 4); g.stroke(); } }
           else if (k === 1) { g.strokeStyle = '#fff'; g.lineWidth = 3; for (let i = 0; i < 6; i++) { g.rotate(Math.PI / 3); g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -20); g.moveTo(0, -12); g.lineTo(-6, -17); g.moveTo(0, -12); g.lineTo(6, -17); g.stroke(); } }
           else if (k === 2) { g.fillStyle = '#f0f0ff'; g.beginPath(); g.arc(0, -4, 15, Math.PI, 0); g.lineTo(15, 16); for (let i = 0; i < 5; i++) g.lineTo(15 - (i + 0.5) * 6, i % 2 ? 16 : 11); g.lineTo(-15, 16); g.fill(); g.fillStyle = '#201030'; g.beginPath(); g.arc(-5, -4, 3, 0, 7); g.arc(5, -4, 3, 0, 7); g.fill(); g.beginPath(); g.ellipse(0, 5, 3, 4, 0, 0, 7); g.fill(); }
           else if (k === 3) { g.fillStyle = '#fff8e0'; g.beginPath(); g.arc(0, 0, 20, 0, 7); g.fill(); g.strokeStyle = '#3a2a1a'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -14); g.moveTo(0, 0); g.lineTo(10, 4); g.stroke(); g.lineWidth = 2; g.beginPath(); g.arc(0, 0, 20, 0, 7); g.stroke(); }
+          else if(k===6){g.fillStyle='#ddab70';g.beginPath();g.ellipse(0,4,18,15,0,0,7);g.fill();g.fillStyle='#9be5da';g.fillRect(-20,-14,40,5);g.strokeStyle='#f6e6ba';g.lineWidth=4;g.beginPath();g.arc(21,2,9,-1.5,1.5);g.stroke();g.fillStyle='#302d45';g.fillRect(-8,-1,4,5);g.fillRect(5,-1,4,5);}
           else if (k === 5) { g.strokeStyle = '#b6fff2'; g.lineWidth = 3; for (const [x,y,r] of [[-12,17,9],[9,-2,13],[-8,-25,6]]) { g.beginPath(); g.arc(x,y,r,0,7); g.stroke(); } g.fillStyle='#f0d79a'; g.fillRect(-28,28,56,6); }
           else { g.fillStyle = '#ffd23a'; g.beginPath(); g.moveTo(-18, 10); g.lineTo(-18, -8); g.lineTo(-9, 2); g.lineTo(0, -14); g.lineTo(9, 2); g.lineTo(18, -8); g.lineTo(18, 10); g.closePath(); g.fill(); g.fillStyle = '#e8261c'; g.beginPath(); g.arc(0, 2, 3, 0, 7); g.fill(); }
           g.restore();
@@ -375,7 +378,7 @@
         if (!signCells.has(key)) {
           const slot = signCells.size; signCells.set(key, slot); const g = signCanvas.getContext('2d'), x = slot % 4 * 128, y = (slot / 4 | 0) * 64;
           g.fillStyle = '#392819'; g.fillRect(x, y, 128, 64); g.strokeStyle = '#ba8d52'; g.lineWidth = 2; g.strokeRect(x + 2, y + 2, 124, 60);
-          const bold = wrap(key,10), large = bold.length <= 2, lines = large ? bold : wrap(key,19); lines.forEach((s,i)=>K.font.center(g,s,x+64,y+8+i*(large?20:10),'#ffe0a0',large?2:1));
+          const bold = wrap(key,10), large = bold.length <= 2 && bold.every(s=>K.font.width(s,2)<=120), lines = large ? bold : wrap(key,19); lines.forEach((s,i)=>K.font.center(g,s,x+64,y+8+i*(large?20:10),'#ffe0a0',large?2:1));
           K.font.center(g, 'READ SIGN', x + 64, y + 52, '#e8bf79', 1); signAtlas.needsUpdate = true;
         }
         const slot = signCells.get(key), u = slot % 4 / 4, v = 1 - ((slot / 4 | 0) + 1) / 16;
@@ -392,7 +395,8 @@
         const W_ = 0xffffff, BK = 0x141018;
         const eyes = (x, y, z, s, look) => [pt(S.ball(10), W_, x, y, z, s, s * 1.3, s * 0.6), pt(S.ball(10), W_, -x, y, z, s, s * 1.3, s * 0.6), pt(S.ball(8), BK, x + (look || 0), y - s * 0.05, z - s * 0.3, s * 0.45, s * 0.65, s * 0.3), pt(S.ball(8), BK, -x + (look || 0), y - s * 0.05, z - s * 0.3, s * 0.45, s * 0.65, s * 0.3)];
         let P;
-        if (kind === 'pearl') { P=[pt(S.ball(14),0xcef7ee,0,0,0,.8,.8,.8,0,0,0,.2),pt(S.ball(8),0xffffff,-.16,.18,-.3,.2,.2,.12)];
+        if(kind==='kettle'||kind==='foreman'){P=[pt(S.ball(12),0xbc8759,0,.8,0,1.5,1.2,1.35,0,0,0,.3),pt(S.cyl(12),0x685674,0,1.34,0,1.3,.12,1.2),...(kind==='kettle'?[pt(S.hemi(12),0xd8bb79,0,1.39,0,1.18,.36,1.1),pt(S.ball(8),0x765575,0,1.65,0,.25,.2,.25)]:[]),pt(S.tor(.1,12),0x705368,.76,.9,.05,.9,.9,.9,0,Math.PI/2),pt(S.cyl(8,.7),0xd7b16e,-.75,1,-.05,.34,.85,.34,0,0,-.9),...eyes(.24,1,-.61,.22),pt(S.box(),0x463049,0,.63,-.66,.3,.05,.04),...[-1,1].map(q=>pt(S.ball(8),0x486f78,q*.38,.17,-.07,.48,.32,.65))];
+        } else if (kind === 'pearl') { P=[pt(S.ball(14),0xcef7ee,0,0,0,.8,.8,.8,0,0,0,.2),pt(S.ball(8),0xffffff,-.16,.18,-.3,.2,.2,.12)];
         } else if (kind === 'jelly') { P=[pt(S.hemi(12),0x9b9ee0,0,1,0,1.4,.9,1.4),pt(S.cyl(12),0x5c6fa8,0,.96,0,1.4,.12,1.4),...eyes(.2,1.15,-.5,.2),...[0,1,2,3,4,5].map(i=>pt(S.cyl(5),0x8ac6ca,Math.sin(i)*.42,.5,Math.cos(i)*.42,.12,.95,.12,0,0,Math.sin(i)*.2))];
         } else if (kind === 'grumpy' || kind === 'king') {
           P = [pt(S.ball(14), 0xe8b060, 0, 0.78, 0, 1.6, 1.25, 1.45, 0, 0, 0, 0.3), pt(S.hemi(14), 0xb8682a, 0, 0.88, 0, 1.62, 0.95, 1.47), pt(S.cyl(14), 0xc87a3a, 0, 0.88, 0, 1.6, 0.06, 1.45),
@@ -465,9 +469,9 @@
       function mesh(kind, x, y, z, s, m) { const me = new T.Mesh(model(kind), m || matV()); me.position.set(x, y, z); if (s) me.scale.setScalar(s); WG.add(me); return me; }
 
       // ================================================================ THE WORLDS
-      const WN = { snowhall:'THE COCOA COASTER', hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
-      const ORDER = ['cove', 'peaks', 'manor', 'tower', 'boss', 'grotto'];
-      const NEED = { cove: 0, peaks: 3, manor: 7, tower: 12, boss: 18, grotto: 5 };
+      const WN = { foundry:'TREACLE TROUBLEWORKS', snowhall:'THE COCOA COASTER', hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
+      const ORDER = ['cove', 'peaks', 'manor', 'tower', 'boss', 'grotto', 'foundry'];
+      const NEED = { cove: 0, peaks: 3, manor: 7, tower: 12, boss: 18, grotto: 5, foundry:15 };
       // ---- Biscuit Island (the hub)
       const PLX = -4, PLZ = 8;
       function hubG0(x, z) { const r = Math.hypot(x, z * 1.08); return -4 + sstep(46, 31, r) * 5.6 + 9.5 * ex(x, z, -14, -12, 120) + 2.6 * ex(x, z, 6, 18, 40) - 3.4 * ex(x, z, 11, 4, 26) + 0.4 * Math.sin(x * 0.3) * Math.cos(z * 0.27) * sstep(40, 25, r); }
@@ -1355,23 +1359,147 @@
         schoolAnim();
       }
       function tryLedge(){if(P.gnd||P.vy>0||P.ledgeLock>0||IN.cH||P.power==='tin'||['pound','dead','hurt','ledge','climb'].includes(P.st))return false;const head=prog.opt.big?2.7:P.power==='peek'?2.2:1.95;
-        for(let i=0;i<BOXES.length;i++){const b=BOXES[i];if(b.mv||b.open||b.phase||b.nograb)continue;const top=b.y+b.hh;if(P.y<top-1.65||P.y>top-.85)continue;const dx=P.x-b.x,dz=P.z-b.z,lx=dx*b.cs-dz*b.sn,lz=dx*b.sn+dz*b.cs;let nx=0,nz=0;
+        for(let i=0;i<BOXES.length;i++){const b=BOXES[i];if(b.open||b.phase||b.nograb)continue;const top=b.y+b.hh;if(P.y<top-1.65||P.y>top-.85)continue;const dx=P.x-b.x,dz=P.z-b.z,lx=dx*b.cs-dz*b.sn,lz=dx*b.sn+dz*b.cs;let nx=0,nz=0;
           if(Math.abs(lx)<b.hw-.12&&Math.abs(Math.abs(lz)-b.hd)<.7)nz=Math.sign(lz);else if(Math.abs(lz)<b.hd-.12&&Math.abs(Math.abs(lx)-b.hw)<.7)nx=Math.sign(lx);else continue;
           const wx=nx*b.cs+nz*b.sn,wz=-nx*b.sn+nz*b.cs;if(P.vx*wx+P.vz*wz>-.15&&(-Math.sin(P.face)*wx-Math.cos(P.face)*wz)>-.4)continue;
           const x=nx?b.x+nx*(b.hw+.43)*b.cs+lz*b.sn:b.x+lx*b.cs+nz*(b.hd+.43)*b.sn,z=nx?b.z-nx*(b.hw+.43)*b.sn+lz*b.cs:b.z-lx*b.sn+nz*(b.hd+.43)*b.cs;
           if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-wx*.95,ez=z-wz*.95;let room=true;for(const o of BOXES){if(o===b||o.open||o.phase)continue;const ox=ex-o.x,oz=ez-o.z;if(Math.abs(ox*o.cs-oz*o.sn)<o.hw+.35&&Math.abs(ox*o.sn+oz*o.cs)<o.hd+.35&&o.y-o.hh<top+head&&o.y+o.hh>top+.05){room=false;break;}}if(!room)continue;
           return catchLedge(i,'box',x,z,ex,ez,top,wx,wz);
         }
-        for(let i=0;i<CYLS.length;i++){const c=CYLS[i],top=c.y1,dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(c.mv||c.r<.8||P.y<top-1.65||P.y>top-.85||Math.abs(d-c.r)>.7||d<.01)continue;const nx=dx/d,nz=dz/d;if(P.vx*nx+P.vz*nz>-.15&&(-Math.sin(P.face)*nx-Math.cos(P.face)*nz)>-.4)continue;const x=c.x+nx*(c.r+.43),z=c.z+nz*(c.r+.43);if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-nx*.95,ez=z-nz*.95;let clear=true;for(const b of BOXES){if(b.open||b.phase)continue;const ox=ex-b.x,oz=ez-b.z;if(Math.abs(ox*b.cs-oz*b.sn)<b.hw+.35&&Math.abs(ox*b.sn+oz*b.cs)<b.hd+.35&&b.y-b.hh<top+head&&b.y+b.hh>top+.05){clear=false;break;}}if(!clear)continue;for(const b of CYLS)if(b!==c&&Math.hypot(ex-b.x,ez-b.z)<b.r+.35&&b.y0<top+head&&b.y1>top+.05)clear=false;if(clear)return catchLedge(i,'cyl',x,z,ex,ez,top,nx,nz);}
-        return false;
+        for(let i=0;i<CYLS.length;i++){const c=CYLS[i],top=c.y1,dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(c.r<.8||P.y<top-1.65||P.y>top-.85||Math.abs(d-c.r)>.7||d<.01)continue;const nx=dx/d,nz=dz/d;if(P.vx*nx+P.vz*nz>-.15&&(-Math.sin(P.face)*nx-Math.cos(P.face)*nz)>-.4)continue;const x=c.x+nx*(c.r+.43),z=c.z+nz*(c.r+.43);if(floorAt(x,z,top-.7)>top-1.65)continue;const ex=x-nx*.95,ez=z-nz*.95;let clear=true;for(const b of BOXES){if(b.open||b.phase)continue;const ox=ex-b.x,oz=ez-b.z;if(Math.abs(ox*b.cs-oz*b.sn)<b.hw+.35&&Math.abs(ox*b.sn+oz*b.cs)<b.hd+.35&&b.y-b.hh<top+head&&b.y+b.hh>top+.05){clear=false;break;}}if(!clear)continue;for(const b of CYLS)if(b!==c&&Math.hypot(ex-b.x,ez-b.z)<b.r+.35&&b.y0<top+head&&b.y1>top+.05)clear=false;if(clear)return catchLedge(i,'cyl',x,z,ex,ez,top,nx,nz);}
+        return tryTerrainLedge();
+      }
+      function ledgeClear(x,z,top,support){if(WD.ground(x,z)>top+.05)return false;const head=prog.opt.big?2.7:P.power==='peek'?2.2:1.95;
+        for(const b of BOXES){if(b===support||b.open||b.phase&&P.power==='peek')continue;const dx=x-b.x,dz=z-b.z;if(Math.abs(dx*b.cs-dz*b.sn)<b.hw+.35&&Math.abs(dx*b.sn+dz*b.cs)<b.hd+.35&&b.y-b.hh<top+head&&b.y+b.hh>top+.05)return false;}
+        for(const c of CYLS)if(c!==support&&Math.hypot(x-c.x,z-c.z)<c.r+.35&&c.y0<top+head&&c.y1>top+.05)return false;return true;
+      }
+      function dropLedge(l){P.ledge=null;P.ledgeLock=.25;P.st='fall';P.vx=clamp(l.vx||0,-12,12);P.vz=clamp(l.vz||0,-12,12);P.vy=Math.min(-2,l.vy||0);P.poundBuf=0;P.gnd=false;}
+      function followLedge(l,s){const point=(q,p)=>{const a=q.ry||0,c=Math.cos(a),n=Math.sin(a);return{x:q.x+p[0]*c+p[1]*n,z:q.z-p[0]*n+p[1]*c,top:q.k==='box'?q.y+q.hh:q.y1};},h=point(s,l.attach.hang),e=point(s,l.attach.end),change=h.top-l.top;
+        l.x=h.x;l.z=h.z;l.ex=e.x;l.ez=e.z;l.top=h.top;l.y=h.top-1.3;l.fromY+=change;P.face=Math.atan2(h.x-e.x,h.z-e.z);P.yaw=P.face;
+        const time=curW==='tower'?motionClock:clock,rate=curW==='tower'&&TRIAL?.st==='run' ? .35 : 1,prev={...s},next={...s};s.place(prev,time-.001);s.place(next,time+.001);const p=point(prev,l.attach.hang),n=point(next,l.attach.hang);l.vx=(n.x-p.x)/.002*rate;l.vy=(n.top-p.top)/.002*rate;l.vz=(n.z-p.z)/.002*rate;
+      }
+      function tryTerrainLedge(){if(P.swimming||WD.swimEnabled&&P.y<(WD.water||0)-.5)return false;const dirs=[],speed=Math.hypot(P.vx,P.vz);if(speed>.5)dirs.push([P.vx/speed,P.vz/speed]);dirs.push([-Math.sin(P.face),-Math.cos(P.face)]);
+        for(const [dx,dz] of dirs){let lo=0,hi=1.05,top=WD.ground(P.x+dx*hi,P.z+dz*hi);if(top<-100||P.y<top-1.65||P.y>top-.85||WD.ground(P.x,P.z)>top-1.8)continue;
+          for(let i=0;i<12;i++){const mid=(lo+hi)/2;if(WD.ground(P.x+dx*mid,P.z+dz*mid)>top-.35)hi=mid;else lo=mid;}
+          const ex=P.x+dx*hi,ez=P.z+dz*hi;if(top-WD.ground(P.x+dx*(lo-.04),P.z+dz*(lo-.04))<1.8)continue;
+          const valid=(x,z)=>WD.ground(x,z)>top-.35?1:0,gx=valid(ex+.06,ez)-valid(ex-.06,ez),gz=valid(ex,ez+.06)-valid(ex,ez-.06),len=Math.hypot(gx,gz);if(!len)continue;const nx=-gx/len,nz=-gz/len,x=ex+nx*.43,z=ez+nz*.43,tx=ex-nx*.52,tz=ez-nz*.52;
+          top=WD.ground(tx,tz);if(top<-100||floorAt(x,z,top-.7)>top-1.65||!ledgeClear(tx,tz,top,null))continue;return catchLedge(-1,'terrain',x,z,tx,tz,top,nx,nz);
+        }return false;
       }
       // The hang height and reaching arms meet the actual glove surface at the
       // rim, with the boots still below it. The same pose fits round ledges.
-      function catchLedge(i,kind,x,z,ex,ez,top,nx,nz){P.ledge={i,kind,x,y:top-1.3,z,ex,ez,top,t:0,grabT:0,fromY:P.y};P.x=x;P.z=z;P.vx=P.vy=P.vz=0;P.gnd=false;P.st='ledge';P.stT=0;P.gliding=false;P.face=Math.atan2(nx,nz);P.yaw=P.face;P.plat=null;P.wallT=0;K.sfx.tone(470,.065,'triangle',.06);return true;}
+      function catchLedge(i,kind,x,z,ex,ez,top,nx,nz){P.ledge={i,kind,x,y:top-1.3,z,ex,ez,top,t:0,grabT:0,fromY:P.y};const support=(kind==='box'?BOXES:kind==='cyl'?CYLS:[])[i];if(support?.mv){const a=support.ry||0,c=Math.cos(a),sn=Math.sin(a),local=(px,pz)=>[(px-support.x)*c-(pz-support.z)*sn,(px-support.x)*sn+(pz-support.z)*c];P.ledge.attach={hang:local(x,z),end:local(ex,ez)};}P.x=x;P.z=z;P.vx=P.vy=P.vz=0;P.gnd=false;P.st='ledge';P.stT=0;P.gliding=false;P.face=Math.atan2(nx,nz);P.yaw=P.face;P.plat=null;P.wallT=0;K.sfx.tone(470,.065,'triangle',.06);return true;}
       function ledgeStep(dt){const l=P.ledge;if(!l||!['ledge','climb'].includes(P.st))return false;
-        if(P.st==='ledge'){l.grabT=Math.min(.1,(l.grabT||0)+dt);P.y=lerp(l.fromY??l.y,l.y,sstep(0,.1,l.grabT));P.vx=P.vy=P.vz=0;if(IN.c){P.ledge=null;P.ledgeLock=.25;P.st='fall';P.vy=-2;P.poundBuf=0;IN.c=false;return false;}if(l.grabT>=.1&&P.grabBuf>0){P.st='climb';P.stT=0;l.t=0;P.grabBuf=0;K.sfx.tone(650,.08,'triangle',.05);}return true;}
+        if(l.attach){const support=(l.kind==='box'?BOXES:CYLS)[l.i];if(!support){dropLedge(l);return false;}followLedge(l,support);if(!ledgeClear(l.ex,l.ez,l.top,support)||floorAt(l.x,l.z,l.top-.7)>l.y+.05){dropLedge(l);return false;}}
+        if(P.st==='ledge'){P.x=l.x;P.z=l.z;l.grabT=Math.min(.1,(l.grabT||0)+dt);P.y=lerp(l.fromY??l.y,l.y,sstep(0,.1,l.grabT));P.vx=P.vy=P.vz=0;if(IN.c){dropLedge(l);IN.c=false;return false;}if(l.grabT>=.1&&P.grabBuf>0){P.st='climb';P.stT=0;l.t=0;P.grabBuf=0;K.sfx.tone(650,.08,'triangle',.05);}return true;}
         l.t+=dt;const lift=sstep(0,.18,l.t),across=sstep(.1,.32,l.t);P.x=lerp(l.x,l.ex,across);P.z=lerp(l.z,l.ez,across);P.y=lerp(l.y,l.top,lift);P.vx=P.vy=P.vz=0;
         if(l.t>=.32){P.y=l.top;P.gnd=true;P.plat=(l.kind==='cyl'?CYLS:BOXES)[l.i]||null;P.st='idle';P.stT=0;P.ledge=null;P.ledgeLock=.2;P.chain=P.chainT=0;P.land=.06;}return true;
+      }
+
+      // ---- Treacle Troubleworks. Appended to keep all old world seeds and indices stable.
+      let FD = null;
+      function foundryGround(x,z){const dx=Math.abs(x+18),dz=Math.abs(z-21);return dx<=4&&dz<=4&&dx+dz<=6.8?1.65:-150;}
+      const FOUNDRY_VALVES=[[-33,2,-7],[-18,2,-26],[31,1,-21]];
+      const FOUNDRY_GANTRY=[[14,1,8],[21,3,8],[28,5,8],[33,7,1],[33,9,-7],[27,11,-12]];
+      WORLDS.foundry={song:'foundry',spawn:[0,34,0],spawnY:1,exitAt:[-10,36],ground:foundryGround,killY:-24,lava:-2,bound:52,square:true,
+        fog:[0x72515f,45,130],light:{sky:0xffe7c6,gnd:0x463d63,amb:.85,sun:.75,dir:[-.5,1,.4]},build(){
+          FD={valves:0,valveTimes:[-1,-1,-1],relay:'idle',elapsed:0,best:0,boss:{st:gotAc('foreman')?'gone':'idle',hp:gotAc('foreman')?0:3,t:0,n:0,ringId:0,met:false},waves:[],valveMeshes:[],steam:[]};
+          sky([[0,'#493f69'],[.48,'#b07979'],[.62,'#eab29b'],[1,'#eab29b']],6,58,0xf9c8ac);
+          farRing(11,100,155,20,35,0x66435d,0x9c646b,-7);seaPlane(-2,'lava',0x9f6026,1);
+          // A real height-field mesa: capped rock geometry, vertical cliffs, no box/cylinder collider.
+          const rim=[[-2.8,-4],[2.8,-4],[4,-2.8],[4,2.8],[2.8,4],[-2.8,4],[-4,2.8],[-4,-2.8]],pos=[],cols=[];
+          const vertex=(x,y,z,c)=>{pos.push(x,y,z);const cc=new T.Color(c);cols.push(cc.r,cc.g,cc.b);};
+          for(let i=0;i<rim.length;i++){const a=rim[i],b=rim[(i+1)%rim.length],ax=a[0]-18,az=a[1]+21,bx=b[0]-18,bz=b[1]+21,c=i%2?0xc6b080:0xbca477;vertex(-18,1.65,21,0xd0bf8c);vertex(bx,1.65,bz,c);vertex(ax,1.65,az,c);for(const q of [[ax,1.65,az],[bx,1.65,bz],[bx,-6,bz],[ax,1.65,az],[bx,-6,bz],[ax,-6,az]])vertex(...q,q[1]>0?0x8f7561:0x4f4651);vertex(-18,-6,21,0x4f4651);vertex(ax,-6,az,0x4f4651);vertex(bx,-6,bz,0x4f4651);}
+          const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('color',new T.Float32BufferAttribute(cols,3));geo.computeVertexNormals();const rock=new T.Mesh(geo,matV());WG.add(rock);CAM_MESHES.push(rock);coinRing(-18,2.6,21,2.5,9);
+          const pad=(x,z,w,d,top=1)=>{box(x,-6,z,w,top+6,d,{t:'brick',c:0x78788b});box(x,top-.18,z,w+.1,.18,d+.1,{t:'metal',c:0xc4aba2});};
+          pad(0,29,24,20);pad(0,5,18,29);pad(-25,-16,22,30,2);pad(25,-17,22,26);
+          box(-14,0,0,13,1,4,{t:'metal',c:0xd7b866});for(const [x,h] of [[-11.7,.35],[-13,.7],[-14.2,1]])box(x,1,0,1.7,h,4,{t:'metal',c:0xc8b189});box(14,0,-14,13,1,4,{t:'metal',c:0xd7b866});
+          box(0,0,-16,5,1,11,{t:'metal',c:0xc9ae70});box(0,1,-20.5,5,.5,3,{t:'metal',c:0xc9ae70});
+          cyl(0,-6,-32,11,8,{t:'brick',c:0x8b8496,seg:28});deco(pt(S.tor(.035,32),0xffd68a,0,2.03,-32,21,21,21,Math.PI/2));
+          // The foundry silhouette: hollow-looking but fully capped stacks, pipes and riveted vats.
+          for(const [x,z,h] of [[-27,-21,20],[-16,-33,9],[37,-26,14]]){
+            cyl(x,2,z,2.6,h,{t:'brick',c:0x9c6c70,seg:14});cyl(x,h+1.7,z,3.1,.4,{t:'metal',c:0xe1b47d});
+            deco(pt(S.cyl(14),0x302d43,x,h+2.12,z,4.7,.05,4.7));
+            for(let k=0;k<3;k++){const m=new T.Mesh(merge([pt(S.ball(8),0xd6b4ae,0,0,0,1.5,1.1,1.5)]),matV());WG.add(m);FD.steam.push({m,x,z,y:h+3,k});}
+          }
+          for(let i=0;i<18;i++){const a=1.1+i*.57,y=2+i*1.08;box(-27+Math.sin(a)*4.2,y-.3,-21+Math.cos(a)*4.2,2,.3,2,{t:'metal',c:i%2?0x83b4af:0xd3b87d});coin(-27+Math.sin(a)*4.2,y+.8,-21+Math.cos(a)*4.2);}
+          box(-27,22,-21,6,.5,6,{t:'metal',c:0x83b4af});acorn('stack','THE TOP OF THE POPPING STACK',-27,23.2,-21);
+          for(const [x,z] of [[-31,-15],[30,-26],[18,-26],[5,24],[-7,28]]){
+            cyl(x,1,z,1.7,2,{t:'metal',c:0xc48c54});cyl(x,2.85,z,1.9,.25,{c:0x5c515b});
+            deco(pt(S.tor(.06,12),0x76bdb8,x,3.15,z,2.5,2.5,2.5,Math.PI/2));
+            deco(pt(S.cyl(8),0x486b75,x,2,z+2.3,.5,4,.5,Math.PI/2));
+          }
+          // Boiler pipe elbows, gauge faces and maintenance stripes make the route read as a working sweet factory.
+          for(const [x,z] of [[-9,15],[10,-15],[-19,-3]]){
+            solidBox(x,1.27,z,5,.66,.66,0);solidBox(x+2.5,1.6,z,.8,2.55,.8,0);
+            deco(pt(S.cyl(8),0x789fa2,x,1.6,z,.65,5,.65,0,0,Math.PI/2));
+            deco(pt(S.cyl(8),0x789fa2,x+2.5,2.8,z,.65,2.5,.65));
+            deco(pt(S.ball(8),0x88aaa6,x+2.5,1.6,z,.8,.8,.8));
+            deco(pt(S.cyl(12),0xe9d3a0,x+2.5,3.9,z-.35,.75,.16,.75,Math.PI/2));
+            deco(pt(S.box(),0x4b465e,x+2.5,3.9,z-.45,.07,.42,.04,0,0,-.65));
+          }
+          // Two ferries and an elevator give safe alternative routes across the syrup.
+          mover('box',4,.5,4,{t:'metal',c:0x77b8b0},(s,t)=>{s.x=-18+Math.sin(t*.45)*7;s.y=1.5;s.z=12;});
+          mover('box',4,.5,4,{t:'metal',c:0x77b8b0},(s,t)=>{s.x=-28;s.y=1.75;s.z=5+Math.sin(t*.5)*9;});
+          mover('box',4,.5,4,{t:'metal',c:0x77b8b0},(s,t)=>{s.x=17;s.y=2.75+Math.sin(t*.55)*1.5;s.z=-4;});
+          FOUNDRY_GANTRY.forEach(([x,y,z],i)=>{box(x,-4,z,3.5,y+4,3.5,{t:'brick',c:0x65556e});box(x,y,z,5,.4,5,{t:'metal',c:0x91bcb4,props:{belt:i%2?[.8,0]:[0,.8]}});coinRing(x,y+1.3,z,1.1,5);});
+          box(8,1.015,8,1.7,.03,3.5,{c:0xa2d9c8,solid:false});
+          acorn('gantry','THE GREAT GANTRY TEA BREAK',27,12.8,-12,{hidden:true,cond:'gantry'});
+          const starter=npc('tortoise',`SHIFT BOSS ${castN('mate1')}`,5,11,0,()=>gotAc('gantry')||FD.relay==='won'?['A PROPER TEA BREAK! NICE GANTRY WORK.']:['THE TEA IS GETTING COLD UP ON THE GANTRY!','THE MINT GANTRY STARTS ON YOUR RIGHT. JUMP FROM THE BRASS EDGE.','TAKE A SHORT RUN-UP FOR EACH GAP. HOLD '+L('a')+' FOR HEIGHT.','REACH THE TOP IN 45 SECONDS. READY? OFF YOU HOP!'],{y:1,done:()=>{if(gotAc('gantry'))return;FD.relay='run';FD.elapsed=0;P.inv=Math.max(P.inv,1);say('TEA BREAK DASH!',2,'45 SECONDS. FOLLOW THE MINT PLATFORMS.');saveNow();}});starter.foundryFriend=true;
+          FOUNDRY_VALVES.forEach(([x,y,z],i)=>{cyl(x,y,z,1.1,.35,{t:'metal',c:0x638f97,props:{foundryValve:i}});const m=new T.Mesh(merge([pt(S.tor(.1,12),0xeab767,0,0,0,1.5,1.5,1.5,Math.PI/2),pt(S.box(),0xf5dd9b,0,0,0,1.5,.12,.12),pt(S.box(),0xf5dd9b,0,0,0,.12,.12,1.5)]),matV());m.position.set(x,y+.45,z);WG.add(m);FD.valveMeshes.push(m);coinRing(x,y+.9,z,2.3,8);});
+          cyl(-25,2,-9,2.9,.4,{t:'metal',c:0xb58c74});FD.cooler=new T.Mesh(new T.CylinderGeometry(2.65,2.65,.06,20),mat('foundryCooler',{map:TEX.water(),color:0xffac68,emissive:0x53301b}));FD.cooler.position.set(-25,2.43,-9);WG.add(FD.cooler);deco(pt(S.tor(.06,20),0xeac589,-25,2.5,-9,5.8,5.8,5.8,Math.PI/2));
+          acorn('valves','THREE TURNS FOR THE COOLER',-25,3.2,-9,{hidden:true,cond:'cooler'});
+          acorn('foreman','THE BIG SOFTY COOLS DOWN',0,3.3,-27,{hidden:true,cond:'foreman'});
+          acorn('reds','EIGHT RED HOT PAY PACKETS',0,2.3,24,{hidden:true,cond:'reds'});
+          acorn('c100','A HUNDRED SWEET PENNIES',0,2.3,28,{hidden:true,cond:'c100'});
+          for(const [x,y,z] of [[-8,2,35],[8,2,22],[-18,2.65,21],[-33,3,-4],[-27+Math.sin(6.23)*4.2,12.72,-21+Math.cos(6.23)*4.2],[28,6.4,8],[33,10.4,-7],[7,3,-29]])red(x,y,z);
+          // More than 130 coins, spread across six readable route loops, not one farming ring.
+          for(const [x,z,r,y] of [[0,29,8,2],[0,7,6,2],[-25,-15,7,3],[25,-19,7,2],[0,-32,8,3]])coinRing(x,y,z,r,14);
+          coinLine(0,2,19,0,2,-17,15);coinLine(-20,3,-4,-33,3,-27,10);coinLine(17,2,-10,33,2,-23,10);
+          for(const [x,z] of [[-5,10],[6,17],[-20,-9],[29,-16]])enemy('kettle',x,z,{range:10,st:'idle',t:0,h:1.4,y0:x<-10?2:1});
+          const boss=npc('foreman',`FOREMAN ${castN('mate4')}`,0,-34,Math.PI,[`I'M FOREMAN ${castN('mate4')}. THEY CALL ME THE BIG SOFTY. I AM NOT SOFT!`,'HOP OVER MY STEAM RINGS. I NEED A LITTLE COOLING BREAK AFTER EACH BATCH.','WHEN MY LID TURNS BLUE, BACKFLIP ONTO IT AND GROUND POUND. THREE GOOD CLANGS. NO PUNCHING HOT METAL!'],{y:2,r:0,foundryBoss:true,done:()=>foundryBossStart()});
+          FD.bossNpc=boss;FD.lidSolid=cyl(0,2,-34,1.65,3.63,{vis:false,props:{foundryLid:true}});
+          sign(5,33,0,['TREACLE TROUBLEWORKS.','SIX ACORNS. HOT SYRUP BOUNCES YOU BACK TO SAFETY, BUT TAKES A BITE.','THE GREEN GANTRY IS EAST, THE POPPING STACK WEST. THE FOREMAN GUARDS THE FAR COOLING YARD.'],1);
+          sign(-9,2,.6,['COOLING VALVES.','GROUND POUND ALL THREE BRASS WHEELS TO COOL THE TREACLE. THE LAST ONE IS OVER THE EAST BRIDGE.'],1);
+          for(const x of [-.26,.26])deco(pt(S.box(),0x8ed9cf,x,2.025,-31.25,.24,.035,.55));
+          sign(5,-23,0,['THE BIG SOFTY.','HE TELLS BEFORE EVERY STOMP. JUMP OVER THE RING.','THE MINT BOOTS FACE AWAY. HOLD '+L('c')+' AND PRESS '+L('a')+' TO BACKFLIP.','BLUE LID MEANS COOL. PRESS '+L('c')+' IN THE AIR TO POUND IT.'],2);
+          life(-32,3,-29);life(30,2,-12);
+        }};
+      function foundryInit(){if(!FD)return;if(FD.boss.st==='gone')FD.lidSolid.y1=2;const n=FD.bossNpc;n.mesh.scale.setScalar(2.4);n.mesh.visible=FD.boss.st!=='gone';FD.lid=new T.Mesh(merge([pt(S.cyl(14),0x96e4e6,0,0,0,2.7,.16,2.7),pt(S.tor(.06,14),0xf6e3a2,0,.1,0,2.2,2.2,2.2,Math.PI/2)]),mat('foundryLid',{vcol:true,emissive:0x17465b}));FD.lid.position.set(0,5.55,-34);WG.add(FD.lid);FD.tell=new T.Mesh(new T.TorusGeometry(2.5,.06,5,32),mat('foundryTell',{color:0xffcc73,lit:false}));FD.tell.rotation.x=Math.PI/2;FD.tell.position.set(0,2.06,-34);WG.add(FD.tell);FD.ringMeshes=Array.from({length:5},()=>{const m=new T.Mesh(new T.TorusGeometry(1,.12,5,36),mat('foundryWave',{color:0xffeac4,lit:false}));m.rotation.x=Math.PI/2;WG.add(m);return m;});foundryAnim();}
+      function foundryBossStart(){if(!FD||FD.boss.st==='gone')return;Object.assign(FD.boss,{st:'tell',t:0,n:0});C.want=C.yaw=Math.atan2(P.x,P.z+34);FD.waves=[];P.inv=Math.max(P.inv,1);music('foundryBoss');saveNow();}
+      function foundryPound(o){if(!FD)return;if(Number.isInteger(o.foundryValve)){const bit=1<<o.foundryValve;if(!(FD.valves&bit)){FD.valves|=bit;FD.valveTimes[o.foundryValve]=clock;burst(o.x,o.y1+.3,o.z,[0x99e6d6,0xffffff],14,4);K.sfx.seq([[72, .25],[79,.25],[84,.5]],{bpm:280,vol:.08});say('COOLING VALVE '+(FD.valves.toString(2).split('1').length-1)+' TURNED',1.3);if(FD.valves===7)reveal('cooler');saveNow();}}
+        if(o.foundryLid&&FD.boss.st==='vent'){const b=FD.boss;b.hp--;b.st=b.hp?'hurt':'defeated';b.t=0;FD.waves=[];shake=.24;flash=.12;prog.score+=200;burst(0,5.6,-34,[0xffd374,0xffffff],20,7);K.sfx.tone(130,.3,'triangle',.1,0,65);say(b.hp?'CLANG! '+b.hp+' TO GO!':'THE BIG SOFTY COOLS DOWN!',2);saveNow();}}
+      function foundryUpdate(dt){if(!FD||P.st==='dead')return;const b=FD.boss;
+        if(FD.relay==='run'){FD.elapsed+=dt;if(Math.hypot(P.x-27,P.z+12)<2.4&&P.y>11&&P.gnd){FD.relay='won';prog.records.foundry=Math.min(Number(prog.records.foundry)||999,FD.elapsed);reveal('gantry');saveNow();}else if(FD.elapsed>45){FD.relay='lost';say('THE TEA WENT COLD!',2,'TALK TO THE SHIFT BOSS TO TRY AGAIN.');}}
+        if(!['idle','intro','gone','defeated'].includes(b.st)&&Math.hypot(P.x,P.z+32)>16){b.st='idle';b.t=0;b.n=0;FD.waves=[];music('foundry');}
+        if(b.st==='idle'&&Math.hypot(P.x,P.z+32)<9&&P.gnd&&P.y>=1.8){if(b.met)foundryBossStart();else{b.met=true;b.st='intro';startTalk(FD.bossNpc);}return;}
+        if(!['idle','intro','gone'].includes(b.st))b.t+=dt;
+        if(b.st==='tell'&&b.t>=1.15){b.st='strike';b.t=0;FD.waves.push({r:.3,id:b.ringId++});shake=.16;K.sfx.noise(.2,.12,240);burst(0,2.1,-34,0xffebc2,12,5,{ring:true});}
+        else if(b.st==='strike'&&b.t>=1.65){b.n++;b.st=b.n<5-b.hp?'tell':'vent';b.t=0;if(b.st==='vent'){say('THE LID IS COOL!',2,'BACKFLIP ONTO IT. THEN GROUND POUND.');K.sfx.tone(1050,.25,'sine',.07);}}
+        else if(b.st==='vent'&&b.t>=5){b.st='tell';b.t=0;b.n=0;say('HEATING UP...',1.15,'STEP OFF THE LID. NEXT STOMP IS COMING.');}
+        else if(b.st==='hurt'&&b.t>=1){b.st='tell';b.t=0;b.n=0;}
+        else if(b.st==='defeated'&&b.t>=1.6){b.st='gone';FD.lidSolid.y1=2;reveal('foreman');music('foundry');saveNow();}
+        for(const r of FD.waves){r.r+=dt*8;const d=Math.hypot(P.x,P.z+34);if(Math.hypot(P.x,P.z+32)<11.4&&Math.abs(d-r.r)<.55&&P.y<3.1&&P.y>1.5)hurt(1,0,-34);}FD.waves=FD.waves.filter(r=>r.r<14.5);
+        if(['tell','strike'].includes(b.st)&&b.t>.85&&P.gnd&&P.plat===FD.lidSolid)hurt(1,0,-34);
+        foundryAnim();
+      }
+      function foundryCamera(dt,snap){
+        if(!FD||!['tell','strike','vent','hurt'].includes(FD.boss.st)||Math.hypot(P.x,P.z+32)>12.5)return false;
+        C.yaw+=wrapA(C.want-C.yaw)*(snap?1:1-Math.exp(-dt*7));
+        C.ty+=(P.y-C.ty)*(snap?1:1-Math.exp(-dt*6));const mx=P.x*.65,mz=P.z*.65-34*.35,my=(C.ty+1.1)*.65+4.4*.35,height=Math.max(8,C.ty+5.5),reach=13;
+        WG.updateMatrixWorld(true);let best=-1,chosen=null,chosenYaw=C.yaw;
+        for(const offset of [0,.65,-.65,1.3,-1.3,2,-2,Math.PI]){const a=C.yaw+offset,x=mx+Math.sin(a)*reach,z=mz+Math.cos(a)*reach;let room=1;for(const h of [.35,1.2,2])room=Math.min(room,cameraRoom(P.x,P.y+h,P.z,x,height,z));const score=room*12-Math.abs(offset)*.3;if(score>best){best=score;chosen=[x,height,z];chosenYaw=a;}if(offset===0&&room>=.995)break;}
+        if(Math.abs(wrapA(chosenYaw-C.yaw))>.01){C.want=C.yaw=chosenYaw;}
+        C.pos.set(...chosen);C.look.set(mx,my,mz);cam.position.copy(C.pos);cam.lookAt(C.look);return true;
+      }
+      function foundryAnim(){if(!FD?.lid)return;const b=FD.boss,n=FD.bossNpc,t=clock;
+        FD.valveMeshes.forEach((m,i)=>{const f=FD.valves&(1<<i)?sstep(0,.3,t-(FD.valveTimes[i]??0)):0;m.rotation.y=f*Math.PI/2;m.scale.y=1-f*.55;});
+        FD.cooler.material.color.setHex(FD.valves===7?0xa9ffe2:0xffac68);FD.cooler.material.emissive.setHex(FD.valves===7?0x164d56:0x53301b);
+        FD.steam.forEach(({m,x,y,z,k})=>{const f=(t*.3+k/3)%1;m.position.set(x+Math.sin(t+k)*f,y+f*5,z);m.userData.steamScale=.6+f*2;m.scale.setScalar(m.userData.steamScale);});
+        n.mesh.visible=b.st!=='gone';const squash=b.st==='tell'?Math.sin(Math.min(1,b.t/1.15)*Math.PI)*.09:b.st==='defeated'?Math.min(.99,b.t/1.6):0;n.mesh.scale.set(2.4*(1+squash*.5),2.4*(1-squash),2.4*(1+squash*.5));
+        FD.lid.visible=!['gone','defeated'].includes(b.st);FD.lid.material.emissive.setHex(b.st==='vent'?0x3c9aaa:0x4f1d05);FD.lid.material.color.setHex(b.st==='vent'?0xc9ffff:0xe79559);FD.lid.position.y=5.55;
+        FD.tell.visible=b.st==='tell';FD.tell.scale.setScalar(.7+Math.min(1,b.t/1.15)*1.7);
+        FD.ringMeshes.forEach((m,i)=>{const r=FD.waves[i];m.visible=!!r;if(r){m.position.set(0,2.18,-34);m.scale.setScalar(r.r);}});
       }
 
       // ================================================================ progress (saved) and the visit (not saved)
@@ -1389,7 +1517,7 @@
       const gotAc = id => curW === 'hub' ? !!prog.got[id] : !!(prog.ac[curW] && prog.ac[curW][id]);
       const nAc = () => Object.keys(prog.got).length + Object.keys(prog.ac).reduce((n, w) => n + Object.keys(prog.ac[w] || {}).length, 0);
       const nAcW = w => w === 'hub' ? Object.keys(prog.got).length : Object.keys(prog.ac[w] || {}).length;
-      const TOTAL = 54;
+      const TOTAL = 60;
       // v2 progress/save keys stay intact; run is the separate suspension record.
       const disk = K.load() || {};
       let runCache = disk.run && disk.run.v === 1 && WORLDS[disk.run.w] ? disk.run : null;
@@ -1414,7 +1542,7 @@
           boss: curW === 'boss' ? Object.assign(fields(BOSS, actorKeys), { rings: BOSS.rings.map(r => fields(r, 'r on x z')) }) : null,
           boo: curW === 'manor' ? fields(BB, actorKeys) : null,
           race: curW === 'peaks' ? fields(PERCY, actorKeys) : null,
-          coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen airborne'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
+          foundry:FD&&{...fields(FD,'valves valveTimes relay elapsed best'),boss:fields(FD.boss,'st hp t n ringId met'),waves:FD.waves}, coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen airborne'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
           dlg: dlg && { name: dlg.name, lines: dlg.lines, i: dlg.i, ch: dlg.ch, npc: NPCS.indexOf(dlg.npc), race: !!dlg.npc?.percy },
           fade: fading && { t: fading.t, dur: fading.dur, done: fading.done, action: fading.action },
           feedback: { shake, flash, msg, msgT, msg2, msgCol },
@@ -1446,7 +1574,7 @@
         if (s.boo && curW === 'manor') { Object.assign(BB, s.boo); BB.mesh.position.set(BB.x, BB.y, BB.z); BB.mesh.visible = !['sleep', 'gone'].includes(BB.st); }
         if (s.race && curW === 'peaks') { Object.assign(PERCY, s.race); PERCY.mesh.position.set(PERCY.x, PERCY.y, PERCY.z); PERCY.npc.x = PERCY.x; PERCY.npc.y = PERCY.y; PERCY.npc.z = PERCY.z; }
         SNOWB.length = 0; (s.snow || []).forEach((q, i) => { if (!snowM[i]) return; snowM[i].visible = true; snowM[i].position.set(q.x, q.y, q.z); SNOWB.push(Object.assign({}, q, { m: snowM[i] })); });
-        if(SNOW&&s.coaster){Object.assign(SNOW,s.coaster);SNOW.mittMeshes.forEach((m,i)=>m.visible=!(SNOW.mittens&(1<<i)));}if(SCHOOL&&s.school)Object.assign(SCHOOL,s.school);
+        if(FD&&s.foundry){Object.assign(FD,fields(s.foundry,'valves valveTimes relay elapsed best'));Object.assign(FD.boss,s.foundry.boss);FD.waves=s.foundry.waves||[];FD.lidSolid.y1=FD.boss.st==='gone'?2:5.63;}if(SNOW&&s.coaster){Object.assign(SNOW,s.coaster);SNOW.mittMeshes.forEach((m,i)=>m.visible=!(SNOW.mittens&(1<<i)));}if(SCHOOL&&s.school)Object.assign(SCHOOL,s.school);
         if (GROT && s.grotto) Object.assign(GROT, s.grotto);if(s.powerRun)Object.assign(POWER_RUN,s.powerRun);powerAnim(clock);
         mode = ['play', 'card', 'dlg', 'win', 'ending', 'over'].includes(s.mode) ? s.mode : 'play'; paused = !!s.paused; pauseI = s.pauseI || 0; card = s.card; winT = s.winT || 0; endT = s.endT || 0; overT = s.overT || 0; overSent = !!s.overSent; lastResult = s.result || null; winA = ACS.find(a => a.id === s.win) || null;
         dlg = null;
@@ -1505,7 +1633,7 @@
       function buildWorld(id) {
         if (WG) disposeWorld();
         WG = new T.Group(); T3.add(WG); BK = buckets(); WD = WORLDS[id]; curW = id;
-        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; SNOW = null; SCHOOL = null; winA = null; dlg = null; card = null; mission = 0;
+        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; SNOW = null; SCHOOL = null; FD = null; winA = null; dlg = null; card = null; mission = 0;
         BOXES.length = 0; CYLS.length = 0; MOVERS.length = 0; COINS = []; REDS = []; ACS = []; ENS = []; NPCS = []; DOORS = []; LIFE = []; LAMPS = []; PROPS = []; SNOWB.length = 0;
         chestOpen = {}; plugOut = {}; bossDown = false; raceWon = false; PERCY.on = false; PERCY.st = 'idle'; BB.on = false;
         Object.assign(visit, { coins: 0, reds: 0, kills: 0, t: 0, life50: 0, kicks: 0 });
@@ -1521,10 +1649,10 @@
         coinSpark_=new T.InstancedMesh(coinSparkGeo,mat('coinSpark',{color:0xfff1bc,lit:false}),12);coinSpark_.frustumCulled=false;WG.add(coinSpark_);coinScales=[];
         for (const a of ACS) { a.mesh = new T.Mesh(acornGeo, gotAc(a.id) ? matGhost : matAcorn); a.mesh.position.set(a.x, a.y, a.z); a.mesh.visible = !a.hidden; WG.add(a.mesh); }
         for (const e of ENS) { e.mesh = new T.Mesh(model(e.kind), e.kind === 'boohoo' ? ghostMat : matV()); e.mesh.position.set(e.x, e.y, e.z); WG.add(e.mesh); }
-        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if(n.snowRival){const gear=new T.Mesh(merge([pt(S.hemi(12),0x76c5c9,0,1.42,0,.85,.5,.8),pt(S.box(),0xf4d17f,0,1.28,-.48,.62,.2,.12),pt(S.box(),0x415a72,0,1.29,-.55,.49,.12,.05)]),matV());n.mesh.add(gear);}if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost&&!n.snowRival) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : 1.6) }); }
+        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if(n.snowRival){const gear=new T.Mesh(merge([pt(S.hemi(12),0x76c5c9,0,1.42,0,.85,.5,.8),pt(S.box(),0xf4d17f,0,1.28,-.48,.62,.2,.12),pt(S.box(),0x415a72,0,1.29,-.55,.49,.12,.05)]),matV());n.mesh.add(gear);}if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost&&!n.snowRival&&!n.foundryBoss) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : 1.6) }); }
         lifeMeshes = LIFE.map(o => { const m = new T.Mesh(model('life'), matV()); m.position.set(o.x, o.y, o.z); m.scale.setScalar(0.9); WG.add(m); return m; });
         snowM = []; for (let i = 0; i < 6; i++) { const m = new T.Mesh(model('snowball'), matV()); m.visible = false; WG.add(m); snowM.push(m); }
-        if (id === 'manor') BB.init(); if (id === 'boss') BOSS.init();
+        if (id === 'manor') BB.init(); if (id === 'boss') BOSS.init();foundryInit();
       }
       function exitDoorBuild() {
         const [x, z] = WD.exitAt, sx = WD.spawn[0], sz = WD.spawn[1], d = Math.hypot(sx - x, sz - z) || 1, fx = (sx - x) / d, fz = (sz - z) / d, ry = Math.atan2(fx, fz), y = WD.power ? floorAt(x,z,WD.spawnY==null?99:WD.spawnY) : WD.ground(x, z) > -100 ? WD.ground(x, z) : floorAt(x, z, 99);
@@ -1548,6 +1676,7 @@
       }
       function poundOn(o) {
         if (!o) return;
+        foundryPound(o);
         if(o.schoolButton&&SCHOOL?.active&&SCHOOL_LESSONS[SCHOOL.lesson]?.[1]==='pound')SCHOOL.seen=true;
         if(o.powerSwitch)unlockPower(o.powerSwitch);
         if (o.trial) trialStart();
@@ -1799,7 +1928,8 @@
           if (!e.alive) { if (e.dead > 0) { e.dead -= dt; const k = Math.max(0.01, e.dead * 2); m.scale.set(1 + (1 - k) * 0.5, k, 1 + (1 - k) * 0.5); if (e.dead <= 0) m.visible = false; } continue; }
           const dx = P.x - e.x, dz = P.z - e.z, d = Math.hypot(dx, dz) || 0.001, near = d < e.range && Math.abs(P.y - e.y) < 3 && P.st !== 'dead';
           let tx = 0, tz = 0, sp = 0;
-          if (e.kind === 'jelly') { e.y = e.y0 + Math.sin(t * 1.7 + e.a) * .9; m.position.set(e.x,e.y,e.z); m.rotation.z = Math.sin(t*2+e.a)*.12; } else if (e.kind === 'grumpy' || e.kind === 'snipper') {
+          if(e.kind==='kettle'){e.t+=dt;if(e.st==='idle'&&near&&e.t>1.7){e.st='tell';e.t=0;}else if(e.st==='tell'&&!near){e.st='idle';e.t=0;}else if(e.st==='tell'&&e.t>.9){throwSnow(e);e.st='idle';e.t=0;}if(near)m.rotation.y+=wrapA(Math.atan2(-dx,-dz)-m.rotation.y)*Math.min(1,dt*3);m.position.set(e.x,e.y,e.z);m.scale.setScalar(e.st==='tell'?1+Math.sin(e.t*18)*.06:1);}
+          else if (e.kind === 'jelly') { e.y = e.y0 + Math.sin(t * 1.7 + e.a) * .9; m.position.set(e.x,e.y,e.z); m.rotation.z = Math.sin(t*2+e.a)*.12; } else if (e.kind === 'grumpy' || e.kind === 'snipper') {
             if (near) { tx = dx / d; tz = dz / d; sp = e.kind === 'snipper' ? 3.0 : 3.3; }
             else { e.t -= dt; if (e.t < 0) { e.a += (rnd() - 0.5) * 2.5; e.t = 1 + rnd() * 2; } tx = Math.cos(e.a); tz = Math.sin(e.a); sp = 1.3; if (Math.hypot(e.x - e.hx, e.z - e.hz) > 6) { tx = e.hx - e.x; tz = e.hz - e.z; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l; } }
             const nx = e.x + tx * sp * dt, nz = e.z + tz * sp * dt, ng = floorAt(nx, nz, e.y + 0.5);
@@ -2023,7 +2153,7 @@
       function mayorLines() {
         const n = nAc();
         if (prog.boss) return ['BOPPER! THE HERO OF BISCUIT ISLAND! WE\'RE PUTTING UP A STATUE OF YOU. IT\'S MADE OF SHORTBREAD.', n < TOTAL ? 'THERE ARE STILL ' + (TOTAL - n) + ' ACORNS OUT THERE SOMEWHERE, IF YOU FANCY A BIT MORE BOUNCING.' : 'ALL '+TOTAL+' ACORNS! I DON\'T KNOW WHAT TO SAY. HAVE A BISCUIT.'];
-        const next = ORDER.find(w => NEED[w] > n);
+        const next = ORDER.filter(w=>NEED[w]>n).sort((a,b)=>NEED[a]-NEED[b])[0];
         const L0 = n === 0 ? [`WELL HELLO THERE, BOPPER! I'M MAYOR ${castN('mate1')}.`, 'DISASTER! KING GRUMPUS HAS PINCHED ALL THE GOLDEN ACORNS ON BISCUIT ISLAND AND HIDDEN THEM ALL OVER THE PLACE!', 'THERE ARE NINE RIGHT HERE ON THE ISLAND. HOW ABOUT THE TOP OF THE LIGHTHOUSE FOR A START?', 'THE MAGIC DOORS IN ACORN PLAZA LEAD TO FAR-OFF WORLDS WITH MORE ACORNS. THE FIRST ONE IS OPEN ALREADY.', 'PRESS ' + L('a') + ' TO JUMP. LAND AND PRESS IT AGAIN, AND AGAIN, FOR A TRIPLE JUMP!']
           : ['YOU\'VE FOUND ' + n + ' GOLDEN ACORN' + (n === 1 ? '' : 'S') + '! MARVELLOUS!'];
         if (next && n > 0) L0.push('THE DOOR TO ' + WN[next] + ' OPENS AT ' + NEED[next] + ' ACORNS. YOU NEED ' + (NEED[next] - n) + ' MORE.');
@@ -2087,11 +2217,11 @@
       }
       function camSnap() { delete C.indoorAuto; C.yaw = C.want = P.face; C.ty = P.y; C.arm = 1; C.lift = 0; C.auto = 0; camUpdate(0, true); }
       function camUpdate(dt, snap) {
-        const inside=manorCamera(),fov=inside?78:60;const nextFov=snap?fov:lerp(cam.fov,fov,1-Math.exp(-dt*7));if(Math.abs(cam.fov-nextFov)>.0001){cam.fov=nextFov;cam.updateProjectionMatrix();}
+        const inside=manorCamera(),fov=FD&&['tell','strike','vent','hurt'].includes(FD.boss.st)&&Math.hypot(P.x,P.z+32)<12.5?72:inside?78:60;const nextFov=snap?fov:lerp(cam.fov,fov,1-Math.exp(-dt*7));if(Math.abs(cam.fov-nextFov)>.0001){cam.fov=nextFov;cam.updateProjectionMatrix();}
         if (!snap && !demo && mode === 'play') {
           if (IN.l || IN.r) { C.want += (IN.l ? 1 : -1) * Math.PI / 4; C.auto = 2.5; K.sfx.tone(760, 0.03, 'square', 0.04); }
         }
-        if(snowCamera(dt,snap))return;
+        if(snowCamera(dt,snap)||foundryCamera(dt,snap))return;
         if(inside)limitManorOrbit(snap);
         C.auto = Math.max(0, C.auto - dt);
         // Sideways/backwards running must not rotate the very axes the player is steering with.
@@ -2128,7 +2258,7 @@
         cam.lookAt(C.look);
       }
       function introCamera(dt) {
-        const boss = curW === 'manor' ? BB : BOSS, mx = (P.x + boss.x) / 2, mz = (P.z + boss.z) / 2, my = Math.max(P.y + 1.2, boss.y + 1.5);
+        const boss = FD?{x:0,y:3,z:-34}:curW === 'manor' ? BB : BOSS, mx = (P.x + boss.x) / 2, mz = (P.z + boss.z) / 2, my = Math.max(P.y + 1.2, boss.y + 1.5);
         const sep = Math.hypot(P.x - boss.x, P.z - boss.z), base = Math.atan2(P.x - boss.x, P.z - boss.z), dist = Math.max(10, sep * 0.9 + 6);
         let best = -1, target = null;
         WG.updateMatrixWorld(true);
@@ -2163,7 +2293,7 @@
       let lastResult = null;
       let overSent = false, mode = 'title', menuI = 0, sub = null, subI = 0, idleT = 0, winT = 0, paused = false, pauseI = 0, card = null, overT = 0, endT = 0, fading = null, lockT = 0, demoT = 0, demoI = 0, demoJ = 0;
       const music = s => K.music(prog.opt.mus && s ? SONGS[s] : null);
-      const playSong = () => curW==='snowhall'&&SNOW&&['count','run'].includes(SNOW.phase)?'coaster':curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
+      const playSong = () => FD&&!['idle','gone'].includes(FD.boss.st)?'foundryBoss': curW==='snowhall'&&SNOW&&['count','run'].includes(SNOW.phase)?'coaster':curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
       function iris(action) { if (fading) return; fading = { t: 0, dur: 0.42, action, fn: () => applyTransition(action), done: false }; K.sfx.tone(520, 0.3, 'triangle', 0.05, 0, 160); }
       function applyTransition(a) {
         if(a.op==='snowIn'){buildWorld('snowhall');spawnInWorld('snowhall');mode='play';music('peaks');}
@@ -2265,7 +2395,7 @@
           if (P.plat === s && P.gnd && mode !== 'title') { const dx = P.x - ox, dz = P.z - oz, dr = (s.ry || 0) - ory, c = Math.cos(dr), sn = Math.sin(dr); P.x = s.x + dx * c + dz * sn; P.z = s.z - dx * sn + dz * c; P.y = s.k === 'box' ? s.y + s.hh : s.y1; P.face += dr; P.yaw += dr; } }
         for (const c of CYLS) if (c.squish > 0) c.squish -= dt;
         for (const pr of PROPS) { if(pr.kind==='manorDoor'){pr.open+=clamp(pr.want-pr.open,-dt*2,dt*2);syncDoor(pr);}else if(pr.open > 0 && pr.open < 1) { pr.open = Math.min(1, pr.open + dt * 3); pr.lid.rotation.x = 1.3 * pr.open; } }
-        trialAnim(dt, t); grottoAnim(t);powerAnim(t);schoolAnim();if(SNOW?.gate){SNOW.gate.b.open=SNOW.phase!=='finish';SNOW.gate.m.position.y=SNOW.phase==='finish'?0:-4;}
+        trialAnim(dt, t); grottoAnim(t);powerAnim(t);schoolAnim();foundryAnim();if(SNOW?.gate){SNOW.gate.b.open=SNOW.phase!=='finish';SNOW.gate.m.position.y=SNOW.phase==='finish'?0:-4;}
         lifeMeshes.forEach((m, i) => { m.rotation.y = t * 2; m.position.y = LIFE[i].y + Math.sin(t * 3 + i) * 0.15; });
         for (const a of ACS) if (a.mesh && a.mesh.visible && a !== winA) { a.mesh.rotation.y = t * 2 + a.x; a.mesh.position.y = a.y + Math.sin(t * 2.5 + a.x) * 0.2; }
       }
@@ -2365,7 +2495,7 @@
         if (mode === 'card') { card.t += dt; card.sel = card.sel || 0; if (up() || dn()) { card.sel = (card.sel + ACS.length + (up() ? -1 : 1)) % ACS.length; tick(); } if (card.t > 0.6 && (K.pressed('a') || K.pressed('start'))) { mission = card.sel; mode = 'play'; K.resume?.(); okS(); music(WORLDS[curW].song); if (card.w === 'hub' && !card.back && nAc() === 0) say('FIND THE GOLDEN ACORNS!', 2.5); } camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'over') { overT += dt; P.vy = 0; if (overT > 3.2 && !overSent) { overSent = true; sendScore(true, 'GAME OVER', `${nAc()} OF ${TOTAL} GOLDEN ACORNS. THEY'RE SAVED: PICK CONTINUE ON THE TITLE SCREEN.`); } return; }
         if (mode === 'ending') { endingUpdate(dt, t); return; }
-        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && ['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)) introCamera(dt);else if(mode==='dlg'&&(dlg.npc?.snowRival||dlg.npc?.coach||curW==='snowhall'&&dlg.npc?.kind==='tortoise'))friendlyCamera(dt,dlg.npc); else camUpdate(dt); animBop(dt, t); return; }
+        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && (['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)||FD?.boss.st==='intro')) introCamera(dt);else if(mode==='dlg'&&(dlg.npc?.foundryBoss||dlg.npc?.foundryFriend||dlg.npc?.snowRival||dlg.npc?.coach||curW==='snowhall'&&dlg.npc?.kind==='tortoise'))friendlyCamera(dt,dlg.npc); else camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'win') {
           winT += dt; rewardCamera(dt); animBop(dt, t);
           if (winA) { winA.mesh.material = matAcorn; poseReward(); winA.mesh.rotation.y = t * 4; }
@@ -2380,7 +2510,7 @@
         if (fading) { animBop(dt, t); camUpdate(dt); return; }
         visit.t += dt; readInput();powerInput();
         stepPlayer(dt);
-        snowUpdate(dt);schoolUpdate();
+        snowUpdate(dt);schoolUpdate();foundryUpdate(dt);
         if (mode !== 'play') { animBop(dt, t); camUpdate(dt); return; }
         enemiesUpdate(dt, t); if (curW === 'peaks') percyUpdate(dt); if (curW === 'manor') BB.update(dt, t); if (curW === 'boss') BOSS.update(dt, t);
         if (P.st !== 'dead') { trialUpdate(dt); grottoUpdate(dt); powerUpdate(dt);powerAnim(t);collectStuff(dt); }
@@ -2493,10 +2623,11 @@
           if(GROT)footer.push(['PEARLS '+[0,1,1,2,1,2,2,3][GROT.pearls]+'/3   CURRENT '+GROT.gate+'/3','#d0fff3']);
           if(P.swimming){footer.push([L('a')+' UP  '+L('c')+' DIVE','#fff']);if(PROPS.some(p=>p.kind==='chest'&&!chestOpen[p.w]&&Math.hypot(P.x-p.b.x,P.z-p.b.z)<2.6&&Math.abs(P.y-p.b.y)<2))footer.push([L('b')+' OPEN CHEST','#ffe299']);}
         }
-        const kingBar=mode==='play'&&curW==='boss'&&BOSS.mesh&&['walk','up','aim','charge','dizzy','hurt','hop'].includes(BOSS.st),booBar=mode==='play'&&curW==='manor'&&BB.on&&BB.st==='fight';
+        const kingBar=mode==='play'&&curW==='boss'&&BOSS.mesh&&['walk','up','aim','charge','dizzy','hurt','hop'].includes(BOSS.st),booBar=mode==='play'&&curW==='manor'&&BB.on&&BB.st==='fight',foundryBar=mode==='play'&&FD&&!['idle','intro','gone','defeated'].includes(FD.boss.st);
+        if(foundryBar){bossBar('THE BIG SOFTY',FD.boss.hp);F.center(hud,FD.boss.st==='vent'?'COOL LID '+Math.max(0,5-FD.boss.t).toFixed(1):FD.boss.st==='tell'?'STOMP COMING!':'HOP THE STEAM RING',W/2,48,FD.boss.st==='vent'?'#bffff4':'#ffe3a0',1);}if(mode==='play'&&FD?.relay==='run')F.center(hud,'TEA BREAK '+Math.max(0,45-FD.elapsed).toFixed(1),W/2,38,'#ddfff5',1);
         if(kingBar)bossBar('KING GRUMPUS',BOSS.hp);if(booBar)bossBar('BIG BOOHOO',BB.hp);
         if(mode==='play'&&curW==='peaks'&&PERCY.st==='race'){const d=Math.hypot(PERCY.x,PERCY.z-48),me=Math.hypot(P.x,P.z-48);footer.push([me<d?'YOU ARE AHEAD!':`${castN('mate3')} IS AHEAD!`,me<d?'#7aff7a':'#ff8a8a']);}
-        footer.forEach(([text,color],i)=>F.center(hud,text,W/2,(kingBar||booBar?H-44:H-18)-i*12,color,1));
+        footer.forEach(([text,color],i)=>F.center(hud,text,W/2,(kingBar||booBar||foundryBar?H-44:H-18)-i*12,color,1));
         if (msgT > 0 && mode !== 'win') { const k = msg.length > 16 ? 1 : 2; F.center(hud, msg, W / 2, 62, msgCol, k, '#3a1a00'); if (msg2) wrap(msg2, 48).forEach((s, i) => F.center(hud, s, W / 2, 62 + 9 * k + 4 + i * 10, '#fff', 1, true)); }
         if (mode === 'win' && winA) { bigText('GOLDEN ACORN!', W / 2, 64, 22); F.center(hud, winA.name, W / 2, 83, '#fff', 1, true); F.center(hud, nAc() + ' OF ' + TOTAL, W / 2, H - 30, '#ffd23a', 2, '#3a1a00'); if (winA.id === 'trial' && TRIAL) F.center(hud, TRIAL.def.kind === 'bells' ? 'ALL THREE TUNES!' : 'TIME ' + TRIAL.elapsed.toFixed(2) + '  BEST ' + Number(prog.records[curW]).toFixed(2), W / 2, H - 50, '#eef6ff', 1, '#261832'); }
         if (mode === 'dlg' && dlg) drawDlg();
@@ -2536,19 +2667,19 @@
       function drawHowto() {
         box2(10, 96, W - 20, 130, 0.88);
         const pg = subI === 0 ? [['THE MOVES', '#ffd23a'], ['RUN: STICK.   JUMP: ' + L('a')], ['LAND AND PRESS ' + L('a') + ' AGAIN: DOUBLE, THEN TRIPLE JUMP'], ['AIR '+L('a')+': TWIRL. REVERSE + '+L('a')+': SIDE FLIP.'], ['LONG JUMP: RUN, HOLD ' + L('c') + ', PRESS ' + L('a')], ['BACKFLIP: STAND STILL, HOLD ' + L('c') + ', PRESS ' + L('a')], ['GROUND POUND: ' + L('c') + ' IN THE AIR'], ['WALL KICK: JUMP AT A WALL, ' + L('a') + ' AS YOU TOUCH'], ['PUNCH, PUNCH, KICK: ' + L('b') + '.  TALK / READ: ' + L('b')], ['CAMERA: ' + L('l') + ' / ' + L('r') + '.   PAUSE: START']]
-          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN '+TOTAL+' GOLDEN ACORNS.'], ['9 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['FIVE COURSES, THREE SECRET SWITCH STAGES'], ['COCOA COASTER AND THE KING HAVE THE REST.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['HANG ON A LEDGE: '+L('a')+' CLIMBS, '+L('c')+' DROPS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
+          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN '+TOTAL+' GOLDEN ACORNS.'], ['9 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['SIX COURSES, THREE SECRET SWITCH STAGES'], ['COCOA COASTER AND THE KING HAVE THE REST.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['HANG ON A LEDGE: '+L('a')+' CLIMBS, '+L('c')+' DROPS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
           : subI===2 ? [['A PROPER DIP', '#ffd23a'], ['CUSTARD GROTTO OPENS WITH FIVE ACORNS.'], ['STICK: SWIM. HOLD '+L('a')+': UP. HOLD '+L('c')+': DIVE.'], ['RELEASE UP AND DIVE TO FLOAT GENTLY.'], ['AT THE SURFACE, PRESS '+L('a')+' AGAIN TO LEAP OUT.'], ['BUBBLE VENTS AND THE SURFACE REFILL AIR.'], ['COINS TOP UP AIR AND MEND YOUR BISCUIT.'], [L('b')+' OPENS THE CHEST IN THE WRECK.'], ['FIND THREE PEARLS. FOLLOW THE CURRENT HOOPS.'], ['IN THE MANOR, '+L('b')+' OPENS AND CLOSES THE DOOR.']]
           : [['DRESS FOR THE QUEST','#ffd23a'],['FIND THREE SECRET RINGS ON BISCUIT ISLAND.'],['POUND THEIR SWITCHES TO WAKE MATCHING BOXES.'],[L('b')+' BY A BOX: TAKE ITS TEMPORARY OUTFIT.'],['BROLLY BONNET: HOLD '+L('a')+' IN THE AIR TO GLIDE.'],['TIN BISCUIT: SINK, WALK AND WEIGH DOWN PLATES.'],['PEEKABOO HOOD: CROSS VIOLET GRILLES.'],['SWITCH UNLOCKS STAY ON FILE A.'],['OUTFIT TIMERS FREEZE ON PAUSE.'],['REVISIT THE COVE, GROTTO AND LIBRARY.']];
         pg.forEach(([s, c], i) => (i === 0 ? F.center(hud, s, W / 2, 102, c, 1) : F.draw(hud, s, 18, 106 + i * 12, '#fff', 1)));
         F.center(hud, (subI + 1) + '/4  PRESS ' + L('a'), W / 2, H - 10, '#9ab', 1);
       }
       function drawCard() {
-        const w = card.w, cols = { snowhall:['#384c71','#e2c498'], brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
+        const w = card.w, cols = { foundry:['#57455f','#a98d64'],snowhall:['#384c71','#e2c498'], brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
         const gr = hud.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, cols[0]); gr.addColorStop(1, cols[1]); hud.fillStyle = gr; hud.fillRect(0, 0, W, H);
         hud.strokeStyle = '#c8a050'; hud.lineWidth = 6; hud.strokeRect(6, 6, W - 12, H - 12); hud.strokeStyle = '#7a5a1a'; hud.lineWidth = 2; hud.strokeRect(10, 10, W - 20, H - 20);
         const nm = WN[w]; bigText(nm, W / 2, 38, nm.length > 16 ? 17 : 22);
         const list = ACS,row=list.length>8?11:list.length>7?12:15; list.forEach((a, i) => { const g = gotAc(a.id); acIcon(48, 74 + i * row, 10, g ? '#ffc81a' : 'rgba(255,255,255,.35)'); F.draw(hud, (i === (card.sel || 0) ? '> ' : (i + 1) + '. ') + a.name, 60, 70 + i * row, i === (card.sel || 0) ? '#ffd85a' : g ? '#ffe86a' : '#fff', 1, '#000'); });
-        if (curW !== 'hub' && curW !== 'boss') { const a = ACS[card.sel || 0]; const hint = WORLDS[w].power ? 'POUND THE GREAT SWITCH. PRESS '+L('b')+' BY ITS BOX. USE YOUR NEW OUTFIT TO FINISH THE ROUTE.' : a.power ? 'THIS RETURN ROUTE NEEDS '+POWER_DEFS[a.power].name+'. FIND ITS SECRET SWITCH ON BISCUIT ISLAND.' : curW === 'grotto' ? ({dip:'HOLD '+L('c')+' TO DIVE. '+L('a')+' SWIMS UP. TAKE A BREATH AT THE SURFACE.',chest:'SWIM INTO THE WRECK AND PRESS '+L('b')+' BESIDE THE CHEST.',pearls:'FIND THREE SHINING PEARLS. BUBBLE VENTS REFILL YOUR AIR.',current:'FOLLOW THE THREE GOLD HOOPS UNDERWATER. LET THE CURRENT HELP.',roost:'PRESS '+L('a')+' AT THE SURFACE TO LEAP ONTO THE STEPPING ROCKS.'}[a.id] || 'EXPLORE EVERY DEPTH. COINS MEND YOUR BISCUIT AND TOP UP YOUR AIR.') : a.id === 'trial' ? TRIALS[curW].hint : a.id === 'c100' ? 'FOLLOW EVERY COIN TRAIL. COINS ALSO MEND YOUR BISCUIT.' : a.hidden ? 'TALK TO THE LOCALS AND LOOK FOR SOMETHING TO SET RIGHT.' : 'A SHINY ACORN IS WAITING UP THERE. LOOK FOR A WAY TO CLIMB.'; wrap(hint, 47).slice(0, 2).forEach((s, i) => F.center(hud, s, W / 2, 176 + i * 10, '#eef8ff', 1, '#000')); }
+        if (curW !== 'hub' && curW !== 'boss') { const a = ACS[card.sel || 0]; const hint = WORLDS[w].power ? 'POUND THE GREAT SWITCH. PRESS '+L('b')+' BY ITS BOX. USE YOUR NEW OUTFIT TO FINISH THE ROUTE.' : a.power ? 'THIS RETURN ROUTE NEEDS '+POWER_DEFS[a.power].name+'. FIND ITS SECRET SWITCH ON BISCUIT ISLAND.' : curW==='foundry'?({stack:'FOLLOW THE STEPS AROUND THE POPPING STACK. HOLD '+L('a')+' FOR HEIGHT.',valves:'GROUND POUND THREE BRASS WHEELS TO COOL THE PAN.',gantry:'TALK TO THE SHIFT BOSS. RUN UP BEFORE EACH MINT GANTRY JUMP.',foreman:'HOP THE STEAM RINGS. BACKFLIP AND POUND THE BLUE LID.',reds:'SEARCH THE YARDS, STACK AND GANTRY FOR EIGHT RED PAY PACKETS.',c100:'FOLLOW EVERY FOUNDRY COIN TRAIL. COINS MEND YOUR BISCUIT.'}[a.id]):curW === 'grotto' ? ({dip:'HOLD '+L('c')+' TO DIVE. '+L('a')+' SWIMS UP. TAKE A BREATH AT THE SURFACE.',chest:'SWIM INTO THE WRECK AND PRESS '+L('b')+' BESIDE THE CHEST.',pearls:'FIND THREE SHINING PEARLS. BUBBLE VENTS REFILL YOUR AIR.',current:'FOLLOW THE THREE GOLD HOOPS UNDERWATER. LET THE CURRENT HELP.',roost:'PRESS '+L('a')+' AT THE SURFACE TO LEAP ONTO THE STEPPING ROCKS.'}[a.id] || 'EXPLORE EVERY DEPTH. COINS MEND YOUR BISCUIT AND TOP UP YOUR AIR.') : a.id === 'trial' ? TRIALS[curW].hint : a.id === 'c100' ? 'FOLLOW EVERY COIN TRAIL. COINS ALSO MEND YOUR BISCUIT.' : a.hidden ? 'TALK TO THE LOCALS AND LOOK FOR SOMETHING TO SET RIGHT.' : 'A SHINY ACORN IS WAITING UP THERE. LOOK FOR A WAY TO CLIMB.'; wrap(hint, 47).slice(0, 2).forEach((s, i) => F.center(hud, s, W / 2, 176 + i * 10, '#eef8ff', 1, '#000')); }
         if (card.t > 0.6 && (K.t * 2 | 0) % 2) F.center(hud, 'PRESS ' + L('a'), W / 2, H - 26, '#fff', 1, '#000');
         F.center(hud, 'ACORNS ' + nAc() + ' / ' + TOTAL, W / 2, H - 40, '#ffd23a', 1, '#000');
       }
@@ -2568,10 +2699,12 @@
       function draw() {
         const t = clock;
         if (WD.swimEnabled) { const f = clamp((WD.water + .4 - cam.position.y) / 1.5,0,1); T3.scene.fog.color.setHex(WD.fog[0]).lerp(col.setHex(0x2e7c8d),f); T3.scene.fog.near = lerp(28,6,f); T3.scene.fog.far = lerp(110,48,f); }
+        if(FD)for(const {m} of FD.steam){const a=cam.position,b=BOP.root.position,v=tv.set(b.x-a.x,b.y+1-a.y,b.z-a.z),len=v.lengthSq(),q=tv2.copy(m.position).sub(a),u=q.dot(v)/(len||1),off=q.addScaledVector(v,-u).length(),near=m.position.distanceTo(a);m.scale.setScalar(m.userData.steamScale*Math.min(clamp((near-2)/3,0,1),u>0&&u<1&&off<2.8?0:1));}
         coinsDraw(t);
         floorAt(P.x, P.z, P.y + 0.1); if (BOP.root.visible && FL.h > -100) shadow(P.x, FL.h, P.z, Math.max(0.38, 0.65 - (P.y - FL.h) * 0.018), !FL.o);
         for (const e of ENS) if (e.alive && e.mesh && e.mesh.visible && Math.hypot(e.x - P.x, e.z - P.z) < 40) { const h = e.kind === 'boohoo' ? floorAt(e.x,e.z,e.y) : e.y; shadow(e.x, h, e.z, e.kind === 'boohoo' ? 0.6 : 0.75); }
-        for (const n of NPCS) if (n.kind !== 'sign' && Math.hypot(n.x - P.x, n.z - P.z) < 30) shadow(n.x, n.ghost ? WD.ground(n.x, n.z) : n.y, n.z, 0.8);
+        for (const n of NPCS) if (!n.foundryBoss&&n.kind !== 'sign' && Math.hypot(n.x - P.x, n.z - P.z) < 30) shadow(n.x, n.ghost ? WD.ground(n.x, n.z) : n.y, n.z, 0.8);
+        if(FD&&FD.boss.st!=='gone')shadow(0,2,-34,2.3);
         if (curW === 'boss' && BOSS.mesh && BOSS.mesh.visible) shadow(BOSS.x, 2, BOSS.z, 2.0);
         if (curW === 'manor' && BB.mesh && BB.mesh.visible) shadow(BB.x, WD.ground(BB.x, BB.z), BB.z, 1.6);
         shadowsEnd();
@@ -2607,7 +2740,7 @@
         const r={left:Infinity,top:Infinity,right:-Infinity,bottom:-Infinity},v=new T.Vector3();o.updateWorldMatrix(true,true);cam.updateMatrixWorld(true);
         o.traverseVisible(m=>{const a=m.geometry&&m.geometry.attributes.position;if(!a||!m.visible)return;for(let i=0;i<a.count;i++){v.fromBufferAttribute(a,i).applyMatrix4(m.matrixWorld).project(cam);const x=(v.x+1)*W/2,y=(1-v.y)*H/2;r.left=Math.min(r.left,x);r.right=Math.max(r.right,x);r.top=Math.min(r.top,y);r.bottom=Math.max(r.bottom,y);}});return r;
       }
-      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, get snow(){return SNOW;},snowAt,snowInside,snowEnd:SNOW_END,snowLength:SNOW_LENGTH,get school(){return SCHOOL;},schoolLessons:SCHOOL_LESSONS,get total(){return TOTAL;}, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
+      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, get snow(){return SNOW;},snowAt,snowInside,snowEnd:SNOW_END,snowLength:SNOW_LENGTH,get school(){return SCHOOL;},schoolLessons:SCHOOL_LESSONS,get foundry(){return FD;},get total(){return TOTAL;}, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
       return { update, draw, end() { saveNow();tinEnv.dispose(); removeEventListener('pagehide', onHide); removeEventListener('beforeunload', onHide); document.removeEventListener('visibilitychange', onVisibility); if (window.__hopDbg?.P === P) delete window.__hopDbg; } };
     },
   });
