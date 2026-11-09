@@ -4,13 +4,14 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {roomFixture,fixtureScale} from './room-fixture.mjs';
 import {bonfireLogin} from './bonfire-login.mjs';
+import {stillCapture} from './still-capture.mjs';
 const base = process.argv[2] || 'http://localhost:18089';
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
 const shots = new URL('./shots/bonfire/', import.meta.url).pathname; await mkdir(shots, {recursive:true});
 const password='Throwaway-1999', EID='bonfire99', GY=353;
 const r=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})}); assert(r.ok||r.status===409||r.status===400);
 const storageState=process.env.BONFIRE_RESUME_LOGIN==='1'?await bonfireLogin(base,password):undefined;
-const f=await roomFixture(base,{storageState,resume:!!storageState,opening:!!storageState,account:'Jack',password,signup:false,hour:null,launchOptions:{args:['--enable-unsafe-swiftshader','--remote-debugging-port=19294']},touch:process.env.BONFIRE_PHONE==='1',width:process.env.BONFIRE_PHONE==='1'?390:1366,height:process.env.BONFIRE_PHONE==='1'?844:860,debug:process.env.FIXTURE_DEBUG==='1',onPage: async p => {p.on('pageerror',e=>console.error('PAGE STACK',e.stack));p.on('response',r=>{if(r.status()===404)console.error('404',r.url())});}});
+const f=await roomFixture(base,{storageState,resume:!!storageState,opening:!!storageState,account:'Jack',password,signup:false,hour:null,launchOptions:{args:['--enable-unsafe-swiftshader','--remote-debugging-port=19294']},touch:process.env.BONFIRE_PHONE==='1',width:process.env.BONFIRE_PHONE==='1'?390:1366,height:process.env.BONFIRE_PHONE==='1'?844:860,debug:process.env.FIXTURE_DEBUG==='1',onPage: async p => {await stillCapture(p);p.on('pageerror',e=>console.error('PAGE STACK',e.stack));p.on('response',r=>{if(r.status()===404)console.error('404',r.url())});}});
 const {page,until,view,errors}=f; const input=await page.context().newCDPSession(page); const eye=await page.evaluate(()=>House.STAND);
 const log=(...x)=>console.log(new Date().toISOString().slice(11,19),...x);
 let rid=0, failed, testDate='1999-11-02', testHour=17; const perf={};
@@ -24,7 +25,7 @@ try {
   await page.evaluate(()=>House.hush()); const original={date:testDate,hour:testHour}, size=page.viewportSize();
   const hours=pair && !n.includes('display') && !n.includes('sparkler') && !n.includes('morning') && !n.includes('tidy') ? [17,19] : [testHour];
   const phone=process.env.BONFIRE_PHONE==='1',device=phone?'phone':'desktop';
-  for(const hour of hours){if(hour!==testHour)await clock(testDate,hour);await page.evaluate(()=>HousePause.close());if(phone){await input.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:page.viewportSize().width-3,y:6}]});await input.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}else await page.keyboard.press('Shift');await page.waitForTimeout(240);assert.equal(await page.evaluate(()=>GameInput.touch),phone,'Input context must match capture');await page.screenshot({path:shots+n+'-'+hour+'-'+device+'.png'});}
+  for(const hour of hours){if(hour!==testHour)await clock(testDate,hour);await page.evaluate(()=>HousePause.close());if(phone){await input.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:page.viewportSize().width-18,y:page.viewportSize().height*.48}]});await input.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});}else await page.keyboard.press('Shift');await page.waitForTimeout(240);assert.equal(await page.evaluate(()=>GameInput.touch),phone,'Input context must match capture');await page.screenshot({path:shots+n+'-'+hour+'-'+device+'.png'});}
   if(testHour!==original.hour)await clock(original.date,original.hour);log('shot',n);
  }
  async function frameTime(label){const values=await page.evaluate(()=>new Promise(resolve=>{const a=[];let last=performance.now(),start=last;function frame(now){a.push(now-last);last=now;if(a.length<45&&now-start<6000)requestAnimationFrame(frame);else resolve(a.slice(5));}requestAnimationFrame(frame);}));values.sort((a,b)=>a-b);perf[label]={...await page.evaluate(()=>({width:innerWidth,cap:Bonfire._.fxLimit,particles:Bonfire._.fxCount,draws:House.ren.info.render.calls})),median:values[Math.floor(values.length*.5)],p95:values[Math.floor(values.length*.95)]};log('FRAME',label,JSON.stringify(perf[label]));} 

@@ -78,16 +78,16 @@
     g.fillStyle = '#d8ccb0'; g.fillRect(0, 0, w, h); mottle(g, w, h, 40, 'rgba(160,140,100,.12)', 40, 51); grain(g, w, h, 2400, 0.04, 52);
   }];
   P.wallpaperHall = [256, 256, (g, w, h) => { // the hall: woodchip paper, painted over twice
-    g.fillStyle = '#d9cfb8'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#c8bea7'; g.fillRect(0, 0, w, h);
     // Twice-painted woodchip has a quiet relief, not white plaster splats.
     const r = rnd(53); for (let i = 0; i < 1400; i++) { const x = r() * w, y = r() * h; g.fillStyle = 'rgba(255,252,235,.075)'; g.fillRect(x, y, 1 + r() * 1.5, .7 + r()); g.fillStyle = 'rgba(90,80,60,.035)'; g.fillRect(x + .5, y + 1, 1 + r(), .6); }
   }];
   P.wallKitchen = [256, 256, (g, w, h) => { // the kitchen: cream paper with little sage sprigs and a terracotta berry (very 1990s)
     g.fillStyle = '#ece2c4'; g.fillRect(0, 0, w, h);
     for (let x = 0; x < w; x += 32) { g.fillStyle = 'rgba(255,250,232,.35)'; g.fillRect(x + 4, 0, 10, h); }
-    const sprig = (x, y, a) => { g.save(); g.translate(x, y); g.rotate(a); g.strokeStyle = '#8a9a70'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, 7); g.quadraticCurveTo(1, 0, -1, -7); g.stroke();
-      g.fillStyle = '#9aab80'; for (const [lx, ly, la] of [[-3, 2, -0.9], [3, -1, 0.9], [-2, -4, -0.6]]) { g.save(); g.translate(lx, ly); g.rotate(la); g.beginPath(); g.ellipse(0, 0, 1.6, 3.4, 0, 0, 7); g.fill(); g.restore(); }
-      g.fillStyle = '#c98a6a'; g.beginPath(); g.arc(1.5, -7.5, 1.3, 0, 7); g.fill(); g.restore(); };
+    const sprig = (x, y, a) => { g.save(); g.translate(x, y); g.rotate(a); g.strokeStyle = '#718259'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, 7); g.quadraticCurveTo(1, 0, -1, -7); g.stroke();
+      g.fillStyle = '#788c61'; for (const [lx, ly, la] of [[-3, 2, -0.9], [3, -1, 0.9], [-2, -4, -0.6]]) { g.save(); g.translate(lx, ly); g.rotate(la); g.beginPath(); g.ellipse(0, 0, 1.6, 3.4, 0, 0, 7); g.fill(); g.restore(); }
+      g.fillStyle = '#b77959'; g.beginPath(); g.arc(1.5, -7.5, 1.3, 0, 7); g.fill(); g.restore(); };
     for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) sprig(x * 64 + (y % 2) * 32 + 16, y * 64 + 32, ((x * 7 + y * 3) % 5 - 2) * 0.18);
     grain(g, w, h, 1800, 0.03, 57); mottle(g, w, h, 16, 'rgba(150,120,70,.05)', 40, 58);
   }];
@@ -95,6 +95,20 @@
     for (let x = 0; x < w; x += 32) { g.fillStyle = '#e2d6b8'; g.fillRect(x, 0, 20, h); g.fillStyle = '#b8bc96'; g.fillRect(x + 20, 0, 12, h); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x + 20, 0, 1, h); }
     grain(g, w, h, 2000, 0.04, 54); mottle(g, w, h, 20, 'rgba(120,100,60,.06)', 40, 55);
   }];
+  for(const name of ['wallpaperHall','wallpaperLounge','wallKitchen']){
+    const old=P[name];P[name]=[512,512,(g,w,h)=>{
+      g.save();g.scale(2,2);old[2](g,old[0],old[1]);g.restore();
+      if(name==='wallpaperHall')for(let y=32;y<h;y+=64)for(let x=32;x<w;x+=64){
+        const diamond=(dx,dy)=>{g.beginPath();g.moveTo(x+dx,y-21+dy);g.lineTo(x+18+dx,y+dy);g.lineTo(x+dx,y+21+dy);g.lineTo(x-18+dx,y+dy);g.closePath();g.stroke()};
+        g.lineWidth=1.2;g.strokeStyle='rgba(94,78,44,.27)';diamond(0,1);g.strokeStyle='rgba(255,250,222,.48)';diamond(-.8,-.7);
+      }
+      if(name==='wallpaperLounge')for(let y=24;y<h;y+=64)for(let x=20;x<w;x+=64){
+        g.strokeStyle='rgba(118,126,83,.3)';g.lineWidth=1;g.beginPath();g.moveTo(x,y+19);g.bezierCurveTo(x-11,y+6,x+12,y-6,x,y-20);g.stroke();
+        for(const side of [-1,1]){g.fillStyle='rgba(133,142,98,.27)';g.beginPath();g.ellipse(x+side*5,y+side*7,3,7,-side*.7,0,Math.PI*2);g.fill()}
+      }
+      const r=rnd(901);for(let n=0;n<11000;n++){const x=r()*w,y=r()*h;g.fillStyle=n%2?'rgba(255,250,223,.15)':'rgba(77,65,37,.1)';g.fillRect(x,y,.65,1+r()*3)}
+    }];
+  }
   P.tiles = [256, 256, (g, w, h) => { // kitchen splashback: white tiles with a fruit one every so often
     for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { g.fillStyle = '#efece4'; g.fillRect(x * 16, y * 16, 16, 16); }
     g.strokeStyle = '#b8b2a2'; g.lineWidth = 1.2; for (let i = 0; i <= 16; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 16); g.lineTo(w, i * 16); g.stroke(); }
