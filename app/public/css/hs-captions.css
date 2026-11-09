@@ -234,6 +234,8 @@ html[data-game-touch="true"] .hs-ui .hs-hold .hs-carry-help{display:block!import
 
 /* Resume and the ways back stay on the notebook's top edge as its settings
    scroll. Keep the labels and finger targets; remove empty form spacing. */
+/* The dialog owns vertical finger drags; native wheel scrolling remains available. */
+.hs-pause{touch-action:none}
 .hs-pause-head{padding:12px 16px}
 .hs-pause-main{gap:10px;padding:12px 16px}
 .hs-pause-actions{position:sticky;top:0;z-index:3;margin:-12px -16px 0;padding:10px 16px;background:#202628;border-bottom:1px solid #685f4c}
