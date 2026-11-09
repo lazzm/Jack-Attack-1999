@@ -31,11 +31,11 @@
 
   // ================================================================ the atlas layout (uv rects [u0, v0, w, h], v up)
   const CELL = {
-    face: [0, 0.5, 0.5, 0.5], white: [0.875, 0.5, 0.125, 0.25], pelvis: [0.5, 0.5, 0.375, 0.25],
+    face: [0, 0.5, 0.5, 0.5], white: [0.875, 0.5, 0.125, 0.25], print: [.891,.52,.10,.21], pelvis: [0.5, 0.5, 0.375, 0.25],
     torso: [0, 0, 0.5, 0.5], sleeve: [0.5, 0, 0.25, 0.5], legs: [0.75, 0, 0.25, 0.5],
     eye: i => [0.5 + i * 0.125, 0.875, 0.125, 0.125], mouth: i => [0.5 + i * 0.0625, 0.75, 0.0625, 0.125],
   };
-  const WHITE_UV = [0.9375, 0.625];
+  const WHITE_UV = [.881, .506]; // the unprinted gutter, shared by solid colours
   const EYE = { open: 0, half: 1, shut: 2, happy: 3 }, MOUTH = { smile: 0, small: 1, open: 2, oh: 3, wide: 4, teeth: 5, closed: 6, sad: 7 };
   // Paint directions are independent of articulation and gaze. Cross stays
   // gentle, cheeky stays warm; explicit direction wins over simple text cues.
@@ -85,7 +85,7 @@
         // soft "ambient occlusion": faces turned down (under the chin, a hem, the hair) are a touch darker
         const ao = o.noAO ? 1 : 1 - 0.12 * Math.max(0, -ny);
         Cl.push(c.r * ao, c.g * ao, c.b * ao);
-        if (o.cell && uv) { const r = o.cell, p = o.pad || 0; UV.push(r[0] + p + clamp(uv.getX(i), 0, 1) * (r[2]-2*p), r[1] + p + clamp(uv.getY(i), 0, 1) * (r[3]-2*p)); }
+        if (o.cell && uv && uv.getX(i)>=0) { const r = o.cell, p = o.pad || 0; UV.push(r[0] + p + clamp(uv.getX(i), 0, 1) * (r[2]-2*p), r[1] + p + clamp(uv.getY(i), 0, 1) * (r[3]-2*p)); }
         else UV.push(WHITE_UV[0], WHITE_UV[1]);
         if (hp) {
           const zz = (z - hp.c[2]) / hp.r[2], fy = (y - hp.c[1]) / hp.r[1];
@@ -450,6 +450,23 @@
     const A = painter(size), g = A.g;
     P2.rect(g, 0, 0, size, size, 'rgba(0,0,0,0)');
     A.cell(CELL.white, 0, 1, 0, 1, q => P2.rect(q, 0, 0, 1, 1, '#ffffff'));
+    if(S.kind==='dad'||S.kind==='mom')A.cell(CELL.print,0,22,0,36,q=>{
+      const ink='#34312b',label=(text,x,y,font,col)=>{q.save();q.translate(x,y);q.scale(1,-1);q.font='bold '+font+'px serif';q.textAlign='center';q.fillStyle=col||ink;q.fillText(text,0,0);q.restore();};
+      P2.rect(q,0,0,22,36,'#eee8d8');
+      if(S.kind==='dad'){
+        label('THE DAILY WAIL',11,32,1.9);P2.rect(q,1.5,30.5,20.5,30.7,ink);
+        label('TEA TAKES',11,27,2.5);label('A DAY OFF',11,24,2.5);
+        P2.rect(q,2,14,10,22,'#a8a296');P2.ell(q,6,18,2.4,2.5,'#e4decb');P2.rect(q,4,20,8,20.5,ink);
+        P2.stroke(q,ink,.4,p=>{p.moveTo(8,19);p.quadraticCurveTo(11,20,8,16)});
+        for(let col=0;col<3;col++)for(let row=0;row<12;row++){const x=2+col*6.5,y=3+row*.85;if(col<2&&y>13)continue;P2.rect(q,x,y,x+5-(row%4)*.3,y+.18,'#767167');}
+        for(let row=0;row<10;row++)P2.rect(q,12,14+row*.75,20-(row%3)*.5,14.2+row*.75,'#767167');
+      }else{
+        P2.rect(q,0,24,22,36,'#b82438');label('JACK',11,31,4.6,'#fff2cc');label('ATTACK!',11,26,4,'#fff2cc');
+        label('CHEATS!',11,20.5,3);P2.rect(q,6,5.5,16,18,'#aaa89b');P2.rect(q,7.5,11.5,14.5,16.5,'#3d5144');
+        P2.rect(q,8.5,8,11.5,9,ink);P2.rect(q,9.5,7,10.5,10,ink);P2.ell(q,13.5,9,.6,.6,'#a02143');P2.ell(q,15,8,.6,.6,'#a02143');
+        label('GAME LAD',11,2.5,2.4);
+      }
+    });
     const uni = paintFace(A, S, O);
     // clothes: each cell in cm round the body (x = 0 at the front) and up it (rig height)
     const paint = O.paint || {};
@@ -483,7 +500,7 @@
     const k = side => side === 'L' ? 1 : -1;
     const O = OUTFITS[kind][outfit] || OUTFITS[kind][Object.keys(OUTFITS[kind])[0]];
     const hp = S.head, [cx, cy, cz] = hp.c, [rx, ry] = hp.r;
-    S.L = L; S.lod = lod; S.familyHands = kind === 'mom' || kind === 'dad' || kind === 'sister';
+    S.L = L; S.lod = lod; S.kind=kind; S.familyHands = kind === 'mom' || kind === 'dad' || kind === 'sister';
 
     // ---- head (the face is painted: see paintFace), neck, ears
     G.add(grid(L.head[0], L.head[1], S.shape.fn), skin, 'head', { face: S, noAO: true });
@@ -1040,13 +1057,18 @@
   // ---------------------------------------------------------------- props (hidden by scaling their bone to zero)
   function buildProps(G, S, J, kind, L) {
     const at = b => J['p_' + b], want = new Set(PROPS_FOR[kind] || []), on = p => want.has(p);
-    const paper = C('#ece8dc'), ink = C('#5a564c'), sg = L.limb + 2;
-    if (on('paper')) { const P = at('paper'); for (const sx of [-1, 1]) G.add(rbox([P[0] + sx * 10.85, P[1], P[2] - 1.6], [22, 36, 0.45], 0.15, [0, sx * 9, 0], 1), (x, y) => { const lx = x - P[0], ly = y - P[1], col = Math.floor((lx + 40) / 3.3) % 2, row = Math.floor((ly + 40) / 1.15) % 2; return (ly > 12 && ly < 14.5) ? ink : (col && row && ly < 10 && Math.abs(lx) > 2 ? ink.clone().lerp(paper, 0.45) : paper); }, sx>0?'jaw':'p_paper', { noAO: true }); }
+    const sg = L.limb + 2;
+    const printedBox=(p,size,rad,rot)=>{
+      const g=rbox([0,0,0],size,rad,null,1),pos=g.attributes.position,uv=[];
+      for(let i=0;i<pos.count;i++){const face=Math.floor(i/4);uv.push(face<4?-1:.5+(face===4?1:-1)*pos.getX(i)/size[0],face<4?-1:.5+pos.getY(i)/size[1]);}
+      g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));return xf(g,p,rot);
+    };
+    if (on('paper')) { const P = at('paper'); for (const sx of [-1, 1]) G.add(printedBox([P[0] + sx * 10.85, P[1], P[2] - 1.6], [22, 36, 0.45], 0.15, [0, sx * 9, 0]), C('#ffffff'), sx>0?'jaw':'p_paper', {cell:CELL.print,noAO:true}); }
     if (on('mug')) { const M = at('mug'); G.add(tube([M[0] + 3.2, M[1] - 4.5, M[2]], [M[0] + 3.2, M[1] + 4.5, M[2]], 3.5, 3.6, sg), (x, y) => y > M[1] + 4.2 ? C('#7a4a2a') : C('#d8493b'), 'p_mug'); G.add(torusArc([M[0] - 0.2, M[1], M[2]], 2.0, 0.55, Math.PI, [0, 0, 90], null, 6, 4), C('#d8493b'), 'p_mug'); }
     if (on('sponge')) { const Sp = at('sponge'); G.add(rbox([Sp[0], Sp[1] - 1, Sp[2] + 1.5], [4.6, 3.2, 8], 1.0, null, 1), (x, y) => y > Sp[1] - 0.3 ? C('#3c8a3e') : C('#f2d24a'), 'p_sponge'); }
     if (on('spoon')) { const Sw = at('spoon'); G.add(tube([Sw[0], Sw[1] + 3, Sw[2]], [Sw[0], Sw[1] - 22, Sw[2] + 3], 0.6, 0.55, 4), C('#c79a5c'), 'p_spoon'); G.add(ell([Sw[0], Sw[1] - 24, Sw[2] + 3.2], [1.9, 3.0, 0.8], [6, 4]), C('#c79a5c'), 'p_spoon'); }
     if (on('can')) { const Cn = at('can'), green = C('#3f8f4c'); G.add(rbox([Cn[0], Cn[1] - 13, Cn[2] + 3], [11, 15, 20], 3.2, null, 2), green, 'p_can'); G.add(tube([Cn[0], Cn[1] - 14, Cn[2] + 12], [Cn[0], Cn[1] - 6, Cn[2] + 30], 1.3, 0.9, 5), green, 'p_can'); G.add(ell([Cn[0], Cn[1] - 6, Cn[2] + 30.5], [2.2, 2.2, 1.0], [6, 4], [-60, 0, 0]), C('#2f6f3a'), 'p_can'); G.add(torusArc([Cn[0], Cn[1] - 3, Cn[2] + 2], 6.4, 0.9, Math.PI, [0, 90, 0], null, 8, 4), green, 'p_can'); }
-    if (on('mag')) { const Mg = at('mag'); G.add(rbox([Mg[0], Mg[1], Mg[2]], [21, 28, 0.8], 0.25, [0, 0, 0], 1), (x, y) => y > Mg[1] + 10 ? C('#e64040') : (Math.floor(y) % 3 ? C('#f2efe4') : C('#7a7a70')), 'p_mag', { noAO: true }); }
+    if (on('mag')) { const Mg = at('mag'); G.add(printedBox([Mg[0], Mg[1], Mg[2]], [21, 28, 0.8], 0.25, [0, 0, 0]), C('#ffffff'), 'p_mag', {cell:CELL.print,noAO:true}); }
     if (on('phone')) { const Ph = at('phone'); G.add(rbox([Ph[0], Ph[1] + 1, Ph[2] + 1], [2.4, 17, 4.6], 1.0, [6, 0, 0], 1), C('#e8e0c8'), 'p_phone'); }
     if (on('remote')) { const Rm = at('remote'); G.add(rbox([Rm[0], Rm[1] - 1.5, Rm[2] + 4], [4.2, 2, 15], 0.8, null, 1), (x, y, z) => y > Rm[1] - 0.6 && Math.floor(z) % 2 ? C('#9a9a9a') : C('#262626'), 'p_remote'); }
     if (on('crayon')) { const Cr = at('crayon'); G.add(tube([Cr[0], Cr[1] + 2, Cr[2]], [Cr[0], Cr[1] - 6, Cr[2] + 1.5], 0.45, 0.45, 4), C('#e2463c'), 'p_crayon'); }
@@ -1124,16 +1146,17 @@
   const FACE_FILL = '\n outgoingLight = mix(outgoingLight, max(outgoingLight, diffuseColor.rgb * vec3(0.36, 0.33, 0.30)), clamp(vNpFace.z, 0.0, 1.0) * (1.0 - smoothstep(0.74, 1.02, abs(vNpFace.y))));\n';
   function npCompile(shader) {
     Object.assign(shader.uniforms, this.userData.np);
-    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nattribute vec3 npFace;\nvarying vec3 vNpFace;').replace('#include <uv_vertex>', '#include <uv_vertex>\n  vNpFace = npFace;');
-    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\n' + FACE_DECL).replace('#include <color_fragment>', '#include <color_fragment>' + FACE_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', FACE_FILL + 'gl_FragColor = vec4( outgoingLight, diffuseColor.a );');
+    const parkedBones=['p_paper','jaw','p_mag'].map(n=>'abs(skinIndex.x-'+BONES.indexOf(n)+'.0)<0.1').join('||');
+    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nattribute vec3 npFace;\nvarying vec3 vNpFace;\nuniform vec3 npPresence;\nvarying float vNpPresent;').replace('#include <uv_vertex>', '#include <uv_vertex>\n  vNpFace = npFace;\n vNpPresent=npPresence.z>0.5&&('+parkedBones+')?npPresence.y:npPresence.x;');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vNpPresent;\n' + FACE_DECL).replace('#include <color_fragment>', 'if(vNpPresent<0.5)discard;\n#include <color_fragment>' + FACE_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', FACE_FILL + 'gl_FragColor = vec4( outgoingLight, diffuseColor.a );');
   }
   function material(low, tex, uni) {
     const P = { vertexColors: true, skinning: true, map: tex };
     const m = low ? new T.MeshLambertMaterial(P) : new T.MeshPhongMaterial(Object.assign(P, { shininess: 6, specular: new T.Color('#0c0c0c') }));
     m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
-    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() }, npView: { value: 0 } });
+    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() }, npView: { value: 0 }, npPresence:{value:new T.Vector3(1,1,0)} });
     m.onBeforeCompile = npCompile;
-    m.customProgramCacheKey = () => 'np-painted-face-r8';
+    m.customProgramCacheKey = () => 'np-painted-face-r9';
     return m;
   }
   let shadowMat = null;
@@ -1224,8 +1247,9 @@
       action: null, seat: null, seatPose: null, look: null, listen: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0, brow: 0,
       mood: 'neutral', moodK: 0, speechUnits: [], speechIndex: 0, faceBlend: 1, quiet: 0, pauseBlinked: false, blinkLast: -10,
-      directed: null, beatSmile: 0, beatBrow: 0, beatNod: 0, beatThought: 0, beatFirm: 0,
+      directed: null, beatSmile: 0, beatBrow: 0, beatNod: 0, beatThought: 0, beatFirm: 0, returnK: 0,
       paperLower: 0, sipK: 0, sipAt: -1, sipRest: 0, sipQuiet: 0,
+      readingTransfer: 0, readingStow: false, readingParked: false, readingRecover: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
       sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, weightAt: 0, weightSide: 0, glanceT: 0,
@@ -1438,16 +1462,19 @@
     const table = H => (st.seat && st.seat.table) || H + 22;
     const cupLip = new T.Vector3(), cupOffset = new T.Vector3(), cupForward = new T.Vector3(), cupQ = new T.Quaternion();
     function cupArm(H, tea) {
-      const s = st.sipK, restY = tea ? table(H)+6 : H+20, restZ = tea?28:22;
+      const s = st.sipK, lift=lerp(s,1,smooth(clamp((s-.55)/.35,0,1))), restY = (tea ? table(H)+6 : H+20)-S.handLen*.96, restZ = tea?28:22;
       // Follow the solved head, including an oblique seated conversation.
       // Aim the near rim at the painted mouth, accounting for the real hand,
       // handle offset and wrist tilt instead of aiming the wrist at the chin.
       cupForward.set(0,0,1).applyQuaternion(W.head.q);
       const yaw = Math.atan2(cupForward.x,cupForward.z)*s, pitch = -18*D2R*s;
-      cupQ.setFromEuler(_e.set(pitch,yaw,0));
+      cupQ.setFromEuler(_e.set(pitch,yaw,0,'XYZ'));
       cupLip.set(0,S.mouthY-J.head[1],S.mouthZ-J.head[2]).applyQuaternion(W.head.q).add(W.head.p).addScaledVector(cupForward,1.2);
-      cupOffset.set(4.7,4.5-S.handLen*.48,-1).applyQuaternion(cupQ);cupLip.sub(cupOffset);
-      return { ik: [lerp(tea?-11:-9,cupLip.x,s),lerp(restY,cupLip.y,s),lerp(restZ,cupLip.z,s)], pole: [-.9,-.5,-.3],hand:[pitch/D2R,yaw/D2R,0],worldHand:true };
+      // Fingers curl upwards round the handle; the wrist stays below the cup.
+      // Counter-rotate the existing prop joint so the mug itself stays upright.
+      B.p_mug.position.set(-1.5,-S.handLen*.48,2.5);B.p_mug.rotation.set(0,0,Math.PI);
+      cupOffset.set(4.7,4.5+S.handLen*.48,-1).applyQuaternion(cupQ);cupLip.sub(cupOffset);
+      return { ik: [lerp(tea?-11:-9,cupLip.x,lift),lerp(restY,cupLip.y,lift),lerp(restZ,cupLip.z,lift)], pole: [.35,-1,.4],hand:[pitch/D2R,yaw/D2R,180],worldHand:true };
     }
     function cupContact(H) {
       // The main arm pass precedes the head solve. Near the mouth, constrain
@@ -1459,12 +1486,38 @@
       tgt.set(...a.ik); pole.set(...a.pole).normalize();
       armIK('R',tgt,pole,k,eul(...a.hand),true);
     }
+    const phoneP = new T.Vector3(), phoneOffset = new T.Vector3(), phoneQ = new T.Quaternion(), phoneTilt = new T.Quaternion().setFromEuler(new T.Euler(172*D2R,0,-8*D2R));
+    const phoneAct = { arms: { R: { ik: [0,0,0], pole: [.35,-1,.4], hand: [0,0,0], worldHand: true } }, lean: 0, props: { phone: 1 } };
+    function phoneArm() {
+      // The receiver's inner earpiece follows this frame's actual ear. Keep
+      // the handset upright against the cheek, with the elbow tucked below.
+      phoneQ.copy(W.head.q).multiply(phoneTilt);
+      B.p_phone.position.set(-1,-S.handLen*.48-4,1);
+      phoneP.set(-S.head.r[0]-.7,S.head.c[1]-J.head[1]-.8,1.5-J.head[2]).applyQuaternion(W.head.q).add(W.head.p);
+      phoneOffset.set(.2,-11-S.handLen*.48,2.8).applyQuaternion(phoneQ);phoneP.sub(phoneOffset);
+      const a=phoneAct.arms.R; a.ik[0]=phoneP.x;a.ik[1]=phoneP.y;a.ik[2]=phoneP.z;
+      _e.setFromQuaternion(phoneQ);a.hand[0]=_e.x/D2R;a.hand[1]=_e.y/D2R;a.hand[2]=_e.z/D2R;
+      return a;
+    }
+    function phoneContact() {
+      if (st.action!=='phone'||st.walking) return;
+      const a=phoneArm();tgt.set(...a.ik);pole.set(...a.pole).normalize();armIK('R',tgt,pole,1,phoneQ,true);
+    }
     const paperAxis = new T.Vector3(1,0,0), paperQ = new T.Quaternion().setFromAxisAngle(paperAxis, 20 * D2R), paperP = new T.Vector3();
     const paperHeld = new T.Vector3(), paperHeldQ = new T.Quaternion(); let paperHeading = 0, paperPlaced = false;
-    const magHeld=new T.Vector3();let magHeading=0,magPlaced=false;
+    const magHeld=new T.Vector3(),magHeldQ=new T.Quaternion();let magHeading=0,magPlaced=false;
     let paperC = Math.cos(20 * D2R), paperS = Math.sin(20 * D2R);
     const gripY = -13 - S.handLen * 0.55, gripZ = -3.3 + S.handLen * 0.12;
     const paperHinge=J.jaw[2]-J.p_paper[2];
+    const readingRest = new T.Vector3();
+    function readingPlace(point, folded) {
+      const seat=st.seat||st.seatPose,k=smooth(st.readingTransfer),put=smooth(clamp((k-.28)/.72,0,1));
+      if (!seat||!k) return;
+      if(seat.support&&!seat.support.edge)toRig(readingRest,seat.support.x,seat.support.y-.65,seat.support.z);
+      else readingRest.set(kind==='dad'?44:-35,seat.h+18.95,24);
+      st.readingSide=Math.sign(readingRest.x)||1;
+      point.lerp(readingRest,put);if(folded)point.x+=11*smooth(clamp(k/.42,0,1));
+    }
     const paperAct = { arms: { L: { ik: [22, 0, 0], pole: [0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true },
       R: { ik: [-22, 0, 0], pole: [-0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true } }, lean: -4, lookR: [0, 0, 40], props: { paper: 1 } };
     function readingHeight(point, half, gripY, gripZ) {
@@ -1481,7 +1534,7 @@
       point.y = lerp(point.y,Math.max(point.y,minimum),st.paperLower);
     }
     function readingAngle(act) {
-      const angle = 20+st.paperLower*50;
+      const angle = lerp(20+st.paperLower*50,90,smooth(clamp((smooth(st.readingTransfer)-.28)/.72,0,1)));
       paperQ.setFromAxisAngle(paperAxis,angle*D2R);paperC=Math.cos(angle*D2R);paperS=Math.sin(angle*D2R);
       act.arms.L.hand[0]=act.arms.R.hand[0]=180+angle;
     }
@@ -1489,14 +1542,20 @@
       readingAngle(paperAct);
       paperP.set(0, H + 36 + Math.sin(t * 0.4) * 0.5 - st.paperLower*17, 32 + st.paperLower*3);
       readingHeight(paperP,22,gripY,gripZ);
+      readingPlace(paperP,true);
       const y = paperP.y + gripY * paperC - gripZ * paperS, z = paperP.z + gripY * paperS + gripZ * paperC;
       paperAct.arms.L.ik[1] = paperAct.arms.R.ik[1] = y; paperAct.arms.L.ik[2] = paperAct.arms.R.ik[2] = z;
-      const phase=t%11, targetLeaf=!st.engage&&!st.listen&&st.cosmeticNear!==false&&phase>6&&phase<7.4?Math.sin(Math.PI*(phase-6)/1.4)**2*8*D2R:0;
-      const leaf=B.jaw.rotation.y+(targetLeaf-B.jaw.rotation.y)*(1-Math.exp(-dtReading*10));
+      const fold=smooth(clamp(smooth(st.readingTransfer)/.42,0,1));
+      // Leave the real stack thickness between the closed leaves. Coincident
+      // front/back caps otherwise fight once the paper lies on the armrest.
+      B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;
+      const phase=t%11, targetLeaf=fold?fold*162*D2R:!st.engage&&!st.listen&&st.cosmeticNear!==false&&phase>6&&phase<7.4?Math.sin(Math.PI*(phase-6)/1.4)**2*8*D2R:0;
+      const leaf=st.readingTransfer?targetLeaf:B.jaw.rotation.y+(targetLeaf-B.jaw.rotation.y)*(1-Math.exp(-dtReading*10));
       if(B.jaw.rotation.y!==leaf)B.jaw.rotation.y=leaf;
       // The outside grip accompanies its leaf instead of passing through it.
-      const gx=leaf?22*Math.cos(leaf)+(gripZ-paperHinge)*Math.sin(leaf):22, gz=leaf?-22*Math.sin(leaf)+(gripZ-paperHinge)*Math.cos(leaf)+paperHinge:gripZ;
-      paperAct.arms.L.ik[0]=gx; paperAct.arms.L.ik[1]=paperP.y+gripY*paperC-gz*paperS;paperAct.arms.L.ik[2]=paperP.z+gripY*paperS+gz*paperC;
+      const edge=lerp(22,2,fold),gx=(leaf?edge*Math.cos(leaf)+(gripZ-paperHinge)*Math.sin(leaf):edge)+fold*.08, gz=(leaf?-edge*Math.sin(leaf)+(gripZ-paperHinge)*Math.cos(leaf)+paperHinge:gripZ)-fold*.5;
+      paperAct.arms.R.ik[0]=paperP.x-22;
+      paperAct.arms.L.ik[0]=paperP.x+gx; paperAct.arms.L.ik[1]=paperP.y+gripY*paperC-gz*paperS;paperAct.arms.L.ik[2]=paperP.z+gripY*paperS+gz*paperC;
       paperAct.arms.L.hand[1]=-leaf/D2R;
       paperAct.lookR[1] = H + 30; return paperAct;
     }
@@ -1514,7 +1573,8 @@
       magP.set(0,H+28+Math.sin(t*.35)*.3-st.paperLower*12,32+st.paperLower*2);
       const y=-8.5-S.handLen*.55,z=-.4+S.handLen*.12;
       readingHeight(magP,10.5,y,z);
-      for(const sd of ['L','R']){const a=magAct.arms[sd].ik;a[1]=magP.y+y*paperC-z*paperS;a[2]=magP.z+y*paperS+z*paperC;}
+      readingPlace(magP,false);
+      for(const sd of ['L','R']){const a=magAct.arms[sd].ik;a[0]=magP.x+(sd==='L'?10.5:-10.5);a[1]=magP.y+y*paperC-z*paperS;a[2]=magP.z+y*paperS+z*paperC;}
       magAct.lookR[1]=H+25;return magAct;
     }
     const crayonTip=new T.Vector3(S.handLen*.16,-S.handLen*.48-6,S.handLen*.12+1.5).applyQuaternion(new T.Quaternion().setFromEuler(new T.Euler(25*D2R,0,-18*D2R))),drawAct={arms:{L:{ik:[15.8,0,0],pole:[.9,-.4,-.6],hand:[-90,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.9,-.4,-.6],hand:[25,0,-18],worldHand:true}},lean:16,lookR:[-2,0,30],props:{crayon:1,pad:1}};
@@ -1529,7 +1589,7 @@
       cook: (t, H) => ({ arms: { L: { ik: [17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [-7 - Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [-5, H + 6, 40], props: { spoon: 1 } }),
       wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
       water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [-12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [-10, 0, 90], props: { can: 1 } }),
-      phone: (t, H) => ({ arms: { R: { ik: [-9, S.neck + 7 - (S.hip + 2 - H), 3], pole: [-0.2, -1, -0.5], hand: [-15, 75, 0] }, L: talkArm(t, 'L', 0.6) }, lean: 0, props: { phone: 1 } }),
+      phone: (t, H) => { phoneArm();phoneAct.arms.L=talkArm(t,'L',.6);return phoneAct; },
       paper: reading,
       magazine,
       telly: (t, H) => ({ arms: lap(H), lean: -6, props: {} }),
@@ -1548,7 +1608,7 @@
       torch: (t, H) => ({ arms: { L: { ik: [15, H + 4 + Math.sin(t * 0.7) * 1.2, 20], pole: [0.6, -0.6, -0.6], hand: [-60, 0, 0] }, R: [4, 7, 0, 18, 0] }, lean: 0, props: { torch: 1 } }),
     };
     function talkArm(t, sd, amp) {
-      const s = st.talkSeed + (sd === 'L' ? 0 : 7), g = (st.accent || 0) * (sd === 'R' ? 1 : 0.65);
+      const s = st.talkSeed + (sd === 'L' ? 0 : 7), g = ((st.accent || 0)+(st.returnK||0)*.3) * (sd === 'R' ? 1 : 0.65);
       return [10 + g * 26 * amp + wob(t * 2.2, s) * 5, 9 + wob(t * 1.4, s + 2) * 5, -12 + wob(t, s) * 8, 28 + g * 50 * amp, -8 + wob(t * 3, s) * 14, 30 + g * 40];
     }
 
@@ -1564,7 +1624,7 @@
       st.beatSmile = st.beatBrow = st.beatNod = st.beatThought = st.beatFirm = 0;
       if (near && talking && st.directed && (!voice || voiceActive)) {
         const source = voice?.sourceTime?.(), seconds = (st.talkUntil-st.talkStart)/1000;
-        const match = source !== null && source !== undefined && Math.abs(voice.dur-(voice.nameId?voice.nameDur+.10:0)-st.directed.dur)<.035;
+        const match = st.directed.file && source !== null && source !== undefined && Math.abs(voice.dur-(voice.nameId?voice.nameDur+.10:0)-st.directed.dur)<.035;
         for (const [kind,at,end,fraction] of st.directed.beats) {
           const age = match ? source-at : (progress-st.beatOffset-fraction*st.beatScale)*seconds;
           const length = match ? end-at : Math.min(1.1,end-at);
@@ -1596,6 +1656,14 @@
         if (age >= 2.25 || talking && st.sipAt >= 0) { st.sipAt=-1;st.sipRest=sipTime+7+(kind==='sister'?2:0); }
       } else { st.sipAt=-1;st.sipK += -st.sipK*(1-Math.exp(-sipDt*12)); }
       st.paperLower += ((st.seat&&(st.engage||st.listen||talking)?1:0)-st.paperLower)*(1-Math.exp(-dt*2.2));
+      const reader=st.action==='paper'&&PROPS_FOR[kind].includes('paper')||st.action==='magazine'&&PROPS_FOR[kind].includes('mag');
+      if(reader&&st.seat){
+        if(st.readingStow)st.readingTransfer=Math.min(1,st.readingTransfer+dt/1.45);
+        else if(st.readingParked&&st.sitK>.97){
+          st.readingRecover=Math.min(.7,st.readingRecover+dt);
+          if(st.readingRecover>=.7){st.readingParked=false;st.readingTransfer=1;}
+        }else if(!st.readingParked)st.readingTransfer=Math.max(0,st.readingTransfer-dt/1.45);
+      }
       // Punctuation is indexed once when a line begins; render-time work is
       // a short scalar comparison, using the recording's existing progress.
       let endNod=0;
@@ -1613,6 +1681,24 @@
       }
       if(listenNod>.06&&st.listenNod<=.06){st.blinkT=.18;st.blinkAt=t+2.5+st.seed*.15;}
       st.listenNod=listenNod;
+      // A reply has one short returning gesture, anchored to actual playback.
+      // Pending/paused recordings cannot silently perform their reply early.
+      const replyVoice=talking?st.talkVoice:null,replyActive=replyVoice?.started&&!replyVoice.ended;
+      const replySource=replyActive&&Number.isFinite(replyVoice.dur),replyPaused=replyActive&&replyVoice.ctx&&replyVoice.ctx.state!=='running';
+      if(st.replyPending&&talking&&!replyPaused&&(!st.talkVoice||replyActive)){st.replyAt=now;st.replyVoice=replyVoice;st.replyVoiceAt=replySource?replyVoice.progress()*replyVoice.dur:0;st.replyPending=false;}
+      const validReply=st.replyAt> -1e8&&(!st.talkVoice||st.replyVoice===st.talkVoice);
+      const returnAge=validReply&&replySource?replyVoice.progress()*replyVoice.dur-(st.replyVoiceAt??0):(now-(st.replyAt??-1e9))/1000;
+      if(!replyPaused)st.returnK=talking&&(!st.talkVoice||replyActive)&&validReply&&returnAge>=0&&returnAge<1.35?smooth(returnAge/.25)*(1-smooth((returnAge-.65)/.7)):0;
+      const workJob=!st.walking&&['washup','cook','water'].includes(st.action);
+      if(workJob&&st.engage&&!st.workGrip&&W.armR.p.lengthSq()>1){
+        st.workGrip={};for(const sd of ['L','R'])st.workGrip[sd]={p:W['hand'+sd].p.clone().lerp(W['arm'+sd].p,.025),q:W['hand'+sd].q.clone()};
+      }else if(!workJob||!st.engage)st.workGrip=null;
+      const attending=!!(st.engage||st.listen||talking);
+      if(workJob&&attending&&!st.workAttending)st.workAt=now;
+      st.workAttending=workJob&&attending;
+      const workAge=(now-(st.workAt??-1e9))/1000,workEntry=workAge>=0&&workAge<1.1?Math.sin(Math.PI*workAge/1.1)**2:0;
+      const workTarget=workJob?Math.max(workEntry,listenNod/.085,st.beatNod*.65,st.returnK*.65):0;
+      st.workAck=(st.workAck||0)+(workTarget-(st.workAck||0))*(1-Math.exp(-dt*10));
       // A selected phrase beat, followed by a hold; no free-running hand wave.
       st.accent = 0;
       if (near && talking) {
@@ -1670,7 +1756,8 @@
         const maxY = tmp.y + Math.sqrt(Math.max(0, reach * reach - dx * dx - dz * dz));
         if (hy - 2 > maxY) hy = maxY + 2;
       }
-      B.hips.position.set(hx, hy, hz);
+      st.readingShift=(st.readingShift||0)+((reader&&st.seat?smooth(st.readingTransfer)*(st.readingSide||1)*4:0)-(st.readingShift||0))*k;
+      B.hips.position.set(hx+st.readingShift, hy, hz);
       // Seated readers keep both grips and lower their reading into the lap.
       // Working hands pause their actual tool pose, rather than stirring or
       // scrubbing through the conversation. One free hand can still gesture.
@@ -1681,14 +1768,17 @@
       else if (pauseJob && st.jobPause == null) st.jobPause=t;
       const jobTime = (st.jobPause??t)-(st.jobOffset||0);
       const act0 = st.action && ACT[st.action] ? ACT[st.action](mug||seatedRead?t:jobTime, hy) : null;
-      const act = st.engage && act0 && !seatedRead && !seatedJob ? { props: Object.fromEntries(Object.entries(act0.props || {}).filter(([p]) => KEEP.has(p))), arms: Object.keys(act0.props || {}).some(p => KEEP.has(p)) ? { R: act0.arms?.R } : null, lean: 0 } : act0;
+      const act = seatedRead&&st.readingParked&&st.sitK<=.97 ? {...act0,arms:lapArms,lookR:null} : st.engage && act0 && !seatedRead && !seatedJob && !workJob ? { props: Object.fromEntries(Object.entries(act0.props || {}).filter(([p]) => KEEP.has(p))), arms: Object.keys(act0.props || {}).some(p => KEEP.has(p)) ? { R: act0.arms?.R } : null, lean: 0 } : act0;
+      const readingLean=seatedRead?smooth(clamp((smooth(st.readingTransfer)-.28)/.72,0,1))*(st.readingParked?smooth(st.readingRecover/.7):1):0;
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
-      const lean = (act?.lean || 0) + (st.walking ? 2 : 0) + (st.engage&&!seat&&S.familyHands&&kind!=='sister'?2.5:0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
-      _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
-      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.8 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
-      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(0, 0, (sd === 'L' ? 1 : -1) * breathe * 0.5 * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
+      const lean = (act?.lean || 0) - st.returnK*1.4 + (st.walking ? 2 : 0) + (st.engage&&!seat&&S.familyHands&&kind!=='sister'?2.5:0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
+      let workYaw=0;
+      if(workJob&&st.look){toRig(tmp,st.look.x,st.look.y,st.look.z);workYaw=clamp(Math.atan2(tmp.x,tmp.z),-.8,.8)*st.workAck*.09;}
+      _q.setFromEuler(_e.set((lean * 0.45 -st.workAck*.8+ (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R+workYaw*.45, (-roll * 0.5-readingLean*(st.readingSide||1)*20) * D2R, 'YXZ')); slerpTo('spine', _q, readingLean?1:k); fk('spine');
+      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6-st.workAck*1.2) * D2R, -yaw * 0.8 * D2R+workYaw*.55, (-roll * 0.35-readingLean*(st.readingSide||1)*24) * D2R, 'YXZ')); slerpTo('chest', _q, readingLean?1:k); fk('chest');
+      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(st.workAck*.012, 0, (sd === 'L' ? 1 : -1) * (breathe * 0.5+st.workAck*1.5+st.returnK) * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
       // ---- legs: IK to the feet (or to the floor in front of the seat)
       for (let i = 0; i < 2; i++) {
         const f = st.feet[i], sd = i ? 'R' : 'L', s = i ? -1 : 1;
@@ -1750,7 +1840,7 @@
           // never dropping through an armrest when the paper is put away.
           a = lapArms[sd];
           if (st.engage && talking && sd === 'R') {
-            a = {...a,ik:[a.ik[0],a.ik[1]+(st.accent||0)*6,a.ik[2]+(st.accent||0)*2]};
+            const returning=Math.max(st.accent||0,st.returnK*.45);a = {...a,ik:[a.ik[0],a.ik[1]+returning*6,a.ik[2]+returning*2]};
           }
         }
         if (!a && near && talking && (sd === 'R' || st.talkSeed % 2 || act?.props?.mug)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
@@ -1761,7 +1851,7 @@
           a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), lerp(18 + (sd === 'L' ? 4 : 0),9 + Math.max(0,sw)*0.1,walking), lerp(S.familyHands?3:8,2+sw*0.07,walking), S.familyHands?-78:lerp(-7,-4,walking)];
         }
         if (Array.isArray(a)) armFK(sd, a, k);
-        else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, seatedRead || seatedJob&&pauseJob ? 1 : k, eul(a.hand[0], a.hand[1], a.hand[2]), a.worldHand); }
+        else { const fixed=workJob&&st.engage&&st.workGrip?.[sd];if(fixed)tgt.copy(fixed.p);else tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, seatedRead&&!st.readingParked || seatedJob&&pauseJob || workJob ? 1 : k, fixed?fixed.q:eul(a.hand[0], a.hand[1], a.hand[2]), fixed?true:a.worldHand); }
       }
       // A real armrest/seat surface, read once by the seat callback. Only
       // reach once it is inside the arm's envelope; never straighten an arm
@@ -1790,7 +1880,7 @@
       if (S.familyHands) for (const sd of ['L', 'R']) {
         const right = sd === 'R', held = act?.props || st.props;
         const resetPhase=(t+st.seed*1.3+(right?8:0))%19,settle=near&&!talking&&!st.walking&&resetPhase<1.5?Math.sin(Math.PI*resetPhase/1.5)**2:0;
-        const curl = st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : (right?-3:-1)+settle*7;
+        const curl = st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can || held?.phone) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : (right?-3:-1)+settle*7;
         const finger = B['lid' + sd], targetCurl=curl*D2R, delta=targetCurl-finger.rotation.x;
         // Resting curl is nonzero now. Once settled, avoid rebuilding the same
         // Euler quaternion every frame; retain full easing during a release.
@@ -1799,6 +1889,7 @@
       }
       // ---- props
       const props = Object.assign({}, act?.props || {}, st.props || {});
+      if(st.readingParked||st.readingStow){const p=kind==='dad'?'paper':'mag';if(PROPS_FOR[kind].includes(p))props[p]=1;}
       const propK = 1 - Math.exp(-dt * 12);
       // Unbuilt prop bones have no vertices and remain hidden. Settled hidden
       // props need neither exponential easing nor a redundant transform write.
@@ -1814,13 +1905,13 @@
       // the paper and the magazine: held up between the hands, turned to face the reader
       for (const [p, wide] of [['paper', 1], ['mag', 0]]) {
         const b = B['p_' + p]; if (!b.scale.x) continue;
-        if(!wide && st.action==='magazine'&&(!st.engage||seatedRead)){
+        if(!wide && st.action==='magazine'&&(!st.engage||seatedRead)&&!st.readingParked){
           b.position.copy(magP);b.quaternion.copy(paperQ);const c=Math.cos(st.h),s=Math.sin(st.h);
-          magHeld.set(st.x+magP.x*c+magP.z*s,st.y-magP.y,st.z-magP.x*s+magP.z*c);magHeading=st.h;magPlaced=true;continue;
+          magHeld.set(st.x+magP.x*c+magP.z*s,st.y-magP.y,st.z-magP.x*s+magP.z*c);magHeldQ.copy(paperQ);magHeading=st.h;magPlaced=true;continue;
         }
-        if(!wide&&magPlaced){toRig(b.position,magHeld.x,magHeld.y,magHeld.z);b.quaternion.setFromAxisAngle(UPV,magHeading-st.h).multiply(paperQ);continue;}
+        if(!wide&&magPlaced){toRig(b.position,magHeld.x,magHeld.y,magHeld.z);b.quaternion.setFromAxisAngle(UPV,magHeading-st.h).multiply(magHeldQ);continue;}
         if (wide) {
-          if (st.action === 'paper' && (!st.engage||seatedRead)) {
+          if (st.action === 'paper' && (!st.engage||seatedRead)&&!st.readingParked) {
             b.position.copy(paperP); b.quaternion.copy(paperQ);
             const c = Math.cos(st.h), s = Math.sin(st.h);
             paperHeld.set(st.x + paperP.x*c + paperP.z*s, st.y-paperP.y, st.z-paperP.x*s+paperP.z*c);
@@ -1841,8 +1932,13 @@
       // Far rigs keep the support/action pose but skip glances, breaths,
       // secondary hair and painted face work. Refresh the cached head frame.
       if (!near) {
-        B.neck.quaternion.identity(); B.head.quaternion.identity(); fk('neck'); fk('head');
+        // The low-detail maintenance tick also runs between visible frames.
+        // Retain an attended head instead of snapping it (and its cup/phone)
+        // to neutral during a live conversation. No new cosmetic work here.
+        if(!st.look&&!st.listen&&!talking&&!st.engage){B.neck.quaternion.identity();B.head.quaternion.identity();}
+        fk('neck'); fk('head');
         cupContact(hy);
+        phoneContact();
         if (st.cosmeticNear !== false) { B.hairL.rotation.set(0,0,kind === 'sister' ? .05 : 0); B.hairR.rotation.set(0,0,kind === 'sister' ? -.05 : 0); st.hairS = st.hairV = 0; }
         st.cosmeticNear = false; useLod(false); setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0,0); U.npBrow.value = 0; return;
       }
@@ -1871,15 +1967,16 @@
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
       const ackPhase = clamp((now-(st.gestureStart||-1e9))/1100,0,1), ackNod = st.gestureKind === 'nod' ? Math.sin(Math.PI*ackPhase)**2*.16 : 0;
-      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod;
+      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod + st.returnK*.025;
       const stableHead = st.walking && !look;
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
       slerpTo('neck', _q, k * 0.7); fk('neck');
       if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
-      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, (st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (st.listen ? .009 : S.familyHands ? .025 : .03), 'YXZ'));
+      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod + st.sipK*.085, yawH * 0.6, (st.action==='phone'?.10:0)+(st.engage&&!seat&&S.familyHands? (kind==='dad'?-.035:.045):0)+Math.sin(t * 0.21 + st.seed) * (st.listen ? .009 : S.familyHands ? .025 : .03), 'YXZ'));
       slerpTo('head', _q, k * 0.7); fk('head');
       cupContact(hy);
+      phoneContact();
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
         _v.set(0,0,1).applyQuaternion(W.head.q);
@@ -1947,7 +2044,7 @@
       if (partner && (now < partner.talkUntil + 400 || heardEnd) && (!pv || pv.started) && (!pv?.ctx || pv.ctx.state === 'running')) {
         const lp = pv ? pv.speechProgress ? pv.speechProgress() : pv.progress() : (now - partner.talkStart) / Math.max(1, partner.talkUntil - partner.talkStart);
         const directedJoke = partner.directed?.beats.find(b=>b[0]==='joke'), source = pv?.sourceTime?.();
-        const qualified = directedJoke && source !== null && source !== undefined && Math.abs(pv.dur-(pv.nameId?pv.nameDur+.10:0)-partner.directed.dur)<.035;
+        const qualified = directedJoke && partner.directed.file && source !== null && source !== undefined && Math.abs(pv.dur-(pv.nameId?pv.nameDur+.10:0)-partner.directed.dur)<.035;
         const heard = qualified ? source >= directedJoke[1] : partner.directed ? null : pv?.speechCue?.('joke');
         const joke = partner.joke && (heardEnd || (heard === null || heard === undefined ? lp >= partner.jokeAt : heard));
         const warmEnding = !partner.joke && partner.mood === 'happy' && (pv ? pv.progress() : lp) >= .96;
@@ -1957,6 +2054,7 @@
       }
       const reactionAge = (now - (st.reactAt ?? -1e9)) / 1000;
       if (near && (!talking || progress < .12) && reactionAge >= 0 && reactionAge < 1.3) reaction = smooth(reactionAge / .24) * (1 - smooth((reactionAge - .65) / .65)) * (st.reactStrength ?? 1);
+      reaction=Math.max(reaction,(st.replyWarm||0)*st.returnK*.65);
       const mk = st.moodK * (st.directed ? .22 + st.beatSmile*.78 + st.beatFirm*.6 : 1), ak = 1 - Math.exp(-dt * 7), acting = U.npAct.value;
       acting.x += (mood[0] * mk - acting.x) * ak;
       acting.y += (mood[1] * mk + st.beatSmile*.12 + reaction * .12 - acting.y) * ak;
@@ -2001,6 +2099,45 @@
     const _up = new T.Vector3();
     const rig = {
       kind, S, J, group, mesh: body, shadow, proxy, bones: B, st, face,
+      prepareReading(room) {
+        const prop=st.action==='paper'?'paper':st.action==='magazine'?'mag':null;
+        if(!st.seat||!prop||!PROPS_FOR[kind].includes(prop))return true;
+        B['p_'+prop].scale.setScalar(1);
+        st.readingRoom=room||st.readingRoom||'lounge';
+        st.readingStow=true;return st.readingTransfer>=1;
+      },
+      replyTo(other) {
+        if(!other||other===rig)return;
+        const heard=st.reactSpeaker===other.st&&st.reactLine===other.st.talkSerial&&performance.now()-(other.st.heardEnd??other.st.talkUntil)<2600;
+        st.replyPending=true;st.replyWarm=Math.max(clamp(U.npAct.value.y/.12,0,1),heard?(st.reactStrength||0)*.45:0);
+      },
+      presence(person,reading) {
+        st.personVisible=!!person;
+        U.npPresence.value.set(person?1:0,reading?1:0,st.readingParked?1:0);
+        body.frustumCulled=!st.readingParked;shadow.visible=!!person;proxy.visible=!!person;
+      },
+      syncReading() {
+        if(!st.readingParked)return;
+        const paper=kind==='dad',point=paper?paperHeld:magHeld,b=B[paper?'p_paper':'p_mag'];
+        toRig(b.position,point.x,point.y,point.z);b.quaternion.setFromAxisAngle(UPV,(paper?paperHeading:magHeading)-st.h).multiply(paper?paperHeldQ:magHeldQ);
+      },
+      get readingState() {
+        if(!st.readingStow&&!st.readingParked&&!st.readingTransfer)return null;
+        const paper=kind==='dad';
+        return {action:paper?'paper':'magazine',room:st.readingRoom||'lounge',side:st.readingSide,shift:st.readingShift,time:st.t,lower:st.paperLower,transfer:st.readingTransfer,stow:st.readingStow,parked:st.readingParked,recover:st.readingRecover,
+          position:(paper?paperHeld:magHeld).toArray(),heading:paper?paperHeading:magHeading,rotation:(paper?paperHeldQ:magHeldQ).toArray(),leaf:B.jaw.rotation.y};
+      },
+      restoreReading(o) {
+        if(!o||!['paper','magazine'].includes(o.action)||!Array.isArray(o.position)||o.position.length!==3||!o.position.every(Number.isFinite)||!Array.isArray(o.rotation)||o.rotation.length!==4||!o.rotation.every(Number.isFinite))return;
+        const paper=o.action==='paper';if(!PROPS_FOR[kind].includes(paper?'paper':'mag'))return;
+        st.readingTransfer=clamp(+o.transfer||0,0,1);st.readingStow=!!o.stow;st.readingParked=!!o.parked;st.readingRecover=clamp(+o.recover||0,0,.7);
+        st.readingRoom=typeof o.room==='string'?o.room:'lounge';st.readingSide=Math.sign(+o.side)||1;st.readingShift=clamp(+o.shift||0,-4,4);
+        if(Number.isFinite(o.time))st.t=o.time;st.paperLower=clamp(+o.lower||0,0,1);
+        (paper?paperHeld:magHeld).fromArray(o.position);(paper?paperHeldQ:magHeldQ).fromArray(o.rotation).normalize();
+        if(paper){paperHeading=+o.heading||0;paperPlaced=true;B.jaw.rotation.y=clamp(+o.leaf||0,0,Math.PI);const fold=smooth(clamp(smooth(st.readingTransfer)/.42,0,1));B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;}else{magHeading=+o.heading||0;magPlaced=true;}
+        B[paper?'p_paper':'p_mag'].scale.setScalar(1);
+        if(!st.readingParked)st.action=o.action;
+      },
       get tris() { return outfits[outfit].tris[lodNow]; },
       get lod() { return lodNow; },
       get outfit() { return outfit; },
@@ -2011,7 +2148,7 @@
       set floor(fn) { floorFn.f = fn; },
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; st.contactK = 0; st.contactPoint = st.contactSide = null; placeFeet(); st.sm = {}; },
-      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o && st.action !== (o.action||null)) { st.action=o.action||null;st.jobPause=null;st.jobOffset=0; } if ('seat' in o) {
+      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o && st.action !== (o.action||null)) { if(st.readingStow){st.readingParked=true;st.readingStow=false;st.readingRecover=0;} st.action=o.action||null;st.jobPause=null;st.jobOffset=0;st.workGrip=null;st.workAttending=false; } if ('seat' in o) {
         const old = st.seat;
         if (old && !o.seat && Number.isFinite(old.x) && Number.isFinite(old.z)) {
           const a = old.face * D2R, k = smooth(st.sitK);
@@ -2037,6 +2174,8 @@
         // a naturally completed recording until listeners have seen its end;
         // interrupted/cancelled speech must never invent a punchline reaction.
         if (st.talkVoice?.started && st.talkVoice.ended && !st.talkVoice.cancelled) st.heardEnd = performance.now();
+        st.replyPending=false;
+        if(st.talkVoice?.cancelled){st.replyAt=-1e9;st.replyWarm=0;}
         st.talkUntil = 0; st.talkVoice = null;
       },
       acknowledge(kind) { rig.hush(); st.gestureStart = performance.now(); st.gestureKind = kind === 'smile' ? 'smile' : 'nod'; },

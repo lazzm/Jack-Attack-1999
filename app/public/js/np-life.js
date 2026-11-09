@@ -221,13 +221,21 @@
     if (r && c.room !== r.id) { c.room = r.id; H.buildRoom(r); }
     // Keep the logical floor/room for dialogue and sound. Only the render
     // ancestry shares the hall's flight; both ends form one open air volume.
-    const g = c.rig.group, parent = (flight ? H.ROOMS.hall : H.ROOMS[c.room])?.group;
+    const g = c.rig.group, room = (flight ? H.ROOMS.hall : H.ROOMS[c.room])?.group;
+    const parked=c.rig.st?.readingParked,readingRoom=H.ROOMS[c.rig.st?.readingRoom||'lounge']?.group;
+    const person=c.present&&!!room?.visible,reading=parked&&!!readingRoom?.visible;
+    // The laid-down page remains in the original skinned draw. If its owner
+    // is in a culled room, draw just that page from the house root; never
+    // resurrect the hidden person or add a separate prop draw.
+    const parent=parked&&!person&&reading?H.root:room;
     if (parent && g.parent !== parent) parent.add(g);
     const y = flight ? NV.ramp(c.z) : H.LV[c.lvl];
     // A tight shuffle uses the rig's planted-foot adjustment steps. Its back
     // stays against the wall; a forward walk cycle would put toes into it.
     c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow || c.backoff ? 0 : c.v);
-    g.visible = c.present && !hideAll;
+    c.rig.presence?.(parked?person:c.present,reading);
+    c.rig.syncReading?.();
+    g.visible = (c.present||reading) && !hideAll;
   }
   function spawn(c, at, h) {
     build(c);
@@ -375,6 +383,11 @@
       if (s.t > 1.15) { c.seated = q; c.cur = null; }
     } else if (s.k === 'stand') {
       const q = s.seat;
+      if(!s.started&&!c.rig.prepareReading(c.room)){
+        s.t=0;c.v=0;
+        if(simMode||!visible(c))c.rig.update(dt,false);
+        return;
+      }
       if (!s.started) { s.from = { x: c.x, z: c.z }; s.started = true; c.rig?.set({ seat: null, action: null, props: {} }); }
       const k = smooth(clamp((s.t-0.12) / 0.83, 0, 1)); c.x = lerp(s.from.x, q.stand[0], k); c.z = lerp(s.from.z, q.stand[1], k); c.v = 0;
       if (s.t > 1.0) { c.seated = null; c.cur = null; const ap = approachOf(q, c.lvl), back = (q.via || []).slice().reverse().map(v => ({ k: 'line', to: { x: v[0], z: v[1] } })); if (Math.hypot(ap.x - q.stand[0], ap.z - q.stand[1]) > 1) back.push({ k: 'line', to: { x: ap.x, z: ap.z } }); c.plan.unshift(...back); }
@@ -470,7 +483,7 @@
   }
   const prio = c => ({ mom: 3, dad: 2, sister: 1 })[c.id];
   const travelAction = c => c.goal?.away && c.goal.away !== 'bed' ? 'leave' : null;
-  function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
+  function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow || /^(washup|cook|water)$/.test(c.rig?.st.action||'')) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
   // Listening is presentation only: no route, position, dialogue or random draw
   // changes. A wide group gets small turns with a pause between them. The rig's
   // existing exclusive support-foot solve lifts one shoe while the other stays.
@@ -591,13 +604,13 @@
   const frustum = new T.Frustum(), pm = new T.Matrix4(), sph = new T.Sphere(), wp = new T.Vector3();
   function seen(c) {
     if (!c.present || !c.rig || !H.live) return false;
-    const parent = c.rig.group.parent || H.ROOMS[c.room]?.group; if (!parent?.visible) return false;
+    const parent = H.ROOMS[c.room]?.group || c.rig.group.parent; if (!parent?.visible) return false;
     if (H.mode !== 'walk' && H.mode !== 'focus' && H.mode !== 'glide') return false;
     H.camera.updateMatrixWorld(); pm.multiplyMatrices(H.camera.projectionMatrix, H.camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pm);
     c.rig.group.getWorldPosition(wp); wp.y += 80; sph.set(wp, 110);
     return frustum.intersectsSphere(sph);
   }
-  const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!(c.rig?.group?.parent || H.ROOMS[c.room]?.group)?.visible;
+  const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!(H.ROOMS[c.room]?.group || c.rig?.group?.parent)?.visible;
 
   // ================================================================ speech: one line at a time, in person or shouted
   const speech = { q: [], cur: null, until: 0, hard: 0, last: 0, voice: null, bub: null };
@@ -626,7 +639,7 @@
   }
   // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
   // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
-  const seenBy = c => c.present && !!c.rig?.group.visible && !!(c.rig.group.parent || H.ROOMS[c.room]?.group)?.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!(H.ROOMS[c.room]?.group || c.rig.group.parent)?.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
   const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
   let V3 = null, voiceDirection = null;
   function speechTick() {
@@ -637,6 +650,9 @@
     if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
     if (speech.cur) {
       if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
+      // Presentation remembers only a delivered nearby turn. This never
+      // chooses, queues, repeats or consumes a line, and cannot lock the player.
+      speech.previous={c:speech.cur.c,at:t,delivered:speech.cur.person&&(!speech.voice||speech.voice.started&&speech.voice.ended&&!speech.voice.cancelled)};
       if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // let the last speaker's comic panel linger through a reply
       if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
       speech.voice = speech.bub = null;
@@ -653,6 +669,10 @@
     if (busyNote && (!welcome || document.querySelector('.hs-voice.on,.hs-call.on') || [...document.querySelectorAll('.rm-note.on')].some(n=>!['Have a look round','My room'].includes(n.querySelector('b')?.textContent)))) return;
     n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
     n0.text = window.st?.voiceText?.(n0.lineId, n0.base,n0) || n0.base;
+    // Loading a reply's recording must not erase the conversational hand-off.
+    // Capture its delivered predecessor when the already-selected turn is
+    // ready to begin waiting, without changing queue/history/selection rules.
+    if(!n0.familyPreviousChecked){n0.familyPreviousChecked=true;n0.familyPrevious=speech.previous&&t-speech.previous.at<2200?speech.previous:null;}
     const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId,n0);
     if (!welcome && rec && !window.st.voiceReady?.(n0.lineId,n0)) { // (the first welcome shows its name promptly even while audio is loading)
       if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId,n0); } catch (e) {} }
@@ -660,6 +680,11 @@
     }
     const n = speech.q.shift();
     const ms = rec ? clamp(rec.dur * 1000 + 450, 1500, 14000) : lineMs(n.text);
+    const previous=n.familyPrevious,reply=previous?.c;
+    n.c.turnTo=null;
+    if(previous?.delivered&&reply!==n.c&&reply?.present&&n.person&&!n.talk&&!n.c.hold&&reply.room===n.c.room&&sameFloor(n.c,reply)&&dist(n.c,reply)<330){
+      n.c.turnTo=reply;n.c.turnUntil=t+ms+1500;n.c.rig?.replyTo?.(reply.rig);
+    }
     const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
     const who = label(n.c) + (place ? ' ' + place : '');
     const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
@@ -682,6 +707,7 @@
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
       if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
       speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
+      if(c.turnTo)c.turnUntil=end+1500;
       if (here) c.rig.talk(end - nowMs(), n.text, h, direction, n.lineId);
     };
     if (n.person) c.talking = true;
@@ -1095,12 +1121,14 @@
     const last = c.listenTo, heldListen = !c.talking && !c.hold && last?.present && nowMs() < c.listenUntil && last.room === c.room && sameFloor(c,last) && dist(c,last) < 330;
     const listenerTarget = listening ? speaker : heldListen ? last : null;
     if(listenerTarget&&!c.hold&&!show)look=listenerTarget.rig.eyeWorld(c.listenEye||(c.listenEye=new T.Vector3()));
+    const addressee=c.turnTo;
+    if(!show&&!c.hold&&speaker===c&&addressee?.present&&nowMs()<c.turnUntil&&addressee.room===c.room&&sameFloor(c,addressee)&&dist(c,addressee)<330)look=addressee.rig.eyeWorld(c.turnEye||(c.turnEye=new T.Vector3()));
     c.rig.set({ look, listen: listenerTarget?listenerTarget.rig:null, engage: c.present && c.hold > 0 });
   }
 
   // ================================================================ the loop
   let ready = false, lastT = 0, lastFrame = 0, simMode = false;
-  const visible = c => c.present && c.rig && (c.rig.group?.parent || H.ROOMS[c.room]?.group)?.visible;
+  const visible = c => c.present && c.rig && (c.rig.st?.readingParked ? c.rig.st.personVisible : (c.rig.group?.parent || H.ROOMS[c.room]?.group)?.visible);
   function dialogueHeld(c) {
     if (c.pass && nowMs() < c.pass.until) return false; // walking away releases the pose, never the spoken line
     if (c.goal?.key === 'aside' && !c.aside && c.hold <= 0) return false; // the player left; a passing line may finish back at work
@@ -1121,7 +1149,7 @@
     for (const c of chars) {
       if (c.present && c.pass && nowMs() < c.pass.until) stepAside(c, dt);
       const want = target(c, clk);
-      if (!c.present) { maybeSpawn(c, want, clk); continue; }
+      if (!c.present) { maybeSpawn(c, want, clk); if(c.rig?.st.readingParked)placeRig(c); continue; }
       if ((!c.goal || want.key !== c.goal.key) && !dialogueHeld(c)) setGoal(c, want);
       step(c, dt, clk);
       placeRig(c);
@@ -1165,7 +1193,7 @@
   function save() {
     savedAt = nowMs(); if (simMode) return;
     const o = { pv:10, t: Date.now(), c: {} };
-    for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { motion:3, x:c.x, z:c.z, k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0 };
+    for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, reading: c.rig?.readingState, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { motion:3, started:!!c.cur.started, x:c.x, z:c.z, k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0, reading:c.rig?.readingState };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
     o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (n!==speech.cur || !speech.voice?.ended && n.context?.kind!=='welcome')).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,requested:n.requested,callout:n.callout,legacyShout:n.legacyShout,context:n.context}))};
@@ -1180,26 +1208,28 @@
     }
     for (const c of chars) {
       const want = target(c, clk), sv = o && Date.now() - o.t < 10 * 60000 ? o.c[c.id] : null;
+      if(sv?.reading&&!sv.p&&want.away){c.rig.restoreReading(sv.reading);c.rig.st.readingStow=false;c.rig.st.readingParked=true;placeRig(c);c.rig.update(0,false);continue;}
       if (sv && sv.p && !want.away && sv.g === want.key) { // carry on exactly where they were
         if (sv.pose && SPOT[sv.pose.seat]?.seat && ['sit', 'stand'].includes(sv.pose.k)) {
           const p = sv.pose, q = seatFor(c, SPOT[p.seat]);
           spawn(c, { lvl: sv.lvl, x: Number.isFinite(p.x)?p.x:sv.x, z: Number.isFinite(p.z)?p.z:sv.z }, sv.h); c.goal = want;
           c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = clamp(+p.blend || 0, 0, 1);
-          if (p.k === 'stand') { c.seated = q; setGoal(c, want); c.plan.shift(); c.rig.set({ seat: null }); }
+          if (p.k === 'stand') { c.seated = q; setGoal(c, want); c.plan.shift(); if(p.started!==false)c.rig.set({ seat: null }); }
           else c.plan = [{ k: 'act' }];
           // Older saved phases used the previous root curves; retain their
           // position by converting phase time, without moving a saved anchor.
           const phase=p.motion===3?+p.t:p.k==='sit'?(+p.t||0)*0.7/1.1:0.12+(+p.t||0)*0.83/0.95;
-          c.cur = { k: p.k, seat: q, t: clamp(phase || 0, 0, 1.2), from: p.from || { x: sv.x, z: sv.z }, started: p.k === 'stand' };
+          c.cur = { k: p.k, seat: q, t: clamp(phase || 0, 0, 1.2), from: p.from || { x: sv.x, z: sv.z }, started: p.k === 'stand' && p.started!==false };
+          c.rig.restoreReading(sv.reading);
           if (Array.isArray(p.feet) && p.feet.length === 2) p.feet.forEach((f, i) => { if (['x', 'y', 'z', 'yaw'].every(k => Number.isFinite(f[k]))) Object.assign(c.rig.st.feet[i], f); });
           c.rig.update(0, true); continue;
         }
-        if (sv.seat && SPOT[sv.seat]?.seat) { const q = seatFor(c, SPOT[sv.seat]); spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; }
-        else { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; }
+        if (sv.seat && SPOT[sv.seat]?.seat) { const q = seatFor(c, SPOT[sv.seat]); spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; c.rig.restoreReading(sv.reading); }
+        else { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; c.rig.restoreReading(sv.reading); }
         continue;
       }
-      if (sv && sv.p && !want.away) { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; continue; } // then walk on to where the clock says
-      if (!want.away) maybeSpawn(c, want, clk, true);
+      if (sv && sv.p && !want.away) { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; c.rig.restoreReading(sv.reading); continue; } // then walk on to where the clock says
+      if (!want.away) {maybeSpawn(c, want, clk, true);if(sv?.reading)c.rig.restoreReading(sv.reading);}
     }
     const conversation=o&&Date.now()-o.t<10*60000&&o.conversation;
     if(conversation && Array.isArray(conversation.lines)) {

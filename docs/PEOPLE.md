@@ -175,3 +175,13 @@ An initial/restored foot point inside a doorway reveal gets the nearest room on 
 clearance), so it cannot inherit an unrelated hidden parent and advance on the coarse off-screen timer. After an
 avoidance has cleared its route, an ambient spoken line can finish while the person resumes their destination;
 explicit player conversations retain their normal hold.
+
+### Round 9: held contact, reading transfers and family replies
+
+Sips keep the wrist below the handle and the elbow down/in; the existing mug joint counter-rotates to retain the upright cup. The solved mouth constrains the rim in the same frame, with a small head tip. Mom's handset similarly follows her actual ear through oblique turns. Attended heads retain their pose during low-detail maintenance ticks.
+
+Seated readers fold/lower their reading onto the original upholstery armrest before standing. Both grips constrain the transfer; a returning reader sits, reaches, takes both grips and recovers the page. The full-scale page stays at its saved world position while its owner moves away. A visibility uniform in the existing skinned draw can show the parked page while hiding a culled owner; no separate prop mesh is added. Culled owners update only the parked page joint, preserving the hidden rig clock and shared random schedule. Transfer/park/retrieval state is optional saved presentation state, including for absent owners. Original paper/magazine print occupies spare atlas space; dimensions, geometry and draw budgets are unchanged.
+
+Washing, cooking and watering acknowledge a listener with small shoulder/torso beats. Explicit conversations keep their actual paused work wrists and tool orientation; these jobs retain their work-facing body. Delivered nearby family replies retain an addressee through audio loading, hold a heard reaction and make one bounded returning gesture on the recording clock. Suspension holds the gesture; cancellation clears it. Player conversations retain priority, and presentation does not select or repeat dialogue.
+
+The acting pack now covers 133 lines / 233 beats, including all 108 everyday time-of-day lines. Fifty added lines use recorded-word spans; three unavailable recordings have explicit text-only anchors. The original eighty records remain unchanged. See [ANIMATION-ROUND9.md](ANIMATION-ROUND9.md) for native strips, actual test exits, measurements and limits.
