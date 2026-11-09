@@ -1,3 +1,4 @@
+// UI_HUD_CAPTURE=pause (or scrolled) keeps every input/layout assertion and limits repeat-run captures.
 // Native UI evidence and input regression. --before serves unchanged HEAD assets; after uses the working tree. Paths resolve from this test, including when run outside tests/.
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -6,8 +7,10 @@ import {execFileSync} from 'node:child_process';
 import {withTestServer} from './perf/server.mjs';
 import {roomFixture} from './room-fixture.mjs';
 import {bonfireLogin} from './bonfire-login.mjs';
-const before=process.argv.includes('--before'), phase=before?'before':'after';
-const out=new URL('./shots/ui-hud/'+phase+'/',import.meta.url);await mkdir(out,{recursive:true});
+import {scrollPause} from './ui-hud-scroll.mjs';
+const before=process.argv.includes('--before'),baseline=before||process.env.UI_HUD_BASELINE==='1',phase=baseline?'before':'after';
+const run=process.env.UI_HUD_RUN||'';assert(!run||/^[a-z0-9-]+$/i.test(run),'Safe evidence run name');
+const out=new URL('./shots/ui-hud/'+phase+'/'+(run?run+'/':''),import.meta.url);await mkdir(out,{recursive:true});
 const evidence=[],failures=[],only=process.argv.find(a=>a.startsWith('--only='))?.slice(7).split(',');
 // Bound a stalled software renderer as well as ordinary state waits. The
 // disposable-server helper handles this signal and stops only its own child.
@@ -21,14 +24,14 @@ if(!sizes.some(s=>touch?s[0]!==1366:s[0]===1366))continue;
 await withTestServer(async base=>{
  const account='Jack',password='Throwaway-1999';
  assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
-  const f=await roomFixture(base,{account,password,signup:false,resume:true,opening:true,hour:12,seed:1999,touch,width:touch?390:1366,height:touch?844:860,contextOptions:{isMobile:touch,deviceScaleFactor:1,...(touch?{userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'}:{})},storageState:await bonfireLogin(base,password,account,{pv:12,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),onPage:async p=>{await p.addInitScript(()=>localStorage.setItem('jhp_touch_slow_asked','true'));if(before)for(const file of ['js/hs-world.js','js/hs-mobile.js','js/hs-touch.js','css/hs.css','css/hs-touch.css','css/hs-captions.css'])await p.route('**/'+file+'*',route=>route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:execFileSync('git',['show','HEAD:app/public/'+file],{cwd:new URL('../',import.meta.url),encoding:'utf8'})}));}});
+  const f=await roomFixture(base,{account,password,signup:false,resume:true,opening:true,hour:12,seed:1999,touch,width:touch?390:1366,height:touch?844:860,contextOptions:{isMobile:touch,deviceScaleFactor:1,...(touch?{userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'}:{})},storageState:await bonfireLogin(base,password,account,{pv:12,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),onPage:async p=>{await p.addInitScript(()=>localStorage.setItem('jhp_touch_slow_asked','true'));if(baseline)for(const file of ['js/hs-world.js','js/hs-pause.js','js/hs-mobile.js','js/hs-touch.js','css/hs.css','css/hs-touch.css','css/hs-captions.css'])await p.route('**/'+file+'*',route=>route.fulfill({contentType:file.endsWith('.css')?'text/css':'application/javascript',body:execFileSync('git',['show','HEAD:app/public/'+file],{cwd:new URL('../',import.meta.url),encoding:'utf8'})}));}});
   const {page:p}=f;const until=async(fn,arg)=>{const end=Date.now()+45000;while(Date.now()<end){if(await p.evaluate(fn,arg))return;await p.waitForTimeout(150)}throw Error('UI state timeout: '+fn)};p.setDefaultTimeout(15000);const cdp=await p.context().newCDPSession(p);
   const check=(ok,msg)=>{if(!ok){failures.push(msg);if(!before)throw Error(msg)}};
   async function finger(){if(touch){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:9,x:innerSize[0]/2,y:2}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await p.waitForTimeout(200)}}
   let innerSize=[touch?390:1366,touch?844:860];
   async function stage(eye,target){await f.view(eye,target);await p.evaluate(target=>{HousePause.close();House.hush();House._.setMode('walk');House.W.eyeNow=House.W.eye;const P=House.P;P.y=House.W.fy-House.W.eye;P.rx=Math.atan2(-(target[1]-P.y),Math.hypot(target[0]-P.x,target[2]-P.z))*180/Math.PI;P.ry=Math.atan2(target[0]-P.x,-(target[2]-P.z))*180/Math.PI;House.dirty()},target);await finger();await p.waitForTimeout(400)}
-  async function press(k){const b=p.locator('.ht-hud [data-k="'+k+'"]');if(touch&&await b.isVisible())await b.tap();else await p.keyboard.press(k)}
-  async function shot(name){await p.evaluate(()=>House.dirty());await p.waitForTimeout(180);console.log('CAPTURE',phase,innerSize.join('x'),name);const path=fileURLToPath(new URL(innerSize.join('x')+'-'+name+'.png',out));await p.screenshot({path,scale:'css',timeout:60000});return path}
+  async function press(k){const b=p.locator('.ht-hud [data-k="'+k+'"]');if(touch){await b.waitFor({state:'visible'});await b.tap()}else await p.keyboard.press(k)}
+  async function shot(name){await p.evaluate(()=>House.dirty());await p.waitForTimeout(180);if(['pause','scrolled'].includes(process.env.UI_HUD_CAPTURE)&&name!=='pause-scrolled')return null;console.log('CAPTURE',phase,innerSize.join('x'),name);const path=fileURLToPath(new URL(innerSize.join('x')+'-'+name+'.png',out));await p.screenshot({path,scale:'css',timeout:60000});return path}
   try{
    await section('pc',async()=>{
    // A production F ray enters the monitor, then real T/LOCK IN toggles both ways.
@@ -92,11 +95,8 @@ await withTestServer(async base=>{
    });
    await section('pause',async()=>{
    for(const [width,height]of sizes.filter(s=>touch?s[0]!==1366:s[0]===1366)){
-    innerSize=[width,height];await p.setViewportSize({width,height});await finger();await p.keyboard.press('Escape');await until(()=>HousePause.open);const dlg=p.locator('.hs-pause');await dlg.evaluate(e=>e.scrollTop=0);await finger();await shot('pause-top');
-    const needsScroll=await dlg.evaluate(e=>e.scrollHeight>e.clientHeight);if(touch&&needsScroll){const r=await dlg.boundingBox(),x=r.x+r.width-26,y0=Math.min(height-30,r.y+r.height-40),y1=Math.max(r.y+110,height*.25);
-     console.log('SCROLL START',innerSize,r,await p.evaluate(()=>({width:innerWidth,height:innerHeight,scale:visualViewport.scale,html:getComputedStyle(document.documentElement).touchAction,dialog:getComputedStyle(document.querySelector('.hs-pause')).touchAction,hit:document.elementFromPoint(350,780)?.className})));for(let n=0;n<4;n++){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:7,x,y:y0,force:1,radiusX:6,radiusY:6}]});for(let i=1;i<=4;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:7,x,y:y0+(y1-y0)*i/4,force:1,radiusX:6,radiusY:6}]});await p.waitForTimeout(50)}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(120)}
-    }else if(!touch){await dlg.hover();await p.mouse.wheel(0,2000)}await p.waitForTimeout(300);
-    const scroll=await dlg.evaluate(e=>({top:e.scrollTop,max:e.scrollHeight-e.clientHeight}));console.log('SCROLL END',scroll);const path=await shot('pause-scrolled');check(scroll.max===0||scroll.top>0,innerSize+' Pause scroll input did not move');const resume=await p.locator('[data-pause=resume]').evaluate(e=>{const r=e.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{x:r.x,y:r.y,w:r.width,h:r.height,hit:e===hit||e.contains(hit)}});evidence.push({size:innerSize,state:'pause',path,resume,scroll});check(resume.y>=0&&resume.y+resume.h<=height&&resume.hit,innerSize+' Resume unreachable while scrolled');
+    innerSize=[width,height];await p.setViewportSize({width,height});await press(touch?'menu':'Escape');await until(()=>HousePause.open);const dlg=p.locator('.hs-pause');await dlg.evaluate(e=>e.scrollTop=0);await shot('pause-top');
+    const result=await scrollPause({page:p,cdp,touch});console.log('PAUSE SCROLL',innerSize,JSON.stringify(result));const path=await shot('pause-scrolled');evidence.push({size:innerSize,state:'pause',path,...result});
     if(!before){if(touch)await p.locator('[data-pause=resume]').tap();else await p.locator('[data-pause=resume]').click()}else await p.keyboard.press('Escape');await until(()=>!HousePause.open);
    }
    });

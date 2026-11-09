@@ -26,6 +26,28 @@
  <details class="hs-pause-controls"><summary>KEYBOARD &amp; MOUSE</summary><p class="hs-pause-keys"><kbd>WASD</kbd> Walk · <kbd>Mouse</kbd> Look · <kbd>Shift</kbd> Jog<br><kbd>F</kbd> Use / look / play / sit · <kbd>E</kbd> Pick up / place<br><kbd>R</kbd> Turn · <kbd>Wheel</kbd> Distance<br><kbd>Q</kbd> Back / return item · <kbd>T</kbd> LOCK IN<br><kbd>C</kbd> Crouch · <kbd>Space</kbd> Jump · <kbd>Esc</kbd> Menu<span class="hs-owner-key" hidden><br><kbd>&#96;</kbd> Owner tools / god mode</span></p></details>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
+ // The top-layer modal can lose native touch panning after the in-world PC
+ // changes its projection/viewport. Own a finger's vertical drag here; wheel,
+ // mouse selection and the native range/select widgets keep their defaults.
+ let menuPan=null,panClick=false;
+ function stopMenuPan(){
+  const p=menuPan;menuPan=null;
+  if(p?.moved){panClick=true;try{el.releasePointerCapture(p.id)}catch(e){}}
+ }
+ el.addEventListener('pointerdown',ev=>{
+  if(menuPan)return;panClick=false;
+  if(!el.open||!['touch','pen'].includes(ev.pointerType)||ev.target.closest('select,input[type="range"]')||ev.target.closest('label')?.querySelector('select,input[type="range"]'))return;
+  menuPan={id:ev.pointerId,x:ev.clientX,y:ev.clientY,top:el.scrollTop,moved:false};
+ },true);
+ el.addEventListener('pointermove',ev=>{
+  const p=menuPan;if(!p||p.id!==ev.pointerId||!el.open)return;
+  const dy=p.y-ev.clientY,dx=p.x-ev.clientX;
+  if(!p.moved){if(Math.abs(dy)<6||Math.abs(dy)<Math.abs(dx))return;p.moved=true;try{el.setPointerCapture(ev.pointerId)}catch(e){}}
+  ev.preventDefault();el.scrollTop=Math.max(0,Math.min(el.scrollHeight-el.clientHeight,p.top+dy));
+ },{capture:true,passive:false});
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,ev=>{if(menuPan?.id===ev.pointerId&&(type!=='lostpointercapture'||ev.target===el))stopMenuPan()},true);
+ el.addEventListener('click',ev=>{if(panClick&&ev.detail>0){panClick=false;ev.preventDefault();ev.stopImmediatePropagation()}},true);
+
  const guidance=el.querySelector('[name=guidance]');guidance.value=localStorage.getItem('jhp_story_guidance')||'full';guidance.addEventListener('change',()=>window.StoryGuide?.setting(guidance.value));
  const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
  const version=document.createElement('small');version.className='hs-pause-version';version.style.cssText='display:block;text-align:right;padding:0 16px 12px;color:#b8aa84;font:11px monospace';el.appendChild(version);
@@ -80,7 +102,7 @@
   el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
   button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
- function closeMenu(){if(!el.open||loggingOut)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);H.resumeLook?.();}
+ function closeMenu(){if(!el.open||loggingOut)return;stopMenuPan();el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);H.resumeLook?.();}
  function handleEscape(ev){if(window.stDiary?.handleKey?.(ev))return true;if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open)closeMenu();else openMenu()}return true;}
  el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
  el.addEventListener('click',ev=>{
