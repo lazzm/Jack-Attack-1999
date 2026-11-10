@@ -5,7 +5,8 @@
  * and a compass, crystal switches, push blocks, a boomerang, the BIG CHEESE mini-boss, the big key and the Baron himself.
  * After the feast, the village well opens THE SECOND HELPING: the Salt-Beyond, Ravioli Reservoir, an enchanted bow,
  * Count Crouton, the Ovenheart and the Al Dente Forge. Beyond it: Scouring Quay, the two-floor Pothook Pumpworks,
- * the Spool Spork and Admiral Stockpot's Tidebell. Old version-1 files, IDs and endings remain compatible.
+ * the Spool Spork and Admiral Stockpot's Tidebell. The Cold Pantry adds turning foil, thermal flues, sliding crates,
+ * the Cayenne Caster, Grand Glace, Living Starter and the rising bread road. Old version-1 files remain compatible.
  * Hearts, heart pieces (four make a new heart), heart containers, gems (the money), bombs and a bottle of minestrone.
  * Controls: arrows walk, B (X) sword (hold it, then let go: spin attack), A (Z) talk / lift / throw / open, Y (V) use the
  * item picked on the START menu, X (C) the map. Three save files (Jack's mates got there first); it saves on every new
@@ -18,7 +19,7 @@
     ['zeldoDock','the Scouring Quay dockkeeper',['adultF','adultM']],
     ['zeldoFerry','the north pantry ferrykeeper',['oldF','oldM']],
     ['zeldoKnight','the fictional lunch-loving knight',['oldM']],
-    ['zeldoGhost','the fictional goulash ghost',['adultF','adultM']]
+    ['zeldoGhost','the fictional goulash ghost',['adultF','adultM']],['zeldoBaker','the Last Crust baker',['adultF','adultM']],['zeldoPantry','the Cold Pantry stockkeeper',['oldF','oldM']]
   ])Cast.add(id,{role,pool});
   const castName=id=>typeof Cast!=='undefined'?Cast.n(id):id==='me'?'PLAYER':id==='shop'?'SHOPKEEPER':'FRIEND';
   const castText=text=>typeof Cast!=='undefined'?Cast.t(String(text)):String(text).replace(/\{[^}]+\}/g,'FRIEND');
@@ -74,6 +75,7 @@
     n: { base: '#58b040', dark: '#3c8a30', light: '#88d060', deep: '#2c6a28', tall: '#3e9a34', flo: ['#f8f8f0', '#f8e040'] },
     f: { base: '#45983a', dark: '#2e7430', light: '#68b850', deep: '#1e5024', tall: '#2f8030', flo: ['#f8c0e0', '#f8f8f0'] },
     p: { base: '#647490', dark: '#485875', light: '#93a5b8', deep: '#303d60', tall: '#526789', flo: ['#ffc8a8', '#b8f0e8'] },
+    c: {base:'#9bbbc5',dark:'#789aaa',light:'#dcebd7',deep:'#395d75',tall:'#789fac',flo:['#fff1bc','#d5eff0']},
     g: { base: '#5e8c5a', dark: '#44704a', light: '#7ca874', deep: '#30523a', tall: '#4a7a4c', flo: ['#d8d0f8', '#f8f8f0'] },
   };
   const TCACHE = {};
@@ -397,6 +399,8 @@
   STY.pump={skin:'#ecc397',hair:'#c9d2ca',top:'#a16c45',legs:'#35495b',boot:'#493b34',apron:'#a8c2bb',glasses:1};
   STY.mender={skin:'#c78f6b',hair:'#342b35',top:'#b17452',legs:'#344b61',boot:'#352e32',apron:'#e0d6ae',glasses:1};
   STY.ferry={skin:'#ebbb91',hair:'#c4c6b4',top:'#426c7b',legs:'#2a455b',boot:'#48362c',hat:'#d1ae6a',beard:'#c4c6b4'};
+  STY.baker={skin:'#e2b28c',hair:'#593831',top:'#a4543c',legs:'#4c5361',boot:'#45382f',apron:'#ead9a8',cap:'#e8cf9d'};
+  STY.pantry=Object.assign({},STY.pump,{top:'#527e95',apron:'#c3dbd3'});STY.pantryPost=STY.ferry;
   const PEOPLE = {};
   function personFrames(name, shield, apron) {
     const key = name + (shield ? 's' : '') + (apron?'a':''); if (PEOPLE[key]) return PEOPLE[key];
@@ -1396,7 +1400,119 @@
       '#..............#','#p............p#','#..............#','################'],{chests:{'7,6':'tidebell'}}],
   ];
   for(const[id,gx,gy,name,doors,map,extra]of PUMPWORKS)ROOMS[id]=Object.assign({kind:'dg',dg:'pumpworks',gx,gy,name,doors,map,song:'pumpworks'},extra);
-  const DUNGEONS = {keep:{name:'COLANDER KEEP',entry:'d1',boss:'d11'},reservoir:{name:'RAVIOLI RESERVOIR',entry:'r1',boss:'r11'},pumpworks:{name:'POTHOOK PUMPWORKS',entry:'t1',boss:'t11'}};
+  // THE COLD PANTRY: thermal flues, turning foil and gliding storage weights.
+  const PANTRY_ROOMS = [
+    {"id":"f1","gx":1,"gy":4,"name":"THE FROSTED DOOR","doors":{"n":".","s":"X","e":"J"},map:[
+      "################","#..............#","#..............#","#..SS......SS..#",
+      "#..SS......SS..#","#..SS......SS..#","#..SS..........#","#..............#",
+      "#..............#","#.p..........p.#","#..............#","################"
+    ],"exit":["k_shelves",7,3,0],"ents":[["npc",10,7,"pantry"]]},
+    {"id":"f2","gx":1,"gy":3,"name":"THE LABELLED AISLES","doors":{"s":".","w":".","e":".","n":"L"},map:[
+      "################","#..............#","#..SS......SS..#","#..SS......SS..#",
+      "#..SS......SS..#","#..............#","#..............#","#..SS......SS..#",
+      "#..SS......SS..#","#..............#","#..............#","################"
+    ],"ents":[["knight",4,5],["gloopP",11,7]]},
+    {"id":"f3","gx":0,"gy":3,"name":"THE LOOSE PEAS","doors":{"e":"."},map:[
+      "################","#..............#","#..............#","#..........ii..#",
+      "#..............#","#......c.......#","#..............#","#..............#",
+      "#..ii..........#","#.p..........p.#","#..............#","################"
+    ],"trap":1,"chests":{"7,5":"key"},"hidden":{"7,5":1},"ents":[["gloopP",4,4],["gloopP",11,7],["bat",8,3]]},
+    {"id":"f4","gx":2,"gy":3,"name":"THE STOCKTAKE SPIRAL","doors":{"w":"."},map:[
+      "################","#..............#","#.p.........c..#","#...SSSSSSS....#",
+      "#...S..........#","#...S..........#","#...S..SSSS....#","#...S..........#",
+      "#..............#","#............p.#","#..............#","################"
+    ],"chests":{"12,2":"map"},"ents":[["crab",7,8]]},
+    {"id":"f5","gx":1,"gy":2,"name":"THE CHILLING CROSSROADS","doors":{"s":"L","w":".","e":".","n":"O"},map:[
+      "################","#..............#","#..............#","#..vv..j...vv..#",
+      "#..vv......vv..#","#..............#","#..............#","#..vv......vv..#",
+      "#..vv..j...vv..#","#..............#","#..............#","################"
+    ],"localDoors":{"n":"return"},"ents":[["knight",11,6]]},
+    {"id":"f6","gx":0,"gy":2,"name":"THE PEPPER MILL VAULT","doors":{"e":"."},map:[
+      "################","#.....###......#","#.....#A#......#","#.....#Z#......#",
+      "#..............#","#......B.......#","#......;.......#","#..S...;.......#",
+      "#......;.......#","#.p...._.....p.#","#......#.......#","################"
+    ],"slide":1,"localPlates":1,"plateGate":[7,3],"chests":{"7,2":"caster"},"note":"OVEN BOOTS grip the floor. Crates do not! Push a crate onto its brass track. A weighing plate catches it."},
+    {"id":"f7","gx":2,"gy":2,"name":"THE FIRST WARM FLUE","doors":{"w":".","n":"O"},map:[
+      "################","#..............#","#......P.......#","#..............#",
+      "#iiiiiiiiiiiiii#","#..............#","#..............#","#..............#",
+      "#..S...........#","#.p..........p.#","#..............#","################"
+    ],"localDoors":{"n":"thaw"},"heats":{"7,2":"thaw"},"note":"Heat melts sugar ice. Another puff lights a warming pan. Follow the copper flue to see which shutter it opens."},
+    {"id":"f8","gx":2,"gy":1,"name":"THE POLISHED FOIL","doors":{"s":".","w":"L"},map:[
+      "################","#.###.#######..#","#.#A#..\\...P#..#","#.#Z#...#####..#",
+      "#..............#","#..............#","#..............#","#..............#",
+      "#....S.........#","#.p............#","#..............#","################"
+    ],"heats":{"11,2":"foil"},"heatGates":[{"flag":"foil","cells":[[3,3]]}],"chests":{"3,2":"key"},"note":"Polished foil turns a hot puff round a corner. Use ACTION to turn the foil. A slash sends an upward puff RIGHT."},
+    {"id":"f9","gx":1,"gy":1,"name":"THE WARM RETURN","doors":{"e":"L","w":".","s":"O","n":"Y"},map:[
+      "################","#..............#","#..............#","#..P..SSS......#",
+      "#..............#","#..............#","#..............#","#..............#",
+      "#...ii.........#","#............p.#","#..............#","################"
+    ],"localDoors":{"s":"return"},"heats":{"3,3":"return"},"ents":[["knight",11,7]]},
+    {"id":"f10","gx":0,"gy":1,"name":"THE GLIDING WEIGHTS","doors":{"e":".","n":"J"},map:[
+      "################","#.......A......#","#.S....j.......#","#......i.......#",
+      "#vvvvvvvvvvvvvv#","#......Z.......#","#..............#","#..B.......B...#",
+      "#..;.......;...#","#.._...j..._...#","#..#.......#...#","################"
+    ],"slide":1,"localPlates":1,"plateGate":[7,5],"chests":{"8,1":"bigkey"},"ents":[["bat",3,5]],"note":"Weigh both plates. Warm the iced landing. Then use your Spool Spork: old cutlery still has its uses."},
+    {"id":"f11","gx":1,"gy":0,"name":"THE GRAND GLACE","doors":{"s":"Y","e":"U"},map:[
+      "################","#t............t#","#..............#","#..............#",
+      "#..............#","#..............#","#..............#","#..............#",
+      "#..............#","#..............#","#p............p#","################"
+    ],"trap":1,"song":"glace","ents":[["glace",7,4]]},
+    {"id":"f12","gx":2,"gy":0,"name":"THE LIVING STARTER","doors":{"w":"."},map:[
+      "################","#..............#","#..............#","#....SSSSSS....#",
+      "#....S....S....#","#....S....S....#","#......c.......#","#..............#",
+      "#..............#","#.p..........p.#","#..............#","################"
+    ],"chests":{"7,6":"starter"}},
+    {"id":"f13","gx":0,"gy":0,"name":"THE DOUBLE FOLD","doors":{"s":"J"},map:[
+      "################","#..#########...#","#..\\....../....#","#...######.#...#",
+      "#.....####.#...#","#.....#A##.#...#","#.....#Z##.#...#","#........#P#...#",
+      "#........###...#","#.S............#","#..............#","################"
+    ],"secret":1,"heats":{"10,7":"double"},"heatGates":[{"flag":"double","cells":[[7,6]]}],"chests":{"7,5":"piece"},"note":"Two folds. Up becomes RIGHT; right becomes DOWN. Keep the hot puff inside the copper flue."},
+    {"id":"f14","gx":2,"gy":4,"name":"THE COLD RECEIPTS","doors":{"w":"J"},map:[
+      "################","#........S.....#","#........S...c.#","#........Siiiii#",
+      "#..............#","#...c..........#","#..............#","#..............#",
+      "#....S.........#","#............p.#","#..............#","################"
+    ],"secret":1,"chests":{"13,2":"compass","4,5":"gems50"},"note":"The compass is behind the sugar ice. Return with something warmer than your pockets."},
+  ];
+  for(const r of PANTRY_ROOMS)ROOMS[r.id]=Object.assign({kind:'dg',dg:'pantry',song:'pantry'},r);
+  const PANTRY_WORLD={
+    k_gate:{gx:0,gy:1,name:'THE CHILLY DOORMAT',map:[
+      'TTTTTT....TTTTTT','T......::......T','T..f...::..f...T','T..iii.::..iii.T',
+      'T......::......T','T......::.......','T......:::::::::','T..i...::...i..T',
+      'T......::......T','T......::......T','T......@.......T','TTTTTTTTTTTTTTTT'],warps:{'7,10':['q_beacon',8,5,0]},ents:[['npc',10,8,'pantry']]},
+    k_bakery:{gx:1,gy:1,name:'THE LAST CRUST',song:'crust',map:[
+      'TTTTTT....TTTTTT','T.hhhhh::hhhhh.T','T.hhhhh::hhhhh.T','T.hhhhh::hhhhh.T',
+      'T.hhdhh::hhhdh.T','....:..::...:...','::::::::::::::::','T......::......T',
+      'T..f...::..f...T','T......::......T','T......::......T','TTTTTTTTTTTTTTTT'],houses:[[2,1,5,4,'red'],[9,1,5,4,'shop']],warps:{'4,4':['k_bake',7,10,1],'12,4':['k_shop',7,10,1]},ents:[['npc',6,8,'pantry']]},
+    k_flue:{gx:2,gy:1,name:'THE JAMMED FLUE',map:[
+      'CCCCCC....CCCCCC','C......::......C','C......::......C','C~~~~~~..~~~~~~C',
+      'C~~~~~~ZZ~~~~~~C','.......::......C',':::::::::......C','C......::......C',
+      'C..i...::...i..C','C......::......C','C.S....::......C','CCCCCCCCCCCCCCCC'],proofBridge:[[7,4],[8,4]],ents:[['npc',11,7,'pantry']]},
+    k_shelves:{gx:0,gy:0,name:'THE COLD PANTRY',map:[
+      'CCCCCCCCCCCCCCCC','CCCCC......CCCCC','CCCCC..@@..CCCCC','CCCCC......CCCCC',
+      'CCC....::....CCC','T......::.......','T......:::::::::','T..iii.::..iii.T',
+      'T......::......T','T......::......T','T.S....::......T','TTTTTT....TTTTTT'],warps:{'7,2':['f1',7,10,1],'8,2':['f1',8,10,1]}},
+    k_orchard:{gx:1,gy:0,name:'THE ICING ORCHARD',map:[
+      'TTTTTTTTTTTTTTTT','T............c.T','T..i....i....i.T','T..i....i......T',
+      'T......::......T','.......::......T',':::::::::......T','T..i...::...i..T',
+      'T......::......T','T..f...::..f...T','T......::......T','TTTTTT....TTTTTT'],chests:{'13,1':'piece'},ents:[['gloopP',4,7],['bat',11,6]]},
+    k_rise:{gx:2,gy:0,name:'THE PROVING GROUNDS',song:'crust',note:'THE PROVING GROUNDS. Bread lift: south cottage. Beyond these ovens lies the SOURDOUGH FOUNDRY. Today: collect supplies and return for the next expedition.',map:[
+      'CCCCCCCCCCCCCCCC','C....S.........C','C..hhhhh.......C','C..hhhhh..c....C',
+      'C..hhdhh.......C','C....:.........C','C....::::......C','C.......:......C',
+      'C...f...:...f..C','C.......:......C','C.......:......C','CCCCCC....CCCCCC'],houses:[[3,2,5,3,'green']],warps:{'5,4':['k_post',7,10,1]},chests:{'10,3':'gems50'},ents:[['npc',10,8,'baker']]}
+  };
+  for(const id in PANTRY_WORLD)ROOMS[id]=Object.assign({kind:'ow',world:'pantry',gp:'c',song:'crust'},PANTRY_WORLD[id]);
+  ROOMS.k_bake=Object.assign({},ROOMS.q_mender,{name:'THE LAST CRUST',song:'crust',out:['k_bakery',4,5,0],ents:[['npc',7,5,'baker']]});
+  ROOMS.k_shop=Object.assign({},ROOMS.h_shop,{name:'THE FLASK & LADLE',out:['k_bakery',12,5,0]});
+  ROOMS.k_post=Object.assign({},ROOMS.h_elder,{name:'THE PROVING POST',song:'crust',out:['k_rise',5,5,0],ents:[['npc',7,5,'pantryPost']]});
+  setMapTile('q_beacon',8,1,'@');ROOMS.q_beacon.warps['8,1']=['k_gate',7,8,1];ROOMS.q_beacon.newEntries={'8,1':'@'};
+  // New heat-sealed cave mouths replace previously impassable cliff/tree/water tiles.
+  for(const[id,x,y,to,out]of [['p_forest',9,2,'k_cave_leaf',['p_forest',8,2,0]],['p_grave',11,0,'k_cave_salt',['p_grave',10,1,0]],['q_reeds',3,3,'k_cave_lid',['q_reeds',2,3,0]]]){
+    setMapTile(id,x,y,'i');ROOMS[id].thawEntries=Object.assign({},ROOMS[id].thawEntries,{[x+','+y]:[to,7,10,1]});
+    const map=ROOMS.c_field.map.slice();ROOMS[to]=Object.assign({},ROOMS.c_field,{name:to==='k_cave_lid'?'THE LOST LUNCH LID':'THE THAWED HIDING PLACE',map,out,chests:{'7,3':to==='k_cave_lid'?'lid':'piece'},ents:[]});
+    // Keep the cave layout simple and genuine, not a reused blocked wall route.
+    ROOMS[to].map=['################','################','#..............#','#......c.......#','#..............#','#...p......p...#','#..............#','#..............#','#..............#','#..............#','#..............#','#######mm#######'];
+  }
+  const DUNGEONS = {keep:{name:'COLANDER KEEP',entry:'d1',boss:'d11'},reservoir:{name:'RAVIOLI RESERVOIR',entry:'r1',boss:'r11'},pumpworks:{name:'POTHOOK PUMPWORKS',entry:'t1',boss:'t11'},pantry:{name:'THE COLD PANTRY',entry:'f1',boss:'f11'}};
   for(const id of ['t7','t8','t5','t9'])ROOMS[id].stairsMark=['t7','t8'].includes(id)?'A':'B';
   ROOMS.t7.stairs={flag:'lower',cells:[[7,2],[8,2]],to:['t8',7,9,1]};
   ROOMS.t8.stairs={flag:'lower',cells:[[7,10],[8,10]],to:['t7',7,3,0]};
@@ -1741,6 +1857,48 @@
       if(frame===2){E(gg,28,5,5,3,'#d4f1e9');E(gg,22,1,4,2,'#abd7dd');E(gg,35,1,4,2,'#abd7dd');}
     },OUT));
   }
+
+  SONGS.pantry={bpm:102,wave:'triangle',bassWave:'triangle',vol:.045,drums:'....x.......x...',
+    lead:tune('E5:2 .:2 B4:2 C5:2 G4:4 A4:2 .:2 | F#4:2 A4:2 D5:4 C5:2 B4:2 G4:4 | A4:2 .:2 E5:2 D5:2 B4:4 G4:4 | F#4:2 A4:2 B4:4 E4:6 .:2'),
+    bass:tune('E3:4 B2:4 E3:4 G3:4 | D3:4 A2:4 D3:4 F#3:4 | C3:4 G2:4 C3:4 E3:4 | B2:4 F#3:4 E3:6 .:2')};
+  SONGS.crust={bpm:118,wave:'triangle',bassWave:'square',vol:.043,drums:'o...x...o...x...',
+    lead:tune('G4:2 B4:2 D5:4 E5:2 D5:2 B4:4 | A4:2 C5:2 E5:2 F#5:2 D5:4 B4:4 | C5:2 A4:2 G4:4 B4:2 D5:2 E5:4 | D5:2 B4:2 A4:4 G4:6 .:2'),
+    bass:tune('G2:4 D3:4 G3:4 B2:4 | D3:4 A2:4 D3:4 F#3:4 | C3:4 G2:4 C3:4 E3:4 | D3:4 A2:4 G2:6 .:2')};
+  SONGS.glace={bpm:148,wave:'square',bassWave:'triangle',vol:.04,drums:'o.x.o.xx',
+    lead:tune('E4:2 G4:2 B4:2 C5:2 B4:4 F#4:4 | D5:2 B4:2 G4:2 A4:2 F#4:4 .:4 | C5:2 E5:2 D#5:4 B4:2 G4:2 A4:4 | B4:2 F#4:2 G4:2 D#4:2 E4:6 .:2'),
+    bass:tune('E2:2 B2:2 E3:2 B2:2 E2:2 B2:2 G2:2 B2:2 | C3:2 G2:2 C3:2 G2:2 B2:2 F#2:2 B2:2 D#3:2')};
+  function pantryFloor(v,x,y){return tc('coldfloor'+v+':'+x%4+':'+y%4,gg=>{
+    R(gg,0,0,16,16,'#334b63');R(gg,1,1,14,14,'#638795');R(gg,1,1,14,1,'#a9c8c6');R(gg,14,2,1,13,'#456477');
+    if(y%3===0){R(gg,0,6,16,4,'#694a46');R(gg,0,6,16,1,'#d5a575');R(gg,0,9,16,1,'#3a394d');P(gg,4,7,'#ffe7a9');}
+    if(v){R(gg,3,11,5,1,'#456477');P(gg,7,12,'#456477');}if((x+y)%4===0)P(gg,3,3,'#d8e9d5');
+  });}
+  function buildFourthArt(){
+    ITEMIMG.caster=mk(16,16,gg=>{R(gg,5,4,7,10,'#87453a');R(gg,5,4,2,9,'#d9814d');R(gg,6,6,5,2,'#f4c278');R(gg,4,12,9,3,'#b17c53');R(gg,4,12,9,1,'#ffe3a1');R(gg,7,0,3,5,'#b9d5ce');R(gg,4,1,9,2,'#e8eee0');R(gg,11,5,4,3,'#dbc78e');P(gg,14,5,'#fff1bd');P(gg,7,8,'#ffdb79');},OUT);
+    ITEMIMG.heat=[0,1,2].map(f=>mk(12,12,gg=>{E(gg,6,6,4+f%2,4,'#b54b39');E(gg,6,5,3,4,'#f39648');E(gg,5,5,2,2,'#fff1a2');R(gg,1+f,1,2,1,'#ffc877');P(gg,9,9-f,'#ffdd8d');},OUT));
+    ITEMIMG.sugarIce=mk(16,16,gg=>{R(gg,1,2,14,13,'#335e84');R(gg,2,1,12,13,'#7eb5c9');R(gg,3,2,10,10,'#a9d8dc');R(gg,3,2,9,2,'#edf9e5');R(gg,3,4,2,5,'#d3eee1');R(gg,12,4,2,9,'#558da9');R(gg,4,13,8,1,'#d0e7dc');for(const[x,y]of [[8,5],[7,6],[8,7],[9,8],[8,9],[7,10]])P(gg,x,y,'#558da9');},OUT);
+    ITEMIMG.pan=[0,1].map(on=>mk(16,16,gg=>{R(gg,6,10,4,6,'#52596a');R(gg,7,11,2,4,'#b0c2bf');E(gg,8,6,7,5,'#3b4054');E(gg,8,5,6,4,'#c39870');E(gg,8,5,4,2,on?'#ffb653':'#5b6f80');if(on){P(gg,7,4,'#fff1af');P(gg,9,2,'#ffdf8a');}else{P(gg,5,4,'#92aeb2');P(gg,10,5,'#92aeb2');}},OUT));
+    ITEMIMG.foil=[0,1].map(f=>mk(16,16,gg=>{R(gg,1,1,14,14,'#394453');R(gg,2,2,12,12,'#927754');R(gg,3,3,10,10,'#223f56');for(let i=3;i<13;i++){const y=f?i:15-i;R(gg,i-1,y,3,1,'#a8cbd1');P(gg,i,y-1,'#edf9df');}P(gg,3,2,'#ffdc8a');P(gg,12,13,'#ffdc8a');},OUT));
+    ITEMIMG.rail=mk(16,16,gg=>{for(const x of [3,11]){R(gg,x,0,2,16,'#3a495b');R(gg,x,0,1,16,'#dfad78');}for(const y of [3,11])R(gg,3,y,9,1,'#ad805a');});
+    ITEMIMG.icecrate=mk(16,16,gg=>{R(gg,1,1,14,14,'#345068');R(gg,2,2,12,11,'#92b8c3');R(gg,2,2,12,2,'#d8e8d9');R(gg,3,5,10,1,'#547f96');R(gg,3,9,10,1,'#547f96');R(gg,5,3,1,10,'#547f96');R(gg,10,3,1,10,'#547f96');R(gg,2,13,12,1,'#d5ac75');},OUT);
+    ITEMIMG.starter=mk(16,16,gg=>{R(gg,3,4,10,11,'#6a8c9c');R(gg,4,5,8,9,'#b7d4cb');E(gg,8,10,4,4,'#e5bb72');P(gg,6,9,'#6c493c');P(gg,9,9,'#6c493c');R(gg,7,12,2,1,'#fff0ba');R(gg,2,2,12,3,'#ba6c47');R(gg,3,2,10,1,'#ffcd85');P(gg,4,6,'#f5f6d7');},OUT);
+    ITEMIMG.lid=mk(16,16,gg=>{E(gg,8,9,7,5,'#485d71');E(gg,8,7,7,4,'#c0d9d5');E(gg,7,6,5,2,'#eff7df');R(gg,6,2,4,4,'#a77c55');R(gg,6,2,4,1,'#f2ce87');},OUT);
+    ITEMIMG.flask=mk(16,16,gg=>{R(gg,4,4,8,11,'#344b65');R(gg,5,4,6,10,'#8ab3bc');R(gg,5,7,6,4,'#d0aa72');R(gg,6,7,4,1,'#fff0ac');R(gg,4,1,8,4,'#bc7253');R(gg,5,1,6,1,'#ffda91');R(gg,5,12,6,2,'#c4e1d6');},OUT);
+    ITEMIMG.smoulder=tint(ITEMIMG.swordIcon,'#ff9851',.5);
+    SPR.flake=mk(8,8,gg=>{R(gg,3,0,2,8,'#b7e5e0');R(gg,0,3,8,2,'#b7e5e0');for(let i=1;i<7;i++){P(gg,i,i,'#e9f5de');P(gg,7-i,i,'#e9f5de');}R(gg,3,3,2,2,'#6bacc5');},OUT);
+    SPR.glace=[0,1,2,3].map(f=>mk(56,48,gg=>{
+      E(gg,28,43,25,4,'#263b52');R(gg,4,36,48,6,'#9bb7b8');R(gg,7,35,42,2,'#edf3d9');
+      R(gg,9,24,38,12,'#5587a8');R(gg,10,24,36,9,'#91c5d0');R(gg,11,26,34,3,'#e8d5a0');R(gg,10,32,36,3,'#bd6e63');
+      R(gg,14,14,28,11,'#5587a8');R(gg,15,14,26,9,'#b4dedb');R(gg,15,19,26,3,'#e6c98d');
+      E(gg,28,14,14,4,'#d5efdf');for(const x of [17,26,35])R(gg,x,14,3,5,'#edf6dd');
+      const lift=f===3?8:0;R(gg,19,7-lift,18,6,'#648fab');E(gg,28,6-lift,9,4,'#bbdfd9');
+      for(const x of [20,27,34]){R(gg,x,2-lift,2,6,'#eaf5df');P(gg,x,1-lift,'#ffdc8e');}
+      if(f===1||f===2){R(gg,25,7,6,5,'#de8a5e');R(gg,27,7,2,4,'#fff0ac');}if(f===2){R(gg,32,10,2,5,'#466f93');P(gg,33,9,'#466f93');}
+      for(const x of [19,33]){R(gg,x,25,4,4,'#26364f');P(gg,x,25,'#fff6ce');}
+      if(f===3){R(gg,25,31,7,2,'#3b3853');R(gg,26,30,5,1,'#fff4c8');}else{R(gg,25,31,7,1,'#426a85');P(gg,31,30,'#426a85');}
+      if(f===0){R(gg,17,23,7,1,'#355b7b');R(gg,32,23,7,1,'#355b7b');}
+      for(const x of [8,45]){R(gg,x,30,3,7,'#5e86a0');P(gg,x,30,'#cfe7d8');}
+    },OUT));
+  }
   function reservoirFloor(v,x,y) {
     return tc('rf'+v+':'+(x%4)+':'+(y%4), gg=>{
       R(gg,0,0,16,16,'#234458');R(gg,1,1,14,14,'#426c78');
@@ -1836,7 +1994,7 @@
       }
       installTouch();
       g.imageSmoothingEnabled = false;
-      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); buildSecondArt(); buildThirdArt(); }
+      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); buildSecondArt(); buildThirdArt(); buildFourthArt(); }
       const LB = b => touchPanel ? K.label(b) : K.keyLabel ? K.keyLabel(b) : K.label(b);
 
       // ============================================================ sounds
@@ -1889,7 +2047,7 @@
       // ============================================================ the save files (three slots: Jack's mates got there first)
       const HOF0 = [['mate2',14820],['mate4',12260],['me',9870],['mate1',7350],['mate3',4410],['mom',1250]].map(([id,score])=>[castName(id).toUpperCase().slice(0,8),score]);
       function freshSave(name) {
-        return { name, terrainRev:2, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, bow: 0, boots: 0, hook: 0, dungeons: {}, activeDg: 'keep', sword: 0, shield: 0, boom: 0, bottle: 0,
+        return { name, terrainRev:2, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, bow: 0, boots: 0, hook: 0, caster:0, flask:0, dungeons: {}, activeDg: 'keep', sword: 0, shield: 0, boom: 0, bottle: 0,
           sel: '', f: {}, opened: {}, doors: {}, cleared: {}, seen: {}, gone: {}, room: 'h_home', x: 136, y: 124, dir: 0, time: 0, score: 0, deaths: 0, done: 0, intro: 0 };
       }
       function demoSaves() {
@@ -1906,7 +2064,7 @@
         const fading=mode==='fade'&&trans;
         const dest=jumping?trans.to.id:fading?trans.warp[0]:room.id;
         const clean=e=>Object.assign({},e,{hitList:undefined,carried:undefined,getSpr:undefined});
-        const live={mapRevision:2,slot,room:dest,mode:jumping||fading?'play':mode,
+        const live={mapRevision:2,itemMenuRev:2,slot,room:dest,mode:jumping||fading?'play':mode,
           pl:clean(pl),ents:jumping||fading?null:ents.filter(e=>!e.dead).map(clean),shots:jumping||fading?[]:shots,
           tiles:jumping||fading?null:room.t.map(r=>r.join('')),trapOn:room.trapOn,trapPending:room.trapPending,
           menu:menu&&Object.assign({},menu),mapT,dyingT,over,ending:ending&&Object.assign({},ending),co:!!co,box:mode==='ending'&&tb?JSON.parse(JSON.stringify(tb)):null};
@@ -1946,7 +2104,7 @@
 
       // ============================================================ rooms: load, doors, tiles, drawing
       let room = null, ents = [], shots = [], fx = [], pl = null;
-      const SOLID = new Set('j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
+      const SOLID = new Set('iP/\\j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
       const LOW = new Set(['~', 'v']); // you can't walk on them, but things fly over
       const LIFT = { b: 'bush', r: 'rock', p: 'pot' };
       const WALKDOOR = new Set(['n', 'X', 'E']);
@@ -2005,6 +2163,32 @@
         if(!flags[flag]){flags[flag]=1;applyFloods(room);setDoors(room);render(room);shake=3;sparks(tx*16+8,ty*16+8,12,'#a8e8ef');SND.secret();addScore(250);toast={s:flag==='lower'?'LOWER LIFT FILLED - CLIMB NORTH':'RETURN SLUICE OPENED',t:0};save();}
         else SND.click();
       }
+      function thermalFlags(rm){return rm.def.kind==='dg'?localPuzzle(rm.def):(S.f.thermal||(S.f.thermal={}));}
+      function applyThermals(rm){
+        const flags=thermalFlags(rm);
+        for(const key in rm.def.newEntries||{}){const[x,y]=key.split(',').map(Number);rm.t[y][x]=rm.def.newEntries[key];}
+        for(const key in rm.def.thawEntries||{}){const[x,y]=key.split(',').map(Number);rm.t[y][x]=flags['melt:'+rm.id+':'+key]?'@':'i';}
+        for(const key in flags)if(key.startsWith('melt:'+rm.id+':')){const[x,y]=key.slice(('melt:'+rm.id+':').length).split(',').map(Number);if(inRoom(x,y)&&rm.t[y][x]==='i')rm.t[y][x]='.';}
+        for(const h of rm.def.heatGates||[])if(flags[h.flag])for(const[x,y]of h.cells)rm.t[y][x]='z';
+        if(rm.def.proofBridge&&S.f.coldDone)for(const[x,y]of rm.def.proofBridge)rm.t[y][x]='=';
+        for(const key in flags.mirrors||{})if(key.startsWith(rm.id+':')){const[x,y]=key.slice(rm.id.length+1).split(',').map(Number);rm.t[y][x]=flags.mirrors[key];}
+      }
+      function heatTile(tx,ty){
+        const c=tileAt(room,tx,ty),flags=thermalFlags(room),key=tx+','+ty;
+        if(c==='i'){
+          flags['melt:'+room.id+':'+key]=1;room.t[ty][tx]=room.def.thawEntries?.[key]?'@':'.';
+          render(room);sparks(tx*16+8,ty*16+8,10,'#c5eff4');SND.splat();sfx.tone(620,.15,'triangle',.045,0,180);save();return true;
+        }
+        if(c==='P'){
+          const flag=room.def.heats?.[key];if(flag&&!flags[flag]){flags[flag]=1;applyThermals(room);setDoors(room);render(room);SND.secret();sparks(tx*16+8,ty*16+6,12,'#ffc66d');shake=2;addScore(200);toast={s:'THE COPPER FLUE IS WARM',t:0};save();}else SND.click();return true;
+        }
+        return false;
+      }
+      function turnFoil(tx,ty){
+        const c=tileAt(room,tx,ty),flags=thermalFlags(room);if(c!=='/'&&c!=='\\')return false;
+        const next=c==='/'?'\\':'/';room.t[ty][tx]=next;(flags.mirrors||(flags.mirrors={}))[room.id+':'+tx+','+ty]=next;
+        redrawTile(room,tx,ty);SND.click();sparks(tx*16+8,ty*16+8,3,'#e7f2ce');save();return true;
+      }
       function makeRoom(id) {
         const def = ROOMS[id];
         const rm = { id, def, kind: def.kind, G: GRASS[def.gp || 'n'], t: def.map.map(r => r.split('')), doors: {}, did: {}, fr: null, cry: [], sw: [], trapOn: false, name: roomName(id) };
@@ -2017,12 +2201,12 @@
         }
         if (id === 'grave' && S.f.grave) { rm.t[3][8] = 'G'; rm.t[4][8] = '^'; }
         if (id === 'd9' && S.f.gate) rm.t[3][7] = 'z';
-        if (def.plateGate && (def.dg==='pumpworks'?localPuzzle(def):S.f)['plates_'+id]) rm.t[def.plateGate[1]][def.plateGate[0]]='z';
+        if (def.plateGate && (def.dg==='pumpworks'||def.localPlates?localPuzzle(def):S.f)['plates_'+id]) rm.t[def.plateGate[1]][def.plateGate[0]]='z';
         if (def.eye && S.f[def.eye]) {
           for (const [x,y] of def.bridge || []) rm.t[y][x]='=';
           for (const k in def.hidden || {}) if (!S.opened[id+':'+k]) {const [x,y]=k.split(',').map(Number);rm.t[y][x]='c';}
         }
-        applyCrystal(rm);applyFloods(rm);
+        applyCrystal(rm);applyFloods(rm);applyThermals(rm);
         if (rm.kind === 'dg') setDoors(rm);
         return rm;
       }
@@ -2104,6 +2288,7 @@
             case '=': gg.drawImage(bridgeTile(f), ox, oy); break;
             case 'F': ground(); gg.drawImage(fenceTile(G, nb4(c => c === 'F')), ox, oy); break;
             case 'Z':gg.drawImage(gateTile(1),ox,oy);break;
+            case 'i':ground();gg.drawImage(ITEMIMG.sugarIce,ox,oy);break;
             case 'j':ground();gg.drawImage(ITEMIMG.moor,ox,oy);break;
             case 'S': ground(); gg.drawImage(SPR_SIGN, ox, oy); break;
             case 'g': case 'G': ground(); gg.drawImage(SPR_GRAVE, ox, oy); if (ch === 'G') { P(gg, ox + 4, oy + 12, '#5a8a5a'); P(gg, ox + 11, oy + 11, '#5a8a5a'); } break;
@@ -2131,22 +2316,26 @@
           }
         } else { // the dungeon
           if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) { R(gg, ox, oy, 16, 16, '#22263a'); return; }
-          const hv = hash(x, y, 9), floor = () => gg.drawImage(rm.def.dg==='pumpworks'?pumpFloor(hv<.12?1:0,x,y):rm.def.dg === 'reservoir' ? reservoirFloor(hv < 0.15 ? 1 : 0,x,y) : dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
+          const hv = hash(x, y, 9), floor = () => gg.drawImage(rm.def.dg==='pantry'?pantryFloor(hv<.12?1:0,x,y):rm.def.dg==='pumpworks'?pumpFloor(hv<.12?1:0,x,y):rm.def.dg === 'reservoir' ? reservoirFloor(hv < 0.15 ? 1 : 0,x,y) : dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
           switch (ch) {
             case '#': gg.drawImage(dgBlock('#'), ox, oy); break;
-            case 'B': case '%': floor(); if (ch === 'B') gg.drawImage(dgBlock('B'), ox, oy); break;
+            case 'B': case '%': floor(); if (ch === 'B') gg.drawImage(rm.def.dg==='pantry'?ITEMIMG.icecrate:dgBlock('B'), ox, oy); break;
             case 'S': gg.drawImage(dgBlock('S'), ox, oy); break;
             case 't': gg.drawImage(torchTile(f), ox, oy); break;
             case 'p': floor(); gg.drawImage(SPR_POT, ox, oy); break;
             case 'c': case 'e': floor(); gg.drawImage(chestImg(0, ch === 'e'), ox, oy); break;
             case 'A': case 'a': floor(); gg.drawImage(chestImg(1, ch === 'a'), ox, oy); break;
+            case 'i':floor();gg.drawImage(ITEMIMG.sugarIce,ox,oy);break;
+            case 'P':floor();gg.drawImage(ITEMIMG.pan[thermalFlags(rm)[rm.def.heats?.[x+','+y]]?1:0],ox,oy);break;
+            case '/':case '\\':floor();gg.drawImage(ITEMIMG.foil[ch==='/'?0:1],ox,oy);break;
+            case ';':case 'l':floor();gg.drawImage(ITEMIMG.rail,ox,oy);break;
             case 'j':floor();gg.drawImage(ITEMIMG.moor,ox,oy);break;
             case '^':floor();gg.drawImage(stairsTile(),ox,oy);break;
             case '!':floor();gg.drawImage(ITEMIMG.valve[localPuzzle(rm.def)[rm.def.levers?.[x+','+y]]?1:0],ox,oy);break;
             case 'H': floor(); gg.drawImage(S.f[rm.def.eye] ? ITEMIMG.eyeOn : ITEMIMG.eye,ox,oy); break;
             case '=': floor(); gg.drawImage(bridgeTile(f),ox,oy); break;
             case 'v': {
-              gg.drawImage(waterBase(f, !['reservoir','pumpworks'].includes(rm.def.dg)), ox, oy);
+              gg.drawImage(waterBase(f, !['reservoir','pumpworks','pantry'].includes(rm.def.dg)), ox, oy);
               const land = c => c && c !== 'v';
               if (land(T(x, y - 1))) { R(gg, ox, oy, 16, 2, '#565c78'); R(gg, ox, oy + 2, 16, 1, '#2a2e44'); R(gg, ox, oy + 3, 16, 2, 'rgba(60,0,0,.4)'); }
               if (land(T(x, y + 1))) { R(gg, ox, oy + 14, 16, 2, '#7a82a8'); R(gg, ox, oy + 13, 16, 1, '#ff9a6a'); }
@@ -2174,6 +2363,12 @@
             let door = 0; for (let i = 0; i < w; i++) if (rm.t[hy + h - 1][hx + i] === 'd') door = i;
             gg.fillStyle = 'rgba(0,30,0,.32)'; gg.fillRect(hx * 16 + w * 16, hy * 16 + 10, 5, h * 16 - 8); gg.fillRect(hx * 16 + 6, hy * 16 + h * 16, w * 16 - 1, 4);
             gg.drawImage(houseArt(w, h, st, door, F), hx * 16, hy * 16);
+          }
+          if(rm.id==='k_bakery')F.center(gg,'BAKERY',72,32,'#ffe6ab',1,'#542e35');
+          if(rm.id==='k_shelves'){
+            R(gg,78,0,100,46,'#304a62');R(gg,81,0,94,42,'#afc7c6');R(gg,85,1,5,39,'#e4edda');R(gg,165,1,7,39,'#648695');
+            R(gg,97,18,62,26,'#3e5c75');R(gg,100,21,56,23,'#152d43');R(gg,82,8,92,4,'#d7a46e');
+            F.center(gg,'COLD PANTRY',128,7,'#fff2bd',1,'#263a54');gg.drawImage(ITEMIMG.caster,120,22);
           }
           if (rm.id === 'cliff') gg.drawImage(keepArt(F), 80, 0);
           if(rm.id==='q_tower'){
@@ -2205,6 +2400,12 @@
           for (const [kind, x, y] of (d.decor || [])) if (kind !== 'rug') { const im = decorArt(kind, F); gg.drawImage(im, x * 16, kind === 'window' ? 6 : kind === 'shopsign' ? 6 : kind === 'clock' ? 2 : y * 16 + (16 - im.height % 16) % 16); }
         } else {
           gg.drawImage(dgFrame(rm.doors),0,0);
+          if(d.dg==='pantry'){
+            for(const x of [20,228]){R(gg,x,22,8,50,'#537f96');R(gg,x+1,22,6,48,'#b1d3d5');R(gg,x+1,22,2,48,'#f4f3d9');for(const y of [27,43,59])R(gg,x+3,y,5,1,'#789eae');}
+            R(gg,38,21,22,4,'#b68c54');R(gg,39,21,20,1,'#f5df9c');F.draw(gg,'COLD STORE',173,22,'#e8f3d2',1,'#26465d');
+            if(rm.id==='f7'){F.draw(gg,'FLUE A',170,43,'#e9bb6b',1,'#26465d');}
+            if(rm.id==='f6'||rm.id==='f10')F.draw(gg,'WEIGHTS',87,153,'#d3e5cf',1,'#26465d');
+          }
           if(d.dg==='pumpworks'){
             // Tall copper pipes, tide gauges and floor arrows establish an upper/lower route.
             for(const x of [18,230]){const door=d.doors?.[x===18?'w':'e'];for(const [y,h]of door?[[24,46],[116,52]]:[[24,144]]){R(gg,x,y,7,h,'#553c39');R(gg,x+1,y,4,h,'#af734c');R(gg,x+1,y,1,h,'#edb97c');}for(const y of door?[34,146]:[34,82,146]){R(gg,x-1,y,9,4,'#674c41');R(gg,x-1,y,9,1,'#d79a61');}}
@@ -2230,6 +2431,7 @@
         gloop: { hp: 1, w: 6, h: 9, dmg: 1 }, gloopP: { hp: 2, w: 6, h: 9, dmg: 1 }, snap: { hp: 2, w: 6, h: 10, dmg: 1 },
         knight: { hp: 3, w: 6, h: 16, dmg: 2 }, bat: { hp: 1, w: 5, h: 8, dmg: 1, fly: 1 }, ghost: { hp: 2, w: 6, h: 13, dmg: 1, fly: 1 },
         crab: { hp: 2, w: 7, h: 9, dmg: 1 }, spike: { hp: 99, w: 7, h: 13, dmg: 2, tough: 1 }, ball: { hp: 1, w: 5, h: 10, dmg: 1 },
+        glace:{hp:20,w:22,h:34,dmg:2,boss:1},
         stockpot:{hp:18,w:21,h:32,dmg:2,boss:1},
         crouton: {hp:16,w:17,h:30,dmg:2,boss:1},
         cheese: { hp: 8, w: 13, h: 22, dmg: 2, boss: 1 }, baron: { hp: 12, w: 17, h: 30, dmg: 1, boss: 1 },
@@ -2248,11 +2450,13 @@
           const x = tx * 16 + 8, y = ty * 16 + 12;
           if (EN[type]) {
             if (quiet) continue;
+            if(type==='glace'&&S.f.glace)continue;
             if(type==='stockpot' && S.f.stockpot)continue;
             if (type === 'crouton' && S.f.crouton) continue;
             if (type === 'cheese' && S.f.cheese) continue; if (type === 'baron' && S.f.baron) continue;
             const e = mkEnt(type, x, y); e.dir = rnd() * 4 | 0;
             if (type === 'cheese') { e.st = 'wait'; e.tm = 50; } if (type === 'baron') { e.st = 'wait'; e.tm = 9999; e.x = 128; e.y = 104; }
+            if(type==='glace'){e.st='wind';e.tm=100;e.x=128;e.y=82;e.aimX=128;e.thaw=0;}
             if(type==='stockpot'){e.st='wind';e.tm=100;e.x=128;e.y=84;e.aimX=128;}
             if(type === 'crouton'){e.st='hover';e.tm=100;e.x=128;e.y=80;e.z=8;}
             ents.push(e);
@@ -2263,6 +2467,7 @@
           else if (type === 'gem') { const id = 'gem_' + rm.id + tx + '_' + ty; if (!S.got[id]) ents.push(mkEnt('pick', x, y, { kind: 'gem' + a, id, perm: 1, enemy: false })); }
         }
         for(const k in d.dashTrees || {}){if(d.routeTrees?.[k])continue;const [x,y]=k.split(',').map(Number),id='tree_'+rm.id+k;if(S.got[id]&&!S.got['piece_'+id])ents.push(mkEnt('pick',x*16+8,y*16+12,{kind:'piece',id,perm:1,enemy:false}));}
+        if(rm.id==='f11'&&S.f.glace&&!S.got.hc_glace)ents.push(mkEnt('pick',128,120,{kind:'container',id:'hc_glace',perm:1,enemy:false}));
         if(rm.id==='t11'&&S.f.stockpot&&!S.got.hc_stockpot)ents.push(mkEnt('pick',128,120,{kind:'container',id:'hc_stockpot',perm:1,enemy:false}));
         if(rm.id==='r11'&&S.f.crouton&&!S.got.hc_crouton) ents.push(mkEnt('pick',128,108,{kind:'container',id:'hc_crouton',perm:1,enemy:false}));
         // a fallen heart container or the recipe that was never picked up
@@ -2398,6 +2603,7 @@
             } else if (e.st === 1) { e.run++; if (!moveEnt(e, e.vx, e.vy) || e.run > 60) { e.st = 2; sfx.tone(1800, 0.05, 'square', 0.03); } }
             else { const ddx = e.hx - e.x, ddy = e.hy - e.y; if (Math.abs(ddx) + Math.abs(ddy) < 1.2) { e.x = e.hx; e.y = e.hy; e.st = 0; e.tm = 40; } else { e.x += Math.sign(ddx) * Math.min(1, Math.abs(ddx)); e.y += Math.sign(ddy) * Math.min(1, Math.abs(ddy)); } }
             e.anim = (K.frame >> 2) & 1; break;
+          case 'glace':updateGlace(e);break;
           case 'stockpot': updateStockpot(e);break;
           case 'crouton': updateCrouton(e);break;
           case 'cheese': updateCheese(e, dx, dy); break;
@@ -2429,11 +2635,21 @@
         }
       }
       function dieAnim(e, done) {
-        e.anim = e.type==='stockpot'?3:e.type === 'baron' || e.type==='crouton' ? 2 : 4; e.flash = 4;
+        e.anim = e.type==='glace'?3:e.type==='stockpot'?3:e.type === 'baron' || e.type==='crouton' ? 2 : 4; e.flash = 4;
         if (e.tm % 8 === 0) { puff(e.x + (rnd() - 0.5) * e.w * 2.4, e.y - rnd() * e.h * 1.2); SND.poof(); shake = 4; }
         if (e.tm <= 0) { e.dead = true; puff(e.x, e.y - e.h / 2, true); sparks(e.x, e.y - e.h / 2, 24, e.type === 'baron' ? '#ffffff' : '#f8d848'); shake = 10; done(); }
       }
       function bossHit(e, dmg, how) {
+        if(e.type==='glace'){
+          if(e.st==='vent'&&how==='heat'){
+            e.thaw=(e.thaw||0)+1;e.flash=8;SND.splat();sparks(e.x,e.y-26,10,'#ffd48c');
+            if(e.thaw>=2){e.st='dizzy';e.tm=155;e.hits=0;e.inv=8;shots=[];SND.shut();shake=3;}return true;
+          }
+          if(e.st!=='dizzy'||!['sword','spin'].includes(how)){if(e.st!=='die')SND.tink();return false;}
+          e.hp-=dmg;e.inv=24;e.flash=24;hitStop=3;shake=3;SND.hit();
+          if(e.hp<=10&&!e.phase2){e.phase2=true;text(e.x,e.y-47,'DOUBLE SCOOP!','#f5dca0');SND.roar();}
+          if(e.hp<=0){e.st='die';e.tm=110;song(null);}else if(++e.hits>=3){e.st='wind';e.tm=95;e.thaw=0;}return true;
+        }
         if(e.type==='stockpot'){
           if(e.st==='vent' && how==='hook'){e.st='dizzy';e.tm=150;e.armorHits=0;e.inv=10;shots=[];SND.shut();sparks(e.x,e.y-24,14,'#e0f8ff');shake=3;return true;}
           if(e.st!=='dizzy'||!['sword','spin'].includes(how)){if(e.st!=='die')SND.tink();return false;}
@@ -2459,6 +2675,21 @@
         if (e.type === 'baron' && e.hp <= 6 && !e.phase2) { e.phase2 = true; text(e.x, e.y - 50, 'GRR!', '#ff8a6a'); }
         if (e.hp <= 0) { e.st = 'die'; e.tm = e.type === 'baron' ? 150 : 90; song(null); sfx.tone(200, 1.2, 'sawtooth', 0.08, 0, 40); }
         return true;
+      }
+      function updateGlace(e){
+        e.tm--;e.z=0;
+        if(e.st==='die'){dieAnim(e,()=>{S.f.glace=1;addScore(3400);roomCleared();drop(128,120,'container',{id:'hc_glace',perm:1,vz:2.5});song('pantry');run(function*(){yield 30;yield say('THE GRAND GLACE: I am having a complete melt-down. The LIVING STARTER is east. Please take it before it starts another argument with my custard.');}());save();});return;}
+        const hot=e.hp<=10;
+        if(e.st==='wind'){
+          e.anim=0;if(e.tm===55){e.aimX=clamp(pl.x,48,208);SND.charged();}
+          if(e.tm===25){for(const side of [-1,0,1]){const a=Math.atan2(pl.y-e.y,pl.x-e.x)+side*.3;shoot(e.x,e.y-12,Math.cos(a)*1.7,Math.sin(a)*1.7,'flake',{refl:true});}SND.splat();}
+          if(e.tm<=0){e.st='pour';e.tm=hot?60:44;SND.roar();}
+        }else if(e.st==='pour'){
+          e.anim=1;if(e.tm%14===0)for(const x of hot?[e.aimX-24,e.aimX,e.aimX+24]:[e.aimX])shoot(clamp(x,25,231),35,0,2.8,'flake',{refl:false,life:60});
+          if(e.tm<=0){e.st='vent';e.tm=hot?110:155;e.thaw=0;shots=[];SND.pick();}
+        }else if(e.st==='vent'){
+          e.anim=e.thaw?2:1;if(e.tm<=0){e.st='wind';e.tm=100;e.thaw=0;}
+        }else if(e.st==='dizzy'){e.anim=3;if(e.tm<=0){e.st='wind';e.tm=100;e.thaw=0;}}
       }
       function updateStockpot(e){
         e.tm--;e.z=0;
@@ -2694,6 +2925,7 @@
         if (tileAt(room, tx, ty) === 'k') reach.push([fx + DX[pl.dir] * 16, fy + DY[pl.dir] * 16]);
         for (const [px, py] of reach) for (const e of ents) if ((e.type === 'npc' || e.type === 'ware') && Math.abs(e.x - px) < 11 && py > e.y - 18 && py < e.y + 6) { talkTo(e); return; }
         const c = tileAt(room, tx, ty);
+        if(turnFoil(tx,ty))return;
         if (c === 'S' || ((c === 'g' || c === 'G') && pl.dir === 1)) { readSign(tx, ty); return; }
         if ((c === 'c' || c === 'A') && pl.dir === 1) { openChest(tx, ty); return; }
         if (c === 'L' || c === 'Y') { pl.lockMsg = 0; tryUnlock(tx, ty); return; }
@@ -2702,12 +2934,14 @@
         if (c === '~' && room.kind === 'ow') say("The water looks lovely, but you can't swim. Your Mom kept meaning to take you to lessons.");
         else if (c === 'O' && (S.f.recipe || S.done)) run(crossWell());
         else if(c==='j')say(`A brass MOORING RING. Face it and use the SPOOL SPORK with ${LB('y')}. Leave one clear tile in front for landing.`);
+        else if(c==='i')say('Sugar ice. A hot puff from the CAYENNE CASTER will melt a neat passage.');
+        else if(c==='P')say('A warming pan feeds a copper flue. Give it a hot puff.');
         else if(c==='!')say('A forked FLOODGATE HANDLE. The SPOOL SPORK can pull it from across a gap.');
         else if (c === 'H') say('A brass EYE watches the water. An ARROW will give it something to look at.');
         else if (c === 'O') say('You look down the well. A frog looks back up at you. Neither of you says anything.');
         else if (c === 'X') say(room.kind==='dg'?'The stairs lead outside. Walk down through the doorway.':'A big cracked boulder blocks the way. A BOMB would sort that out.');
         else if (c === 'q' || c === 'J') say('This bit of wall is cracked... it sounds hollow when you knock on it.');
-        else if (c === 'v') say(room.def.dg==='pumpworks'||room.def.dg==='reservoir'?'Deep water. Look for a crossing or a brass mooring ring.':"Bubbling hot tomato sauce. Smells amazing. Do NOT go for a paddle.");
+        else if (c === 'v') say(['pumpworks','reservoir','pantry'].includes(room.def.dg)?'Deep water. Look for a crossing or a brass mooring ring.':"Bubbling hot tomato sauce. Smells amazing. Do NOT go for a paddle.");
         else if ((c === 'c' || c === 'A') && pl.dir !== 1) say('Open chests from the front (stand below them, facing up).');
         else if (c === 'B' || c === 'G') say('Walk into it and keep pushing to shove it along.');
       }
@@ -2718,32 +2952,46 @@
         if(answer===0){S.f.second=1;warp(back?'village':'p_village',10,9,0);}
       }
       function tryPush(tx, ty) {
-        const c = room.t[ty][tx], nx = tx + DX[pl.dir], ny = ty + DY[pl.dir], t2 = tileAt(room, nx, ny);
+        const c = room.t[ty][tx];let nx = tx + DX[pl.dir], ny = ty + DY[pl.dir];const t2 = tileAt(room, nx, ny);
         if (!t2) return;
-        const okInto = c === 'G' ? (t2 === '.' || t2 === '"') : (t2 === '.' || t2 === '_' || t2 === '2' || t2 === '4' || t2 === 'z');
+        const okInto = c === 'G' ? (t2 === '.' || t2 === '"') : (t2 === '.' || t2 === '_' || t2 === '2' || t2 === '4' || t2 === 'z' || t2 === ';' || t2 === 'l');
         if (!okInto || ents.some(e => !e.dead && e.type !== 'pick' && Math.abs(e.x - (nx * 16 + 8)) < 12 && Math.abs(e.y - (ny * 16 + 12)) < 12)) return;
         if (c === 'G') { if (room.id !== 'grave' || pl.dir !== 1) return; S.f.grave = 1; addScore(100); }
+        if(room.def.slide&&[';','l'].includes(t2))for(let n=0;n<10;n++){
+          const ax=nx+DX[pl.dir],ay=ny+DY[pl.dir],cc=tileAt(room,ax,ay);
+          if(![';','l','_'].includes(cc)||ents.some(e=>!e.dead&&Math.abs(e.x-(ax*16+8))<12&&Math.abs(e.y-(ay*16+12))<12))break;
+          nx=ax;ny=ay;if(cc==='_')break;
+        }
         const wasSw = room.sw.some(([x, y]) => x === tx && y === ty);
-        room.t[ty][tx] = c === 'G' ? '^' : wasSw ? '_' : '.'; redrawTile(room, tx, ty);
-        const onto = t2; room.t[ny][nx] = '%';
-        ents.push(mkEnt('block', tx * 16 + 8, ty * 16 + 16, { kind: c, tx: nx, ty: ny, t: 0, onto, enemy: false, sx: tx * 16 + 8, sy: ty * 16 + 16 }));
+        room.t[ty][tx] = c === 'G' ? '^' : wasSw ? '_' : room.def.slide&&['B',';','l'].includes(room.def.map[ty][tx])?';':'.'; redrawTile(room, tx, ty);
+        const onto = tileAt(room,nx,ny); room.t[ny][nx] = '%';
+        ents.push(mkEnt('block', tx * 16 + 8, ty * 16 + 16, { kind: c, tx: nx, ty: ny, t: 0, duration:16+Math.max(0,Math.abs(nx-tx)+Math.abs(ny-ty)-1)*5, onto, enemy: false, sx: tx * 16 + 8, sy: ty * 16 + 16 }));
         SND.push(); pl.pushT = -10;
         if (c === 'G') run(function* () { yield 24; SND.secret(); yield { text: 'The gravestone slid out of the way... there are steps going down!' }; save(); }());
       }
       function blockLanded(e) {
         room.t[e.ty][e.tx] = e.kind; redrawTile(room, e.tx, e.ty); e.dead = true; sfx.noise(0.1, 0.06, 300);
         // the floor switches: cover them all to lower the gate
-        const gateFlag=room.id==='d9'?'gate':'plates_'+room.id, gate=room.def.plateGate || [7,3],gateFlags=room.def.dg==='pumpworks'?localPuzzle(room.def):S.f;
+        const gateFlag=room.id==='d9'?'gate':'plates_'+room.id, gate=room.def.plateGate || [7,3],gateFlags=room.def.dg==='pumpworks'||room.def.localPlates?localPuzzle(room.def):S.f;
         if (room.sw.length && !gateFlags[gateFlag] && (room.id === 'd9' || room.def.plateGate)) {
           const all = room.sw.every(([x, y]) => room.t[y][x] === 'B');
           if (room.sw.some(([x, y]) => x === e.tx && y === e.ty)) SND.click();
           if (all) { gateFlags[gateFlag] = 1; room.t[gate[1]][gate[0]] = 'z'; redrawTile(room,gate[0],gate[1]); SND.secret(); shake = 3; sparks(120, 56, 10); save(); }
         }
       }
+      function itemReady(){
+        if(S?.sel==='caster')return ents.filter(e=>e.type==='heat'&&!e.dead).length<2;
+        if(S?.sel==='bow')return !ents.some(e=>e.type==='arrow'&&!e.dead);
+        if(S?.sel==='boom')return !ents.some(e=>e.type==='boomer'&&!e.dead);
+        return true;
+      }
       function useItem() {
         if (pl.carry || pl.act) return;
         if (!S.sel) { toast = { s: 'PICK AN ITEM ON THE START MENU', t: 0 }; return; }
-        if(S.sel==='hook'){
+        if(S.sel==='caster'){
+          ents.push(mkEnt('heat',pl.x+DX[pl.dir]*9,pl.y-8+DY[pl.dir]*4,{dir:pl.dir,t:0,travel:0,turns:0,enemy:false}));
+          pl.act='item';pl.at=0;sfx.noise(.18,.07,1100,0,'lowpass',300);sfx.tone(220,.12,'triangle',.04,0,620);
+        }else if(S.sel==='hook'){
           pl.act='grapple';pl.at=0;
           pl.hook={x:pl.x,y:pl.y-8,dir:pl.dir,stage:'out',distance:0,sx:pl.x,sy:pl.y};
           sfx.tone(600,.09,'square',.04,0,1500);SND.throw();
@@ -2765,7 +3013,7 @@
           const [fx, fy] = frontPt(); S.bombs--;
           ents.push(mkEnt('bomb', clamp(fx, 20, RW - 20), clamp(fy + 4, 28, RH - 14), { t: 0, enemy: false })); SND.bombSet();
         } else if (S.sel === 'soup') {
-          if (S.bottle === 2) { S.bottle = 1; S.hp=S.maxH*2; save(); run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; save(); yield { text: "Glug glug... MINESTRONE! Just like {nan} makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
+          if (S.bottle === 2 || S.flask===2) { if(S.bottle===2)S.bottle=1;else S.flask=1; S.hp=S.maxH*2; save(); run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; save(); yield { text: "Glug glug... MINESTRONE! Just like {nan} makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
           else run(function* () { yield { text: "The bottle's empty. {shop}'s shop can fill it up again." }; }());
         }
       }
@@ -2824,6 +3072,11 @@
 
       // ---- getting things: hold it up high, a fanfare, a few words
       const ITEMTXT = {
+        caster:()=>`You got the CAYENNE CASTER! Pick it and press ${LB('y')} for a pepper-hot puff. Melt sugar ice, light warming pans and turn polished FOIL with ${LB('a')} to send heat round corners. Enchanted pepper: no refills!`,
+        starter:()=> 'The LIVING STARTER! Still warm, still arguing. Take it to the LAST CRUST bakery. It can raise more than a loaf.',
+        lid:()=> 'The INSULATED LID! The baker at THE LAST CRUST lost this while running away from a cold sandwich.',
+        flask:()=> 'A SECOND SOUP FLASK, filled with minestrone! Your soup item drinks from either full vessel. Shops refill each empty vessel separately.',
+        smoulder:()=> 'The SMOULDER BLADE! Three bites instead of two. The Living Starter has raised the bread bridge east of the bakery. Follow the RISING ROAD!',
         hook:()=>`You got the SPOOL SPORK! Pick it, face a brass MOORING RING and press ${LB('y')}. The washing line reels you across gaps! Forked handles pull FLOODGATES. It also stuns small baddies.`,
         spindle:()=> 'A BRASS SPINDLE! The bell mender at SCOURING QUAY might know which end goes in first.',
         washer:()=> 'A SILENT WASHER! Take it back to the bell mender. It stops the bell going CLONK when it should go DING.',
@@ -2846,13 +3099,18 @@
         refill: () => '{shop} filled your bottle with hot MINESTRONE!',
         recipe: () => 'You got the SECRET RECIPE! It says: 1. Tomatoes. 2. Garlic. 3. A pinch of love. 4. NEVER let a meatball near it.',
       };
-      const ITEMICON = {hook:()=>ITEMIMG.hook,spindle:()=>ITEMIMG.spindle,washer:()=>ITEMIMG.spindle,apron:()=>ITEMIMG.apron,tidebell:()=>ITEMIMG.tidebell, bow:()=>ITEMIMG.bow, ovenheart:()=>ITEMIMG.ovenheart, blade:()=>ITEMIMG.blade, sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
+      const ITEMICON = {caster:()=>ITEMIMG.caster,starter:()=>ITEMIMG.starter,lid:()=>ITEMIMG.lid,flask:()=>ITEMIMG.flask,smoulder:()=>ITEMIMG.smoulder,hook:()=>ITEMIMG.hook,spindle:()=>ITEMIMG.spindle,washer:()=>ITEMIMG.spindle,apron:()=>ITEMIMG.apron,tidebell:()=>ITEMIMG.tidebell, bow:()=>ITEMIMG.bow, ovenheart:()=>ITEMIMG.ovenheart, blade:()=>ITEMIMG.blade, sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
         piece: () => ITEMIMG.piece, container: () => ITEMIMG.container, bombs: () => ITEMIMG.bomb[0], soup: () => ITEMIMG.bottle[1], refill: () => ITEMIMG.bottle[1], recipe: () => ITEMIMG.recipe };
       function* getItem(what) {
         pl.act = 'get'; pl.getSpr = ITEMICON[what](); pl.carry = null;
-        const big = ['hook','apron','tidebell'].includes(what) || what === 'boom' || what === 'bigkey' || what === 'sword' || what === 'container' || what === 'recipe';
+        const big = ['caster','starter','smoulder','flask','hook','apron','tidebell'].includes(what) || what === 'boom' || what === 'bigkey' || what === 'sword' || what === 'container' || what === 'recipe';
         if (big) SND.big(); else if (what === 'key') SND.key(); else SND.item();
         switch (what) {
+          case 'caster':S.caster=1;S.sel='caster';addScore(800);break;
+          case 'starter':S.f.starter=1;addScore(1700);break;
+          case 'lid':S.f.lid=1;addScore(250);break;
+          case 'flask':S.flask=2;S.f.flaskGift=1;addScore(650);break;
+          case 'smoulder':S.sword=3;S.f.coldDone=1;addScore(2000);break;
           case 'hook':S.hook=1;S.sel='hook';addScore(700);break;
           case 'spindle':S.f.spindle=1;addScore(200);break;
           case 'washer':S.f.washer=1;addScore(200);break;
@@ -2868,10 +3126,10 @@
           case 'compass': S.comp = 1; addScore(100); break;
           case 'boom': S.boom = 1; S.sel = 'boom'; addScore(400); break;
           case 'bigkey': S.big = 1; addScore(300); break;
-          case 'piece': S.pieces++; if (S.pieces >= 4) { S.pieces = 0; S.maxH = Math.min(10, S.maxH + 1); S.hp = S.maxH * 2; } addScore(250); K.secret('lk.zeldo.heart'); break;
-          case 'container': S.maxH = Math.min(10, S.maxH + 1); S.hp = S.maxH * 2; addScore(500); break;
+          case 'piece': S.pieces++; if (S.pieces >= 4) { S.pieces = 0; S.maxH = Math.min(12, S.maxH + 1); S.hp = S.maxH * 2; } addScore(250); K.secret('lk.zeldo.heart'); break;
+          case 'container': S.maxH = Math.min(12, S.maxH + 1); S.hp = S.maxH * 2; addScore(500); break;
           case 'bombs': S.bag = 1; S.bombs = Math.min(10, S.bombs + 8); if (!S.sel) S.sel = 'bombs'; addScore(50); break;
-          case 'soup': case 'refill': S.bottle = 2; if (!S.sel) S.sel = 'soup'; if (what === 'soup') addScore(50); break;
+          case 'soup': case 'refill': if(S.bottle===2&&S.flask===1)S.flask=2;else S.bottle = 2; if (!S.sel) S.sel = 'soup'; if (what === 'soup') addScore(50); break;
           case 'recipe': S.f.recipe = 1; break;
         }
         save();
@@ -2902,14 +3160,17 @@
         pl.hook=null;pl.act = pl.carry ? null : null; pl.carry = null; pl.kbt = 0; pl.pushT = 0;
         spawnEnts(room); unstick(); onEnter();
       }
+      function roomSong(rm){return rm.id==='f11'&&S.f.glace?'pantry':rm.def.song||'field';}
       function onEnter() {
         const id = room.id;
         if (!S.seen[id]) { S.seen[id] = 1; addScore(20); }
         if (room.name !== lastName) { banner = { s: room.name, t: 0 }; lastName = room.name; }
-        song(room.def.song || 'field');
+        song(roomSong(room));
         if (room.def.trap && !S.cleared[id] && enemiesLeft()) room.trapPending = true;
         if (id === 'd10' && room.did.s && !S.doors[room.did.s]) { S.doors[room.did.s] = 1; setDoors(room); render(room); setTimeout(() => SND.door(), 200); }
         if (id === 'd1' && !S.f.keepIn) { S.f.keepIn = 1; run(function* () { yield 20; yield { text: 'THE COLANDER KEEP. It smells of garlic, old socks and danger. Somewhere in here, Baron Meatballo is hiding the recipe.' }; }()); }
+        if(id==='f1'&&!localPuzzle(room.def).entered){localPuzzle(room.def).entered=1;run(function*(){yield 15;yield say('THE COLD PANTRY. Weigh a sliding crate, then follow the copper flues. OVEN BOOTS grip the floor; storage crates do not.');}());}
+        if(id==='f11'&&!S.f.glace)run(function*(){yield 25;yield say('THE GRAND GLACE: My crown is double glazed. Two hot puffs while I breathe will ruin it. Then you could hit my custard. So please do not do either of those things.');}());
         if(id==='t1'&&!localPuzzle(room.def).entered){localPuzzle(room.def).entered=1;run(function*(){yield 15;yield say('POTHOOK PUMPWORKS. Below: the pumps. Above: the bell. Lower pumps feed an upper lift. A forked handle sets the water moving.');}());}
         if(id==='t11'&&!S.f.stockpot)run(function*(){yield 25;yield say('ADMIRAL STOCKPOT: Mind the whistle! I mark my steam lane BEFORE I boil. Then I cool off, lid ring showing. No pulling! It is strictly ornamental!');}());
         if(id==='r1'&&!S.f.reservoirIn){S.f.reservoirIn=1;run(function*(){yield 15;yield say('THE RAVIOLI RESERVOIR. Follow the water. Brass eyes watch its sluices; somewhere, a very stale count is making crumbs of the plumbing.');}());}
@@ -3000,6 +3261,16 @@
       const cycle = (e, list) => { e.line = ((e.line | 0) + 1) % list.length; return list[(e.line + list.length - 1) % list.length]; };
       function* npcTalk(e) {
         const N = NN();
+        if(e.name==='baker'){
+          if(S.f.lid&&!S.f.flaskGift){yield say('{zeldoBaker}: My lid! Here is the SECOND SOUP FLASK it belongs to. Filled, naturally. A cold hero is bad enough. A hungry one is impossible.');yield* getItem('flask');return;}
+          if(S.f.starter&&!S.f.coldDone){yield say('{zeldoBaker}: A Living Starter! One crumb for your blade; the rest for the rising road. Stand back. This loaf has ambitions.');yield* getItem('smoulder');return;}
+          yield say(S.f.coldDone?'{zeldoBaker}: The bread bridge is up! East, then north to the PROVING GROUNDS. The next great kitchen is the SOURDOUGH FOUNDRY. Bring oven gloves.':S.caster?'{zeldoBaker}: My insulated lid is in a sugar-iced hiding place among the SPOONBILL REEDS, back beyond Scouring Quay. Bring it back for a soup flask.':'{zeldoBaker}: The Cold Pantry has swallowed our Living Starter. Find the pepper mill in its west vault. A warm puff can send heat round polished foil.');return;
+        }
+        if(e.name==='pantryPost'){
+          yield say('{zeldoPantry}: The rising road leads toward the SOURDOUGH FOUNDRY. Our bread lift also goes to daylight Farfalle. No crumbs on the seats.');
+          if((yield {text:'Ride the bread lift to Farfalle?',ask:['YES','NO']})===0){S.f.breadLift=1;warp('village',7,6,0);}return;
+        }
+        if(e.name==='pantry'){yield say(room.id==='k_flue'?'The bread bridge is flat. The LAST CRUST baker needs the LIVING STARTER to raise it.':S.caster?'{zeldoPantry}: Foil turns a hot puff. Sugar ice melts. Metal shutters need a warming pan. Look at the copper pipework.':'{zeldoPantry}: North-west: the Cold Pantry. Centre: the Last Crust bakery. Your Oven Boots grip; the storage weights will slide right along their rails.');return;}
         if(e.name==='pump'){yield say(`{greatuncle}: West for a key, east for the plans. Then climb. Brass rings need a clear landing square; forked handles MOVE WATER. Press ${LB('y')} with the Spool Spork.`);return;}
         if(e.name==='dock'){yield say(S.f.tidebell?'DOCKKEEPER {zeldoDock}: The stairs are up! East, then spork north to the Cooler Road. A ferry home and a chilly new trail.':S.sword>=2?'DOCKKEEPER {zeldoDock}: The Pumpworks bell has stopped the tide. North is the low door. Our bell mender could use a hand, too.':'DOCKKEEPER {zeldoDock}: A firm blade from the forge is a sensible start.');return;}
         if(e.name==='mender'){
@@ -3008,14 +3279,15 @@
           if(!S.f.spindle){yield say('{zeldoMender}: BRINEWATER QUAY. Brass ring on the west island. Pull yourself across, then check the chest.');return;}
           if(!S.f.washer){S.f.menderFit=1;save();yield say('{zeldoMender}: It fits! It also goes CLONK. Ask the AL DENTE FORGE for a SILENT WASHER, then bring it here. Please. My ears are ringing.');return;}
           // Commit both rewards before the fanfare: refresh can never lose or duplicate one.
-          S.f.menderDone=1;S.shield=2;S.gems=Math.min(999,S.gems+60);S.pieces++;if(S.pieces>=4){S.pieces=0;S.maxH=Math.min(10,S.maxH+1);S.hp=S.maxH*2;}addScore(950);save();
+          S.f.menderDone=1;S.shield=2;S.gems=Math.min(999,S.gems+60);S.pieces++;if(S.pieces>=4){S.pieces=0;S.maxH=Math.min(12,S.maxH+1);S.hp=S.maxH*2;}addScore(950);save();
           yield say('{zeldoMender}: DING! Beautiful. Here: 60 gems, a HEART PIECE and my TINNED APRON. Heavy bumps hurt half as much. It is surprisingly good at being armour.');pl.act='get';pl.getSpr=ITEMIMG.apron;SND.big();yield 46;pl.act=null;pl.getSpr=null;return;
         }
         if(e.name==='ferry'){
+          if(room.id==='village'&&S.f.breadLift){yield say('FERRYKEEPER {zeldoFerry}: The bread lift is running to the PROVING GROUNDS. A fine view, unless you are afraid of toast.');if((yield {text:'Ride to the Proving Grounds?',ask:['YES','NO']})===0){warp('k_rise',8,9,1);return;}}
           if(room.id==='village'&&S.f.ferry){yield say('FERRYKEEPER {zeldoFerry}: All aboard for the COOLER ROAD! A shortcut beats walking through two worlds in damp boots.');if((yield {text:'Sail to the Cooler Road?',ask:['YES','NO']})===0)warp('q_beacon',8,10,1);return;}
           if(room.id==='village'){yield say('FERRYKEEPER {zeldoFerry}: I am waiting for the tide bell. My other boat is at the COOLER ROAD, beyond Scouring Quay.');return;}
           if(!S.f.tidebell){yield say('FERRYKEEPER {zeldoFerry}: Low tide. Even the boat is thirsty. Ring the Pumpworks bell first.');return;}
-          yield say('FERRYKEEPER {zeldoFerry}: Beyond this road: the COLD PANTRY. Bring a warm jumper for our next expedition. My north pantry ferry sails straight back to DAYLIGHT LASAGNIA.');
+          yield say('FERRYKEEPER {zeldoFerry}: The COLD PANTRY is open. The passage is behind this post, in the north wall. Follow it to the Last Crust bakery. My north pantry ferry sails straight back to DAYLIGHT LASAGNIA.');
           if((yield {text:'Sail to the daylight village?',ask:['YES','NO']})===0){S.f.ferry=1;warp('village',7,6,0);}return;
         }
         if(room.id==='q_steps'){yield say(S.f.tidebell?'The stairs have risen! Spork north to the brass ring.':'The flood shutter is down. Only the TIDEBELL in the Pumpworks can raise it.');return;}
@@ -3090,7 +3362,7 @@
           if (S.gems < 30) { yield say("{shop}: Ooh, you're a bit short, love. 30 gems, please. Try cutting some long grass!"); return; }
           S.gems -= 30; if (!S.bag) yield* getItem('bombs'); else { S.bombs = Math.min(10, S.bombs + 8); SND.pick(); save(); yield say('{shop}: There you go! Mind your eyebrows.'); }
         } else if (w === 'soup') {
-          if (S.bottle === 2) { yield say("{shop}: You've already got a full bottle of minestrone. Save it for when you're poorly!"); return; }
+          if (S.bottle === 2 && S.flask!==1) { yield say("{shop}: You've already got a full bottle of minestrone. Save it for when you're poorly!"); return; }
           const price = S.bottle ? 20 : 40;
           const r = yield { text: S.bottle ? 'A REFILL of hot MINESTRONE for 20 GEMS?' : 'A BOTTLE OF MINESTRONE for 40 GEMS. Fills ALL your hearts when you drink it!', ask: ['YES', 'NO'] };
           if (r !== 0) return;
@@ -3107,6 +3379,7 @@
       const GRAVES = ["HERE LIES {mate1}'S HIGH SCORE. IT WAS NOT VERY HIGH.", 'R.I.P. MY PET EGG. THREE DAYS OLD. I FORGOT TO FEED IT.', 'HERE LIES THE LAST CHOCOLATE BISCUIT. DAD ATE IT.', '{zeldoKnight}, THE KNIGHT WHO LUNCHES. A GOOD KNIGHT. GOOD NIGHT.',
         'THE MILLENNIUM BUG. DUE ANY DAY NOW.', '{cousin} THE BUSH. SOMEBODY CUT IT. TWICE.', 'HERE LIES NOBODY. IT IS A VERY QUIET GRAVE.', "MY FIRST GOLDFISH, {hamster}. A BRILLIANT SWIMMER.", 'R.I.P. THE BLUE BUTTON ON MY CONTROLLER. PRESSED TOO HARD.', '{zeldoGhost} THE GHOST. GONE, BUT STILL AROUND.', "GRANDAD'S CARDIGAN. IT WAS VERY ITCHY."];
       function signText(id, x, y, c) {
+        if(ROOMS[id].note)return ROOMS[id].note;
         const signs={q_moor:'SCOURING QUAY: NORTH. Old shore: WEST. Please wring out your boots before entering town.',q_tower:'POTHOOK PUMPWORKS. Lower pumps, upper walkways. Pull forked handles to move the water. Brass rings carry a washing line.',q_steps:'HIGH WATER STAIRS. Ring the TIDEBELL to raise the shutters. Then Spool Spork north. No paddling.',q_beacon:'NORTH PANTRY POST. Ferry to daylight Lasagnia. Cold Pantry expeditions: bring a warm jumper.'};if(signs[id])return signs[id];
         if (c === 'G') return 'HERE LIES THE LAST BISCUIT OF {nan}. IT ALWAYS WAS A BIT OF A PUSHOVER.';
         if (c === 'g') return GRAVES[(x * 7 + y * 3) % GRAVES.length];
@@ -3170,7 +3443,7 @@
           if (pl.actionBuffer?.b && S.sword && !pl.carry && !pl.act) { takeAction('b'); pl.act = 'sword'; pl.at = 0; pl.cut = false; SND.sword(); }
           else if(pl.carry && takeAction('b'))throwIt();
           else if(!pl.act && takeAction('a'))actionA();
-          else if(!pl.act && takeAction('y'))useItem();
+          else if(!pl.act && itemReady() && takeAction('y'))useItem();
         }
         if (co || mode !== 'play') return;
         // walking
@@ -3194,7 +3467,7 @@
         if (fc && 'dD@^m'.includes(fc)) {
           if (fc === 'm') { const o = room.def.out; warp(o[0], o[1], o[2], o[3]); return; }
           const stair=room.def.stairs;if(fc==='^'&&stair&&localPuzzle(room.def)[stair.flag]&&stair.cells.some(([x,y])=>x===ftx&&y===fty)){warp(...stair.to);return;}
-          const w = (room.def.warps || {})[ftx + ',' + fty]; if (w) { warp(w[0], w[1], w[2], w[3]); return; }
+          const w = (room.def.warps || {})[ftx + ',' + fty] || room.def.thawEntries?.[ftx+','+fty]; if (w) { warp(w[0], w[1], w[2], w[3]); return; }
         }
         checkEdges();
       }
@@ -3235,6 +3508,18 @@
             e.t++; if (e.t % (e.t > 80 ? 6 : 14) === 0) SND.fuse();
             if (e.t >= 110) { e.dead = true; explode(e.x, e.y - 6); }
             break;
+          case 'heat':{
+            e.t++;
+            for(let n=0;n<3&&!e.dead;n++){
+              e.x+=DX[e.dir]*2;e.y+=DY[e.dir]*2;e.travel+=2;
+              const tx=Math.floor(e.x/16),ty=Math.floor((e.y+4)/16),c=tileAt(room,tx,ty),key=tx+','+ty;
+              if((c==='/'||c==='\\')&&e.mirror!==key){e.mirror=key;e.dir=(c==='/'?[2,3,0,1]:[3,2,1,0])[e.dir];e.turns++;SND.tink();sparks(e.x,e.y,3,'#ffd5a0');}
+              else if(c!=='/'&&c!=='\\')e.mirror=null;
+              if(c==='i'||c==='P'){e.dead=true;heatTile(tx,ty);break;}
+              for(const o of ents)if(o.enemy&&!o.dead&&hitBox(box(o),[e.x-5,e.y-5,e.x+5,e.y+8])){if(o.type==='glace')bossHit(o,0,'heat');else hurtEnt(o,2,e.x-DX[e.dir]*8,e.y-DY[e.dir]*8,'heat');e.dead=true;break;}
+              if(!c||e.turns>4||e.travel>=384||(SOLID.has(c)&&!LOW.has(c)&&c!=='/'&&c!=='\\')){e.dead=true;if(c)sparks(e.x,e.y,3,'#ffc994');}
+            }break;
+          }
           case 'arrow': {
             e.t++;e.x+=e.vx;e.y+=e.vy;
             const tx=Math.floor(e.x/16),ty=Math.floor((e.y+4)/16),c=tileAt(room,tx,ty);
@@ -3271,9 +3556,9 @@
             break;
           }
           case 'block': {
-            e.t++; const k = e.t / 16;
+            e.t++; const k = Math.min(1,e.t / (e.duration||16));
             e.x = lerp(e.sx, e.tx * 16 + 8, k); e.y = lerp(e.sy, e.ty * 16 + 16, k);
-            if (e.t >= 16) blockLanded(e);
+            if (e.t >= (e.duration||16)) blockLanded(e);
             break;
           }
           default:
@@ -3341,7 +3626,7 @@
       function drawSword() {
         const i = swordIdx(); if (i < 0 || !SWORD) return;
         const sp = SWORD[i], h = HAND[pl.act === 'spin' ? 0 : pl.dir];
-        g.drawImage(S.sword>1 ? (sp.gold || (sp.gold=tint(sp.c,'#f8cf68',.4))) : sp.c, Math.round(pl.x + h[0] - sp.hx), Math.round(pl.y + h[1] - sp.hy));
+        g.drawImage(S.sword>=3?(sp.ember||(sp.ember=tint(sp.c,'#ff9851',.5))):S.sword>1 ? (sp.gold || (sp.gold=tint(sp.c,'#f8cf68',.4))) : sp.c, Math.round(pl.x + h[0] - sp.hx), Math.round(pl.y + h[1] - sp.hy));
         if (pl.act === 'charge' && pl.charge >= 42 && (K.frame >> 2) & 1) { const v = VEC[i]; const im = ITEMIMG.spark[(K.frame >> 2) & 3]; g.drawImage(im, Math.round(pl.x + h[0] + v[0] * 15 - 4), Math.round(pl.y + h[1] + v[1] * 15 - 4)); }
       }
       function drawHero() {
@@ -3367,6 +3652,8 @@
           case 'crab': img = SPR.crab[e.anim]; oy = 13; break;
           case 'spike': img = SPR.spike[e.anim]; oy = 15; break;
           case 'ball': img = SPR.ball[e.anim | 0]; ox = 7; oy = 13; break;
+          case 'glace':img=SPR.glace[e.anim];ox=28;oy=45;break;
+          case 'heat':img=ITEMIMG.heat[(e.t>>1)%3];ox=6;oy=6;break;
           case 'stockpot':img=SPR.stockpot[e.anim];ox=28;oy=45;break;
           case 'crouton': img=SPR.crouton[e.anim];if(e.phase2)img=img.toast||(img.toast=tint(img,'#d87938',.24));ox=24;oy=38;break;
           case 'cheese': img = SPR.cheese[e.anim]; ox = 16; oy = 30; break;
@@ -3392,7 +3679,7 @@
           case 'bomb': img = ITEMIMG.bomb[(e.t >> (e.t > 80 ? 1 : 3)) & 1]; if (e.t > 80 && (e.t >> 1) & 1) img = white(img); oy = 15; break;
           case 'arrow': img=ITEMIMG.arrow[e.dir];oy=8;break;
           case 'boomer': img = ITEMIMG.boom[(e.t >> 1) & 3]; oy = 8; break;
-          case 'block': img = e.kind === 'G' ? SPR_GRAVE : dgBlock('B'); oy = 16; break;
+          case 'block': img = e.kind === 'G' ? SPR_GRAVE : room.def.dg==='pantry'?ITEMIMG.icecrate:dgBlock('B'); oy = 16; break;
         }
         if (!img) return;
         let draw = img;
@@ -3400,14 +3687,15 @@
         if (e.ghostFade) { g.globalAlpha = 0.3; }
         if (e.stun > 0 && (K.frame >> 2) & 1) { g.globalAlpha = 0.7; }
         g.drawImage(draw, x - ox, y - oy - z);
+        if(e.type==='glace'&&e.st==='vent'){g.drawImage(ITEMIMG.heat[(K.frame>>3)%3],x-6,y-53);F.center(g,e.thaw?'ONE MORE!':'TWO HOT PUFFS!',x,y-63,'#ffe9a1',1,'#203952');}
         if(e.type==='stockpot'&&e.st==='vent'&&(K.frame>>3)&1)g.drawImage(ITEMIMG.spark[(K.frame>>3)&3],x-4,y-45);
         g.globalAlpha = 1;
-        if (e.stun > 0 || (e.type==='stockpot' && e.st==='dizzy') || (e.type==='crouton' && e.st==='dizzy') || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
+        if (e.stun > 0 || (e.type==='glace'&&e.st==='dizzy') || (e.type==='stockpot' && e.st==='dizzy') || (e.type==='crouton' && e.st==='dizzy') || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
           const r = e.type === 'baron' ? 18 : e.type === 'cheese' ? 12 : 7, top = y - oy - z - 2;
           for (let i = 0; i < 3; i++) { const a = K.t * 5 + i * 2.1; g.drawImage(ITEMIMG.star, Math.round(x + Math.cos(a) * r - 3), Math.round(top + Math.sin(a) * r * 0.3 - 3)); }
         }
       }
-      const SHADOWW = {stockpot:23,crouton:19,arrow:3, gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
+      const SHADOWW = {glace:23,heat:4,stockpot:23,crouton:19,arrow:3, gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
       function drawRoom(rm, ox, oy, full) {
         g.drawImage(rm.fr[(K.frame / 12 | 0) % 4], ox, oy);
         if (!full) return;
@@ -3426,6 +3714,11 @@
         for(const e of ents)if(e.type==='crouton' && (e.st==='aim'||e.st==='swoop')){
           g.strokeStyle=(K.frame>>2)&1?'#f8df88':'#b85838';g.lineWidth=1;g.beginPath();g.ellipse(e.aimX,e.aimY,17,8,0,0,7);g.stroke();
           R(g,e.aimX-3,e.aimY,7,1,'#f8df88');R(g,e.aimX,e.aimY-3,1,7,'#f8df88');
+        }
+        for(const e of ents)if(e.type==='glace'&&((e.st==='wind'&&e.tm<=55)||e.st==='pour')){
+          const lanes=e.hp<=10?[e.aimX-24,e.aimX,e.aimX+24]:[e.aimX];
+          for(const x of lanes)for(let y=38;y<175;y+=8){R(g,Math.round(x)-8,y,1,4,'#e5f8db');R(g,Math.round(x)+7,y,1,4,'#8bd1dd');}
+          if(e.st==='wind')F.center(g,'FROSTING!',128,25,'#fff2b5',1,'#263a54');
         }
         drawHook();
         for(const e of ents)if(e.type==='stockpot'&&((e.st==='wind'&&e.tm<=55)||e.st==='steam')){
@@ -3504,7 +3797,7 @@
         rows.forEach((r, y) => { for (let x = 0; x < 7; x++) if (r[x] === 'x') { const on = n === 2 || (n === 1 && x < 4); P(gg, x + 1, y + 1, on ? (y === 0 || (y === 1 && x < 3) ? '#ff9aa8' : y > 3 ? '#b81a2a' : '#f0303e') : '#3a1a2a'); } });
         if (n) P(gg, 2, 2, '#ffffff');
       }, '#100810'));
-      const itemIcon = k => k==='hook'?ITEMIMG.hook:k==='bow'?ITEMIMG.bow:k==='boots'?ITEMIMG.boots:k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 ? 1 : 0] : null;
+      const itemIcon = k => k==='caster'?ITEMIMG.caster:k==='hook'?ITEMIMG.hook:k==='bow'?ITEMIMG.bow:k==='boots'?ITEMIMG.boots:k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 || S.flask===2 ? 1 : 0] : null;
       function drawHUD() {
         const gr = g.createLinearGradient(0, 0, 0, TOP); gr.addColorStop(0, '#141830'); gr.addColorStop(1, '#0a0c1c'); g.fillStyle = gr; g.fillRect(0, 0, W, TOP);
         g.fillStyle = '#c8a040'; g.fillRect(0, TOP - 2, W, 1); g.fillStyle = '#5a4818'; g.fillRect(0, TOP - 1, W, 1);
@@ -3532,23 +3825,23 @@
 
       // ============================================================ the START menu: items, the quest, save
       let menu = null;
-      const ITEMS = [['boom','BOOMERANG'],['bombs','BOMBS'],['soup','MINESTRONE'],['bow','RAVIOLI RECURVE'],['boots','OVEN BOOTS'],['hook','SPOOL SPORK']];
-      const owned = k => k==='hook'?S.hook:k==='bow'?S.bow:k==='boots'?S.boots:k==='boom'?S.boom:k==='bombs'?S.bag:k==='soup'?S.bottle>0:false;
+      const ITEMS = [['boom','BOOMERANG'],['bombs','BOMBS'],['soup','MINESTRONE'],['bow','RAVIOLI RECURVE'],['boots','OVEN BOOTS'],['hook','SPOOL SPORK'],['caster','CAYENNE CASTER']];
+      const owned = k => k==='caster'?S.caster:k==='hook'?S.hook:k==='bow'?S.bow:k==='boots'?S.boots:k==='boom'?S.boom:k==='bombs'?S.bag:k==='soup'?(S.bottle>0||S.flask>0):false;
       function openMenu() {
         const i=Math.max(0,ITEMS.findIndex(i=>i[0]===S.sel));
-        pl.actionBuffer={};menu={row:Math.floor(i/3),col:i%3,t:0,saved:0};mode='menu';SND.menu();save();
+        pl.actionBuffer={};pl.actionQueue={};menu={row:Math.floor(i/3),col:i%3,t:0,saved:0};mode='menu';SND.menu();save();
       }
       function updMenu() {
         const M=menu;M.t++;if(M.saved)M.saved--;
-        if(pressed('start')||(pressed('b')&&M.row<2)){mode='play';SND.menu();save();return;}
+        if(pressed('start')||(pressed('b')&&M.row<3)){mode='play';SND.menu();save();return;}
         const nav=pressed('up')||pressed('down')||pressed('left')||pressed('right');
-        if(pressed('up'))M.row=(M.row+2)%3;if(pressed('down'))M.row=(M.row+1)%3;
-        const cols=3;
+        if(pressed('up'))M.row=(M.row+3)%4;if(pressed('down'))M.row=(M.row+1)%4;
+        const cols=M.row===2?1:3;
         if(pressed('left'))M.col=(M.col+cols-1)%cols;if(pressed('right'))M.col=(M.col+1)%cols;M.col=Math.min(cols-1,M.col);
         if(nav)SND.menu();
         const item=ITEMS[M.row*3+M.col];
-        if(M.row<2&&item&&owned(item[0])&&(nav||pressed('a')||pressed('y'))){S.sel=item[0];SND.pick();save();}
-        if(M.row===2&&(pressed('a')||pressed('y'))){
+        if(M.row<3&&item&&owned(item[0])&&(nav||pressed('a')||pressed('y'))){S.sel=item[0];SND.pick();save();}
+        if(M.row===3&&(pressed('a')||pressed('y'))){
           if(M.col===0){mode='play';SND.menu();save();}
           else if(M.col===1){save();SND.save();M.saved=90;}
           else{save();SND.save();song(null);mode='done';finalScore(S.score|0,'SAVED!',`${NN()}'s adventure is saved. Pick the file again to carry on where you left off.`);}
@@ -3557,32 +3850,39 @@
       function drawMenu() {
         const M=menu,k=Math.min(1,M.t/10),off=Math.round((1-k)*-H);
         R(g,0,0,W,H,'rgba(0,0,10,.55)');g.save();g.translate(0,off);frameBox(6,6,244,212,'#101838');
-        F.center(g,'- ITEMS -',71,13,'#f8d048',1,'#000');frameBox(12,22,118,84,'#0a1030');
+        F.center(g,'- ITEMS -',71,13,'#f8d048',1,'#000');frameBox(12,22,118,94,'#0a1030');
         ITEMS.forEach(([key],i)=>{
-          const x=20+(i%3)*36,y=27+Math.floor(i/3)*30;
-          R(g,x,y,30,26,'#1c2858');R(g,x,y,30,1,'#3c5088');
-          if(owned(key)){const ic=itemIcon(key);g.drawImage(ic,Math.round(x+15-ic.width/2),Math.round(y+13-ic.height/2));if(key==='bombs')F.draw(g,String(S.bombs),x+18,y+18,'#fff',1,'#000');}
+          const x=20+(i%3)*36,y=27+Math.floor(i/3)*24;
+          R(g,x,y,30,21,'#1c2858');R(g,x,y,30,1,'#3c5088');
+          if(owned(key)){const ic=itemIcon(key);g.drawImage(ic,Math.round(x+15-ic.width/2),Math.round(y+10-ic.height/2));if(key==='bombs')F.draw(g,String(S.bombs),x+18,y+14,'#fff',1,'#000');}
           else F.center(g,'?',x+15,y+9,'#445780',1);
-          if(S.sel===key){g.strokeStyle='#f8d048';g.lineWidth=1;g.strokeRect(x+.5,y+.5,29,25);}
-          if(M.row<2&&M.row*3+M.col===i){g.strokeStyle=(M.t>>3)&1?'#ffffff':'#a8c8e8';g.lineWidth=1;g.strokeRect(x-2.5,y-2.5,35,31);}
+          if(S.sel===key){g.strokeStyle='#f8d048';g.lineWidth=1;g.strokeRect(x+.5,y+.5,29,20);}
+          if(M.row<3&&M.row*3+M.col===i){g.strokeStyle=(M.t>>3)&1?'#ffffff':'#a8c8e8';g.lineWidth=1;g.strokeRect(x-2.5,y-2.5,35,25);}
         });
-        const cur=ITEMS[Math.min(ITEMS.length-1,M.row*3+M.col)];F.center(g,owned(cur[0])?cur[1]:'UNFOUND',71,94,'#c8d8f0',1);
-        F.center(g,'- KIT -',190,13,'#f8d048',1,'#000');frameBox(136,22,108,84,'#0a1030');
-        g.globalAlpha=S.sword?1:.2;g.drawImage(S.sword>1?ITEMIMG.blade:ITEMIMG.swordIcon,144,29);g.globalAlpha=S.shield?1:.2;g.drawImage(S.shield>=2?ITEMIMG.apron:ITEMIMG.shieldIcon,162,29);g.globalAlpha=1;
+        const cur=ITEMS[Math.min(ITEMS.length-1,M.row*3+M.col)];F.center(g,owned(cur[0])?cur[1]:'UNFOUND',71,104,'#c8d8f0',1);
+        F.center(g,'- KIT -',190,13,'#f8d048',1,'#000');frameBox(136,22,108,94,'#0a1030');
+        g.globalAlpha=S.sword?1:.2;g.drawImage(S.sword>=3?ITEMIMG.smoulder:S.sword>1?ITEMIMG.blade:ITEMIMG.swordIcon,144,29);g.globalAlpha=S.shield?1:.2;g.drawImage(S.shield>=2?ITEMIMG.apron:ITEMIMG.shieldIcon,162,29);g.globalAlpha=1;
         g.drawImage(ITEMIMG.pieces[S.pieces],210,27);F.center(g,S.pieces+'/4',218,45,'#ffb0b8',1,'#000');
         g.drawImage(ICON.gem,144,56);F.draw(g,String(S.gems),156,57,'#a8f8b0',1,'#000');
         F.draw(g,'TIME '+clock(S.time),185,57,'#c8d0f0',1);F.draw(g,'HEARTS '+S.maxH,144,72,'#ffb0b8',1);
-        F.draw(g,S.sword>1?'AL DENTE BLADE':"GRANDAD'S KIT",144,93,'#f8d048',1);
-        frameBox(12,110,232,28,'#0a1030');F.draw(g,DUNGEONS[S.activeDg||'keep'].name,20,119,'#f8d048',1,'#000');
-        [[ITEMIMG.map,S.map],[ITEMIMG.compass,S.comp],[ITEMIMG.bigkey,S.big]].forEach(([im,has],i)=>{g.globalAlpha=has?1:.18;g.drawImage(im,128+i*23,116);g.globalAlpha=1;});
-        g.drawImage(ICON.key,202,118);F.draw(g,'X'+S.keys,212,119,'#fff',1,'#000');
-        frameBox(12,142,232,36,'#0a1030');F.draw(g,'QUEST:',20,147,'#f8d048',1,'#000');
-        wrap(castText(questLine()),36).slice(0,2).forEach((l,i)=>F.draw(g,l,20,157+i*10,'#ffffff',1,'#000'));
-        ['CARRY ON','SAVE','SAVE & QUIT'].forEach((o,i)=>{const x=[20,98,160][i],on=M.row===2&&M.col===i;F.draw(g,o,x+10,186,on?'#f8d048':'#9aa0c8',1,'#000');if(on)F.draw(g,'→',x,186,'#f8d048',1);});
+        F.draw(g,S.sword>=3?'SMOULDER BLADE':S.sword>1?'AL DENTE BLADE':"GRANDAD'S KIT",144,83,'#f8d048',1);
+        if(S.bottle||S.flask){F.draw(g,'SOUP',144,103,'#c8d0f0',1);for(const[b,i]of [[S.bottle,0],[S.flask,1]]){g.globalAlpha=b?1:.2;g.drawImage(i?ITEMIMG.flask:ITEMIMG.bottle[b===2?1:0],181+i*22,94);g.globalAlpha=1;if(b)F.draw(g,b===2?'F':'E',194+i*22,103,b===2?'#ffdd8a':'#8ea7bc',1,'#000');}}
+        frameBox(12,120,232,22,'#0a1030');F.draw(g,DUNGEONS[S.activeDg||'keep'].name,20,127,'#f8d048',1,'#000');
+        [[ITEMIMG.map,S.map],[ITEMIMG.compass,S.comp],[ITEMIMG.bigkey,S.big]].forEach(([im,has],i)=>{g.globalAlpha=has?1:.18;g.drawImage(im,128+i*23,123);g.globalAlpha=1;});
+        g.drawImage(ICON.key,202,126);F.draw(g,'X'+S.keys,212,127,'#fff',1,'#000');
+        frameBox(12,146,232,34,'#0a1030');F.draw(g,'QUEST:',20,151,'#f8d048',1,'#000');
+        wrap(castText(questLine()),36).slice(0,2).forEach((l,i)=>F.draw(g,l,20,160+i*10,'#ffffff',1,'#000'));
+        ['CARRY ON','SAVE','SAVE & QUIT'].forEach((o,i)=>{const x=[20,98,160][i],on=M.row===3&&M.col===i;F.draw(g,o,x+10,186,on?'#f8d048':'#9aa0c8',1,'#000');if(on)F.draw(g,'→',x,186,'#f8d048',1);});
         F.center(g,M.saved?'SAVED!':`${LB('start')}: BACK TO THE GAME`,128,203,M.saved?'#a8f8b0':'#8a98b8',1);g.restore();
       }
       const clock = s => { s = s | 0; const h = s / 3600 | 0, m = (s / 60 | 0) % 60; return h + ':' + String(m).padStart(2, '0'); };
       function questLine() {
+        if(S.f.coldDone)return 'Fourth course saved! Cross the raised bread bridge east of the bakery.';
+        if(S.f.starter)return 'Take the Living Starter to the Last Crust bakery.';
+        if(S.f.glace)return 'The Living Starter waits east of the Grand Glace.';
+        if(S.caster)return 'Follow the flues. Turn foil; slide the west vault weights.';
+        if(S.activeDg==='pantry')return 'Find the west pepper-mill vault. A rail catches a sliding weight.';
+        if(room?.def.world==='pantry')return 'North-west: the Cold Pantry. Centre: the Last Crust bakery.';
         if(S.f.tidebell)return 'High-water stairs east of the quay: spork north to the Cooler Road.';
         if(S.f.stockpot)return 'The Tidebell bower is east of the hob. Ring the bell!';
         if(S.hook)return 'Pull the lift handle. Cross the spillway; the loft holds the big key.';
@@ -3611,24 +3911,24 @@
 
       // ============================================================ the MAP
       let mapT = 0; const MINI = {};
-      const MCOL = { '.': '#58b040', '"': '#3e9a34', f: '#80c860', ':': '#d8b070', s: '#f0d898', T: '#2a6a28', b: '#4ea83a', r: '#9a9aa8', X: '#7a7088', C: '#a87040', '~': '#3474d0', '=': '#a06a34', F: '#a06a30', S: '#b07838', g: '#8a8aa0', G: '#8a8aa0', h: '#c84a3a', d: '#5a3018', K: '#b0bcd8', D: '#1a1020', '@': '#1a1020', O: '#7a7a8a', '^': '#3a3040' };
+      const MCOL = {i:'#c0e0df', '.': '#58b040', '"': '#3e9a34', f: '#80c860', ':': '#d8b070', s: '#f0d898', T: '#2a6a28', b: '#4ea83a', r: '#9a9aa8', X: '#7a7088', C: '#a87040', '~': '#3474d0', '=': '#a06a34', F: '#a06a30', S: '#b07838', g: '#8a8aa0', G: '#8a8aa0', h: '#c84a3a', d: '#5a3018', K: '#b0bcd8', D: '#1a1020', '@': '#1a1020', O: '#7a7a8a', '^': '#3a3040' };
       function mini(id) {
         if (MINI[id]) return MINI[id];
         const c = cnv(64, 48), gg = c.getContext('2d'), def = ROOMS[id];
-        def.map.forEach((row, y) => [...row].forEach((ch, x) => { gg.fillStyle = (def.world==='salt'&&ch==='.')?'#647490':(def.world==='salt'&&ch==='T')?'#303d60':MCOL[ch] || '#58b040'; gg.fillRect(x * 4, y * 4, 4, 4); if (ch === 'T') { gg.fillStyle = def.world==='salt'?'#586b85':'#3a8a34'; gg.fillRect(x * 4, y * 4, 2, 2); } }));
+        def.map.forEach((row, y) => [...row].forEach((ch, x) => { gg.fillStyle = (def.world==='pantry'&&ch==='.')?'#9bbbc5':(def.world==='pantry'&&ch==='T')?'#395d75':(def.world==='salt'&&ch==='.')?'#647490':(def.world==='salt'&&ch==='T')?'#303d60':MCOL[ch] || '#58b040'; gg.fillRect(x * 4, y * 4, 4, 4); if (ch === 'T') { gg.fillStyle = def.world==='pantry'?'#a9c8c6':def.world==='salt'?'#586b85':'#3a8a34'; gg.fillRect(x * 4, y * 4, 2, 2); } }));
         return MINI[id] = c;
       }
-      function mapOpen() { pl.actionBuffer={};mode = 'map'; mapT = 0; SND.menu(); }
-      function updMap() { mapT++; if (mapT > 6 && (pressed('x') || pressed('a') || pressed('b') || pressed('start'))) { mode = 'play'; SND.menu(); } }
+      function mapOpen() { pl.actionBuffer={};pl.actionQueue={};pl.mapClose=0;mode = 'map'; mapT = 0; SND.menu(); }
+      function updMap() { mapT++;if(pressed('x')||pressed('a')||pressed('b')||pressed('start'))pl.mapClose=1;if(mapT>6&&pl.mapClose){pl.mapClose=0;mode='play';SND.menu();} }
       function drawMap() {
         g.fillStyle = 'rgba(0,0,10,.75)'; g.fillRect(0, 0, W, H);
         if (room.kind === 'dg') return drawDgMap();
         frameBox(22, 6, 212, 194, '#0a1030');
-        F.center(g, room.def.world==='salt'||(room.id.startsWith('p_')||room.id.startsWith('q_'))?'THE SALT-BEYOND':'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
-        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east',p_shop:'p_village',p_forge:'p_home',q_mender:'q_quay',q_shop:'q_quay',q_ferry:'q_beacon' })[room.id] || 'cliff';
+        F.center(g, room.def.world==='pantry'||['k_bake','k_shop','k_post'].includes(room.id)?'THE COLD PANTRY':room.def.world==='salt'||(room.id.startsWith('p_')||room.id.startsWith('q_')||room.id.startsWith('k_cave_'))?'THE SALT-BEYOND':'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
+        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east',k_bake:'k_bakery',k_shop:'k_bakery',k_post:'k_rise',k_cave_leaf:'p_forest',k_cave_salt:'p_grave',k_cave_lid:'q_reeds',p_shop:'p_village',p_forge:'p_home',q_mender:'q_quay',q_shop:'q_quay',q_ferry:'q_beacon' })[room.id] || 'cliff';
         const world=ROOMS[here].world || 'light';
-        const cw=world==='salt'?38:64,mw=world==='salt'?5:3;
-        for (let gy = 0; gy < 3; gy++) for (let gx = 0; gx < mw; gx++) {
+        const cw=world==='salt'?38:64,mw=world==='salt'?5:3,mh=world==='pantry'?2:3;
+        for (let gy = 0; gy < mh; gy++) for (let gx = 0; gx < mw; gx++) {
           const id = OWG[world+':'+gx+','+gy], x = ox + gx * cw, y = oy + gy * 48;
           if (S.seen[id]) g.drawImage(mini(id), x, y,cw,48); else { g.fillStyle = '#1a2040'; g.fillRect(x, y, cw, 48); F.center(g, '?', x + cw/2, y + 20, '#3a4478', 1); }
           g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeRect(x + 0.5, y + 0.5, cw-1, 47);
@@ -3655,7 +3955,7 @@
           if (d.n && d.n !== 'J') g.fillRect(x + cw / 2 - 3, y, 6, 3); if (d.s) g.fillRect(x + cw / 2 - 3, y + chh - 3, 6, 3); if (d.w) g.fillRect(x, y + chh / 2 - 3, 3, 6); if (d.e) g.fillRect(x + cw - 3, y + chh / 2 - 3, 3, 6);
           if (S.comp) {
             for (const k in (r.chests || {})) if (!S.opened[id + ':' + k]) { g.fillStyle = '#f8d048'; g.fillRect(x + 6 + (k.length % 3) * 6, y + 8, 4, 4); }
-            if (id === DUNGEONS[room.def.dg||'keep'].boss && !S.f[id==='d11'?'baron':id==='t11'?'stockpot':'crouton'] && (mapT >> 4) & 1) { if(id==='t11')g.drawImage(SPR.stockpot[1],0,0,56,48,x+cw/2-8,y+3,16,14);else if(id==='r11')g.drawImage(SPR.crouton[0],0,0,48,40,x+cw/2-8,y+4,16,14);else g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
+            if (id === DUNGEONS[room.def.dg||'keep'].boss && !S.f[id==='d11'?'baron':id==='f11'?'glace':id==='t11'?'stockpot':'crouton'] && (mapT >> 4) & 1) { if(id==='f11')g.drawImage(SPR.glace[0],0,0,56,48,x+cw/2-8,y+3,16,14);else if(id==='t11')g.drawImage(SPR.stockpot[1],0,0,56,48,x+cw/2-8,y+3,16,14);else if(id==='r11')g.drawImage(SPR.crouton[0],0,0,48,40,x+cw/2-8,y+4,16,14);else g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
           }
           if(r.stairsMark)F.draw(g,r.stairsMark,x+cw-10,y+chh-11,'#ade8ee',1,'#152334');
           if (id === room.id && (mapT >> 3) & 1) { g.fillStyle = '#fff'; g.fillRect(x + cw / 2 - 3, y + chh / 2 - 3, 6, 6); g.fillStyle = '#e83838'; g.fillRect(x + cw / 2 - 2, y + chh / 2 - 2, 4, 4); }
@@ -3853,7 +4153,7 @@
       }
       function startFile(i) {
         slot = i; S = store.slots[i]; store.last = i;
-        S.activeDg=S.activeDg||'keep';S.dungeons=S.dungeons||{};S.bow=S.bow||0;S.boots=S.boots||0;S.hook=S.hook||0;
+        S.activeDg=S.activeDg||'keep';S.dungeons=S.dungeons||{};S.bow=S.bow||0;S.boots=S.boots||0;S.hook=S.hook||0;S.caster=S.caster||0;S.flask=S.flask||0;
         for (const k of ['f', 'opened', 'doors', 'cleared', 'seen', 'gone', 'got']) if (!S[k] || typeof S[k] !== 'object') S[k] = {};
         if (!ROOMS[S.room]) { S.room = 'h_home'; S.x = 136; S.y = 124; }
         migrateTerrain(i);
@@ -4072,16 +4372,18 @@
         g.restore();
         drawHUD();
       }
-      function takeAction(b){const yes=!!pl?.actionBuffer?.[b];if(yes)delete pl.actionBuffer[b];return yes;}
+      function takeAction(b){
+        const yes=!!pl?.actionBuffer?.[b];if(yes){if(pl.actionQueue?.[b]>0){pl.actionQueue[b]--;pl.actionBuffer[b]=12;}else delete pl.actionBuffer[b];}return yes;
+      }
       function update() {
         touchNow={...touchPending};for(const k in touchPending)delete touchPending[k];
         if(resumeRun && ['up','down','left','right','a','b','y','x','start'].some(b=>held(b)||pressed(b))){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
         if(resumeRun&&K.stick&&Math.hypot(K.stick().x,K.stick().y)>.25){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
         if(pl&&['play','scroll','fade'].includes(mode)&&!co){
-          pl.actionBuffer=pl.actionBuffer||{};
+          pl.actionBuffer=pl.actionBuffer||{};pl.actionQueue=pl.actionQueue||{};
           for(const b of ['a','b','y','x','start']){
-            if(pressed(b))pl.actionBuffer[b]=12;
-            else if(mode==='play'&&!hitStop&&!pl.act&&pl.actionBuffer[b]){if(--pl.actionBuffer[b]<=0)delete pl.actionBuffer[b];}
+            if(pressed(b)){if(pl.actionBuffer[b])pl.actionQueue[b]=(pl.actionQueue[b]||0)+1;else pl.actionBuffer[b]=12;}
+            else if(mode==='play'&&!hitStop&&!pl.act&&(b!=='y'||itemReady())&&pl.actionBuffer[b]){if(--pl.actionBuffer[b]<=0){delete pl.actionBuffer[b];delete pl.actionQueue[b];}}
           }
         }
         if(hitStop>0&&mode==='play'&&!co){hitStop--;if(takeAction('start'))openMenu();updateFx();return;}
@@ -4126,7 +4428,7 @@
       // (for testing: RoomTV.dbg().dbg)
       K.dbg = {
         get S() { return S; }, get pl() { return pl; }, get room() { return room; }, get ents() { return ents; }, get mode() { return mode; }, get tb() { return tb; }, get co() { return co; }, get store() { return store; },
-        flush, get fade(){return fade;}, get lastRep() { return lastRep; }, get ending() { return ending; },
+        flush, get fade(){return fade;}, get song(){return curSong;}, get lastRep() { return lastRep; }, get ending() { return ending; },
         start(i, name) { if (!store.slots[i]) store.slots[i] = freshSave(name || castName('me').toUpperCase().slice(0,8)); store.slots[i].intro = 1; startFile(i); },
         warp(id, tx, ty, dir) { co = null; tb = null; coQ.length = 0; enterRoom(makeRoom(id), tx * 16 + 8, ty * 16 + 12, dir || 0); mode = 'play'; },
         give(o) { Object.assign(S, o); }, flag(k, v) { S.f[k] = v; }, makeRoom, ROOMS, report, startEnding, explode, toggleCrystal, hurtPlayer, run, getItem, say,
@@ -4141,16 +4443,16 @@
           co=null;tb=null;coQ.length=0;trans=null;
           room=makeRoom(live.room);dungeonInventory(room.def);
           if((live.mapRevision===2||!['forest','p_lake','p_grave','p_shore'].includes(live.room))&&live.tiles?.length===ROWS && live.tiles.every(r=>r.length===COLS))room.t=live.tiles.map(r=>r.split(''));
-          for(const k of ['j','!'])room.def.map.forEach((row,y)=>[...row].forEach((c,x)=>{if(c===k)room.t[y][x]=k;}));applyFloods(room);
+          for(const k of ['j','!'])room.def.map.forEach((row,y)=>[...row].forEach((c,x)=>{if(c===k)room.t[y][x]=k;}));applyFloods(room);applyThermals(room);
           room.trapOn=!!live.trapOn;room.trapPending=!!live.trapPending || (!live.ents && room.def.trap && !S.cleared[room.id]);if(room.kind==='dg')setDoors(room);render(room);
           if(live.ents)ents=live.ents;else spawnEnts(room);
           shots=live.shots||[];fx=[];pl=Object.assign(newPlayer(S.x,S.y,S.dir),live.pl);pl.getSpr=null;
           if(live.co){pl.act=null;pl.dead=false;for(const e of ents)if(e.type==='baron'&&e.st==='wait'){e.st='start';e.tm=40;}}
-          menu=live.menu;mapT=live.mapT||0;dyingT=live.dyingT||0;over=live.over;ending=live.ending;if(live.mode==='ending')tb=live.box||null;
+          menu=live.menu;if(menu&&live.itemMenuRev!==2&&menu.row===2)menu.row=3;mapT=live.mapT||0;dyingT=live.dyingT||0;over=live.over;ending=live.ending;if(live.mode==='ending')tb=live.box||null;
           mode=['play','menu','map','dying','gameover','ending'].includes(live.mode)?live.mode:'play';
           if(mode==='menu'&&!menu)mode='play';if(mode==='ending'&&!ending)mode='play';
           if(mode==='dying'||mode==='gameover')S.hp=0;
-          if(!(pl.act==='grapple'&&pl.hook?.stage==='pull'))unstick();song(mode==='ending'?'ending':room.def.song||'field');fade=0;banner=null;
+          if(!(pl.act==='grapple'&&pl.hook?.stage==='pull'))unstick();song(mode==='ending'?'ending':roomSong(room));fade=0;banner=null;
         }
         if(S.f.recipe&&!S.done || S.f.secondDone&&!S.f.secondCredits)startEnding();
       }
