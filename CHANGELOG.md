@@ -4,6 +4,7 @@
 - The Myth of Zeldo has a third dungeon: a two-floor, 13-room pump works built around a new grappling tool, the Spool Spork, with lifts, floodgates and its own boss. Six new overworld screens open up beyond it, with a town and an optional quest. Old saves carry on where they left off.
 - Doors close all the way and stay closed, instead of sometimes stopping a hair short.
 - Someone walking upstairs can no longer block you walking through the cupboard under the stairs.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.86.0), voices 9/9, characters, zero, Bounce Quest 64, Zeldo with its third dungeon, cupboard, voice recordings, people pass, identity twice, the phone UI check, seasons, performance, physics, smoke, all first time.
 
 ## 2.86.0 - 2026-11-10
 - Bounce Quest 64 has 66 golden acorns: a seventh course, Sherbet Sandstorm, with rolling dunes, wind to ride and scarabs to dodge, and a risky Cocoa Express shortcut inside the coaster (commit to the jump; a safety net catches you if you miss). Hopping while falling no longer misfires.
