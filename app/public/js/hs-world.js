@@ -289,8 +289,13 @@
           if(next>0&&next>=depth-.001){d.ang=prev;break}depth=next;
         }
       }else d.ang=target;
+      // The final sweep step can leave a floating-point remainder (for
+      // example -5e-17). Retire at the exact endpoint only after the safe
+      // sweep has reached it; a leaf arrested by the player keeps animating.
+      const settled = k >= 1 && Math.abs(d.ang-to)<.00001;
+      if (settled) d.ang = to;
       if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
-      if (k >= 1 && Math.abs(d.ang-to)<.00001) { visCalc(); return false; } return true;
+      if (settled) { visCalc(); return false; } return true;
     };
     if (now) { anims.delete('door:' + id); move(t0); dirty(); }
     else anims.set('door:' + id, move);
