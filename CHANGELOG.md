@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.90.0 - 2026-11-10
+- Bounce Quest has an eighth course, Marmalade Treetops: climb through the tree tops, ride the basket lift and the ferry, help Sprout get home and beat the Branch Manager. Six more acorns, 72 in all. Old saves carry on where they were.
+
 ## 2.89.0 - 2026-11-10
 - The Myth of Zeldo has a fourth dungeon: the 14-room Cold Pantry, with a new tool, the Cayenne Caster, and the Grand Glace to defeat. Six more overworld screens, a stronger sword, a second flask and four more heart pieces.
 - When Mom is on the phone the receiver is in her hand, not also on the base. Mom stands up straight at the sink while she washes up.
