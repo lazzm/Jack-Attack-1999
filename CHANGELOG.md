@@ -2,6 +2,7 @@
 
 ## 2.90.0 - 2026-11-10
 - Bounce Quest has an eighth course, Marmalade Treetops: climb through the tree tops, ride the basket lift and the ferry, help Sprout get home and beat the Branch Manager. Six more acorns, 72 in all. Old saves carry on where they were.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.89.0), voices 9/9, characters, zero, Bounce Quest 72, voice recordings, people pass, identity, the phone UI check, seasons, performance, physics, smoke; the cupboard check failed once under the full check's load and passed twice on its own.
 
 ## 2.89.0 - 2026-11-10
 - The Myth of Zeldo has a fourth dungeon: the 14-room Cold Pantry, with a new tool, the Cayenne Caster, and the Grand Glace to defeat. Six more overworld screens, a stronger sword, a second flask and four more heart pieces.
