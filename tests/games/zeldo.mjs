@@ -48,7 +48,7 @@ async function reloadCartridge(){await p.reload();await p.evaluate(()=>{window.R
 async function place(id,x,y,dir=0){await p.evaluate(({id,x,y,dir})=>review.K.dbg.warp(id,x,y,dir),{id,x,y,dir});await frames(1)}
 async function pressureSample(){return p.evaluate(()=>{
  const a=[];for(let i=0;i<100;i++)review.step(1);for(let i=0;i<1200;i++){const t=performance.now();review.step(1);a.push(performance.now()-t)}a.sort((a,b)=>a-b);
- return{median:a[600],p95:a[1140],max:a[1199],resolution:[256,224],scope:'native pressure-boss update/draw CPU; active tells/projectiles and saves; excludes house'};
+ return{median:a[600],p95:a[1140],max:a[1199],resolution:[256,224],scope:'native active-boss update/draw CPU; tells/projectiles and saves; excludes house'};
 })}
 async function performanceSample(){return p.evaluate(()=>{
  const d=review.K.dbg;d.start(0,'JACK');d.warp('south',7,6,0);d.give({hp:20,maxH:10});
@@ -63,7 +63,7 @@ try{
  await hold('x',62);for(let i=0;i<3;i++){await frames(4);await shot('spin-'+i)}
  await place('village',7,6,0);await shot('village');await key('Enter');await frames(15);await shot('menu');await key('Enter');await key('c');await frames(12);await shot('map');await key('c');
  await place('d1',7,9,1);await text();await shot('keep-start');await place('d6',7,9,1);await frames(100);await shot('cheese');
- if(!before){await legacyCheck();if(!process.argv.includes('--third-only'))await chapter();await thirdCourse();if(process.argv.includes('--routes'))await routeCheck();}
+ if(!before){await legacyCheck();if(!process.argv.includes('--cold-only')){if(!process.argv.includes('--third-only'))await chapter();await thirdCourse();}await coldCourse();if(process.argv.includes('--routes'))await routeCheck();}
  if(!before){await p.evaluate(()=>{const d=review.K.dbg;d.flag('stockpot',0);delete d.S.cleared.t11;d.give({hp:20,maxH:10});});await place('t11',7,9,1);await text();const pressure=await pressureSample();assert.equal((await state()).mode,'play','Pressure timing measures active play');assert(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='stockpot'&&!e.dead)),'Pressure timing retains the active boss');await writeFile(dir+'after-pressure-performance.json',JSON.stringify(pressure,null,2));console.log('PRESSURE PERFORMANCE',JSON.stringify(pressure));}
  const perf=await performanceSample();await writeFile(dir+tag+'-performance.json',JSON.stringify(perf,null,2));console.log('PERFORMANCE',JSON.stringify(perf));
  }
@@ -72,6 +72,66 @@ try{
  if(!process.argv.includes('--native'))await roomCheck();
  assert.deepEqual(errors,[],'Browser errors');console.log('ZELDO '+tag.toUpperCase()+' PASS');
 }catch(e){if(p&&!p.isClosed()){console.log('FAIL STATE',JSON.stringify(await state()).slice(0,3000));await shot('failure').catch(()=>{});}throw e}finally{await browser?.close()}
+
+async function coldCourse(){
+ await p.evaluate(()=>{const d=review.K.dbg;d.give({sword:2,shield:2,boots:1,hook:1,boom:1,bag:1,bombs:10,bow:1,hp:24,maxH:12,gems:300,done:1});for(const k of ['baron','recipe','second','secondDone','secondCredits','stockpot','tidebell'])d.flag(k,1)});
+ await place('q_beacon',7,1,3);await hold('ArrowRight',15);await frames(45);assert.equal((await state()).room,'k_gate','Actual north-wall passage leads to the Cold Pantry region');await key('c');await key('c');await frames(10);assert.equal((await state()).mode,'play','A second MAP edge during opening is retained');
+ const counts=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).reduce((o,r)=>{o[r.kind]=(o[r.kind]||0)+1;return o},{}));assert.equal(counts.ow,30);assert.equal(counts.dg,50);assert.equal((counts.in||0)+(counts.cv||0),17);console.log('SCOPE COUNTS',JSON.stringify(counts));
+ const worlds=await p.evaluate(()=>Object.entries(review.K.dbg.ROOMS).filter(([id,r])=>r.world==='pantry').map(([id])=>id));assert.equal(worlds.length,6);
+ for(const id of worlds){await place(id,7,9,1);await shot('cold-world-'+id)}
+ await place('k_flue',7,7,1);await equip('hook');await key('v');await frames(40);assert((await state()).y>80,'Bread bridge remains closed before the starter');await hold('ArrowUp',50);await frames(10);assert.equal((await state()).room,'k_flue');assert((await state()).y>80,'Walking cannot bypass the bread shutter');await hold('ArrowUp',50);await frames(10);assert.equal((await state()).room,'k_flue');assert((await state()).y>80,'Walking cannot bypass the bread shutter');
+ await place('f1',7,10,1);await text();assert.equal((await state()).S.keys,0);assert.equal((await state()).S.map,0);assert.equal((await state()).S.big,0);assert(!(await state()).S.puzzles);
+ const rooms=await p.evaluate(()=>Object.entries(review.K.dbg.ROOMS).filter(([id,r])=>r.dg==='pantry').map(([id])=>id));assert.equal(rooms.length,14);
+ assert(await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).every(r=>r.map.length===12&&r.map.every(row=>row.length===16))),'Every room has the exact native grid');
+ for(const id of rooms){await place(id,7,10,1);await text();await shot('cold-start-'+id)}
+ await place('f3',7,9,1);await fightRoom();await frames(40);await walkTo(7,6);await hold('ArrowUp',1);await key('z');await text();assert.equal((await state()).S.keys,1);
+ await place('f4',1,6,3);await walkTo(12,3);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.map);
+ await place('f2',7,1,1);await hold('ArrowUp',32);await frames(45);assert.equal((await state()).room,'f5');assert.equal((await state()).S.keys,0);
+ await place('f6',7,4,0);await p.keyboard.down('ArrowDown');for(let i=0;i<60;i++){await frames(1);if(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='block')))break;}await p.keyboard.up('ArrowDown');
+ assert(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='block'&&e.duration>16)),'A storage weight slides more than one square');
+ await key('Enter');await frames(15);const glide=await p.evaluate(()=>review.K.dbg.ents.find(e=>e.type==='block'));await p.evaluate(()=>review.restart());assert.equal((await state()).mode,'menu');assert.equal(await p.evaluate(()=>review.K.dbg.ents.find(e=>e.type==='block').y),glide.y,'Mid-slide refresh preserves the exact weight');await key('Enter');await frames(65);
+ assert((await state()).S.dungeons.pantry.puzzles.plates_f6);await shot('cold-sliding-weight');await walkTo(7,3);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.caster);assert.equal((await state()).S.sel,'caster');await shot('cayenne-caster');
+ await place('f7',7,7,1);await key('v');await key('v');await key('v');assert.equal(await p.evaluate(()=>review.K.dbg.pl.actionQueue.y),1,'Distinct rapid ITEM edges queue individually');for(let i=0;i<15;i++){if(await p.evaluate(()=>review.K.dbg.tileAt(7,4)==='.'))break;await frames(1);}assert(await p.evaluate(()=>!review.saved.value.live.ents.some(e=>e.type==='heat')),'The melt save consumes its puff atomically');let launches=0;for(let i=0;i<80;i++){await frames(1);if(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='heat'&&e.t===1)))launches++;}assert.equal(launches,2,'Both queued ITEM edges fire after the first puff');assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(7,4)),'.','Buffered hot puff melts sugar ice');assert((await state()).S.dungeons.pantry.puzzles.thaw,'Second ITEM edge lights the pan through the melted passage');await shot('cold-first-flue');
+ await p.evaluate(()=>review.restart());assert((await state()).S.dungeons.pantry.puzzles.thaw,'Warm flue persists on refresh');
+ await place('f1',14,6,3);await equip('bombs');await key('v');await hold('ArrowLeft',30);await frames(110);assert((await state()).S.doors['f1|f14']);await place('f14',13,5,1);await equip('caster');await key('v');await frames(35);await walkTo(13,3);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.comp);await key('c');await frames(12);await shot('cold-map');await key('c');
+ await place('f8',7,3,1);await key('v');await frames(45);assert(!(await state()).S.dungeons.pantry.puzzles.foil,'Wrong foil orientation does not light the remote pan');await key('z');assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(7,2)),'/');await key('v');await frames(5);await shot('cold-foil-turn');await key('Enter');await frames(15);const beam=await p.evaluate(()=>review.K.dbg.ents.find(e=>e.type==='heat'));assert(beam,'Heat is saved in flight');await p.evaluate(()=>review.restart());assert.deepEqual(await p.evaluate(()=>{const e=review.K.dbg.ents.find(e=>e.type==='heat');return[e.x,e.y,e.dir]}),[beam.x,beam.y,beam.dir]);await key('Enter');await frames(45);assert((await state()).S.dungeons.pantry.puzzles.foil);await walkTo(3,3);await hold('ArrowUp',1);await key('z');await text();assert.equal((await state()).S.keys,1);await shot('cold-foil-key');
+ await place('f8',1,6,2);await hold('ArrowLeft',35);await frames(45);assert.equal((await state()).room,'f9');assert.equal((await state()).S.keys,0);
+ await place('f9',3,6,1);await key('v');await frames(30);assert((await state()).S.dungeons.pantry.puzzles.return);await place('f9',7,10,0);await hold('ArrowDown',25);await frames(45);assert.equal((await state()).room,'f5','Thermal return shortcut connects the upper vault to the hub');
+ await place('f10',13,6,2);await fightRoom();await walkTo(3,6);await pushUntil(3,9,'ArrowDown');await walkTo(11,6);await pushUntil(11,9,'ArrowDown');assert((await state()).S.dungeons.pantry.puzzles.plates_f10);await walkTo(7,6);await equip('hook');await hold('ArrowUp',1);await key('v');await frames(40);assert((await state()).y>80,'An icy landing refuses the spork before warming');await equip('caster');await key('v');await frames(40);assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(7,3)),'.');await equip('hook');await key('v');await frames(40);assert.equal(Math.round((await state()).y),60,'Warm landing accepts the spork');await walkTo(8,2);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.big);await shot('cold-big-key');await walkTo(7,3);await hold('ArrowDown',1);await key('v');await frames(40);assert.equal(Math.round((await state()).y),140,'Big-key shelf has a usable return ring');
+ await place('f10',7,1,1);await equip('bombs');await key('v');await hold('ArrowRight',30);await frames(110);assert((await state()).S.doors['f10|f13']);
+ await place('f13',3,3,1);await key('z');await place('f13',11,2,2);await key('z');await place('f13',3,8,1);await equip('caster');await key('v');await frames(60);assert((await state()).S.dungeons.pantry.puzzles.double,'Two foil turns heat the sealed pan');await shot('cold-double-fold');await walkTo(7,6);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.opened['f13:7,5']);
+ await place('f9',7,1,1);await hold('ArrowUp',32);await frames(45);await text();assert.equal((await state()).room,'f11');assert((await state()).S.doors['f11|f9']);await place('f11',7,9,1);await text();await equip('caster');
+ const phases=new Set();let thawRefreshed=false,phaseRefreshed=false;
+ for(let i=0;i<850;i++){
+  const boss=await p.evaluate(()=>{const e=review.K.dbg.ents.find(e=>e.type==='glace');return e&&{st:e.st,hp:e.hp,tm:e.tm,aimX:e.aimX,thaw:e.thaw}});if(!boss||(await state()).S.f.glace)break;
+  if(!phases.has(boss.st)){phases.add(boss.st);await shot('glace-'+boss.st)}
+  if(boss.hp<=10&&!phases.has('phase2')){phases.add('phase2');await shot('glace-double-scoop')}
+  if(boss.st==='dizzy'){const s=await state();if(s.y>104)await hold('ArrowUp',Math.min(12,Math.ceil((s.y-100)/1.45)));else{await hold('ArrowUp',1);await key('x');await frames(15)}}
+  else if(boss.st==='vent'){
+   const s=await state();if(Math.abs(s.x-128)>3)await hold(s.x<128?'ArrowRight':'ArrowLeft',Math.min(12,Math.ceil(Math.abs(s.x-128)/1.45)));
+   else {if(boss.thaw===1&&!thawRefreshed){await key('Enter');await frames(12);await p.evaluate(()=>review.restart());assert.equal(await p.evaluate(()=>review.K.dbg.ents.find(e=>e.type==='glace').thaw),1);await key('Enter');thawRefreshed=true;}await hold('ArrowUp',1);await key('v');await frames(13)}
+  }else if(boss.st==='wind'&&boss.tm<=52&&boss.tm>20){const s=await state();await hold(s.x<128?'ArrowLeft':'ArrowRight',36)}
+  else {if(boss.hp<=10&&!phaseRefreshed){await key('Enter');await frames(12);await p.evaluate(()=>review.restart());await key('Enter');phaseRefreshed=true;}await frames(8)}
+  assert((await state()).S.hp>0,'Learned tells can be dodged without health resets');
+ }
+ await text();assert((await state()).S.f.glace,'Grand Glace defeated using heat then sword');for(const phase of ['wind','pour','vent','dizzy','phase2'])assert(phases.has(phase),'Boss phase '+phase);assert(thawRefreshed&&phaseRefreshed,'Boss refresh checks ran');
+ await p.evaluate(()=>review.K.dbg.give({maxH:10,hp:12}));await place('f11',7,8,1);await hold('ArrowUp',16);await text();assert((await state()).S.got.hc_glace);assert.equal((await state()).S.maxH,11);await shot('cold-heart-container');
+ await place('f11',14,6,3);await hold('ArrowRight',25);await frames(45);assert.equal((await state()).room,'f12','Defeated boss opens the actual shrine doorway');await walkTo(7,7);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.f.starter);await shot('living-starter');await place('k_bake',7,6,1);await key('z');await text();assert.equal((await state()).S.sword,3);assert((await state()).S.f.coldDone);await shot('smoulder-blade');
+ await place('q_reeds',2,3,3);await equip('caster');await key('v');await frames(20);assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(3,3)),'@');await hold('ArrowRight',12);await frames(40);assert.equal((await state()).room,'k_cave_lid');await place('k_cave_lid',7,4,1);await key('z');await text();assert((await state()).S.f.lid);await place('k_bake',7,6,1);await key('z');await text();assert.equal((await state()).S.flask,2);await shot('second-soup-flask');
+ await p.evaluate(()=>review.K.dbg.give({bottle:2,hp:2}));await equip('soup');await key('v');await text();assert.equal((await state()).S.bottle,1);assert.equal((await state()).S.flask,2);await p.evaluate(()=>review.K.dbg.give({hp:2}));await key('v');await text();assert.equal((await state()).S.flask,1);await p.evaluate(()=>review.restart());assert.equal((await state()).S.bottle,1);assert.equal((await state()).S.flask,1,'Refresh never refills a flask');
+ for(let i=0;i<2;i++){await place('k_shop',7,7,1);const gems=(await state()).S.gems;await key('z');await text();assert.equal((await state()).S.gems,gems-20,'Each separate soup refill costs twenty gems');assert.equal((await state()).S.bottle,2);assert.equal((await state()).S.flask,i?2:1);}const fullGems=(await state()).S.gems;await key('z');await text();assert.equal((await state()).S.gems,fullGems,'Full vessels cannot be charged for another refill');
+ await place('k_bake',7,6,1);const reward=await state();await key('z');await text();assert.equal((await state()).S.score,reward.S.score,'Baker rewards cannot repeat');assert.equal((await state()).S.sword,3);
+
+ for(const[id,tx,ty,dir,ix,iy,cave]of [['p_forest',8,2,3,9,2,'k_cave_leaf'],['p_grave',11,2,1,11,0,'k_cave_salt']]){await place(id,tx,ty,dir);if(id==='p_grave'){await key('z');await frames(14);await key('z');await frames(25);await walkTo(11,1);await hold('ArrowUp',1);}await equip('caster');await key('v');await frames(20);assert.equal(await p.evaluate(({ix,iy})=>review.K.dbg.tileAt(ix,iy),{ix,iy}),'@');await hold(dir===3?'ArrowRight':'ArrowUp',12);await frames(40);assert.equal((await state()).room,cave);await place(cave,7,4,1);await key('z');await text();assert((await state()).S.opened[cave+':7,3']);await shot('heat-secret-'+cave);await key('c');await frames(12);await shot('heat-secret-map-'+cave);await key('c')}
+ await place('k_orchard',13,4,1);await key('v');await frames(25);await walkTo(13,2);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.opened['k_orchard:13,1']);
+ await place('k_flue',7,5,1);assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(7,4)),'=');await hold('ArrowUp',65);await frames(45);assert.equal((await state()).room,'k_rise','Raised bread bridge reaches the onward region');await shot('rising-road');await place('k_post',7,6,1);await key('z');await text();await frames(45);assert.equal((await state()).room,'village');assert((await state()).S.f.breadLift);
+ await place('village',14,10,1);await key('z');await text();await frames(45);assert.equal((await state()).room,'k_rise','Bread lift shortcut works back from daylight');await key('c');await frames(12);await shot('cold-region-map');await key('c');
+ // Walk real thresholds on the designed circulation loop, including both secret branches and the outdoor return.
+ for(const[from,x,y,keyName,to]of [['f1',7,10,'ArrowDown','k_shelves'],['k_shelves',7,4,'ArrowUp','f1'],['f1',14,6,'ArrowRight','f14'],['f14',1,6,'ArrowLeft','f1'],['f1',7,1,'ArrowUp','f2'],['f2',1,6,'ArrowLeft','f3'],['f3',14,6,'ArrowRight','f2'],['f2',14,6,'ArrowRight','f4'],['f4',1,6,'ArrowLeft','f2'],['f2',7,1,'ArrowUp','f5'],['f5',1,6,'ArrowLeft','f6'],['f6',14,6,'ArrowRight','f5'],['f5',14,6,'ArrowRight','f7'],['f7',7,1,'ArrowUp','f8'],['f8',1,6,'ArrowLeft','f9'],['f9',7,10,'ArrowDown','f5'],['f5',7,1,'ArrowUp','f9'],['f9',1,6,'ArrowLeft','f10'],['f10',7,1,'ArrowUp','f13'],['f13',7,10,'ArrowDown','f10']]){await place(from,x,y,0);await hold(keyName,35);await frames(50);assert.equal((await state()).room,to,'Cold doorway '+from+' -> '+to);}
+ await place('f1',7,10,1);assert((await state()).S.big&&(await state()).S.map&&(await state()).S.comp);assert.equal((await state()).S.keys,0);await key('Enter');await frames(15);await shot('cold-complete-kit');await key('Enter');await place('f11',7,9,1);assert.equal(await p.evaluate(()=>review.K.dbg.song),'pantry','Cleared boss room returns to exploration music');await p.evaluate(()=>review.restart());assert.equal(await p.evaluate(()=>review.K.dbg.song),'pantry','Cleared boss music remains correct after refresh');
+ await p.evaluate(()=>{const d=review.K.dbg;d.flag('glace',0);delete d.S.cleared.f11;d.give({hp:24,maxH:12})});await place('f11',7,9,1);await text();const perf=await pressureSample();assert.equal((await state()).mode,'play');assert(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='glace'&&!e.dead)));await writeFile(dir+'after-cold-performance.json',JSON.stringify(perf,null,2));console.log('COLD PERFORMANCE',JSON.stringify(perf));
+ console.log('COLD PASS: 14 rooms, six overworld screens, sliding weights, queued heat, foil, mid-flight saves, spork combination, boss tells and phase refresh, reward, four pieces, second flask and onward bread lift');
+}
 async function thirdCourse(){
  // Seed only the completed forge chapter; every new key, tool, puzzle and reward starts unearned.
  await p.evaluate(()=>{const d=review.K.dbg;d.give({sword:2,shield:1,boots:1,boom:1,bag:1,bombs:10,hp:20,maxH:10,done:1});for(const k of ['baron','recipe','second','secondDone','secondCredits'])d.flag(k,1)});
@@ -173,14 +233,19 @@ async function routeCheck(){
 
 async function legacyCheck(){
  await place('village',7,6,0);
- const old=await p.evaluate(()=>{const d=review.K.dbg;d.store.slots[1].name='DAVE SUX';const old=JSON.stringify(d.store.slots[1]);for(const k of ['hook','bow','boots','dungeons','activeDg','terrainRev'])delete d.S[k];d.flush();delete d.store.live.mapRevision;review.K.save(d.store);return {old,name:d.S.name,gems:d.S.gems,x:d.pl.x,y:d.pl.y}});
- await p.evaluate(()=>review.restart());const s=await state();assert.equal(s.S.name,old.name);assert.equal(s.S.gems,old.gems);assert.equal(s.x,old.x);assert.equal(s.y,old.y);assert.equal(s.S.hook,0);assert.equal(s.S.activeDg,'keep');assert.deepEqual(s.S.dungeons,{});
+ const old=await p.evaluate(()=>{const d=review.K.dbg;d.store.slots[1].name='DAVE SUX';const old=JSON.stringify(d.store.slots[1]);for(const k of ['caster','flask','hook','bow','boots','dungeons','activeDg','terrainRev'])delete d.S[k];d.flush();delete d.store.live.mapRevision;review.K.save(d.store);return {old,name:d.S.name,gems:d.S.gems,x:d.pl.x,y:d.pl.y}});
+ await p.evaluate(()=>review.restart());const s=await state();assert.equal(s.S.name,old.name);assert.equal(s.S.gems,old.gems);assert.equal(s.x,old.x);assert.equal(s.y,old.y);assert.equal(s.S.hook,0);assert.equal(s.S.caster,0);assert.equal(s.S.flask,0);assert.equal(s.S.activeDg,'keep');assert.deepEqual(s.S.dungeons,{});
  assert.equal(await p.evaluate(()=>JSON.stringify(review.K.dbg.store.slots[1])),old.old,'Inactive legacy file names, balances and saves survive migration');
  for(const [id,x,y,sx,sy]of [['forest',12,4,200,108],['p_grave',10,9,120,140]]){
   await place(id,x,y,0);const before=await state();
   await p.evaluate(()=>{const d=review.K.dbg;delete d.S.terrainRev;d.flush();delete d.store.live.mapRevision;review.K.save(d.store);review.restart()});
   const moved=await state();assert.equal(moved.room,id);assert.equal(moved.x,sx,'Old '+id+' island position moves to its mainland');assert.equal(moved.y,sy);assert.equal(moved.S.gems,before.S.gems);assert.equal(moved.S.hp,before.S.hp);assert.equal(moved.S.sword,before.S.sword);assert.equal(moved.S.hook,0);
   await p.evaluate(()=>review.restart());assert.equal((await state()).x,sx,'Terrain migration runs once');assert.equal((await state()).y,sy);
+ }
+ // An old six-tool save used row 2 for CARRY ON/SAVE/QUIT; the seventh tool adds a row.
+ await place('village',7,6,0);await key('Enter');await frames(12);await p.evaluate(()=>{const d=review.K.dbg;d.flush();const legacy=structuredClone(d.store);legacy.live.menu={row:2,col:0,t:15,saved:0};delete legacy.live.itemMenuRev;review.game.end();review.K.save(legacy);review.game.end=()=>{};review.restart()});assert.equal((await state()).mode,'menu');await key('z');assert.equal((await state()).mode,'play','Old CARRY ON selection migrates to the action row');
+ for(const[id,x,y,tx,ty,oldTile,newTile]of [['q_beacon',7,1,8,1,'S','@'],['p_forest',8,2,9,2,'T','i'],['p_grave',10,1,11,0,'C','i'],['q_reeds',2,3,3,3,'~','i']]){
+  await place(id,x,y,0);const pose=await state();await p.evaluate(({tx,ty,oldTile})=>{const d=review.K.dbg;d.give({bottle:1});d.flush();const legacy=structuredClone(d.store),row=legacy.live.tiles[ty].split('');row[tx]=oldTile;legacy.live.tiles[ty]=row.join('');delete legacy.slots[legacy.active].caster;delete legacy.slots[legacy.active].flask;review.game.end();review.K.save(legacy);review.game.end=()=>{};review.restart()},{tx,ty,oldTile});assert.equal(await p.evaluate(({tx,ty})=>review.K.dbg.tileAt(tx,ty),{tx,ty}),newTile,'Old live terrain receives '+id+' entrance');assert.equal((await state()).x,pose.x);assert.equal((await state()).y,pose.y);assert.equal((await state()).S.bottle,1,'Migration never refills old soup');assert.equal((await state()).S.flask,0);
  }
  console.log('LEGACY PASS: version-1 fields, exact unaffected pose/name/balance, untouched inactive file, one-time mainland migration for both new moats');
 }
@@ -270,7 +335,7 @@ async function walkTo(tx,ty){
   const next=await p.evaluate(({tx,ty})=>{
    const d=review.K.dbg,pl=d.pl,room=d.room,px=tx*16+8,py=ty*16+12;
    if(Math.abs(pl.x-px)<1.5&&Math.abs(pl.y-py)<1.5)return null;
-   const solid=new Set('j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
+   const solid=new Set('iP/\\j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
    const sx=Math.floor(pl.x/16),sy=Math.floor((pl.y-4)/16),q=[[sx,sy,[]]],seen=new Set([sx+','+sy]);
    for(let k=0;k<q.length;k++){
     const[x,y,path]=q[k];if(x===tx&&y===ty){const[a,b]=path[0]||[tx,ty],gx=a*16+8,gy=b*16+12,dx=gx-pl.x,dy=gy-pl.y;return Math.abs(dx)>1.5?{key:dx<0?'ArrowLeft':'ArrowRight',n:Math.min(6,Math.max(1,Math.round(Math.abs(dx)/1.45)))}:{key:dy<0?'ArrowUp':'ArrowDown',n:Math.min(6,Math.max(1,Math.round(Math.abs(dy)/1.45)))}};
@@ -319,7 +384,8 @@ async function roomCheck(){
   if(!before){
    await page.evaluate(()=>{const buttons=Array.from({length:16},()=>({pressed:false,value:0}));window.zeldoPad={id:'Review standard pad',index:0,connected:true,mapping:'standard',buttons,axes:[0,0,0,0]};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[zeldoPad]});RoomTV.dbg().dbg.warp('south',7,6,0);zeldoPad.axes[0]=1;window.zeldoX=RoomTV.dbg().dbg.pl.x;});
    await f.until(()=>GameInput.mode==='gamepad'&&RoomTV.dbg().dbg.pl.x>zeldoX+6);await page.evaluate(()=>{zeldoPad.axes[0]=0;zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0}});await page.waitForTimeout(220);await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='play');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0};RoomTV.dbg().dbg.give({hook:1,sel:'hook'});RoomTV.dbg().dbg.warp('t7',6,7,1);zeldoPad.buttons[3]={pressed:true,value:1}});
-   await f.until(()=>!!RoomTV.dbg().dbg.pl.hook||RoomTV.dbg().dbg.pl.y<85);await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:false,value:0}});await f.until(()=>RoomTV.dbg().dbg.pl.y<85&&!RoomTV.dbg().dbg.pl.act);await page.screenshot({path:dir+'after-gamepad-spork.png'});await page.evaluate(()=>{zeldoPad.connected=false});
+   await f.until(()=>!!RoomTV.dbg().dbg.pl.hook||RoomTV.dbg().dbg.pl.y<85);await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:false,value:0}});await f.until(()=>RoomTV.dbg().dbg.pl.y<85&&!RoomTV.dbg().dbg.pl.act);await page.screenshot({path:dir+'after-gamepad-spork.png'});
+   await page.evaluate(()=>{const d=RoomTV.dbg().dbg;d.give({caster:1,sel:'caster'});d.warp('f7',7,7,1);zeldoPad.buttons[3]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.tileAt(7,4)==='.');await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:false,value:0}});await page.waitForTimeout(250);await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:true,value:1}});await f.until(()=>!!RoomTV.dbg().dbg.S.dungeons.pantry.puzzles.thaw);await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:false,value:0};zeldoPad.connected=false});await page.screenshot({path:dir+'after-gamepad-caster.png'});
   }
   for(const [width,height,name]of [[390,844,'portrait'],[844,390,'landscape'],[1024,768,'tablet'],[1366,860,'desktop']]){
    await page.setViewportSize({width,height});await page.waitForTimeout(250);const r=await page.locator('.rm-tvv.on .rm-glass').boundingBox();assert(r&&Math.abs(r.width/r.height-256/224)<.01&&r.width<=width+1&&r.height<=height+1,'Native screen fits '+name);await page.screenshot({path:dir+tag+'-'+name+'.png'});
@@ -369,11 +435,14 @@ async function touchCheck(account,password){
   await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.screenshot({path:dir+'after-touch-items.png'});await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='map');await page.waitForTimeout(200);await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   await page.evaluate(()=>{RoomTV.dbg().dbg.give({hook:1,sel:'hook'});RoomTV.dbg().dbg.warp('t7',6,7,1)});await press('y');await f.until(()=>RoomTV.dbg().dbg.pl.y<85&&!RoomTV.dbg().dbg.pl.act);await page.screenshot({path:dir+'after-touch-spork.png'});
+  await page.evaluate(()=>{const d=RoomTV.dbg().dbg;d.give({caster:1,hook:1,sword:3,shield:2,sel:'caster',flask:2,bottle:1});const flags=d.S.dungeons.pantry.puzzles;delete flags.thaw;delete flags['melt:f7:7,4'];d.warp('f7',7,7,1)});await press('y');await f.until(()=>RoomTV.dbg().dbg.tileAt(7,4)==='.');await page.waitForTimeout(250);await press('y');await f.until(()=>!!RoomTV.dbg().dbg.S.dungeons.pantry.puzzles.thaw);await page.screenshot({path:dir+'after-touch-caster.png'});await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.screenshot({path:dir+'after-touch-cold-kit.png'});await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   for(const [width,height,name]of [[390,844,'portrait'],[844,390,'landscape'],[768,1024,'tablet']]){
-   await page.setViewportSize({width,height});await page.waitForTimeout(300);
+   await page.setViewportSize({width,height});await page.waitForTimeout(300);await f.until(()=>!House.gliding);
+   const layout=await page.evaluate(()=>{const e=document.querySelector('.zeldo-dpad'),cs=getComputedStyle(e);return{visibility:cs.visibility,opacity:cs.opacity,classes:document.documentElement.className,view:document.querySelector('.rm-tvv').className}});console.log('TOUCH LAYOUT',name,JSON.stringify(layout));assert.equal(layout.visibility,'visible','Touch controller remains visible after resize');
    const screen=await page.locator('.rm-tvv .rm-glass').boundingBox(),dpad=await page.locator('.zeldo-dpad').boundingBox(),buttons=await page.locator('.zeldo-actions').boundingBox();
    assert(screen&&Math.abs(screen.width/screen.height-256/224)<.01);const overlaps=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
-   assert(!overlaps(screen,dpad)&&!overlaps(screen,buttons),'Controller does not cover game in '+name);assert(screen.width>250,'Readable native screen in '+name);
+   assert(dpad.x>=0&&dpad.y>=0&&dpad.x+dpad.width<=width+1&&dpad.y+dpad.height<=height+1&&buttons.x>=0&&buttons.y>=0&&buttons.x+buttons.width<=width+1&&buttons.y+buttons.height<=height+1,'Both thumb controls remain inside '+name);assert(!overlaps(screen,dpad)&&!overlaps(screen,buttons),'Controller does not cover game in '+name);assert(screen.width>250,'Readable native screen in '+name);
+   await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='map');await page.waitForTimeout(180);await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
    await page.screenshot({path:dir+'after-touch-'+name+'.png'});
   }
   assert.deepEqual(f.errors,[]);console.log('TOUCH PASS: thumb drag, item menu, map, LOCK IN, portrait/landscape/tablet, no screen overlap');
@@ -381,10 +450,10 @@ async function touchCheck(account,password){
 }
 
 async function equip(item){
- const items=['boom','bombs','soup','bow','boots','hook'],current=Math.max(0,items.indexOf((await state()).S.sel)),target=items.indexOf(item);
+ const items=['boom','bombs','soup','bow','boots','hook','caster'],current=Math.max(0,items.indexOf((await state()).S.sel)),target=items.indexOf(item);
  await key('Enter');await frames(12);
  let row=Math.floor(current/3),col=current%3;const targetRow=Math.floor(target/3);
- if(row!==targetRow){await key(targetRow>row?'ArrowDown':'ArrowUp');row=targetRow;col=Math.min(col,2);}
+ while(row!==targetRow){await key(targetRow>row?'ArrowDown':'ArrowUp');row+=targetRow>row?1:-1;col=Math.min(col,row===2?0:2);}
  const cols=3;for(let i=0,n=(target%3-col+cols)%cols;i<n;i++)await key('ArrowRight');
  await key('z');assert.equal((await state()).S.sel,item,'Item menu equips '+item);await key('Enter');
 }
