@@ -55,7 +55,7 @@ for(const id of ['mom','dad','sister']){
   r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'paper'});for(let i=0;i<180;i++)r.update(1/60,true);
   for(let i=0;i<120;i++){r.update(1/60,true);r.group.updateMatrixWorld(true,true);for(const sd of ['L','R']){
    const palm=r.bones['hand'+sd].localToWorld(new T.Vector3(0,-r.S.handLen*.55,r.S.handLen*.12));
-   const anchor=r.bones.p_paper.localToWorld(new T.Vector3(sd==='L'?22:-22,-13,-2.8));result.paper=Math.max(result.paper,palm.distanceTo(anchor));
+   const leaf=sd==='L'&&!baseline,anchor=r.bones[leaf?'jaw':'p_paper'].localToWorld(new T.Vector3(sd==='L'?(r.st.paperGrip??22):-22,-13,-2.8-(leaf?r.J.jaw[2]-r.J.p_paper[2]:0)));result.paper=Math.max(result.paper,palm.distanceTo(anchor));
   }}
  }
  for(const interrupted of [false,true]){

@@ -31,7 +31,7 @@
 
   // ================================================================ the atlas layout (uv rects [u0, v0, w, h], v up)
   const CELL = {
-    face: [0, 0.5, 0.5, 0.5], white: [0.875, 0.5, 0.125, 0.25], print: [.891,.52,.10,.21], pelvis: [0.5, 0.5, 0.375, 0.25],
+    face: [0, 0.5, 0.5, 0.5], white: [0.875, 0.5, 0.125, 0.25], print: [.891,.52,.10,.21], paper:[.5,.515,.36,.22], pelvis: [0.5, 0.5, 0.375, 0.25],
     torso: [0, 0, 0.5, 0.5], sleeve: [0.5, 0, 0.25, 0.5], legs: [0.75, 0, 0.25, 0.5],
     eye: i => [0.5 + i * 0.125, 0.875, 0.125, 0.125], mouth: i => [0.5 + i * 0.0625, 0.75, 0.0625, 0.125],
   };
@@ -95,6 +95,7 @@
           const wrap = 1 + .24 * smooth((-.18-fy)/.22) + .07 * smooth((fy-.08)/.12);
           F.push((x - hp.c[0]) / hp.r[0] / wrap, fy, smooth((zz + .04) / .28));
         }
+        else if(o.drawing&&(Math.floor(i/4)===2||Math.floor(i/4)===3))F.push(x,z,Math.floor(i/4)===2?-1:-2);
         else F.push(0, 0, 0);
         const w = typeof weights === 'function' ? weights(x, y, z) : Array.isArray(weights) ? weights : [[weights, 1]];
         let s = 0; for (const q of w) s += q[1];
@@ -278,7 +279,7 @@
     clavL: 'chest', armL: 'clavL', foreL: 'armL', handL: 'foreL', clavR: 'chest', armR: 'clavR', foreR: 'armR', handR: 'foreR',
     thighL: 'hips', shinL: 'thighL', footL: 'shinL', thighR: 'hips', shinR: 'thighR', footR: 'shinR',
     shBody: 'base', shL: 'base', shR: 'base', yoyo: 'base',
-    p_paper: 'base', p_mug: 'handR', p_sponge: 'handR', p_plate: 'handL', p_spoon: 'handR', p_can: 'handR', p_mag: 'base', p_phone: 'handR', p_remote: 'handR', p_crayon: 'handR', p_pad: 'base', p_bag: 'chest', p_case: 'handR', p_string: 'base', p_pail: 'handR', p_raygun: 'handL', p_torch: 'handL' };
+    p_paper: 'base', p_mug: 'handR', p_sponge: 'handR', p_plate: 'p_paper', p_spoon: 'handR', p_can: 'handR', p_mag: 'base', p_phone: 'handR', p_remote: 'handR', p_crayon: 'handR', p_pad: 'base', p_bag: 'chest', p_case: 'handR', p_string: 'base', p_pail: 'handR', p_raygun: 'handL', p_torch: 'handL' };
   const PROPS = BONES.filter(b => b.startsWith('p_')).map(b => b.slice(2));
   const KEEP = new Set(['mug', 'sponge', 'spoon', 'can', 'remote', 'phone', 'pail', 'raygun', 'torch', 'case', 'bag']); // (one-handed: kept hold of while talking)
   // only the props each person actually uses are built into their mesh (hidden props still cost triangles)
@@ -341,6 +342,9 @@
     // The painted mouth has no jaw vertices. Reuse that reserved joint for
     // the newspaper's existing right leaf, hinged along its solid crease.
     J.jaw = [J.p_paper[0], J.p_paper[1], J.p_paper[2]-1.6+11*Math.sin(9*D2R)];
+    // The unused plate joint carries the paper's underlying right stack.
+    // It folds only for put-away, so a reading turn reveals a complete spread.
+    J.p_plate=J.jaw.slice();
     J.p_spoon = hand('R', 0, -L * 0.5, 2); J.p_can = hand('R', L*.09, -L * .6-3.4, L*.16-2); J.p_mag = hand('L', -1.5, -L * 0.5, 2); J.p_phone = hand('R', -1, -L * 0.48, 1);
     J.p_remote = hand('R', 0, -L * 0.52, 2); J.p_crayon = hand('R', L*.16, -L*.48, L*.12); J.p_pad = [0, 0, 0]; J.p_bag = [0, S.chest + 2, -12]; J.p_case = hand('R', L*.13, -L * .6-3.2, L*.16); J.p_string = hand('R', 0, -L * 0.62, 1.2);
     J.p_pail = hand('R', 0, -L * 0.62, 1.5); J.p_raygun = hand('L', 0, -L * 0.5, 2); J.p_torch = hand('L', 0, -L * 0.55, 2);
@@ -450,27 +454,33 @@
     const A = painter(size), g = A.g;
     P2.rect(g, 0, 0, size, size, 'rgba(0,0,0,0)');
     A.cell(CELL.white, 0, 1, 0, 1, q => P2.rect(q, 0, 0, 1, 1, '#ffffff'));
-    if(S.kind==='dad'||S.kind==='mom')A.cell(CELL.print,0,22,0,36,q=>{
+    if(S.kind==='dad')for(let page=0;page<4;page++)A.cell([CELL.paper[0]+page*CELL.paper[2]/4,CELL.paper[1],CELL.paper[2]/4,CELL.paper[3]],0,22,0,36,q=>{
+      const ink='#34312b',label=(text,x,y,font)=>{q.save();q.translate(x,y);q.scale(1,-1);q.font='bold '+font+'px serif';q.textAlign='center';q.fillStyle=ink;q.fillText(text,0,0);q.restore();};
+      P2.rect(q,0,0,22,36,'#eee8d8');
+      const titles=[['THE DAILY WAIL','TEA TAKES','A DAY OFF'],['HOME NEWS','SOCKS FORM','ESCAPE CLUB'],['THE INSIDE','MYSTERY OF','THE LAST PEA'],['SPORT','SNAIL WINS','SLOW CUP']][page];
+      label(titles[0],11,32,page===0?2.1:3);P2.rect(q,1.5,30,20.5,30.4,ink);label(titles[1],11,26,2.7);label(titles[2],11,22.5,2.7);
+      if(page===0){P2.ell(q,9,16,4,4,'#b8ab92');P2.stroke(q,ink,.7,p=>{p.moveTo(12,18);p.quadraticCurveTo(18,19,13,14)});}
+      if(page===1){for(const x of [6,13])P2.stroke(q,ink,2,p=>{p.moveTo(x,19);p.lineTo(x,12);p.lineTo(x+4,12)});}
+      if(page===2){P2.ell(q,11,15,7,3,'#b8ab92');P2.ell(q,11,15,1.5,1.5,'#526349');}
+      if(page===3){P2.ell(q,10,16,4,3,'#b8ab92');P2.stroke(q,ink,.6,p=>{p.moveTo(4,12);p.lineTo(18,12);p.lineTo(18,16)});}
+      for(let col=0;col<2;col++)for(let row=0;row<9;row++){const x=2+col*10,y=2+row*.9;P2.rect(q,x,y,x+8-(row%3)*.7,y+.22,'#767167');}label(String(page+1),11,.6,1.6);
+    });
+    if(S.kind==='mom')A.cell(CELL.print,0,22,0,36,q=>{
       const ink='#34312b',label=(text,x,y,font,col)=>{q.save();q.translate(x,y);q.scale(1,-1);q.font='bold '+font+'px serif';q.textAlign='center';q.fillStyle=col||ink;q.fillText(text,0,0);q.restore();};
       P2.rect(q,0,0,22,36,'#eee8d8');
-      if(S.kind==='dad'){
-        label('THE DAILY WAIL',11,32,1.9);P2.rect(q,1.5,30.5,20.5,30.7,ink);
-        label('TEA TAKES',11,27,2.5);label('A DAY OFF',11,24,2.5);
-        P2.rect(q,2,14,10,22,'#a8a296');P2.ell(q,6,18,2.4,2.5,'#e4decb');P2.rect(q,4,20,8,20.5,ink);
-        P2.stroke(q,ink,.4,p=>{p.moveTo(8,19);p.quadraticCurveTo(11,20,8,16)});
-        for(let col=0;col<3;col++)for(let row=0;row<12;row++){const x=2+col*6.5,y=3+row*.85;if(col<2&&y>13)continue;P2.rect(q,x,y,x+5-(row%4)*.3,y+.18,'#767167');}
-        for(let row=0;row<10;row++)P2.rect(q,12,14+row*.75,20-(row%3)*.5,14.2+row*.75,'#767167');
-      }else{
+
         P2.rect(q,0,24,22,36,'#b82438');label('JACK',11,31,4.6,'#fff2cc');label('ATTACK!',11,26,4,'#fff2cc');
         label('CHEATS!',11,20.5,3);P2.rect(q,6,5.5,16,18,'#aaa89b');P2.rect(q,7.5,11.5,14.5,16.5,'#3d5144');
         P2.rect(q,8.5,8,11.5,9,ink);P2.rect(q,9.5,7,10.5,10,ink);P2.ell(q,13.5,9,.6,.6,'#a02143');P2.ell(q,15,8,.6,.6,'#a02143');
         label('GAME LAD',11,2.5,2.4);
-      }
     });
     const uni = paintFace(A, S, O);
     // clothes: each cell in cm round the body (x = 0 at the front) and up it (rig height)
     const paint = O.paint || {};
     for (const [k, fr] of Object.entries(frames)) {
+      // Dad's former pelvis tile is unused: his trousers use the leg tile.
+      // Spend it on four full-height paper faces, keeping the atlas size fixed.
+      if(S.kind==='dad'&&k==='pelvis')continue;
       A.cell(CELL[k], -fr.c / 2, fr.c / 2, fr.y0, fr.y1, q => {
         P2.rect(q, -fr.c, fr.y0 - 5, fr.c, fr.y1 + 5, fr.base || '#ffffff'); paint[k] && paint[k](q, S, fr, P2);
         if (k === 'torso' && !(S.familyHands && O.neckline === 'skin')) P2.rect(q, -fr.c, fr.y1 - (S.familyHands?1.1:3.2), fr.c, fr.y1 + 5, O.neckline === 'skin' ? S.skin : O.neckline || mixHex(fr.base || '#ffffff', '#000000', 0.2));
@@ -480,6 +490,36 @@
     tex.anisotropy = S.familyHands && S.lod !== 2 ? 4 : 1; tex.needsUpdate = true;
     return { tex, uni };
   }
+
+  // One original red-crayon picture, shared by nib motion and the painted
+  // fragment path. Each row is one stroke; lifted travel never paints a join.
+  const DRAWING = [
+    [-11,-4,-4,-4],[-4,-4,-4,2],[-4,2,-11,2],[-11,2,-11,-4],
+    [-12,2,-7.5,6],[-7.5,6,-3,2],
+    [-9,-4,-9,-.5],[-9,-.5,-7,-.5],[-7,-.5,-7,-4],
+    [-6.5,0,-5,0],[-5,0,-5,1.3],[-5,1.3,-6.5,1.3],[-6.5,1.3,-6.5,0],
+    [-10.4,.2,-9,.2],[-9,.2,-9,1.4],[-9,1.4,-10.4,1.4],[-10.4,1.4,-10.4,.2],
+    [-2,-4,1,-4],[-.5,-4,-.5,-1],[-.5,-1,-1.7,-2],[-1.7,-2,-.5,-2.6],
+    [-.5,-1,.8,-2],[.8,-2,-.5,-2.6],
+    [-1,4,-.5,5],[-.5,5,.6,5.4],[.6,5.4,1.6,5],[1.6,5,2.1,4],
+    [2.1,4,1.6,3],[1.6,3,.6,2.6],[.6,2.6,-.5,3],[-.5,3,-1,4],
+    [.6,6,.6,6.8],[2.8,4,3.6,4],[.6,1.9,.6,1.2],[-1.7,4,-2.4,4]
+  ].map(a=>a.map((n,i)=>i%2?n*.75-2:n*.9-1));
+  const drawFloat=n=>Number.isInteger(n)?n+'.0':String(n);
+  const drawSegments=(path,progress)=>path.map((a,i)=>'npInk=max(npInk,npStroke(npPen,vec2('+a.slice(0,2).map(drawFloat)+'),vec2('+a.slice(2).map(drawFloat)+'),'+(progress?'clamp(npDrawing-'+i+'.0,0.0,1.0)':'1.0')+'));').join('\n');
+  // The reverse is a finished little gift inscription: FOR MOM and a heart.
+  const DRAW_BACK = [
+    [-11,-1,-11,3],[-11,3,-8.5,3],[-11,1.2,-9,1.2],
+    [-7,-1,-7,3],[-7,3,-4.5,3],[-4.5,3,-4.5,-1],[-4.5,-1,-7,-1],
+    [-3,-1,-3,3],[-3,3,-.5,3],[-.5,3,-.5,1.1],[-.5,1.1,-3,1.1],[-2.5,1.1,-.3,-1],
+    [1,-1,1,3],[1,3,2.7,1],[2.7,1,4.4,3],[4.4,3,4.4,-1],
+    [6,-1,6,3],[6,3,8.5,3],[8.5,3,8.5,-1],[8.5,-1,6,-1],
+    [10,-1,10,3],[10,3,11.4,1],[11.4,1,12.8,3],[12.8,3,12.8,-1],
+    [-2,-4,-1,-3],[-1,-3,0,-4],[0,-4,1,-3],[1,-3,2,-4],[2,-4,0,-6],[0,-6,-2,-4]
+  ].map((a,i)=>i<12?a.map((n,j)=>j%2?n:n-1.5):a);
+  const DRAW_FRAG='\nif(vNpFace.z < -0.9){vec2 npPen=vNpFace.xy;float npInk=0.0;'+
+    'if(vNpFace.z > -1.5){'+drawSegments(DRAWING,true)+'}else{'+drawSegments(DRAW_BACK,false)+'}'+
+    'float npGrain=.78+.22*sin(npPen.x*67.0+npPen.y*31.0)*sin(npPen.y*83.0);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.72,.14,.11),npInk*npGrain*.9);}\n';
 
   // ================================================================ building a person
   // detail levels: 0 = near (Medium/High), 1 = far on Medium/High or near on Low/Potato, 2 = far on Low/Potato
@@ -1058,12 +1098,18 @@
   function buildProps(G, S, J, kind, L) {
     const at = b => J['p_' + b], want = new Set(PROPS_FOR[kind] || []), on = p => want.has(p);
     const sg = L.limb + 2;
-    const printedBox=(p,size,rad,rot)=>{
+    const printedBox=(p,size,rad,rot,pages)=>{
       const g=rbox([0,0,0],size,rad,null,1),pos=g.attributes.position,uv=[];
-      for(let i=0;i<pos.count;i++){const face=Math.floor(i/4);uv.push(face<4?-1:.5+(face===4?1:-1)*pos.getX(i)/size[0],face<4?-1:.5+pos.getY(i)/size[1]);}
+      for(let i=0;i<pos.count;i++){const face=Math.floor(i/4);const page=pages?.[face===4?0:1];let u=.5+(face===4?1:-1)*pos.getX(i)/size[0],v=.5+pos.getY(i)/size[1];if(page!==undefined)u=(u+page)/4;uv.push(face<4?-1:u,face<4?-1:v);}
       g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));return xf(g,p,rot);
     };
-    if (on('paper')) { const P = at('paper'); for (const sx of [-1, 1]) G.add(printedBox([P[0] + sx * 10.85, P[1], P[2] - 1.6], [22, 36, 0.45], 0.15, [0, sx * 9, 0]), C('#ffffff'), sx>0?'jaw':'p_paper', {cell:CELL.print,noAO:true}); }
+    if (on('paper')) {
+      const P = at('paper');
+      for (const sx of [-1, 1]) G.add(printedBox([P[0] + sx * 10.85, P[1], P[2] - 1.6], [22, 36, 0.45], 0.15, [0, sx * 9, 0],sx>0?[1,2]:[0,3]), C('#ffffff'), sx>0?'jaw':'p_paper', {cell:CELL.paper,noAO:true});
+      // A solid underlying right page remains after the cover crosses the
+      // fold. Its spare joint closes it with the cover during put-away.
+      G.add(printedBox([P[0]+10.85,P[1],P[2]-2.35],[22,36,.3],.1,[0,9,0],[3,1]),C('#ffffff'),'p_plate',{cell:CELL.paper,noAO:true});
+    }
     if (on('mug')) { const M = at('mug'); G.add(tube([M[0] + 3.2, M[1] - 4.5, M[2]], [M[0] + 3.2, M[1] + 4.5, M[2]], 3.5, 3.6, sg), (x, y) => y > M[1] + 4.2 ? C('#7a4a2a') : C('#d8493b'), 'p_mug'); G.add(torusArc([M[0] - 0.2, M[1], M[2]], 2.0, 0.55, Math.PI, [0, 0, 90], null, 6, 4), C('#d8493b'), 'p_mug'); }
     if (on('sponge')) { const Sp = at('sponge'); G.add(rbox([Sp[0], Sp[1] - 1, Sp[2] + 1.5], [4.6, 3.2, 8], 1.0, null, 1), (x, y) => y > Sp[1] - 0.3 ? C('#3c8a3e') : C('#f2d24a'), 'p_sponge'); }
     if (on('spoon')) { const Sw = at('spoon'); G.add(tube([Sw[0], Sw[1] + 3, Sw[2]], [Sw[0], Sw[1] - 22, Sw[2] + 3], 0.6, 0.55, 4), C('#c79a5c'), 'p_spoon'); G.add(ell([Sw[0], Sw[1] - 24, Sw[2] + 3.2], [1.9, 3.0, 0.8], [6, 4]), C('#c79a5c'), 'p_spoon'); }
@@ -1072,9 +1118,9 @@
     if (on('phone')) { const Ph = at('phone'); G.add(rbox([Ph[0], Ph[1] + 1, Ph[2] + 1], [2.4, 17, 4.6], 1.0, [6, 0, 0], 1), C('#e8e0c8'), 'p_phone'); }
     if (on('remote')) { const Rm = at('remote'); G.add(rbox([Rm[0], Rm[1] - 1.5, Rm[2] + 4], [4.2, 2, 15], 0.8, null, 1), (x, y, z) => y > Rm[1] - 0.6 && Math.floor(z) % 2 ? C('#9a9a9a') : C('#262626'), 'p_remote'); }
     if (on('crayon')) { const Cr = at('crayon'); G.add(tube([Cr[0], Cr[1] + 2, Cr[2]], [Cr[0], Cr[1] - 6, Cr[2] + 1.5], 0.45, 0.45, 4), C('#e2463c'), 'p_crayon'); }
-    if (on('pad')) G.add(rbox([0, 0.4, 0], [30, 0.8, 21], 0.25, [0, 0, 0], 1), (x, y, z) => (Math.hypot(x - 4, z - 2) < 4.5 && Math.hypot(x - 4, z - 2) > 3.6) || (Math.abs(x + 6) < 0.6 && Math.abs(z) < 6) ? C('#2a8a4a') : C('#fbfaf4'), 'p_pad', { noAO: true });
+    if (on('pad')) G.add(rbox([0, 0.4, 0], [30, 0.8, 21], 0.25, [0, 0, 0], 1), C('#fbfaf4'), 'p_pad', { noAO: true,drawing:true });
     if (on('bag')) { const Bg = at('bag'); G.add(rbox([Bg[0], Bg[1] - 6, Bg[2] + 2], [20, 24, 9], 3, null, 1), (x, y) => y < Bg[1] - 13 ? C('#2a4a8a') : C('#d64262'), 'p_bag'); }
-    if (on('case')) { const Bc = at('case'); G.add(rbox([Bc[0], Bc[1] - 16, Bc[2]], [9, 30, 42], 1.2, null, 1), (x, y) => y > Bc[1] - 2.5 ? C('#c9b27a') : C('#3a2618'), 'p_case'); G.add(torusArc([Bc[0], Bc[1] - 0.8, Bc[2]], 4, 0.6, Math.PI, [0, 90, 0], null, 6, 4), C('#2a1a10'), 'p_case'); }
+    if (on('case')) { const Bc = at('case'); G.add(rbox([Bc[0], Bc[1] - 16, Bc[2]], [9, 30, 42], 1.2, null, 1), (x, y) => y > Bc[1] - 2.5 ? C('#c9b27a') : C('#3a2618'), 'p_case'); G.add(torusArc([Bc[0], Bc[1] - 0.8, Bc[2]], 4, 0.6, Math.PI, [0, 90, 0], null, S.lod>0?4:6, 4), C('#2a1a10'), 'p_case'); }
     if (on('pail')) { const Pa = at('pail'); G.add(loft([[Pa[1] - 15.5, Pa[0], Pa[2] + 1, 5.4, 5.4], [Pa[1] - 13.5, Pa[0], Pa[2] + 1, 7.4, 7.4], [Pa[1] - 8, Pa[0], Pa[2] + 1, 7.8, 7.8], [Pa[1] - 4.6, Pa[0], Pa[2] + 1, 6.6, 6.6]], sg + 2, { topDome: -1.2 }), (x, y, z) => { const yy = y - (Pa[1] - 10); return (z - Pa[2] > 5 && (Math.abs(Math.abs(x - Pa[0]) - 2.6) < 1.1 && yy > 0.5 && yy < 2.6 || Math.abs(yy + 2) < 0.7 && Math.abs(x - Pa[0]) < 3.5)) ? C('#2a1606') : C('#f07a1a'); }, 'p_pail'); G.add(torusArc([Pa[0], Pa[1] - 4.6, Pa[2] + 1], 6.4, 0.32, Math.PI, [0, 90, 0], null, 8, 4), C('#1a1a1a'), 'p_pail'); }
     if (on('raygun')) { const Rg = at('raygun'); G.add(rbox([Rg[0], Rg[1] + 1, Rg[2] + 4], [2.2, 3.6, 10], 1, null, 1), C('#d63a2c'), 'p_raygun'); G.add(tube([Rg[0], Rg[1] + 1.5, Rg[2] + 9], [Rg[0], Rg[1] + 1.5, Rg[2] + 13], 0.9, 0.5, 5), C('#c9ced6'), 'p_raygun'); G.add(ell([Rg[0], Rg[1] + 1.5, Rg[2] + 13.4], [1.1, 1.1, 0.6], [6, 4]), C('#4af04a'), 'p_raygun', { noAO: true }); }
     if (on('torch')) { const Tc = at('torch'); G.add(tube([Tc[0], Tc[1] + 1, Tc[2] - 4], [Tc[0], Tc[1] + 1, Tc[2] + 9], 1.5, 1.6, 6), C('#2a3a6a'), 'p_torch'); G.add(tube([Tc[0], Tc[1] + 1, Tc[2] + 9], [Tc[0], Tc[1] + 1, Tc[2] + 12], 1.9, 2.4, 6), C('#c9ced6'), 'p_torch'); G.add(ell([Tc[0], Tc[1] + 1, Tc[2] + 12.1], [2.1, 2.1, 0.4], [6, 4]), C('#fff4c0'), 'p_torch', { noAO: true }); }
@@ -1146,17 +1192,17 @@
   const FACE_FILL = '\n outgoingLight = mix(outgoingLight, max(outgoingLight, diffuseColor.rgb * vec3(0.36, 0.33, 0.30)), clamp(vNpFace.z, 0.0, 1.0) * (1.0 - smoothstep(0.74, 1.02, abs(vNpFace.y))));\n';
   function npCompile(shader) {
     Object.assign(shader.uniforms, this.userData.np);
-    const parkedBones=['p_paper','jaw','p_mag'].map(n=>'abs(skinIndex.x-'+BONES.indexOf(n)+'.0)<0.1').join('||');
+    const parkedBones=['p_paper','jaw','p_plate','p_mag'].map(n=>'abs(skinIndex.x-'+BONES.indexOf(n)+'.0)<0.1').join('||');
     shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nattribute vec3 npFace;\nvarying vec3 vNpFace;\nuniform vec3 npPresence;\nvarying float vNpPresent;').replace('#include <uv_vertex>', '#include <uv_vertex>\n  vNpFace = npFace;\n vNpPresent=npPresence.z>0.5&&('+parkedBones+')?npPresence.y:npPresence.x;');
-    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vNpPresent;\n' + FACE_DECL).replace('#include <color_fragment>', 'if(vNpPresent<0.5)discard;\n#include <color_fragment>' + FACE_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', FACE_FILL + 'gl_FragColor = vec4( outgoingLight, diffuseColor.a );');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vNpPresent;\n' + FACE_DECL+'\nuniform float npDrawing;\nfloat npStroke(vec2 p,vec2 a,vec2 b,float t){if(t<=0.0)return 0.0;vec2 d=(b-a)*t;float k=clamp(dot(p-a,d)/max(dot(d,d),.0001),0.0,1.0);return 1.0-smoothstep(.08,.19,length(p-a-d*k));}\n').replace('#include <color_fragment>', 'if(vNpPresent<0.5)discard;\n#include <color_fragment>' + FACE_FRAG+DRAW_FRAG).replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>' + RIM_FRAG).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', FACE_FILL + 'gl_FragColor = vec4( outgoingLight, diffuseColor.a );');
   }
   function material(low, tex, uni) {
     const P = { vertexColors: true, skinning: true, map: tex };
     const m = low ? new T.MeshLambertMaterial(P) : new T.MeshPhongMaterial(Object.assign(P, { shininess: 6, specular: new T.Color('#0c0c0c') }));
     m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
-    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() }, npView: { value: 0 }, npPresence:{value:new T.Vector3(1,1,0)} });
+    Object.assign(m.userData.np, { npMouthPrev: { value: new T.Vector2(...CELL.mouth(0).slice(0, 2)) }, npMouthMix: { value: 1 }, npJaw: { value: 1 }, npMouthPrevJaw: { value: 1 }, npLid: { value: 1 }, npAct: { value: new T.Vector3() }, npView: { value: 0 }, npPresence:{value:new T.Vector3(1,1,0)},npDrawing:{value:0} });
     m.onBeforeCompile = npCompile;
-    m.customProgramCacheKey = () => 'np-painted-face-r9';
+    m.customProgramCacheKey = () => 'np-painted-face-r10';
     return m;
   }
   let shadowMat = null;
@@ -1540,7 +1586,15 @@
     }
     function reading(t, H) {
       readingAngle(paperAct);
-      paperP.set(0, H + 36 + Math.sin(t * 0.4) * 0.5 - st.paperLower*17, 32 + st.paperLower*3);
+      const pagePaused=st.engage||st.listen||performance.now()<st.talkUntil||st.readingTransfer||st.readingStow||st.readingParked;
+      if(st.pageLast!==undefined&&!pagePaused)st.pageTime=(st.pageTime??st.pageLast)+Math.max(0,t-st.pageLast);
+      else if(st.pageTime===undefined)st.pageTime=t;
+      st.pageLast=t;
+      const phase=st.pageTime%22;
+      const turn=phase<6?0:phase<7.7?smooth((phase-6)/1.7):phase<16?1:phase<17.7?1-smooth((phase-16)/1.7):0;
+      const heldTurn=st.readingTransfer?(st.readingTurnFrom??turn)*(1-smooth(st.readingTransfer)):(pagePaused?B.jaw.rotation.y/(162*D2R):turn);
+      paperP.set(heldTurn*9, H + 36 + Math.sin(t * 0.4) * 0.5 - st.paperLower*17, 32 + st.paperLower*3);
+      paperP.y+=heldTurn*6;paperP.z-=heldTurn*10;
       readingHeight(paperP,22,gripY,gripZ);
       readingPlace(paperP,true);
       const y = paperP.y + gripY * paperC - gripZ * paperS, z = paperP.z + gripY * paperS + gripZ * paperC;
@@ -1548,12 +1602,17 @@
       const fold=smooth(clamp(smooth(st.readingTransfer)/.42,0,1));
       // Leave the real stack thickness between the closed leaves. Coincident
       // front/back caps otherwise fight once the paper lies on the armrest.
-      B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;
-      const phase=t%11, targetLeaf=fold?fold*162*D2R:!st.engage&&!st.listen&&st.cosmeticNear!==false&&phase>6&&phase<7.4?Math.sin(Math.PI*(phase-6)/1.4)**2*8*D2R:0;
-      const leaf=st.readingTransfer?targetLeaf:B.jaw.rotation.y+(targetLeaf-B.jaw.rotation.y)*(1-Math.exp(-dtReading*10));
+      B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;B.p_plate.rotation.y=fold*162*D2R;
+      // One full turn, a quiet reading hold, then a return to the front.
+      // Pause on this exact leaf when addressed, including mid-turn.
+      const targetLeaf=(fold?lerp(st.readingTurnFrom??turn,1,fold):turn)*162*D2R;
+      const leaf=st.readingTransfer?targetLeaf:pagePaused?B.jaw.rotation.y:targetLeaf;
       if(B.jaw.rotation.y!==leaf)B.jaw.rotation.y=leaf;
+      st.pageTurn=leaf/(162*D2R);
       // The outside grip accompanies its leaf instead of passing through it.
-      const edge=lerp(22,2,fold),gx=(leaf?edge*Math.cos(leaf)+(gripZ-paperHinge)*Math.sin(leaf):edge)+fold*.08, gz=(leaf?-edge*Math.sin(leaf)+(gripZ-paperHinge)*Math.cos(leaf)+paperHinge:gripZ)-fold*.5;
+      const gripTurn=st.readingTransfer?(st.readingTurnFrom??0):st.pageTurn;
+      const edge=lerp(lerp(22,2,smooth(clamp(gripTurn/.7,0,1))),2,fold);st.paperGrip=edge;
+      const gx=(leaf?edge*Math.cos(leaf)+(gripZ-paperHinge)*Math.sin(leaf):edge)+fold*.08, gz=(leaf?-edge*Math.sin(leaf)+(gripZ-paperHinge)*Math.cos(leaf)+paperHinge:gripZ)-fold*.5;
       paperAct.arms.R.ik[0]=paperP.x-22;
       paperAct.arms.L.ik[0]=paperP.x+gx; paperAct.arms.L.ik[1]=paperP.y+gripY*paperC-gz*paperS;paperAct.arms.L.ik[2]=paperP.z+gripY*paperS+gz*paperC;
       paperAct.arms.L.hand[1]=-leaf/D2R;
@@ -1561,11 +1620,49 @@
     }
     // The scrub path has fixed structure. Reuse its original pose data rather
     // than allocating two arm targets, poles, wrists and a prop map every frame.
-    const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 12, lookR: [0,0,47], props: { sponge: 1 } };
+    const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 56, lookR: [0,0,47], props: { sponge: 1 } };
+    const workP=new T.Vector3(),workOffset=new T.Vector3(),workQ=new T.Quaternion();
+    function surfacePoint(action,t){
+      const p=rig.workSurface?.(action);if(!p||![p.x,p.y,p.z].every(Number.isFinite))return null;
+      toRig(workP,p.x,p.y,p.z);
+      const phase=t*(action==='cook'?3.4:action==='washup'?3:.8),c=Math.cos(st.h),s=Math.sin(st.h);
+      const x=Math.cos(phase)*(p.rx||0),z=Math.sin(phase)*(p.rz||0);
+      workP.x+=x*c-z*s;workP.z+=x*s+z*c;
+      return workP;
+    }
+    // Aim the point on the solid tool, rather than its wrist, at the surface.
+    function toolTarget(a,point,offset){
+      workQ.setFromEuler(_e.set(a.hand[0]*D2R,a.hand[1]*D2R,a.hand[2]*D2R,'XYZ'));
+      workOffset.set(...offset).applyQuaternion(workQ);
+      for(let i=0;i<3;i++)a.ik[i]=point.getComponent(i)-workOffset.getComponent(i);
+    }
     function washing(t, H) {
       const sn = Math.sin(t * 3), right = washAct.arms.R.ik;
       washAct.arms.L.ik[1] = H + 13; right[0] = -7 - Math.cos(t * 3) * 2; right[1] = H + 11 + sn * 0.6; right[2] = 46 + sn * 1.5;
+      const p=surfacePoint('washup',t);
+      washAct.lean=p?56+clamp((90-p.y)*1.5,0,12):12;
+      if(p){
+        const a=washAct.arms.R;a.hand[0]=-90;a.hand[1]=180;toolTarget(a,p,[0,-S.handLen*.55-1,3.5]);
+        const left=washAct.arms.L;left.hand[0]=-55;left.hand[1]=180;workP.x+=10;workP.z-=2;toolTarget(left,workP,[0,-S.handLen*.8,1]);
+      }
       washAct.lookR[1] = H + 2; return washAct;
+    }
+    const cookAct={arms:{L:{ik:[17,0,27],pole:[.8,-.3,-1],hand:[-70,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.7,-.4,-1],hand:[-22,0,0],worldHand:true}},lean:24,lookR:[-5,0,40],props:{spoon:1}};
+    function cooking(t,H){
+      const a=cookAct.arms.R;a.ik[0]=-7-Math.cos(t*3.4)*3.2;a.ik[1]=H+15;a.ik[2]=33+Math.sin(t*3.4)*3.2;
+      cookAct.arms.L.ik[1]=H+7;cookAct.lookR[1]=H+6;
+      const p=surfacePoint('cook',t);if(p){
+        toolTarget(a,p,[0,-S.handLen*.5-24,5.2]);
+        const support=rig.workSurface('cook')?.support;
+        if(support){const left=cookAct.arms.L;left.hand[0]=90;left.hand[1]=0;left.hand[2]=180;toRig(workP,support.x,support.y,support.z);toolTarget(left,workP,[0,-S.handLen*.35,S.handLen*.12]);}
+      }else if(rig.workSurface){a.ik[0]=-16;a.ik[1]=H-2;a.ik[2]=23;}
+      return cookAct;
+    }
+    const waterAct={arms:{L:[6,8,0,25,0],R:{ik:[-12,0,30],pole:[-.7,-.5,-1],hand:[0,0,0],worldHand:true}},lean:6,lookR:[-10,0,60],props:{can:1}};
+    function watering(t,H){
+      const a=waterAct.arms.R;a.hand[0]=38+Math.sin(t*.8)*7;a.ik[1]=H+2+Math.sin(t*.8)*2;
+      const p=surfacePoint('water',t);if(p){p.y+=65;toolTarget(a,p,[S.handLen*.09,-S.handLen*.6-9.4,S.handLen*.16+28.5]);}
+      return waterAct;
     }
     const magP=new T.Vector3(),magAct={arms:{L:{ik:[10.5,0,0],pole:[.8,-.6,-.8],hand:[200,0,0],worldHand:true},R:{ik:[-10.5,0,0],pole:[-.8,-.6,-.8],hand:[200,0,0],worldHand:true}},lean:-2,lookR:[0,0,34],props:{mag:1}};
     function magazine(t,H){
@@ -1577,18 +1674,27 @@
       for(const sd of ['L','R']){const a=magAct.arms[sd].ik;a[0]=magP.x+(sd==='L'?10.5:-10.5);a[1]=magP.y+y*paperC-z*paperS;a[2]=magP.z+y*paperS+z*paperC;}
       magAct.lookR[1]=H+25;return magAct;
     }
-    const crayonTip=new T.Vector3(S.handLen*.16,-S.handLen*.48-6,S.handLen*.12+1.5).applyQuaternion(new T.Quaternion().setFromEuler(new T.Euler(25*D2R,0,-18*D2R))),drawAct={arms:{L:{ik:[15.8,0,0],pole:[.9,-.4,-.6],hand:[-90,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.9,-.4,-.6],hand:[25,0,-18],worldHand:true}},lean:16,lookR:[-2,0,30],props:{crayon:1,pad:1}};
+    const crayonTip=new T.Vector3(S.handLen*.16,-S.handLen*.48-6,S.handLen*.12+1.5).applyQuaternion(new T.Quaternion().setFromEuler(new T.Euler(25*D2R,0,-18*D2R))),drawAct={arms:{L:{ik:[15.8,0,0],pole:[.9,-.4,-.6],hand:[-90,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.9,-.4,-.6],hand:[25,0,-18],worldHand:true}},lean:34,lookR:[-2,0,30],props:{crayon:1,pad:1}};
     function drawing(t,H){
       const tb=table(H),left=drawAct.arms.L.ik,right=drawAct.arms.R.ik;
+      if(st.drawLast!==undefined)st.drawElapsed=(st.drawElapsed||0)+Math.max(0,t-st.drawLast);
+      st.drawLast=t;
+      const time=st.drawElapsed||0,index=Math.min(DRAWING.length-1,Math.floor(time/.58)),phase=time/.58-index;
+      const line=DRAWING[index],previous=DRAWING[Math.max(0,index-1)],travel=smooth(clamp(phase/.18,0,1)),ink=clamp((phase-.18)/.82,0,1),done=time>=DRAWING.length*.58;
+      const x=done?line[2]:phase<.18?lerp(previous[2],line[0],travel):lerp(line[0],line[2],ink),z=done?line[3]:phase<.18?lerp(previous[3],line[1],travel):lerp(line[1],line[3],ink);
+      // Lift between strokes; the mark advances only once the nib meets paper.
+      const lift=!done&&phase<.18&&!st.engage&&performance.now()>=st.talkUntil?Math.sin(Math.PI*travel)*.85:0;
+      st.drawX=x;st.drawZ=z;st.drawLift=lift;
+      U.npDrawing.value=done?DRAWING.length:index+ink;
       left[1]=tb+.2-S.handLen*.1;left[2]=30-S.handLen*.35;
-      right[0]=-4-Math.sin(t*6)*1.6-crayonTip.x;right[1]=tb+1.05+Math.max(0,Math.sin(t*3)-.8)*.6-crayonTip.y;right[2]=30+Math.cos(t*4.3)*1.6-crayonTip.z;
-      drawAct.lookR[1]=tb;return drawAct;
+      right[0]=x-crayonTip.x;right[1]=tb+1.05+lift-crayonTip.y;right[2]=30+z-crayonTip.z;
+      drawAct.lookR[0]=x;drawAct.lookR[1]=tb;drawAct.lookR[2]=30+z;return drawAct;
     }
     const ACT = {
       washup: washing,
-      cook: (t, H) => ({ arms: { L: { ik: [17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [-7 - Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [-5, H + 6, 40], props: { spoon: 1 } }),
+      cook: cooking,
       wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
-      water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [-12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [-10, 0, 90], props: { can: 1 } }),
+      water: watering,
       phone: (t, H) => { phoneArm();phoneAct.arms.L=talkArm(t,'L',.6);return phoneAct; },
       paper: reading,
       magazine,
@@ -1778,7 +1884,7 @@
       if(workJob&&st.look){toRig(tmp,st.look.x,st.look.y,st.look.z);workYaw=clamp(Math.atan2(tmp.x,tmp.z),-.8,.8)*st.workAck*.09;}
       _q.setFromEuler(_e.set((lean * 0.45 -st.workAck*.8+ (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R+workYaw*.45, (-roll * 0.5-readingLean*(st.readingSide||1)*20) * D2R, 'YXZ')); slerpTo('spine', _q, readingLean?1:k); fk('spine');
       _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6-st.workAck*1.2) * D2R, -yaw * 0.8 * D2R+workYaw*.55, (-roll * 0.35-readingLean*(st.readingSide||1)*24) * D2R, 'YXZ')); slerpTo('chest', _q, readingLean?1:k); fk('chest');
-      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(st.workAck*.012, 0, (sd === 'L' ? 1 : -1) * (breathe * 0.5+st.workAck*1.5+st.returnK) * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
+      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(st.workAck*.012, 0, (sd === 'L' ? 1 : -1) * (breathe * 0.5+st.workAck*1.5+st.returnK*(st.replyKind==='question'?1.7:1)) * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
       // ---- legs: IK to the feet (or to the floor in front of the seat)
       for (let i = 0; i < 2; i++) {
         const f = st.feet[i], sd = i ? 'R' : 'L', s = i ? -1 : 1;
@@ -1833,6 +1939,12 @@
         const s = sd === 'L' ? 1 : -1;
         let a = act?.arms ? act.arms[sd] : null;
         if (st.action === 'reach' && st.contactSide && sd !== st.contactSide) a = null;
+        // The free hand may offer a small reply; held paper, drawing and
+        // counter/sink supports retain both of their exact working contacts.
+        if(sd==='L'&&st.replyKind==='offer'&&st.returnK&&['tea','mug','sit','telly','remote','water'].includes(st.action)){
+          if(seat&&a?.ik)a={...a,ik:[a.ik[0],a.ik[1]+st.returnK*5,a.ik[2]+st.returnK*3]};
+          else if(Array.isArray(a))a=talkArm(t,sd,.35);
+        }
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
         if (!a && seat && sitK > 0.07 && !st.carry) {
           // Conversation keeps the seated support from the leg solve. One hand
@@ -1840,7 +1952,7 @@
           // never dropping through an armrest when the paper is put away.
           a = lapArms[sd];
           if (st.engage && talking && sd === 'R') {
-            const returning=Math.max(st.accent||0,st.returnK*.45);a = {...a,ik:[a.ik[0],a.ik[1]+returning*6,a.ik[2]+returning*2]};
+            const returning=Math.max(st.accent||0,st.returnK*(st.replyKind==='offer'?.65:.35));a = {...a,ik:[a.ik[0],a.ik[1]+returning*6,a.ik[2]+returning*2]};
           }
         }
         if (!a && near && talking && (sd === 'R' || st.talkSeed % 2 || act?.props?.mug)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
@@ -1851,7 +1963,7 @@
           a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), lerp(18 + (sd === 'L' ? 4 : 0),9 + Math.max(0,sw)*0.1,walking), lerp(S.familyHands?3:8,2+sw*0.07,walking), S.familyHands?-78:lerp(-7,-4,walking)];
         }
         if (Array.isArray(a)) armFK(sd, a, k);
-        else { const fixed=workJob&&st.engage&&st.workGrip?.[sd];if(fixed)tgt.copy(fixed.p);else tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, seatedRead&&!st.readingParked || seatedJob&&pauseJob || workJob ? 1 : k, fixed?fixed.q:eul(a.hand[0], a.hand[1], a.hand[2]), fixed?true:a.worldHand); }
+        else { const fixed=workJob&&st.engage&&st.workGrip?.[sd];if(fixed)tgt.copy(fixed.p);else tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, seatedRead&&!st.readingParked || seatedJob || workJob ? 1 : k, fixed?fixed.q:eul(a.hand[0], a.hand[1], a.hand[2]), fixed?true:a.worldHand); }
       }
       // A real armrest/seat surface, read once by the seat callback. Only
       // reach once it is inside the arm's envelope; never straighten an arm
@@ -1894,6 +2006,7 @@
       // Unbuilt prop bones have no vertices and remain hidden. Settled hidden
       // props need neither exponential easing nor a redundant transform write.
       for (const p of PROPS_FOR[kind]) { const on = props[p] ? 1 : 0, b = B['p_' + p], cur = b.scale.x; if (cur === on) continue; const nv = cur + (on - cur) * propK; b.scale.setScalar(nv < 0.02 && !on ? 0 : nv); }
+      if(kind==='dad'&&B.p_plate.scale.x!==B.p_paper.scale.x)B.p_plate.scale.setScalar(B.p_paper.scale.x);
       if (props.pad) B.p_pad.position.set(0, table(hy) + 0.2, 30);
       if (props.string) { // the string hangs straight down from the fingers; the yo-yo rides its end
         const yo = act?.yoyo || 0, h = J.handR;
@@ -1967,7 +2080,7 @@
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
       const ackPhase = clamp((now-(st.gestureStart||-1e9))/1100,0,1), ackNod = st.gestureKind === 'nod' ? Math.sin(Math.PI*ackPhase)**2*.16 : 0;
-      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod + st.returnK*.025;
+      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod + st.returnK*(st.replyKind==='question'?.012:st.replyKind==='offer'?.018:.025);
       const stableHead = st.walking && !look;
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
@@ -2104,13 +2217,14 @@
         if(!st.seat||!prop||!PROPS_FOR[kind].includes(prop))return true;
         B['p_'+prop].scale.setScalar(1);
         st.readingRoom=room||st.readingRoom||'lounge';
-        st.readingStow=true;return st.readingTransfer>=1;
+        if(!st.readingStow)st.readingTurnFrom=st.pageTurn||0;st.readingStow=true;return st.readingTransfer>=1;
       },
-      replyTo(other) {
+      replyTo(other, intent) {
         if(!other||other===rig)return;
         const heard=st.reactSpeaker===other.st&&st.reactLine===other.st.talkSerial&&performance.now()-(other.st.heardEnd??other.st.talkUntil)<2600;
-        st.replyPending=true;st.replyWarm=Math.max(clamp(U.npAct.value.y/.12,0,1),heard?(st.reactStrength||0)*.45:0);
+        st.replyKind=['agree','question','offer'].includes(intent)?intent:'agree';st.replyPending=true;st.replyWarm=Math.max(clamp(U.npAct.value.y/.12,0,1),heard?(st.reactStrength||0)*.45:0);
       },
+      cancelReply() { st.replyPending=false;st.replyAt=-1e9;st.replyWarm=0;st.returnK=0; },
       presence(person,reading) {
         st.personVisible=!!person;
         U.npPresence.value.set(person?1:0,reading?1:0,st.readingParked?1:0);
@@ -2122,22 +2236,24 @@
         toRig(b.position,point.x,point.y,point.z);b.quaternion.setFromAxisAngle(UPV,(paper?paperHeading:magHeading)-st.h).multiply(paper?paperHeldQ:magHeldQ);
       },
       get readingState() {
-        if(!st.readingStow&&!st.readingParked&&!st.readingTransfer)return null;
+        if(!st.readingStow&&!st.readingParked&&!st.readingTransfer&&st.action!=='paper')return null;
         const paper=kind==='dad';
-        return {action:paper?'paper':'magazine',room:st.readingRoom||'lounge',side:st.readingSide,shift:st.readingShift,time:st.t,lower:st.paperLower,transfer:st.readingTransfer,stow:st.readingStow,parked:st.readingParked,recover:st.readingRecover,
+        return {pageTime:st.pageTime,turnFrom:st.readingTurnFrom,action:paper?'paper':'magazine',room:st.readingRoom||'lounge',side:st.readingSide,shift:st.readingShift,time:st.t,lower:st.paperLower,transfer:st.readingTransfer,stow:st.readingStow,parked:st.readingParked,recover:st.readingRecover,
           position:(paper?paperHeld:magHeld).toArray(),heading:paper?paperHeading:magHeading,rotation:(paper?paperHeldQ:magHeldQ).toArray(),leaf:B.jaw.rotation.y};
       },
       restoreReading(o) {
         if(!o||!['paper','magazine'].includes(o.action)||!Array.isArray(o.position)||o.position.length!==3||!o.position.every(Number.isFinite)||!Array.isArray(o.rotation)||o.rotation.length!==4||!o.rotation.every(Number.isFinite))return;
         const paper=o.action==='paper';if(!PROPS_FOR[kind].includes(paper?'paper':'mag'))return;
-        st.readingTransfer=clamp(+o.transfer||0,0,1);st.readingStow=!!o.stow;st.readingParked=!!o.parked;st.readingRecover=clamp(+o.recover||0,0,.7);
+        st.readingTurnFrom=clamp(+o.turnFrom||0,0,1);st.readingTransfer=clamp(+o.transfer||0,0,1);st.readingStow=!!o.stow;st.readingParked=!!o.parked;st.readingRecover=clamp(+o.recover||0,0,.7);
         st.readingRoom=typeof o.room==='string'?o.room:'lounge';st.readingSide=Math.sign(+o.side)||1;st.readingShift=clamp(+o.shift||0,-4,4);
-        if(Number.isFinite(o.time))st.t=o.time;st.paperLower=clamp(+o.lower||0,0,1);
+        if(Number.isFinite(o.time))st.t=o.time;if(Number.isFinite(o.pageTime))st.pageTime=o.pageTime;st.pageLast=st.t;st.paperLower=clamp(+o.lower||0,0,1);
         (paper?paperHeld:magHeld).fromArray(o.position);(paper?paperHeldQ:magHeldQ).fromArray(o.rotation).normalize();
-        if(paper){paperHeading=+o.heading||0;paperPlaced=true;B.jaw.rotation.y=clamp(+o.leaf||0,0,Math.PI);const fold=smooth(clamp(smooth(st.readingTransfer)/.42,0,1));B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;}else{magHeading=+o.heading||0;magPlaced=true;}
+        if(paper){paperHeading=+o.heading||0;paperPlaced=true;B.jaw.rotation.y=clamp(+o.leaf||0,0,Math.PI);const fold=smooth(clamp(smooth(st.readingTransfer)/.42,0,1));B.jaw.position.x=fold*.08;B.jaw.position.z=paperHinge-fold*.5;B.p_plate.rotation.y=fold*162*D2R;B.p_plate.scale.setScalar(1);}else{magHeading=+o.heading||0;magPlaced=true;}
         B[paper?'p_paper':'p_mag'].scale.setScalar(1);
         if(!st.readingParked)st.action=o.action;
       },
+      get drawingState() {return kind==='sister'&&st.drawElapsed!==undefined?{elapsed:st.drawElapsed}:null;},
+      restoreDrawing(o) {if(kind==='sister'&&Number.isFinite(o?.elapsed)){st.drawElapsed=clamp(o.elapsed,0,DRAWING.length*.58);st.drawLast=undefined;}},
       get tris() { return outfits[outfit].tris[lodNow]; },
       get lod() { return lodNow; },
       get outfit() { return outfit; },
@@ -2148,7 +2264,7 @@
       set floor(fn) { floorFn.f = fn; },
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; st.contactK = 0; st.contactPoint = st.contactSide = null; placeFeet(); st.sm = {}; },
-      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o && st.action !== (o.action||null)) { if(st.readingStow){st.readingParked=true;st.readingStow=false;st.readingRecover=0;} st.action=o.action||null;st.jobPause=null;st.jobOffset=0;st.workGrip=null;st.workAttending=false; } if ('seat' in o) {
+      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o && st.action !== (o.action||null)) { if(st.readingStow){st.readingParked=true;st.readingStow=false;st.readingRecover=0;} st.action=o.action||null;st.jobPause=null;st.jobOffset=0;st.workGrip=null;st.workAttending=false;st.drawLast=undefined; } if ('seat' in o) {
         const old = st.seat;
         if (old && !o.seat && Number.isFinite(old.x) && Number.isFinite(old.z)) {
           const a = old.face * D2R, k = smooth(st.sitK);

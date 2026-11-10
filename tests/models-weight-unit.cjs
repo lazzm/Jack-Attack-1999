@@ -26,7 +26,9 @@ for(const id of ['mom','dad','sister']){
  step(r,180,false);const far=[];for(let i=0;i<120;i++){step(r,1,false);far.push({hips:point(r,'hips').toArray(),chestLean:lean(r,'chest')});}
  out.idle={nearPelvisRange:range(idle,a=>a.hips[0]),nearBreathRange:range(idle,a=>a.chestLean),farPelvisRange:range(far,a=>a.hips[0]),farBreathRange:range(far,a=>a.chestLean)};
  if(id==='dad'){
-  r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'paper',engage:false});step(r,240);r.group.updateMatrixWorld(true);r.mesh.skeleton.update();
+  r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'paper',engage:false});
+  // Inspect resting outer-edge grips before the turn; round 10 probes the moving fold grip.
+  r.st.t=r.st.pageTime=r.st.pageLast=0;step(r,240);r.group.updateMatrixWorld(true);r.mesh.skeleton.update();
   const g=r.mesh.geometry,indices=g.index.array,paperIndex=c.NPCRig.BONES.indexOf('p_paper'),leafIndex=c.NPCRig.BONES.indexOf('jaw'),paperTriangles=[],vertices=new Map(),closest=new T.Vector3();
   const skinned=n=>{if(!vertices.has(n)){const v=new T.Vector3().fromBufferAttribute(g.attributes.position,n);r.mesh.boneTransform(n,v);r.mesh.localToWorld(v);vertices.set(n,v);}return vertices.get(n)};
   for(let n=0;n<indices.length;n+=3)if(g.attributes.skinIndex.getX(indices[n])===paperIndex||g.attributes.skinIndex.getX(indices[n])===leafIndex)paperTriangles.push(new T.Triangle(skinned(indices[n]),skinned(indices[n+1]),skinned(indices[n+2])));

@@ -15,7 +15,7 @@ for(const tier of ['low','std']){
  assert(listener.mesh.material.userData.np.npAct.value.y>.04,'a slow final frame loses a heard punchline');speaker.dispose();listener.dispose();
  const cancelled=ctx.NPCRig.create('mom',{tier:'low'});cancelled.talk(5000,'Only joking!',{started:true,ended:true,cancelled:true,level:()=>0,progress:()=>1});cancelled.hush();assert.equal(cancelled.st.heardEnd,null,'cancelled speech invents a heard ending');cancelled.dispose();ctx.performance.now=()=>0;
 }
-assert.equal(Object.keys(pack.lines).length,40);let contacts=0;
+assert(Object.keys(pack.lines).length>=40);const approved=JSON.parse(require('node:child_process').execFileSync('git',['show','HEAD:app/public/audio/voice-phonemes.json'],{encoding:'utf8'}));for(const [id,t]of Object.entries(approved.lines))assert.deepEqual(pack.lines[id],t,id+' approved cues changed');let contacts=0;
 for(const [id,t]of Object.entries(pack.lines)){
  assert(t.cues.length>2);let last=-1;for(const [time,shape]of t.cues){assert(time>=last&&time>=0&&time<=t.dur+.01,id+' cue clock');assert(Number.isInteger(shape)&&shape>=-1&&shape<=6,id+' shape');if(shape===5||shape===6)contacts++;last=time;}
  const file=__dirname+'/../app/public/audio/voice/'+t.file;if(fs.existsSync(file))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),t.sha256,id+' recording changed');

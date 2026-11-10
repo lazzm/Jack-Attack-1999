@@ -71,7 +71,7 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
   head keep their world shading. No light, material, draw or geometry is added. Mouth width is 1.4 times the round-6
   range, with a larger continuous aperture, broader brows and stronger smile squash. The painted happy-eye curve is
   reserved for a smile's peak.
-- Forty priority recordings have clip-time painted-mouth cues in `app/public/audio/voice-phonemes.json`: two welcomes,
+- Round 7 introduced forty priority recordings with clip-time painted-mouth cues in `app/public/audio/voice-phonemes.json`: two welcomes,
   23 Chapter 1 lines and fifteen time-of-day talk lines. These are a curated priority set, not measured production
   frequency rankings. The offline helper `tools/audio/author-mouth-cues.py` constrains directed phonetic sequences
   to recorded word spans using the host's existing acoustic model; sub-word timings remain estimates. It never writes
@@ -185,3 +185,13 @@ Seated readers fold/lower their reading onto the original upholstery armrest bef
 Washing, cooking and watering acknowledge a listener with small shoulder/torso beats. Explicit conversations keep their actual paused work wrists and tool orientation; these jobs retain their work-facing body. Delivered nearby family replies retain an addressee through audio loading, hold a heard reaction and make one bounded returning gesture on the recording clock. Suspension holds the gesture; cancellation clears it. Player conversations retain priority, and presentation does not select or repeat dialogue.
 
 The acting pack now covers 133 lines / 233 beats, including all 108 everyday time-of-day lines. Fifty added lines use recorded-word spans; three unavailable recordings have explicit text-only anchors. The original eighty records remain unchanged. See [ANIMATION-ROUND9.md](ANIMATION-ROUND9.md) for native strips, actual test exits, measurements and limits.
+
+### Round 10: work surfaces, complete paper spreads, exchanges and drawing
+
+The three ordinary work jobs read `rig.workSurface(action)` in house coordinates. The kitchen callback shares the washing bowl's real water height and the saucepan object's current transform; the garden frame derives the pouring patch from `House.REAR.flowers`. The rig targets the actual solid sponge, spoon bowl and watering rose, including wrist orientation and reach. Cooking's free hand has a real counter support. A close player conversation preserves the work stance and paused grips. Routine wash water uses the existing bowl mesh and never completes or changes a player chore.
+
+Dad's turning page now reveals a full inside spread over a solid underlying right page. The spare plate joint carries that stack and folds it during put-away; the skeleton and two submissions remain. Twelve paper triangles are paid for by sixteen fewer briefcase-handle triangles on Low/Potato. Dad's near/far totals are **2,994 / 1,891**; family near is **8,806**, and every Low/Potato outfit stays below 3,000. The four original printed faces use Dad's unused pelvis tile, with the same atlas size. Page time, turn entry and the original transfer/park/retrieval state remain optional saved presentation state.
+
+The mouth pack now has **118** source-qualified base tracks, including 78 added chore, pocket-money and common-question recordings; the original forty are preserved exactly. Twelve authored exchange directions name recipients or relay a longer sentence to a third nearby family member on the base recording clock. Consecutive sentences retain their recipient; an explicit player conversation clears the relay and returning gesture. Selection, heard history and eligibility remain independent.
+
+The sister's original 35-stroke red-crayon picture shares one path between the nib and painted marks. Travel between strokes lifts the nib; talking holds it on the supported paper. A finished FOR MOM and heart occupies the reverse. Negative values in the paper's otherwise unused face-coordinate attribute identify its two sides; one scalar uniform reveals the marks in the existing material. There is no added varying, texture upload, geometry or draw. Optional saved progress preserves the picture across restore. See [ANIMATION-ROUND10.md](ANIMATION-ROUND10.md) for actual test exits, native strips, measurements and limitations.

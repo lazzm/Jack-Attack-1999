@@ -1175,6 +1175,7 @@
     wu(-214.5,-166);wu(20,71.5); // 2.2 cm clear of the door casing
     WB.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
     // the sink (stainless steel), the taps, the washing-up
+    r.workSurfaces={washup:{x:-81,y:GY-90,z:-26-REAR.extension+4,rx:1.5,rz:1},cookSupport:{x:-48,y:GY-93,z:-REAR.extension+8}};
     const sk=WB.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',family:'metal'}),chrome=M({c:'#c5cbcc',family:'metal',reflect:.34});
     for(const x of [-24,24])sk.rbox(x,-0.3,0,2,0.6,40,0.25,steel);
     for(const z of [-19,19])sk.rbox(0,-0.3,z,46,0.6,2,0.25,steel);
@@ -1626,6 +1627,7 @@
 
     for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}
     wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M({c:'#245024',family:'outdoorPlastic'}));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
+    r.workSurfaces={water:{x:REAR.flowers.x+43,y:GY-8,z:REAR.flowers.z-6,rx:5,rz:6}};
     const fb=B.at(REAR.flowers.x,GY,REAR.flowers.z);
     // Soil meets the inner faces; end boards fit BETWEEN the side boards.
     fb.box(0,-4,0,106,8,56,M('#3a2a1a'));

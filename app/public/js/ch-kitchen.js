@@ -68,7 +68,18 @@
       // the washing-up bowl, the water, the bubbles
       tub = grp(G => { const pm = mat('#d8283a', { family:'plastic', side: 2 }); G.lathe(0, 0, 0, [[14.6, -13.4], [14.2, -12.6], [11.5, -0.6], [11, 0], [0.1, 0]], 32, pm, { sz: 0.74 }); G.lathe(0, 0, 0, [[14.3, -13.2], [15.2, -13.4], [15.2, -12.8]], 32, mat('#c01a2a', { family:'plastic' }), { sz: 0.74 }); G.disc(0, -0.7, 0, 11, mat('#b81a2a'), 28, { sz: 0.74 }); });
       tub.position.set(SINK.x,SINK.y,SINK.z);tub.name='washing-up-bowl';r.group.add(tub);
-      water = new T.Mesh(new T.CircleGeometry(1, 32), M({ c: '#c8d8e0', o: 0.62, tr: true, sh: 120, sp: '#fff', side: 2 }).clone()); water.rotation.x = Math.PI / 2; water.position.set(SINK.x, LOW, SINK.z); water.visible = false; water.renderOrder = 2; r.group.add(water);
+      // Read actual cosmetic surfaces without completing or changing a chore.
+      const panSurface=new T.Vector3();
+      r.npcWorkSurface=action=>{
+        if(action==='washup')return {x:SINK.x+3,y:water.visible?water.position.y:FULL,z:SINK.z+4,rx:1.5,rz:1};
+        const pan=dishes[6];
+        if(action==='cook'&&pan?.at.room==='kitchen'&&!pan.at.hide&&pan.st!=='held'&&Math.hypot(pan.at.x+24,pan.at.z+134)<5){
+          pan.obj.updateWorldMatrix(true,false);panSurface.set(0,-4.8,0);pan.obj.localToWorld(panSurface);
+          return {x:panSurface.x,y:-panSurface.y,z:panSurface.z,rx:3.1,rz:3.1,support:r.workSurfaces?.cookSupport};
+        }
+        return null;
+      };
+      water = new T.Mesh(new T.CircleGeometry(1, 32), M({ c: '#c8d8e0', o: 0.62, tr: true, sh: 120, sp: '#fff', side: 2 }).clone()); water.rotation.x = Math.PI / 2; water.position.set(SINK.x, LOW, SINK.z); water.visible = false; water.name='washing-up-water'; water.renderOrder = 2; r.group.add(water);
       suds = grp(G => { const r2 = K.rnd(21), sm = M({ c: '#ffffff', o: 0.94, tr: true, sh: 60, sp: '#fff' }); for (let i = 0; i < 52; i++) { const a = r2() * Math.PI * 2, d = Math.sqrt(r2()) * 12.4, s = 1.4 + r2() * 3; G.ball(Math.cos(a) * d, -s * 0.25, Math.sin(a) * d * 0.74, s, s * 0.65, s, sm, 10); } });
       suds.position.set(SINK.x, LOW, SINK.z); suds.visible = false; r.group.add(suds);
       // the washing-up liquid bottle (green, of course)
@@ -114,6 +125,17 @@
       sinkSpot = CK.pickBox(r, 'ch.sink', SINK.x, WT - 7, SINK.z, 34, 16, 26, 0, { label: () => sinkLabel(), act: () => sinkClick() });
       CK.guard('hs.sink', () => { sinkClick(); return true; });
       this.sync();
+      // Mom's routine uses the bowl's existing water mesh. This is temporary
+      // scenery only: no plug/fill flags, rewards or dish saves are changed.
+      let routineWet=false;const waterOpacity=water.material.opacity;
+      H.anims.set('ch.npcWashWater',()=>{
+        if(running||H.anims.has('ch.rise')||H.anims.has('ch.drain')){if(routineWet)water.material.opacity=waterOpacity;routineWet=false;return true;}
+        const routine=['mom','dad'].some(id=>{const c=window.HouseFamily?.chars?.[id];return c?.present&&c.rig?.st.action==='washup'&&!c.rig.st.walking&&Math.hypot(c.x-SINK.x,c.z-SINK.z)<95;});
+        const plugged=CK.has('washup','plug'),done=CK.done('washup');
+        if(routine&&(!plugged||done)){const rr=tubR(FULL)-.3;water.visible=true;water.position.y=FULL;water.scale.set(rr,rr*.74,1);water.material.opacity=.9;routineWet=true;}
+        else if(routineWet){const y=filled()?FULL:HALF,rr=tubR(y)-.3;water.visible=plugged&&!done;water.position.y=y;water.scale.set(rr,rr*.74,1);water.material.opacity=waterOpacity;routineWet=false;}
+        return true;
+      });
     },
     sync() {
       const v = W(), plugged = CK.has('washup', 'plug'), full = filled(), dn = CK.done('washup') && !H.anims.has('ch.drain');
