@@ -63,7 +63,7 @@
   const seat = o => Object.assign({ h: 45, back: true }, o);
   const SPOT = {
     // kitchen
-    sink: { lvl: 'G', x: -80, z: -84, face: 180, act: 'washup', look: [-80, 260, -140] },
+    sink: { lvl: 'G', x: -80, z: -97, approach: [-80, -84], face: 180, act: 'washup', look: [-80, 260, -140] },
     hob: { lvl: 'G', x: -10, z: -84, face: 180, act: 'cook' },
     kettle: { lvl: 'G', x: -192, z: -82, face: 175, act: 'mug' },
     // (a cuppa somewhere out of the way: never in the strip in front of the worktop, never in the doorway's path)
@@ -238,7 +238,7 @@
     const y = flight ? NV.ramp(c.z) : H.LV[c.lvl];
     // A tight shuffle uses the rig's planted-foot adjustment steps. Its back
     // stays against the wall; a forward walk cycle would put toes into it.
-    c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow || c.backoff ? 0 : c.v);
+    c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow || c.backoff || c.cur?.workContact ? 0 : c.v);
     c.rig.presence?.(parked?person:c.present,reading);
     c.rig.syncReading?.();
     g.visible = (c.present||reading) && !hideAll;
@@ -280,6 +280,8 @@
     c.goal = g; c.plan = []; c.cur = null; c.backHome = null; c.backoff = null;
     const P = c.plan;
     if (c.seated) { P.push({ k: 'stand', seat: c.seated }); }
+    const contact = !c.seated && Object.values(SPOT).find(s => s.approach && s.lvl === c.lvl && Math.hypot(c.x-s.x,c.z-s.z) <= 1.1);
+    if (contact && g.spot !== contact) P.push({k:'line',to:approachOf(contact,contact.lvl),tolerance:.05,workContact:true});
     if (g.away) { const e = EXIT[g.exit]; P.push({ k: 'route', to: e }, { k: 'face', h: e.face * D2R }, { k: 'vanish' }); return; }
     const s = g.spot; if (!s) return;
     if (s.seat) {
@@ -291,7 +293,16 @@
       P.push({ k: 'face', h: q.face * D2R }, { k: 'sit', seat: q }, { k: 'act' });
     } else {
       if (g.key === 'aside' && s.narrow) P.push({k:'face',h:s.face*D2R});
-      P.push({ k: 'route', to: s, yielding: g.key === 'aside' }, { k: 'face', h: (s.face || 0) * D2R }, { k: 'act' });
+      // Work at the counter needs a short final step beyond the full walking
+      // clearance, just like approaching a seat. Toes fit under its plinth;
+      // the body stays outside the cabinet. A restored stance stays put.
+      const atWork = s.approach && c.lvl === s.lvl && Math.hypot(c.x-s.x,c.z-s.z) <= 1;
+      if (!atWork) {
+        const ap = s.approach ? Object.assign({lvl:s.lvl},approachOf(s,s.lvl)) : s;
+        P.push({ k: 'route', to: ap, yielding: g.key === 'aside' });
+        if (s.approach) P.push({ k: 'line', to: {x:s.x,z:s.z}, tolerance: .05, workContact: true });
+      }
+      P.push({ k: 'face', h: (s.face || 0) * D2R }, { k: 'act' });
     } // (getting out of your way is never blocked by you)
   }
   // where to step off the walkable floor to reach a seat (the nearest point with full clearance)
@@ -376,9 +387,10 @@
       }
       follow(c, s, dt);
     } else if (s.k === 'line') {
+      if (s.workContact && !s.started) { s.started=true; c.rig?.set({action:null,props:{}}); }
       const d = Math.hypot(s.to.x - c.x, s.to.z - c.z); const v = Math.min(55, d * 3 + 5);
       const want = Math.atan2(s.to.x - c.x, s.to.z - c.z); if (d > 3) c.h += clamp(angd(c.h, want), -3 * dt, 3 * dt);
-      if (d < 1) { c.cur = null; c.v = 0; } else { const k = Math.min(1, v * dt / d); c.x += (s.to.x - c.x) * k; c.z += (s.to.z - c.z) * k; c.v = v; }
+      if (d < (s.tolerance || 1)) { c.cur = null; c.v = 0; } else { const k = Math.min(1, v * dt / d); c.x += (s.to.x - c.x) * k; c.z += (s.to.z - c.z) * k; c.v = v; }
     } else if (s.k === 'face') {
       c.v = 0; const d = angd(c.h, s.h); c.h += clamp(d, -3.2 * dt, 3.2 * dt);
       if (Math.abs(d) < 0.04 || s.t > 2.5) { c.h = s.h; c.cur = null; }
@@ -404,6 +416,7 @@
       if (!listening && !c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
       if (!c.seated && !c.aside && s.t > 0.5 && doorZone(c.x, c.z, c.lvl, 12)) { c.pushT = nowMs(); c.pushN = 6; } // (never stand about in a doorway)
       stepAside(c, dt);
+      if (c.goal?.spot === SPOT.sink && !c.aside && Math.hypot(c.x-SPOT.sink.x,c.z-SPOT.sink.z)>1.1 && (!sameFloor(c,player()) || dist(c,player())>=90)) c.goal=null;
     } else if (s.k === 'yield') {
       c.v = 0; faceToward(c, s.o, dt);
       if (s.t > 6 || !s.o.present || s.o.cur?.k !== 'route' || s.t > 0.8 && Math.hypot(s.o.x - c.x, s.o.z - c.z) > 110) c.cur = null;
@@ -550,7 +563,13 @@
     // Make room at the sink before a stationary player has to push into Mom.
     // Reuse the normal checked aside route and its return-to-work behaviour.
     const sinkGuest = c.id === 'mom' && c.goal?.spot === SPOT.sink && c.cur?.k === 'act' && !dialogueHeld(c) && sameFloor(c, player()) && dist(c, player()) < 90;
-    if (sinkGuest) { c.pushT = nowMs(); c.pushN = 6; c.pushFrom = null; c.asideFor = null; }
+    if (sinkGuest) {
+      c.pushT = nowMs(); c.pushN = 6; c.pushFrom = null; c.asideFor = null;
+      if (Math.hypot(c.x-SPOT.sink.x,c.z-SPOT.sink.z)<=1.1) {
+        c.cur={k:'line',to:approachOf(SPOT.sink,c.lvl),t:0,tolerance:.05,workContact:true};c.plan=[{k:'act'}];
+        c.rig.set({action:null,props:{}});return;
+      }
+    }
     if (c.goal?.key === 'aside' && c.aside && !((c.pushN || 0) >= 6 && nowMs() - c.pushT <= 600)) {
       const o = c.asideFor, released = o ? !o.present || dist(c, o) > 90 || o.cur?.k !== 'route' : !sameFloor(c,player()) || dist(c, player()) > 170;
       c.asideT = released ? c.asideT + dt : 0;
@@ -1184,6 +1203,7 @@
       step(c, dt, clk);
       placeRig(c);
     }
+    window.HouseLife?.syncPhone?.();
     H.ROOMS.drive?.car?.update();
     outfits();
     if (simMode) return;

@@ -1115,7 +1115,17 @@
     if (on('spoon')) { const Sw = at('spoon'); G.add(tube([Sw[0], Sw[1] + 3, Sw[2]], [Sw[0], Sw[1] - 22, Sw[2] + 3], 0.6, 0.55, 4), C('#c79a5c'), 'p_spoon'); G.add(ell([Sw[0], Sw[1] - 24, Sw[2] + 3.2], [1.9, 3.0, 0.8], [6, 4]), C('#c79a5c'), 'p_spoon'); }
     if (on('can')) { const Cn = at('can'), green = C('#3f8f4c'); G.add(rbox([Cn[0], Cn[1] - 13, Cn[2] + 3], [11, 15, 20], 3.2, null, 2), green, 'p_can'); G.add(tube([Cn[0], Cn[1] - 14, Cn[2] + 12], [Cn[0], Cn[1] - 6, Cn[2] + 30], 1.3, 0.9, 5), green, 'p_can'); G.add(ell([Cn[0], Cn[1] - 6, Cn[2] + 30.5], [2.2, 2.2, 1.0], [6, 4], [-60, 0, 0]), C('#2f6f3a'), 'p_can'); G.add(torusArc([Cn[0], Cn[1] - 3, Cn[2] + 2], 6.4, 0.9, Math.PI, [0, 90, 0], null, 8, 4), green, 'p_can'); }
     if (on('mag')) { const Mg = at('mag'); G.add(printedBox([Mg[0], Mg[1], Mg[2]], [21, 28, 0.8], 0.25, [0, 0, 0]), C('#ffffff'), 'p_mag', {cell:CELL.print,noAO:true}); }
-    if (on('phone')) { const Ph = at('phone'); G.add(rbox([Ph[0], Ph[1] + 1, Ph[2] + 1], [2.4, 17, 4.6], 1.0, [6, 0, 0], 1), C('#e8e0c8'), 'p_phone'); }
+    if (on('phone')) {
+      const Ph = at('phone'), cream = C('#e4ddc8'), grey = C('#4a4c54');
+      G.add(rbox([Ph[0], Ph[1] + 1, Ph[2] + 1], [2.4, 17, 4.6], 1.0, [6, 0, 0], 1), cream, 'p_phone');
+      // The same cream cordless as the charger: LCD, twelve keys and aerial.
+      // Solid details stay in the existing skinned mesh/material.
+      const detail = (y,z,size,color) => G.add(rbox([Ph[0]+.83,Ph[1]+y,Ph[2]+z],size,.08,[6,0,0],1),color,'p_phone');
+      detail(-4,1.5,[.3,2.6,3.4],C('#a8c878'));
+      for(let i=0;i<12;i++)detail(-1+Math.floor(i/3)*1.4,.1+(i%3)*1.3,[.3,1,1],grey);
+      detail(-6.3,1.7,[.3,.6,2.2],grey);
+      G.add(tube([Ph[0],Ph[1]-6.5,Ph[2]-.6],[Ph[0],Ph[1]-10.6,Ph[2]-.95],.3,.3,3),C('#222222'),'p_phone');
+    }
     if (on('remote')) { const Rm = at('remote'); G.add(rbox([Rm[0], Rm[1] - 1.5, Rm[2] + 4], [4.2, 2, 15], 0.8, null, 1), (x, y, z) => y > Rm[1] - 0.6 && Math.floor(z) % 2 ? C('#9a9a9a') : C('#262626'), 'p_remote'); }
     if (on('crayon')) { const Cr = at('crayon'); G.add(tube([Cr[0], Cr[1] + 2, Cr[2]], [Cr[0], Cr[1] - 6, Cr[2] + 1.5], 0.45, 0.45, 4), C('#e2463c'), 'p_crayon'); }
     if (on('pad')) G.add(rbox([0, 0.4, 0], [30, 0.8, 21], 0.25, [0, 0, 0], 1), C('#fbfaf4'), 'p_pad', { noAO: true,drawing:true });
@@ -1620,7 +1630,7 @@
     }
     // The scrub path has fixed structure. Reuse its original pose data rather
     // than allocating two arm targets, poles, wrists and a prop map every frame.
-    const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 56, lookR: [0,0,47], props: { sponge: 1 } };
+    const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 27, lookR: [0,0,150], props: { sponge: 1 } };
     const workP=new T.Vector3(),workOffset=new T.Vector3(),workQ=new T.Quaternion();
     function surfacePoint(action,t){
       const p=rig.workSurface?.(action);if(!p||![p.x,p.y,p.z].every(Number.isFinite))return null;
@@ -1640,12 +1650,12 @@
       const sn = Math.sin(t * 3), right = washAct.arms.R.ik;
       washAct.arms.L.ik[1] = H + 13; right[0] = -7 - Math.cos(t * 3) * 2; right[1] = H + 11 + sn * 0.6; right[2] = 46 + sn * 1.5;
       const p=surfacePoint('washup',t);
-      washAct.lean=p?56+clamp((90-p.y)*1.5,0,12):12;
+      washAct.lean=p?27+clamp((90-p.y)*1.5,0,6):12;
       if(p){
         const a=washAct.arms.R;a.hand[0]=-90;a.hand[1]=180;toolTarget(a,p,[0,-S.handLen*.55-1,3.5]);
         const left=washAct.arms.L;left.hand[0]=-55;left.hand[1]=180;workP.x+=10;workP.z-=2;toolTarget(left,workP,[0,-S.handLen*.8,1]);
       }
-      washAct.lookR[1] = H + 2; return washAct;
+      washAct.lookR[1] = S.eyeY - 3; return washAct;
     }
     const cookAct={arms:{L:{ik:[17,0,27],pole:[.8,-.3,-1],hand:[-70,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.7,-.4,-1],hand:[-22,0,0],worldHand:true}},lean:24,lookR:[-5,0,40],props:{spoon:1}};
     function cooking(t,H){

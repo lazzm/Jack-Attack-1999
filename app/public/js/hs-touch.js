@@ -338,10 +338,25 @@
     let topButtons = btn('menu', 'menu', 'Menu', 'ht-menu');
     if (s === 'pc') { const full = !!H.desktopDisplay(); topButtons = btn('stand', 'stand', 'Stand up') + btn('lock', full ? 'room' : 'lock', full ? 'In room' : 'LOCK IN') + topButtons; k += '|pc' + full; }
     stackCarryMessages();
-    if (k === lastKey) return; lastKey = k;
-    acts.innerHTML = buttons; acts.classList.toggle('ht-carrying',!!H.held()); top.innerHTML = topButtons; layout();
-    target.querySelector('b').textContent = caption; target.classList.toggle('on', !!caption);
-    hud.dataset.state = s;
+    if (k !== lastKey) {
+      lastKey = k;
+      acts.innerHTML = buttons; acts.classList.toggle('ht-carrying',!!H.held()); top.innerHTML = topButtons; layout();
+      target.querySelector('b').textContent = caption; target.classList.toggle('on', !!caption);
+      hud.dataset.state = s;
+    }
+    // A successful gold placement rebuilds the job chip without changing the
+    // aimed object. Recheck its live rectangle even when the buttons are cached.
+    let targetTop = innerHeight / 2 + 26;
+    const job = document.querySelector('.hs-ui .ch-chip:not([hidden])');
+    if (caption && job && getComputedStyle(job).visibility !== 'hidden') {
+      const w = target.offsetWidth, h = target.offsetHeight, left = (innerWidth - w) / 2, b = job.getBoundingClientRect();
+      if (left < b.right + 8 && left + w > b.left - 8 && targetTop < b.bottom + 8 && targetTop + h > b.top - 8) {
+        // Prefer below the slip, leaving the crosshair above it unobscured.
+        targetTop = b.bottom + 8 + h <= innerHeight - 8 ? b.bottom + 8 : Math.max(8, b.top - h - 8);
+      }
+    }
+    const targetY = targetTop + 'px';
+    if (target.style.top !== targetY) target.style.top = targetY;
   }
   // Slot centres, measured from the cluster's bottom-right corner. The most likely action sits under the thumb's resting
   // point; Jump and Crouch never move; carrying keeps its secondary actions in a short row.

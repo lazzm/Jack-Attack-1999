@@ -136,11 +136,15 @@ try {
             if (!c.present) continue;
             const st = F.chars[c.id], k = st.cur?.k || prev[c.id] || null; prev[c.id] = k;
             const seatMove = ['line', 'sit', 'stand'].includes(k) || k === 'face' && !!st.goal?.spot?.seat || c.seated || c.sitting; // (seats are stepped into off the walkable floor)
+            // The sink has an authored work stance after its full-clearance
+            // approach. Its toes fit under the plinth; models-round10-unit
+            // checks the actual skinned body against the cabinet/kickboard.
+            const work = st.goal?.spot, counterWork = work?.approach && work.act === 'washup' && ['face','act'].includes(k) && Math.hypot(c.x-work.x,c.z-work.z) <= 1.1;
             const flight = NV.onFlight(c.x, c.z) && c.x > 352 && c.x < 392;
             if (!seatMove && !flight) {
               const cl = NV.clear(c.lvl, c.x, c.z); out.min = Math.min(out.min, cl);
               const shut = Object.values(H.DOORS).find(D => !D.open && !D.always && D.closedBounds && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl) && c.x > D.closedBounds.x0 - 8 && c.x < D.closedBounds.x1 + 8 && c.z > D.closedBounds.z0 - 8 && c.z < D.closedBounds.z1 + 8);
-              if ((cl < 18 || shut) && out.bad.length < 20) out.bad.push([c.id, c.x, c.z, c.lvl, k, Math.round(cl), shut?.id || null]);
+              if ((cl < (counterWork ? 10 : 18) || shut) && out.bad.length < 20) out.bad.push([c.id, c.x, c.z, c.lvl, k, Math.round(cl), shut?.id || null]);
             }
             if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to),d.filter(o=>o.id!==c.id&&o.present).map(o=>({id:o.id,x:o.x,z:o.z,v:o.v,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,hit:F.chars[o.id].cur?.hit}))]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl, d.filter(o=>o.present&&o.id!==c.id).map(o=>({id:o.id,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,v:o.v}))]; } } else st.__stuck = 0;
             let inDoor = null;

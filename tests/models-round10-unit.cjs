@@ -7,23 +7,41 @@ const paint=new Proxy({createLinearGradient:()=>({addColorStop(){}}),createRadia
 vm.runInContext(baseline?execFileSync('git',['show','HEAD:app/public/js/np-rig.js'],{encoding:'utf8'}):fs.readFileSync(__dirname+'/../app/public/js/np-rig.js','utf8'),w);
 const step=(r,n=1,near=true)=>{for(let i=0;i<n;i++){clock+=1000/60;r.update(1/60,near)}};
 const frame=r=>{r.group.updateMatrixWorld(true);r.mesh.skeleton.update()};const point=(r,b,v=new T.Vector3())=>r.bones[b].localToWorld(v),local=(r,b)=>r.group.worldToLocal(point(r,b));
+function counterClearance(r){
+ let gap=Infinity;const g=r.mesh.geometry;
+ for(let j=0;j<g.attributes.position.count;j++){
+  const bone=w.NPCRig.BONES[g.attributes.skinIndex.getX(j)];if(!/^(hips|spine|chest|thigh[LR]|shin[LR]|foot[LR])$/.test(bone))continue;
+  const v=new T.Vector3().fromBufferAttribute(g.attributes.position,j);r.mesh.boneTransform(j,v);r.mesh.localToWorld(v);
+  if(v.y>=263&&v.x>=-160&&v.x<=-40)gap=Math.min(gap,v.z-(v.y<349?-114:-122));
+ }return gap;
+}
 function grip(r,prop,side){frame(r);const g=r.mesh.geometry,idx=g.index.array,propBones=[w.NPCRig.BONES.indexOf('p_'+prop),...(prop==='paper'?[w.NPCRig.BONES.indexOf('jaw')]:[])],verts=new Map();const skin=n=>{if(!verts.has(n)){const v=new T.Vector3().fromBufferAttribute(g.attributes.position,n);r.mesh.boneTransform(n,v);r.mesh.localToWorld(v);verts.set(n,v)}return verts.get(n)};const tris=[];for(let n=0;n<idx.length;n+=3)if(propBones.includes(g.attributes.skinIndex.getX(idx[n])))tris.push(new T.Triangle(skin(idx[n]),skin(idx[n+1]),skin(idx[n+2])));const finger=w.NPCRig.BONES.indexOf('lid'+side),near=new T.Vector3();let gap=Infinity;for(let n=0;n<g.attributes.position.count;n++)if(g.attributes.skinIndex.getX(n)===finger)for(const t of tris)gap=Math.min(gap,skin(n).distanceTo(t.closestPointToPoint(skin(n),near)));return gap;}
 const report={baseline,work:[],pages:[],budgets:{}};
+// Follow the production sink stance: the hands cannot reach the bowl from
+// the old, distant foot position without folding the torso over the counter.
+const stanceSource=baseline?execFileSync('git',['show','HEAD:app/public/js/np-life.js'],{cwd:__dirname,encoding:'utf8'}):fs.readFileSync(__dirname+'/../app/public/js/np-life.js','utf8');
+const sinkZ=Number(stanceSource.match(/sink: \{[^\n]*?z: (-?[\d.]+)/)[1]);
 for(const [action,x,z,h,surface]of [
- ['washup',-80,-84,Math.PI,{x:-81,y:263,z:-142,rx:1.5,rz:1}],
- ['washup',-80,-84,Math.PI,{x:-81,y:267,z:-142,rx:1.5,rz:1}],
+ ['washup',-80,sinkZ,Math.PI,{x:-81,y:263,z:-142,rx:1.5,rz:1}],
+ ['washup',-80,sinkZ,Math.PI,{x:-81,y:267,z:-142,rx:1.5,rz:1}],
  ['cook',-10,-84,Math.PI,{x:-24,y:253.3,z:-134,rx:3.1,rz:3.1}],
  ['water',-80,-700,-Math.PI/2,{x:-127,y:345,z:-706,rx:5,rz:6}]]){
  const r=w.NPCRig.create('mom',{tier:'low'});r.floor=()=>353;r.teleport(x,353,z,h);r.workSurface=()=>surface;r.set({action});step(r,180);
- let height=0,outside=0,fingerGap=0,solidRadius=0,panBottom=0;const samples=[];const geom=r.mesh.geometry,vertices=[];for(let j=0;j<geom.attributes.position.count;j++)if(geom.attributes.skinIndex.getX(j)===w.NPCRig.BONES.indexOf(action==='washup'?'p_sponge':action==='cook'?'p_spoon':'p_can'))vertices.push(j);
+ let height=0,outside=0,fingerGap=0,solidRadius=0,panBottom=0,bodyClearance=Infinity;const samples=[];const geom=r.mesh.geometry,vertices=[];for(let j=0;j<geom.attributes.position.count;j++)if(geom.attributes.skinIndex.getX(j)===w.NPCRig.BONES.indexOf(action==='washup'?'p_sponge':action==='cook'?'p_spoon':'p_can'))vertices.push(j);
  for(let i=0;i<240;i++){
   step(r);frame(r);const b=action==='washup'?'p_sponge':action==='cook'?'p_spoon':'p_can',v=action==='washup'?[0,-1,1.5]:action==='cook'?[0,-24,3.2]:[0,-6,30.5],p=point(r,b,new T.Vector3(...v)),goalY=surface.y-(action==='water'?65:0);
+  if(action==='washup'&&i%30===0)bodyClearance=Math.min(bodyClearance,counterClearance(r));
   height=Math.max(height,Math.abs(p.y-goalY));
   if(action!=='water')for(const j of vertices){const v=new T.Vector3().fromBufferAttribute(geom.attributes.position,j);r.mesh.boneTransform(j,v);r.mesh.localToWorld(v);if(action==='cook')panBottom=Math.max(panBottom,v.y);else if(v.y>=258.6){const rad=11.5+Math.min(1,(272-v.y)/12.8)*2.7-.5;solidRadius=Math.max(solidRadius,Math.hypot((v.x+84)/rad,(v.z+146)/(rad*.74)));}}
 const radial=Math.hypot((p.x-surface.x)/surface.rx,(p.z-surface.z)/surface.rz);outside=Math.max(outside,radial);if(i%30===0){fingerGap=Math.max(fingerGap,grip(r,action==='washup'?'sponge':action==='cook'?'spoon':'can','R'));}if(i%30===0)samples.push({i,point:p.toArray(),radial,height:p.y-goalY});
  }
+ if(check&&action==='washup'){
+  assert(Math.abs(r.bones.spine.rotation.x+r.bones.chest.rotation.x)<35*Math.PI/180,'washing folds the torso over the sink');
+  assert(r.eyeWorld(new T.Vector3()).y<225,'washing head is too low to see the window');
+ }
+ if(check&&action==='washup')assert(bodyClearance>.2,'Working body intersects the cabinet or recessed kickboard: '+bodyClearance);
  const before=point(r,'handR').clone();r.set({engage:true,look:{x:x+100,y:205,z:z+40}});step(r,40);frame(r);const held=point(r,'handR').clone();step(r,60);frame(r);const drift=held.distanceTo(point(r,'handR'));
- report.work.push({action,waterHeight:action==='washup'?surface.y:null,height,outside,fingerGap,solidRadius,panBottom,drift,entry:before.distanceTo(held),samples});if(check){if(action==='washup')assert(solidRadius<1.01,'solid sponge crosses bowl wall: '+solidRadius);if(action==='cook')assert(panBottom<256.95,'spoon bowl passes through pan bottom: '+panBottom);assert(height<.5,action+' tool height misses real surface: '+height);assert(outside<1.15,action+' tool leaves work footprint: '+outside);assert(drift<.05,action+' paused grip drifts');}r.dispose();
+ report.work.push({action,waterHeight:action==='washup'?surface.y:null,height,outside,fingerGap,solidRadius,panBottom,bodyClearance,drift,entry:before.distanceTo(held),samples});if(check){if(action==='washup')assert(solidRadius<1.01,'solid sponge crosses bowl wall: '+solidRadius);if(action==='cook')assert(panBottom<256.95,'spoon bowl passes through pan bottom: '+panBottom);assert(height<.5,action+' tool height misses real surface: '+height);assert(outside<1.15,action+' tool leaves work footprint: '+outside);assert(drift<.05,action+' paused grip drifts');}r.dispose();
 }
 const r=w.NPCRig.create('dad',{tier:'low'});r.floor=()=>0;r.teleport(0,0,0,0);r.set({seat:{h:45,back:true},action:'paper'});step(r,180);r.st.t=r.st.pageTime=r.st.pageLast=4;
 let maxGrip=0,peak=0;

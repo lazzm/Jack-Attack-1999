@@ -89,6 +89,16 @@
 
   // ================================================================ the landline (cream, push-button, in the lounge)
   const lounge = () => HR.rooms.lounge;
+  let playerPhone = false;
+  // The charger and the family share one handset, including while a player
+  // leaves a phone close-up during Mom's scheduled call.
+  function syncPhone() {
+    const handset = lounge()?.handset;
+    if (!handset) return;
+    const familyPhone = Object.values(window.HouseFamily?.chars || {}).some(c => c.present && (c.rig?.st.action === 'phone' && !c.rig.st.walking || c.rig?.bones.p_phone.scale.x > 0));
+    const visible = !playerPhone && !familyPhone;
+    if (handset.visible !== visible) { handset.visible = visible; H.dirty(); }
+  }
   let ring = null; // { who, t0, timer }
   const ringing = () => !!ring;
   const CALLS = [
@@ -142,7 +152,7 @@
   function answer() {
     const c = ring.call; clearInterval(ring.timer); ring = null; secret('hs.phone');
     H.sfx.tone(300, 0.05, 'square', 0.05);
-    H.focus(phonePose(), { label: 'Put it down', enter: () => { const r = lounge(); if (r.handset) r.handset.visible = false; talk(c, 0); }, exit: () => { const r = lounge(); if (r && r.handset) r.handset.visible = true; cardOff(); H.dirty(); } });
+    H.focus(phonePose(), { label: 'Put it down', enter: () => { playerPhone = true; syncPhone(); talk(c, 0); }, exit: () => { playerPhone = false; syncPhone(); cardOff(); H.dirty(); } });
   }
   function talk(c, i) {
     const lines = c.lines();
@@ -158,7 +168,7 @@
     dialled = '';
     const el = document.createElement('div'); el.className = 'hs-pad';
     el.innerHTML = '<div class="hs-padd">&nbsp;</div><div class="hs-padk">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(k => `<button type="button" data-k="${k}">${k}</button>`).join('') + '</div><button type="button" class="hs-padgo">CALL</button>';
-    const r = lounge(); if (r.handset) r.handset.visible = false; // (it's in your hand now)
+    playerPhone = true; syncPhone(); // (it's in your hand now)
     const keypadQuad = H.faceQuad(7, 6.8, 30, 2, 0);
     padSurf = H.surface(el, () => { const q = keypadQuad(); return [q[3], q[2], q[1], q[0]]; }, { w: 300, h: 290 });
     el.addEventListener('click', ev => {
@@ -169,7 +179,7 @@
     });
     card('The phone', '<p>Dial tone: <i>bzzzzzzzzz</i>. Press the numbers on the phone, then CALL. (The phone book\'s on the table: Gran, {mate1}, the speaking clock...)</p>', [['Phone book', () => book()]]);
   }
-  function hangUp() { if (padSurf) { padSurf.close(); padSurf = null; } const r = lounge(); if (r && r.handset) r.handset.visible = true; cardOff(); H.sfx.tone(260, 0.05, 'square', 0.04); H.dirty(); }
+  function hangUp() { if (padSurf) { padSurf.close(); padSurf = null; } playerPhone = false; syncPhone(); cardOff(); H.sfx.tone(260, 0.05, 'square', 0.04); H.dirty(); }
   function book() { card('The phone book (Mom\'s writing)', '<table class="hs-book">' + BOOK().map(([n, num]) => `<tr><td>${esc(cast(n))}</td><td>${esc(num)}</td></tr>`).join('') + '</table>', [['Back', () => dial2()]]); }
   function dial2() { card('The phone', '<p>Press the numbers, then CALL.</p>', [['Phone book', () => book()]]); }
   function call(num) {
@@ -374,7 +384,7 @@
   const USE = { tin, micro, fridge, paper, phone, bin, pbook: () => { if (ring) return answer(); H.focus(phonePose(), { label: 'Put it down', enter: () => { dial(); book(); }, exit: hangUp }); } };
   window.HouseLife = { momentValid: text => moments().some(([,t])=>t===text),
     use(what) { const f = USE[what]; if (f) f(); },
-    chore, voice, shoutSound, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay,
+    chore, voice, shoutSound, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay, syncPhone,
     ownerEvent(id) {
       if(!window.OwnerTools?.allowed)return false;
       if(id==='phone'){const was=ring;startRing();return !!ring&&!was;}
