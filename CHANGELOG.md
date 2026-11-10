@@ -5,6 +5,7 @@
 - Dad turns the newspaper pages for real, from the home news to the sport and the inside pages, and your sister's crayon drawing grows on the paper as she works.
 - Conversations between the family flow better: they pass the talk between all three, glance back to whoever spoke, and pick up again if you interrupt. 78 more recorded lines have mouth shapes timed to the words.
 - 9 more recorded lines, 763 in all. About 20 are still text-only; a few of them will be reworded so they record cleanly.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones, voices 9/9, zero, Bounce Quest 64, cupboard, voice recordings, identity twice, seasons, performance, physics; after fixing two problems the check found (Mom staying in the hall instead of answering the phone, and a chat-program error), characters twice, the phone UI check twice, voices, people pass and smoke again.
 
 ## 2.87.0 - 2026-11-10
 - The Myth of Zeldo has a third dungeon: a two-floor, 13-room pump works built around a new grappling tool, the Spool Spork, with lifts, floodgates and its own boss. Six new overworld screens open up beyond it, with a town and an optional quest. Old saves carry on where they left off.
