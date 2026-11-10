@@ -46,6 +46,10 @@ const shot=async name=>{await frames(1);await p.screenshot({path:dir+tag+'-'+nam
 async function text(){for(let i=0;i<100;i++){const s=await state();if(!s.tb&&!s.co)return;if(s.tb){await frames(150);await key('z')}else await frames(60)}throw Error('Dialogue stalled '+JSON.stringify(await state()))}
 async function reloadCartridge(){await p.reload();await p.evaluate(()=>{window.Room={_:{esc:s=>s},House:{paused:true}};window.House=Room.House});for(const src of ['cast','rm-tv','rm-g-zeldo'])await p.addScriptTag({url:base+'/js/'+src+'.js'});await p.evaluate(installRunner,true);await frames(1)}
 async function place(id,x,y,dir=0){await p.evaluate(({id,x,y,dir})=>review.K.dbg.warp(id,x,y,dir),{id,x,y,dir});await frames(1)}
+async function pressureSample(){return p.evaluate(()=>{
+ const a=[];for(let i=0;i<100;i++)review.step(1);for(let i=0;i<1200;i++){const t=performance.now();review.step(1);a.push(performance.now()-t)}a.sort((a,b)=>a-b);
+ return{median:a[600],p95:a[1140],max:a[1199],resolution:[256,224],scope:'native pressure-boss update/draw CPU; active tells/projectiles and saves; excludes house'};
+})}
 async function performanceSample(){return p.evaluate(()=>{
  const d=review.K.dbg;d.start(0,'JACK');d.warp('south',7,6,0);d.give({hp:20,maxH:10});
  const a=[];for(let i=0;i<100;i++)review.step(1);for(let i=0;i<1200;i++){const t=performance.now();review.step(1);a.push(performance.now()-t)}a.sort((a,b)=>a-b);
@@ -59,7 +63,8 @@ try{
  await hold('x',62);for(let i=0;i<3;i++){await frames(4);await shot('spin-'+i)}
  await place('village',7,6,0);await shot('village');await key('Enter');await frames(15);await shot('menu');await key('Enter');await key('c');await frames(12);await shot('map');await key('c');
  await place('d1',7,9,1);await text();await shot('keep-start');await place('d6',7,9,1);await frames(100);await shot('cheese');
- if(!before)await chapter();
+ if(!before){await legacyCheck();if(!process.argv.includes('--third-only'))await chapter();await thirdCourse();if(process.argv.includes('--routes'))await routeCheck();}
+ if(!before){await p.evaluate(()=>{const d=review.K.dbg;d.flag('stockpot',0);delete d.S.cleared.t11;d.give({hp:20,maxH:10});});await place('t11',7,9,1);await text();const pressure=await pressureSample();assert.equal((await state()).mode,'play','Pressure timing measures active play');assert(await p.evaluate(()=>review.K.dbg.ents.some(e=>e.type==='stockpot'&&!e.dead)),'Pressure timing retains the active boss');await writeFile(dir+'after-pressure-performance.json',JSON.stringify(pressure,null,2));console.log('PRESSURE PERFORMANCE',JSON.stringify(pressure));}
  const perf=await performanceSample();await writeFile(dir+tag+'-performance.json',JSON.stringify(perf,null,2));console.log('PERFORMANCE',JSON.stringify(perf));
  }
  // The native runner and the full-house fixture must never hold two browsers.
@@ -67,10 +72,122 @@ try{
  if(!process.argv.includes('--native'))await roomCheck();
  assert.deepEqual(errors,[],'Browser errors');console.log('ZELDO '+tag.toUpperCase()+' PASS');
 }catch(e){if(p&&!p.isClosed()){console.log('FAIL STATE',JSON.stringify(await state()).slice(0,3000));await shot('failure').catch(()=>{});}throw e}finally{await browser?.close()}
+async function thirdCourse(){
+ // Seed only the completed forge chapter; every new key, tool, puzzle and reward starts unearned.
+ await p.evaluate(()=>{const d=review.K.dbg;d.give({sword:2,shield:1,boots:1,boom:1,bag:1,bombs:10,hp:20,maxH:10,done:1});for(const k of ['baron','recipe','second','secondDone','secondCredits'])d.flag(k,1)});
+ const oldInventory=(await state()).S.activeDg;
+ await place('p_shore',14,5,3);await equip('boots');await key('v');await frames(35);
+ assert((await state()).S.gone.p_shore.includes('15,5'),'Boots open the new shore route');await shot('quay-road-open');
+ await place('p_shore',14,5,3);await hold('ArrowRight',30);await frames(50);assert.equal((await state()).room,'q_moor','Actual shore boundary reaches new region');
+ const outside=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).filter(r=>r.world==='salt'));assert.equal(outside.length,15);
+ for(const r of outside.filter(r=>r.id.startsWith('q_'))){await place(r.id,8,10,1);await shot('quay-'+r.id)}
+ await place('q_mender',7,6,1);await key('z');await text();assert((await state()).S.f.menderQuest,'Optional quest accepted');
+ await place('t1',7,10,1);await text();assert.equal((await state()).S.keys,0,'Third dungeon starts with its own keys');assert.equal((await state()).S.map,0);assert.equal((await state()).S.big,0);assert(!(await state()).S.puzzles,'Dungeon puzzles never leak into global inventory');
+ const rooms=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).filter(r=>r.dg==='pumpworks').map(r=>r.id));assert.equal(rooms.length,13);
+ assert(await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).every(r=>r.map.length===12&&r.map.every(row=>row.length===16))),'All authored rooms retain exact native grid');
+ for(const id of rooms){await place(id,7,10,1);await text();await shot('pump-start-'+id)}
+ await place('t3',7,9,1);await fightRoom();await frames(35);await walkTo(7,6);await hold('ArrowUp',1);await key('z');await text();assert.equal((await state()).S.keys,1);await shot('pump-small-key');
+ await place('t4',3,3,1);await key('z');await text();await place('t4',12,3,1);await key('z');await text();assert((await state()).S.map&&(await state()).S.comp);
+ await key('c');await frames(12);await shot('pump-map');await key('c');
+ await place('t2',7,1,1);await hold('ArrowUp',32);await text();assert.equal((await state()).S.keys,0);assert((await state()).S.doors['t2|t5']);
+ // Counterweight lesson: hold a physical block onto a floor plate, then enter its little vault.
+ await place('t6',7,6,0);await pushUntil(7,9,'ArrowDown');assert((await state()).S.dungeons.pumpworks.puzzles.plates_t6);await walkTo(7,4);await hold('ArrowUp',1);await key('z');await frames(30);await shot('spool-spork-found');await text();assert((await state()).S.hook);assert.equal((await state()).S.sel,'hook');
+ // A missed shot retracts, and a second ITEM edge near its end survives the animation.
+ await place('t7',10,8,1);await key('v');await frames(9);await key('v');await frames(35);assert.equal((await state()).act,'grapple','Second ITEM edge buffers through retraction');await frames(45);assert.equal((await state()).act,null,'Missed hook returns control');
+ await place('t7',6,7,1);await key('v');await frames(6);await shot('spork-extension');
+ for(let i=0;i<30;i++){if(await p.evaluate(()=>review.K.dbg.pl.hook?.stage==='pull'))break;await frames(1)}
+ assert(await p.evaluate(()=>review.K.dbg.pl.hook?.stage==='pull'),'Spork latches to brass mooring');await frames(2);const mid=await state();await key('Enter');await frames(15);const stopped=await state();await shot('spork-paused');await p.evaluate(()=>review.restart());assert.equal((await state()).mode,'menu');assert.equal((await state()).y,stopped.y,'Midair reel stays at its exact saved point');await key('Enter');await frames(25);assert.equal(Math.round((await state()).y),76,'Reel reaches the north landing after refresh');await shot('spork-north-landing');
+ await walkTo(4,3);await hold('ArrowLeft',1);await key('v');await frames(35);assert((await state()).S.dungeons.pumpworks.puzzles.lower,'Forked handle fills the lower lift');assert.equal(await p.evaluate(()=>review.K.dbg.tileAt(7,5)),'=');await shot('lower-floodgate');
+ await walkTo(7,3);await hold('ArrowUp',24);await frames(50);assert.equal((await state()).room,'t8','Raised lift leads to the upper spillway');
+ await place('t8',6,7,1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),76);await walkTo(3,4);await hold('ArrowUp',1);await key('z');await text();assert.equal((await state()).S.keys,1);await shot('upper-key');
+ await walkTo(6,4);await hold('ArrowDown',1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),124,'Return ring prevents a stranded upper ledge');
+ await walkTo(1,6);await hold('ArrowLeft',35);await frames(50);assert.equal((await state()).room,'t9');assert.equal((await state()).S.keys,0,'Upper spillway key pays for its own lock');
+ await place('t9',3,6,1);await key('v');await frames(30);assert((await state()).S.dungeons.pumpworks.puzzles.upper,'Upper handle opens a lower return shortcut');await shot('upper-shortcut');await walkTo(7,9);await hold('ArrowDown',20);await frames(40);assert.equal((await state()).room,'t5','Return stair descends to the lower landing');await shot('pump-return-stairs');await hold('ArrowUp',20);await frames(40);assert.equal((await state()).room,'t9','Earned stair shortcut works back up to the upper floor');
+ // Heavy counterweights gate the grapple to the big-key island.
+ await place('t10',13,6,2);await fightRoom();await walkTo(3,7);await pushUntil(3,9,'ArrowDown');await walkTo(11,7);await pushUntil(11,9,'ArrowDown');assert((await state()).S.dungeons.pumpworks.puzzles.plates_t10);
+ await walkTo(7,7);await hold('ArrowUp',1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),76);await walkTo(8,3);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.big);await shot('pump-big-key');
+ await walkTo(7,4);await hold('ArrowDown',1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),140,'Loft has a usable return ring');
+ await place('t10',7,1,1);await equip('bombs');await key('v');await hold('ArrowRight',35);await frames(100);assert((await state()).S.doors['t10|t13']);await place('t13',7,6,1);await key('z');await text();assert((await state()).S.opened['t13:7,5']);await shot('pump-dry-attic');
+ // The onward route cannot be crossed before the bell, even with the spork.
+ await place('q_steps',7,7,1);await equip('hook');await key('v');await frames(35);assert((await state()).y>110,'Unraised flood shutter stops the hook');
+ await place('t9',7,1,1);await hold('ArrowUp',30);await frames(45);await text();assert((await state()).S.doors['t11|t9']);
+ await place('t11',7,9,1);await text();await equip('hook');
+ const phases=new Set();let refreshed=false;
+ for(let i=0;i<700;i++){
+  const boss=await p.evaluate(()=>{const e=review.K.dbg.ents.find(e=>e.type==='stockpot');return e&&{st:e.st,hp:e.hp,tm:e.tm,aimX:e.aimX}});
+  if(!boss||(await state()).S.f.stockpot)break;
+  if(!phases.has(boss.st)){phases.add(boss.st);await shot('stockpot-'+boss.st)}
+  if(boss.hp<=8&&!phases.has('phase2')){phases.add('phase2');await shot('stockpot-full-boil')}
+  if(boss.st==='dizzy'){
+    const s=await state();if(s.y>109)await hold('ArrowUp',Math.min(10,Math.ceil((s.y-104)/1.45)));else{await hold('ArrowUp',1);await key('x');await frames(14)}
+  }else if(boss.st==='vent'){
+    const s=await state();if(Math.abs(s.x-128)>3)await hold(s.x<128?'ArrowRight':'ArrowLeft',Math.min(12,Math.ceil(Math.abs(s.x-128)/1.45)));
+    else {if(!refreshed){await p.evaluate(()=>review.restart());refreshed=true;}await hold('ArrowUp',1);await key('v');await frames(10);}
+  }else{
+    const s=await state();if(s.y<140)await hold('ArrowDown',12);
+    else if(boss.st==='wind'&&boss.tm<=48&&Math.abs(s.x-boss.aimX)<25)await hold(s.x>150?'ArrowLeft':'ArrowRight',25);
+    else await frames(12);
+  }
+  assert((await state()).S.hp>0,'Fair boss fixture survives learned tells');
+ }
+ await text();await frames(130);await text();assert((await state()).S.f.stockpot,'Admiral defeated with spork and sword inputs');for(const phase of ['wind','steam','vent','dizzy','phase2'])assert(phases.has(phase),'Boss phase '+phase);await shot('stockpot-defeated');
+ await p.evaluate(()=>review.K.dbg.give({maxH:8}));await place('t11',8,8,1);await hold('ArrowUp',14);await frames(40);await text();assert((await state()).S.got.hc_stockpot);assert.equal((await state()).S.maxH,9);await shot('pump-heart-container');
+ await place('t12',7,7,1);await key('z');await text();assert((await state()).S.f.tidebell);await shot('tidebell');
+ await place('q_steps',7,7,1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),92,'Raised stairs allow spork to the upper route');await shot('high-water-route');await walkTo(8,2);await hold('ArrowUp',40);await frames(50);assert.equal((await state()).room,'q_beacon');await shot('cooler-road-arrival');
+ await place('q_ferry',7,6,1);await key('z');await text();await frames(40);assert.equal((await state()).room,'village');assert((await state()).S.f.ferry,'Onward road unlocks the daylight ferry shortcut');await place('village',14,10,1);await key('z');await text();await frames(40);assert.equal((await state()).room,'q_beacon','Unlocked ferry works in both directions');
+ // Optional town chain crosses both old worlds; each return island has an explicit escape ring.
+ await place('p_lake',3,10,1);await key('v');await frames(40);await text();assert.equal(Math.round((await state()).y),92);await walkTo(4,7);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.f.spindle);await shot('brinewater-spindle');
+ await walkTo(4,7);await hold('ArrowRight',1);await key('v');await frames(35);assert.equal(Math.round((await state()).x),104,'Brinewater island has a return mooring');
+ await place('q_mender',7,6,1);await key('z');await text();assert((await state()).S.f.menderFit);await place('p_forge',7,6,1);await key('z');await text();assert((await state()).S.f.washer);
+ await place('q_mender',7,6,1);await key('z');await text();assert((await state()).S.f.menderDone);assert.equal((await state()).S.shield,2);const reward={pieces:(await state()).S.pieces,gems:(await state()).S.gems};await p.evaluate(()=>review.restart());await key('z');await text();assert.deepEqual({pieces:(await state()).S.pieces,gems:(await state()).S.gems},reward,'Quest rewards are atomic and cannot repeat');await shot('mender-reward');
+ await place('forest',12,6,1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),76);await walkTo(13,4);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.opened['forest:13,3']);await shot('old-forest-spork-secret');await walkTo(12,4);await hold('ArrowDown',1);await key('v');await frames(35);assert.equal(Math.round((await state()).y),124);
+ await place('p_grave',7,8,3);await key('v');await frames(35);assert.equal(Math.round((await state()).x),152);await walkTo(11,9);await hold('ArrowUp',1);await key('z');await text();assert((await state()).S.opened['p_grave:11,8']);await shot('salt-flats-spork-secret');
+ await place('q_quay',8,7,1);await key('c');await frames(12);await shot('expanded-salt-map');await key('c');
+ await reloadCartridge();assert.equal((await state()).room,'q_quay');assert((await state()).S.hook&&(await state()).S.f.tidebell);assert((await state()).S.dungeons.pumpworks.puzzles.lower&&(await state()).S.dungeons.pumpworks.puzzles.upper);assert(await p.evaluate(()=>JSON.stringify(review.saved.value).length<20000),'Three-chapter save fits roaming record');
+ console.log('THIRD COURSE PASS: 13 rooms, 24 outdoor screens, local inventory, counterweights, grapple/pause/refresh, both floodgates, return moorings, boss tells/two phases/container, Tidebell stairs, ferry, three old-world secrets, atomic town quest');
+}
+
+async function routeCheck(){
+ // Check real door mouths too: debug room starts alone cannot catch a bad bank/entry alcove.
+ async function cross(id,x,y,direction,to,bank=false){
+  const dir={ArrowUp:1,ArrowDown:0,ArrowLeft:2,ArrowRight:3}[direction];await place(id,x,y,dir);await text();await hold(direction,22);await frames(50);assert.equal((await state()).room,to,id+' doorway reaches '+to);
+  if(bank){await hold(direction,14);assert((await state()).y>=90,'Door mouth stays on the lower bank of '+to);}
+ }
+ await cross('d1',7,10,'ArrowDown','cliff');await cross('r1',7,10,'ArrowDown','p_cliff');
+ await place('q_tower',7,3,1);await hold('ArrowUp',20);await frames(50);assert.equal((await state()).room,'t1','Physical tower cave enters the low-tide door');
+ await cross('t1',7,10,'ArrowDown','q_tower');
+ await cross('t1',7,1,'ArrowUp','t2');
+ await cross('t2',1,6,'ArrowLeft','t3');await cross('t3',14,6,'ArrowRight','t2');
+ await cross('t2',14,6,'ArrowRight','t4');await cross('t4',1,6,'ArrowLeft','t2');
+ await cross('t2',7,1,'ArrowUp','t5');
+ await cross('t5',1,6,'ArrowLeft','t6');await cross('t6',14,6,'ArrowRight','t5');
+ await cross('t5',14,6,'ArrowRight','t7',true);
+ await place('t8',7,9,0);await hold('ArrowDown',20);await frames(50);assert.equal((await state()).room,'t7','A stair descends from upper spillway to the lower lift');
+ await cross('t9',14,6,'ArrowRight','t8',true);
+ await cross('t9',1,6,'ArrowLeft','t10',true);
+ await cross('t10',7,1,'ArrowUp','t13');await cross('t13',7,10,'ArrowDown','t10');
+ await cross('t11',14,6,'ArrowRight','t12');await walkTo(7,7);await shot('pump-shrine-door-route');
+ await cross('t12',1,6,'ArrowLeft','t11');
+ console.log('ROUTES PASS: real cave/exit, all side branches, lower-bank door alcoves, A/B stairs, attic and boss shrine');
+}
+
+async function legacyCheck(){
+ await place('village',7,6,0);
+ const old=await p.evaluate(()=>{const d=review.K.dbg;d.store.slots[1].name='DAVE SUX';const old=JSON.stringify(d.store.slots[1]);for(const k of ['hook','bow','boots','dungeons','activeDg','terrainRev'])delete d.S[k];d.flush();delete d.store.live.mapRevision;review.K.save(d.store);return {old,name:d.S.name,gems:d.S.gems,x:d.pl.x,y:d.pl.y}});
+ await p.evaluate(()=>review.restart());const s=await state();assert.equal(s.S.name,old.name);assert.equal(s.S.gems,old.gems);assert.equal(s.x,old.x);assert.equal(s.y,old.y);assert.equal(s.S.hook,0);assert.equal(s.S.activeDg,'keep');assert.deepEqual(s.S.dungeons,{});
+ assert.equal(await p.evaluate(()=>JSON.stringify(review.K.dbg.store.slots[1])),old.old,'Inactive legacy file names, balances and saves survive migration');
+ for(const [id,x,y,sx,sy]of [['forest',12,4,200,108],['p_grave',10,9,120,140]]){
+  await place(id,x,y,0);const before=await state();
+  await p.evaluate(()=>{const d=review.K.dbg;delete d.S.terrainRev;d.flush();delete d.store.live.mapRevision;review.K.save(d.store);review.restart()});
+  const moved=await state();assert.equal(moved.room,id);assert.equal(moved.x,sx,'Old '+id+' island position moves to its mainland');assert.equal(moved.y,sy);assert.equal(moved.S.gems,before.S.gems);assert.equal(moved.S.hp,before.S.hp);assert.equal(moved.S.sword,before.S.sword);assert.equal(moved.S.hook,0);
+  await p.evaluate(()=>review.restart());assert.equal((await state()).x,sx,'Terrain migration runs once');assert.equal((await state()).y,sy);
+ }
+ console.log('LEGACY PASS: version-1 fields, exact unaffected pose/name/balance, untouched inactive file, one-time mainland migration for both new moats');
+}
 async function chapter(){
  // The second chapter is a post-credits branch. Seed only the completed first chapter;
  // keep the new dungeon's entire inventory, locks, puzzles, tools and boss unearned.
- await p.evaluate(()=>{const d=review.K.dbg;d.give({done:1,hp:20,maxH:10,sword:1,shield:1,boom:1,bag:1,bombs:10,keys:3,map:1,comp:1,big:1});d.flag('baron',1);d.flag('recipe',1)});
+ await p.evaluate(()=>{const d=review.K.dbg;d.store.slots[1].name='DAVE SUX';d.give({done:1,hp:20,maxH:10,sword:1,shield:1,boom:1,bag:1,bombs:10,keys:3,map:1,comp:1,big:1});d.flag('baron',1);d.flag('recipe',1)});
  await place('village',10,9,1);await key('z');await frames(180);await key('z');await text();await frames(40);
  assert.equal((await state()).room,'p_village','Well enters alternate world');await shot('salt-arrival');
  await key('c');await frames(12);await shot('salt-map');await key('c');
@@ -78,12 +195,12 @@ async function chapter(){
  await place('p_village',15,6,3);await hold('ArrowRight',15);assert.equal((await state()).mode,'scroll');
  await shot('scroll');await p.evaluate(()=>review.restart());assert.equal((await state()).room,'p_east');assert.equal((await state()).mode,'play');
  await place('p_cliff',7,6,1);await shot('reservoir-exterior');
- await place('r1',7,10,1);await text();assert.equal((await state()).S.keys,0,'Keep keys do not open a second dungeon');assert.equal((await state()).S.big,0);
+ await place('r1',7,10,1);await text();assert.equal((await state()).S.keys,0,'Keep keys do not open a second dungeon');assert.equal((await state()).S.big,0);assert(!(await state()).S.puzzles,'Dungeon puzzles never leak into global inventory');
  await shot('reservoir-start');
  // Capture all level starts and validate every hand-authored map/connection.
  const rooms=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).filter(r=>r.dg==='reservoir').map(r=>r.id));
  assert.equal(rooms.length,12);
- const outside=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).filter(r=>r.world==='salt').map(r=>r.id));assert.equal(outside.length,9);for(const id of outside){await place(id,7,6,0);await shot('world-'+id)}
+ const outside=await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).filter(r=>r.world==='salt').map(r=>r.id));assert.equal(outside.length,15);for(const id of outside){await place(id,7,6,0);await shot('world-'+id)}
  assert(await p.evaluate(()=>Object.values(review.K.dbg.ROOMS).every(r=>r.map.length===12&&r.map.every(row=>row.length===16))),'Every screen is 16 by 12');
  for(const id of rooms){await place(id,7,10,1);await text();await shot('start-'+id)}
  // Trap treasure: use actual sword inputs; branches place the player near each enemy.
@@ -137,14 +254,13 @@ async function chapter(){
  assert(pose.S.sword===2);assert(await p.evaluate(()=>JSON.stringify(review.saved.value).length<20000),'Campaign snapshot stays within roaming save size');console.log('CHAPTER PASS: well, scroll restore, local inventory, 12 rooms, combat trap, bow, sluice, bomb secret, twin plates, two-phase boss, forge, ending, dash tree');
 }
 async function fightRoom(){
- for(let i=0;i<500;i++){
+ for(let i=0;i<160;i++){
   const target=await p.evaluate(()=>{const d=review.K.dbg,e=d.ents.find(e=>e.enemy&&!e.dead&&e.type!=='spike');return e&&{x:e.x,y:e.y,h:e.h,px:d.pl.x,py:d.pl.y,hp:d.S.hp}});
-  if(!target)return;
-  assert(target.hp>0,'Combat fixture survived');
-  const dx=target.x-target.px,dy=(target.y+12)-target.py;
-  if(Math.abs(dx)>8)await hold(dx<0?'ArrowLeft':'ArrowRight',Math.min(7,Math.ceil(Math.abs(dx)/1.45)));
-  else if(Math.abs(dy)>5)await hold(dy<0?'ArrowUp':'ArrowDown',Math.min(7,Math.ceil(Math.abs(dy)/1.45)));
-  else{await hold('ArrowUp',1);await key('x');await frames(13);}
+  if(!target)return;assert(target.hp>0,'Combat fixture survived');
+  const dx=target.x-target.px,dy=target.y-target.py;
+  if(Math.hypot(dx,dy)<48){await hold('x',62);await frames(26);}
+  else if(Math.abs(dx)>Math.abs(dy))await hold(dx<0?'ArrowLeft':'ArrowRight',8);
+  else await hold(dy<0?'ArrowUp':'ArrowDown',8);
  }
  throw Error('Combat did not clear');
 }
@@ -154,7 +270,7 @@ async function walkTo(tx,ty){
   const next=await p.evaluate(({tx,ty})=>{
    const d=review.K.dbg,pl=d.pl,room=d.room,px=tx*16+8,py=ty*16+12;
    if(Math.abs(pl.x-px)<1.5&&Math.abs(pl.y-py)<1.5)return null;
-   const solid=new Set('HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
+   const solid=new Set('j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
    const sx=Math.floor(pl.x/16),sy=Math.floor((pl.y-4)/16),q=[[sx,sy,[]]],seen=new Set([sx+','+sy]);
    for(let k=0;k<q.length;k++){
     const[x,y,path]=q[k];if(x===tx&&y===ty){const[a,b]=path[0]||[tx,ty],gx=a*16+8,gy=b*16+12,dx=gx-pl.x,dy=gy-pl.y;return Math.abs(dx)>1.5?{key:dx<0?'ArrowLeft':'ArrowRight',n:Math.min(6,Math.max(1,Math.round(Math.abs(dx)/1.45)))}:{key:dy<0?'ArrowUp':'ArrowDown',n:Math.min(6,Math.max(1,Math.round(Math.abs(dy)/1.45)))}};
@@ -202,7 +318,8 @@ async function roomCheck(){
   const frame=await page.evaluate(()=>RoomTV.dbg().frame);await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>RoomTV.dbg().frame),frame,'House pause freezes cartridge steps');await page.keyboard.press('Escape');await f.until(()=>!HousePause.open);
   if(!before){
    await page.evaluate(()=>{const buttons=Array.from({length:16},()=>({pressed:false,value:0}));window.zeldoPad={id:'Review standard pad',index:0,connected:true,mapping:'standard',buttons,axes:[0,0,0,0]};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[zeldoPad]});RoomTV.dbg().dbg.warp('south',7,6,0);zeldoPad.axes[0]=1;window.zeldoX=RoomTV.dbg().dbg.pl.x;});
-   await f.until(()=>GameInput.mode==='gamepad'&&RoomTV.dbg().dbg.pl.x>zeldoX+6);await page.evaluate(()=>{zeldoPad.axes[0]=0;zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0}});await page.waitForTimeout(220);await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='play');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0};zeldoPad.connected=false});
+   await f.until(()=>GameInput.mode==='gamepad'&&RoomTV.dbg().dbg.pl.x>zeldoX+6);await page.evaluate(()=>{zeldoPad.axes[0]=0;zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0}});await page.waitForTimeout(220);await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:true,value:1}});await f.until(()=>RoomTV.dbg().dbg.mode==='play');await page.evaluate(()=>{zeldoPad.buttons[9]={pressed:false,value:0};RoomTV.dbg().dbg.give({hook:1,sel:'hook'});RoomTV.dbg().dbg.warp('t7',6,7,1);zeldoPad.buttons[3]={pressed:true,value:1}});
+   await f.until(()=>!!RoomTV.dbg().dbg.pl.hook||RoomTV.dbg().dbg.pl.y<85);await page.evaluate(()=>{zeldoPad.buttons[3]={pressed:false,value:0}});await f.until(()=>RoomTV.dbg().dbg.pl.y<85&&!RoomTV.dbg().dbg.pl.act);await page.screenshot({path:dir+'after-gamepad-spork.png'});await page.evaluate(()=>{zeldoPad.connected=false});
   }
   for(const [width,height,name]of [[390,844,'portrait'],[844,390,'landscape'],[1024,768,'tablet'],[1366,860,'desktop']]){
    await page.setViewportSize({width,height});await page.waitForTimeout(250);const r=await page.locator('.rm-tvv.on .rm-glass').boundingBox();assert(r&&Math.abs(r.width/r.height-256/224)<.01&&r.width<=width+1&&r.height<=height+1,'Native screen fits '+name);await page.screenshot({path:dir+tag+'-'+name+'.png'});
@@ -251,6 +368,7 @@ async function touchCheck(account,password){
   assert(moved,'Left thumb pad walks: '+JSON.stringify({from:x,last,pad}));
   await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.screenshot({path:dir+'after-touch-items.png'});await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='map');await page.waitForTimeout(200);await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
+  await page.evaluate(()=>{RoomTV.dbg().dbg.give({hook:1,sel:'hook'});RoomTV.dbg().dbg.warp('t7',6,7,1)});await press('y');await f.until(()=>RoomTV.dbg().dbg.pl.y<85&&!RoomTV.dbg().dbg.pl.act);await page.screenshot({path:dir+'after-touch-spork.png'});
   for(const [width,height,name]of [[390,844,'portrait'],[844,390,'landscape'],[768,1024,'tablet']]){
    await page.setViewportSize({width,height});await page.waitForTimeout(300);
    const screen=await page.locator('.rm-tvv .rm-glass').boundingBox(),dpad=await page.locator('.zeldo-dpad').boundingBox(),buttons=await page.locator('.zeldo-actions').boundingBox();
@@ -263,10 +381,10 @@ async function touchCheck(account,password){
 }
 
 async function equip(item){
- const items=['boom','bombs','soup','bow','boots'],current=Math.max(0,items.indexOf((await state()).S.sel)),target=items.indexOf(item);
+ const items=['boom','bombs','soup','bow','boots','hook'],current=Math.max(0,items.indexOf((await state()).S.sel)),target=items.indexOf(item);
  await key('Enter');await frames(12);
  let row=Math.floor(current/3),col=current%3;const targetRow=Math.floor(target/3);
- if(row!==targetRow){await key(targetRow>row?'ArrowDown':'ArrowUp');row=targetRow;col=Math.min(col,row===1?1:2);}
- const cols=row===1?2:3;for(let i=0,n=(target%3-col+cols)%cols;i<n;i++)await key('ArrowRight');
+ if(row!==targetRow){await key(targetRow>row?'ArrowDown':'ArrowUp');row=targetRow;col=Math.min(col,2);}
+ const cols=3;for(let i=0,n=(target%3-col+cols)%cols;i<n;i++)await key('ArrowRight');
  await key('z');assert.equal((await state()).S.sel,item,'Item menu equips '+item);await key('Enter');
 }

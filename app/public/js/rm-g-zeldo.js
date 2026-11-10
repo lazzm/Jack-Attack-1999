@@ -4,7 +4,8 @@
  * and the north cliffs), buys bombs to blast the rockfall and storms the COLANDER KEEP: small keys and locked doors, a map
  * and a compass, crystal switches, push blocks, a boomerang, the BIG CHEESE mini-boss, the big key and the Baron himself.
  * After the feast, the village well opens THE SECOND HELPING: the Salt-Beyond, Ravioli Reservoir, an enchanted bow,
- * Count Crouton, the Ovenheart and the Al Dente Forge. Old version-1 files, IDs and ending remain compatible.
+ * Count Crouton, the Ovenheart and the Al Dente Forge. Beyond it: Scouring Quay, the two-floor Pothook Pumpworks,
+ * the Spool Spork and Admiral Stockpot's Tidebell. Old version-1 files, IDs and endings remain compatible.
  * Hearts, heart pieces (four make a new heart), heart containers, gems (the money), bombs and a bottle of minestrone.
  * Controls: arrows walk, B (X) sword (hold it, then let go: spin attack), A (Z) talk / lift / throw / open, Y (V) use the
  * item picked on the START menu, X (C) the map. Three save files (Jack's mates got there first); it saves on every new
@@ -12,6 +13,15 @@
 (function () {
   'use strict';
   const TV = window.RoomTV; if (!TV) return;
+  if(typeof Cast!=='undefined')for(const[id,role,pool]of [
+    ['zeldoMender','the bell mender in Scouring Quay',['adultF','adultM']],
+    ['zeldoDock','the Scouring Quay dockkeeper',['adultF','adultM']],
+    ['zeldoFerry','the north pantry ferrykeeper',['oldF','oldM']],
+    ['zeldoKnight','the fictional lunch-loving knight',['oldM']],
+    ['zeldoGhost','the fictional goulash ghost',['adultF','adultM']]
+  ])Cast.add(id,{role,pool});
+  const castName=id=>typeof Cast!=='undefined'?Cast.n(id):id==='me'?'PLAYER':id==='shop'?'SHOPKEEPER':'FRIEND';
+  const castText=text=>typeof Cast!=='undefined'?Cast.t(String(text)):String(text).replace(/\{[^}]+\}/g,'FRIEND');
   const W = 256, H = 224, TS = 16, COLS = 16, ROWS = 12, TOP = 32, RW = 256, RH = 192;
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -383,10 +393,14 @@
     lady: { skin: '#f8c498', hair: '#2a1a1a', top: '#4a7ad0', legs: '#4a7ad0', boot: '#5a3020', apron: '#f8f0e0', dress: 1, long: 1 },
     zeldo: { skin: '#f8d0a8', hair: '#f8d050', top: '#f0a0d0', legs: '#f0a0d0', boot: '#c060a0', dress: 1, long: 1, crown: 1 },
   };
+  STY.dock={skin:'#dba37c',hair:'#49302c',top:'#366e85',legs:'#294151',boot:'#3d302b',cap:'#d4af65'};
+  STY.pump={skin:'#ecc397',hair:'#c9d2ca',top:'#a16c45',legs:'#35495b',boot:'#493b34',apron:'#a8c2bb',glasses:1};
+  STY.mender={skin:'#c78f6b',hair:'#342b35',top:'#b17452',legs:'#344b61',boot:'#352e32',apron:'#e0d6ae',glasses:1};
+  STY.ferry={skin:'#ebbb91',hair:'#c4c6b4',top:'#426c7b',legs:'#2a455b',boot:'#48362c',hat:'#d1ae6a',beard:'#c4c6b4'};
   const PEOPLE = {};
-  function personFrames(name, shield) {
-    const key = name + (shield ? 's' : ''); if (PEOPLE[key]) return PEOPLE[key];
-    const S = STY[name], out = {};
+  function personFrames(name, shield, apron) {
+    const key = name + (shield ? 's' : '') + (apron?'a':''); if (PEOPLE[key]) return PEOPLE[key];
+    const S = apron&&name==='hero'?Object.assign({},STY.hero,{apron:'#b0c4c1'}):STY[name], out = {};
     for (const pose of ['walk', 'attack', 'carry', 'get', 'charge']) for (let dir = 0; dir < 3; dir++) for (let ph = 0; ph < 4; ph++) {
       if (pose !== 'walk' && ph) continue; if (pose === 'get' && dir) continue;
       const c = mk(16, 24, g => paintPerson(g, S, dir, pose, ph, shield), OUT);
@@ -923,7 +937,7 @@
       '#######mm#######'],
       decor: [['bed', 1, 2], ['dresser', 13, 2], ['table', 5, 6], ['plant', 1, 9], ['plant', 14, 9], ['rug', 4, 5], ['fire', 7, 0], ['window', 3, 0], ['window', 11, 0]],
       ents: [['npc', 8, 5, 'mom']], chests: { '11,4': 'sword' }, out: ['home', 5, 7, 0] },
-    h_shop: { kind: 'in', name: "MABEL'S SHOP", song: 'shop', map: [
+    h_shop: { kind: 'in', name: "{shop}'S SHOP", song: 'shop', map: [
       '################',
       '################',
       '#xx.........xxx#',
@@ -953,7 +967,7 @@
       '#######mm#######'],
       decor: [['bed', 1, 2], ['shelf', 12, 2], ['books', 14, 2], ['table', 3, 7], ['chair', 11, 7], ['rug', 6, 4], ['window', 6, 0], ['clock', 10, 0]],
       ents: [['npc', 7, 5, 'elder']], out: ['village', 13, 5, 0] },
-    h_nonna: { kind: 'in', name: "NONNA ROSA'S HOUSE", song: 'home', map: [
+    h_nonna: { kind: 'in', name: "{nan}'S HOUSE", song: 'home', map: [
       '################',
       '################',
       '#xx.........xxx#',
@@ -1204,7 +1218,7 @@
       chests:{'13,4':'piece'}, dashTrees:{'10,4':1}, ents:[['crab',9,7],['snap',4,3]] },
   };
   for (const id in SECOND) ROOMS[id] = Object.assign({kind:'ow',world:'salt',gp:'p',song:'salt'}, SECOND[id]);
-  ROOMS.p_shop = Object.assign({}, ROOMS.h_shop, {name:'MABEL AFTER SALT',out:['p_village',4,5,0]});
+  ROOMS.p_shop = Object.assign({}, ROOMS.h_shop, {name:'{shop} AFTER SALT',out:['p_village',4,5,0]});
   ROOMS.p_forge = Object.assign({}, ROOMS.h_elder, {name:'THE AL DENTE FORGE',song:'home',
     decor:[['shelf',1,2],['books',14,2],['fire',7,0],['table',3,7],['rug',6,4]],
     ents:[['npc',7,5,'elder']],out:['p_home',5,5,0]});
@@ -1259,7 +1273,7 @@
     ['r10',0,1,'THE WEIGHING ROOM',{e:'.'},[
       '################','#..............#','#.....#A#......#','#.....#Z#......#',
       '#..............#','#..............#','#..B.......B...#','#..............#',
-      '#.._......._...#','#..............#','#t............t#','################'],
+      '#.._...j..._...#','#..............#','#t............t#','################'],
       {plateGate:[7,3],chests:{'7,2':'bigkey'},ents:[['bat',7,5]]}],
     ['r11',1,0,"COUNT CROUTON'S ROOST",{s:'Y',e:'U'},[
       '################','#t............t#','#..............#','#..............#',
@@ -1273,7 +1287,125 @@
       {chests:{'7,6':'ovenheart'}}],
   ];
   for (const [id,gx,gy,name,doors,map,extra] of RESERVOIR) ROOMS[id] = Object.assign({kind:'dg',dg:'reservoir',gx,gy,name,doors,map,song:'reservoir'},extra);
-  const DUNGEONS = {keep:{name:'COLANDER KEEP',entry:'d1',boss:'d11'},reservoir:{name:'RAVIOLI RESERVOIR',entry:'r1',boss:'r11'}};
+  // THE THIRD COURSE: a copper tide-tower. Its lower pump, upper gallery and
+  // spillway share local flood flags; inventory never borrows the Keep's keys.
+  const QUAY = {
+    q_moor:{gx:3,gy:2,name:'THE DISHCLOTH MARSH',map:[
+      'TTTTTT....TTTTTT','T......::......T','T..~~~.::..~~~.T','T..~~~.::..~~~.T',
+      'T......::......T','.......::.......','::::::::::::::::','T..~~~.::......T',
+      'T..~~~.::..f...T','T......::......T','T.S....::......T','TTTTTTTTTTTTTTTT'],ents:[['crab',10,8],['snap',5,4]]},
+    q_quay:{gx:3,gy:1,name:'SCOURING QUAY',song:'quay',map:[
+      'TTTTTT....TTTTTT','T......::......T','T.hhhhh::hhhhh.T','T.hhhhh::hhhhh.T',
+      'T.hhdhh::hhdhh.T','T...:..::..:....','T...::::::::::::','T......::......T',
+      'T.f....::..f...T','T......::......T','T......::......T','TTTTTT....TTTTTT'],
+      houses:[[2,2,5,3,'red'],[9,2,5,3,'shop']],warps:{'4,4':['q_mender',7,10,1],'11,4':['q_shop',7,10,1]},ents:[['npc',5,7,'dock'],['npc',10,8,'fisher']]},
+    q_tower:{gx:3,gy:0,name:'POTHOOK PUMPWORKS',map:[
+      'CCCCCCCCCCCCCCCC','CCCCC......CCCCC','CCCCC..@@..CCCCC','CCCCC......CCCCC',
+      'CCC....::....CCC','T..r...::...r..T','T......::......T','T..~~~~::~~~~..T',
+      'T..~~~~::~~~~..T','T......::......T','T.S....::......T','TTTTTT....TTTTTT'],
+      warps:{'7,2':['t1',7,10,1],'8,2':['t1',8,10,1]}},
+    q_reeds:{gx:4,gy:2,name:'THE SPOONBILL REEDS',map:[
+      'TTTTTT....TTTTTT','T......::......T','T..b...::......T','T..~~~.::..~~~.T',
+      'T..~~~.::..~~~.T','.......::......T','::::::::.......T','T..~~~.::..~~~.T',
+      'T..~~~.::..~~~.T','T......::......T','T..f...::..f...T','TTTTTTTTTTTTTTTT'],ents:[['snap',4,2],['crab',11,6]]},
+    q_steps:{gx:4,gy:1,name:'THE HIGH WATER STAIRS',map:[
+      'TTTTTT....TTTTTT','T......::......T','T......::......T','T~~~~~~..~~~~~~T',
+      'T~~~~~~j.~~~~~~T','T~~~~~~..~~~~~~T',':::::::ZZ~~~~~~T','T......::......T',
+      'T......::......T','T......:j......T','T.S....::......T','TTTTTT....TTTTTT'],
+      tideBridge:[[7,6],[8,6]],ents:[['npc',4,8,'cal']]},
+    q_beacon:{gx:4,gy:0,name:'THE COOLER ROAD',song:'quay',gp:'g',map:[
+      'CCCCCCCCCCCCCCCC','C..f....S......C','C.....hhhhh....C','C.....hhhhh....C',
+      'C.....hhdhh....C','C.......:......C','C..c....:...j..C','C..~~~~~:~~~~..C',
+      'C..~~~~~:~~~~..C','C.......:......C','C.......:......C','CCCCCC....CCCCCC'],
+      houses:[[6,2,5,3,'blue']],warps:{'8,4':['q_ferry',7,10,1]},chests:{'3,6':'piece'},ents:[['npc',10,9,'ferry']]},
+  };
+  for(const id in QUAY)ROOMS[id]=Object.assign({kind:'ow',world:'salt',gp:'p',song:'salt'},QUAY[id]);
+  ROOMS.q_mender=Object.assign({},ROOMS.h_elder,{name:'THE BELL MENDER',song:'quay',decor:[['bellbench',1,2],['bellshelf',12,2],['books',14,2],['bellbench',3,7],['chair',11,7],['rug',6,4],['window',6,0],['clock',10,0]],out:['q_quay',4,5,0],ents:[['npc',7,5,'mender']]});
+  ROOMS.q_shop=Object.assign({},ROOMS.h_shop,{name:'THE QUAY STORES',out:['q_quay',11,5,0]});
+  ROOMS.q_ferry=Object.assign({},ROOMS.h_elder,{name:'THE NORTH PANTRY POST',song:'quay',out:['q_beacon',8,5,0],ents:[['npc',7,5,'ferry']]});
+  ROOMS.village.ents.push(['npc',14,9,'ferry']);
+  // Existing shores now advertise secrets with matching brass mooring rings.
+  function setMapTile(id,x,y,c){const a=ROOMS[id].map.slice(),r=a[y].split('');r[x]=c;a[y]=r.join('');ROOMS[id].map=a;}
+  ROOMS.p_shore.dashTrees=Object.assign({},ROOMS.p_shore.dashTrees,{'15,5':'route','15,6':'route'});
+  ROOMS.p_shore.routeTrees={'15,5':1,'15,6':1};
+  for(let y=4;y<=7;y++)for(let x=2;x<=4;x++)setMapTile('p_lake',x,y,'.');
+  setMapTile('p_lake',3,4,'j');setMapTile('p_lake',4,6,'c');setMapTile('p_lake',7,7,'j');setMapTile('p_lake',6,7,'.');
+  ROOMS.p_lake.chests={'4,6':'spindle'};
+  setMapTile('p_grave',10,8,'j');setMapTile('p_grave',11,8,'c');setMapTile('p_grave',6,8,'j');ROOMS.p_grave.chests['11,8']='gems50';
+  for(let x=8;x<=12;x++)setMapTile('p_grave',x,7,'~');
+  for(let y=8;y<=10;y++){setMapTile('p_grave',8,y,'~');setMapTile('p_grave',12,y,'~');}
+  for(let y=1;y<=4;y++)for(let x=11;x<=13;x++)setMapTile('forest',x,y,'.');
+  setMapTile('forest',13,1,'c');setMapTile('forest',12,3,'j');setMapTile('forest',13,3,'c');
+  for(const y of [6,7])setMapTile('forest',12,y,'.');setMapTile('forest',12,8,'j');
+  ROOMS.forest.ents=ROOMS.forest.ents.map(e=>e[0]==='gloop'&&e[1]===13&&e[2]===4?['gloop',11,10]:e);
+  ROOMS.forest.chests=Object.assign({},ROOMS.forest.chests,{'13,3':'piece'});
+  for(let x=10;x<=14;x++)setMapTile('forest',x,5,'~');
+  for(let y=1;y<5;y++){setMapTile('forest',10,y,'~');setMapTile('forest',14,y,'~');}
+  const PUMPWORKS=[
+    ['t1',1,4,'THE LOW TIDE DOOR',{n:'.',s:'X'},[
+      '################','#t............t#','#...S......S...#','#..............#',
+      '#..............#','#..............#','#..............#','#...v......v...#',
+      '#...v......v...#','#...p......p...#','#..............#','################'],{exit:['q_tower',7,3,0],ents:[['npc',10,6,'pump']]}],
+    ['t2',1,3,'THE LOWER SIPHON',{s:'.',w:'.',e:'.',n:'L'},[
+      '################','#t............t#','#......::......#','#..vv..::..vv..#',
+      '#..vv..::..vv..#','#......::......#','#......::......#','#..vv..::..vv..#',
+      '#..vv..::..vv..#','#......::......#','#..............#','################'],{ents:[['crab',5,5],['snap',11,7]]}],
+    ['t3',0,3,'THE DRAIN WATCH',{e:'.'},[
+      '################','#t............t#','#..............#','#...S......S...#',
+      '#..............#','#......c.......#','#..............#','#...S......S...#',
+      '#..............#','#p............p#','#..............#','################'],{trap:1,chests:{'7,5':'key'},hidden:{'7,5':1},ents:[['knight',4,6],['gloopP',10,7],['bat',7,3]]}],
+    ['t4',2,3,'THE GAUGE ARCHIVE',{w:'.'},[
+      '################','#t............t#','#..c........c..#','#..............#',
+      '#..vv......vv..#','#..vv......vv..#','#..............#','#..vv......vv..#',
+      '#..vv......vv..#','#p............p#','#..............#','################'],{chests:{'3,2':'map','12,2':'compass'},ents:[['crab',7,7]]}],
+    ['t5',1,2,'THE WINDING LANDING',{s:'L',w:'.',e:'.',n:'O'},[
+      '################','#t............t#','#......==......#','#..vv..==..vv..#',
+      '#..vv..==..vv..#','#......==......#','#......==......#','#..vv..==..vv..#',
+      '#..vv..==..vv..#','#......==......#','#..............#','################'],{localDoors:{n:'upper'},ents:[['knight',11,6]]}],
+    ['t6',0,2,'THE SPRING CUTLERY',{e:'.'},[
+      '################','#t............t#','#....#####.....#','#....#.A.#.....#',
+      '#....##Z##.....#','#..............#','#..............#','#......B.......#',
+      '#..............#','#......_.......#','#p............p#','################'],{plateGate:[7,4],chests:{'7,3':'hook'}}],
+    ['t7',2,2,'THE FIRST LIFT',{w:'.',n:'O'},[
+      '################','#t............t#','#..............#','#..!..j........#',
+      '#..............#','#vvvvvvvvvvvvvv#','#vvvvvvvvvvvvvv#','#..............#',
+      '#.....j........#','#p............p#','#..............#','################'],{localDoors:{n:'lower'},levers:{'3,3':'lower'},floods:[{flag:'lower',cells:[[7,5],[8,5],[7,6],[8,6]]}]}],
+    ['t8',2,1,'THE UPPER SPILLWAY',{s:'.',w:'L'},[
+      '################','#t............t#','#..............#','#..c..j........#',
+      '#..............#','#vvvvvvvvvvvvvv#','#vvvvvvvvvvvvvv#','#..............#',
+      '#.....j........#','#p............p#','#..............#','################'],{chests:{'3,3':'key'}}],
+    ['t9',1,1,'THE HEADWATER WALK',{e:'L',w:'.',s:'O',n:'Y'},[
+      '################','#t............t#','#..............#','#..!..j........#',
+      '#..............#','#..............#','#..............#','#..vv......vv..#',
+      '#..vv......vv..#','#p............p#','#..............#','################'],{localDoors:{s:'upper'},levers:{'3,3':'upper'},ents:[['knight',11,7]]}],
+    ['t10',0,1,'THE COUNTERWEIGHT LOFT',{e:'.',n:'J'},[
+      '################','#t............t#','#.......A......#','#......j.......#',
+      '#vvvvv...vvvvvv#','#vvvvvvvvvvvvvv#','#......Z.......#','#..............#',
+      '#..B.......B...#','#.._...j..._...#','#..............#','################'],{plateGate:[7,6],chests:{'8,2':'bigkey'},ents:[['bat',4,6]]}],
+    ['t13',0,0,'THE DRY ATTIC',{s:'J'},[
+      '################','#t............t#','#..............#','#...p......p...#',
+      '#..............#','#......c.......#','#..............#','#...p......p...#',
+      '#..............#','#..............#','#..............#','################'],{secret:1,chests:{'7,5':'piece'},ents:[['gem',10,7,20]]}],
+    ['t11',1,0,"THE ADMIRAL'S HOB",{s:'Y',e:'U'},[
+      '################','#t............t#','#..............#','#..............#',
+      '#..............#','#..............#','#..............#','#..............#',
+      '#..............#','#..............#','#p............p#','################'],{trap:1,song:'pressure',ents:[['stockpot',7,4]]}],
+    ['t12',2,0,'THE TIDEBELL BOWER',{w:'.'},[
+      '################','#t............t#','#..............#','#.....SSSS.....#',
+      '#.....S..S.....#','#.....S..S.....#','#......c.......#','#..............#',
+      '#..............#','#p............p#','#..............#','################'],{chests:{'7,6':'tidebell'}}],
+  ];
+  for(const[id,gx,gy,name,doors,map,extra]of PUMPWORKS)ROOMS[id]=Object.assign({kind:'dg',dg:'pumpworks',gx,gy,name,doors,map,song:'pumpworks'},extra);
+  const DUNGEONS = {keep:{name:'COLANDER KEEP',entry:'d1',boss:'d11'},reservoir:{name:'RAVIOLI RESERVOIR',entry:'r1',boss:'r11'},pumpworks:{name:'POTHOOK PUMPWORKS',entry:'t1',boss:'t11'}};
+  for(const id of ['t7','t8','t5','t9'])ROOMS[id].stairsMark=['t7','t8'].includes(id)?'A':'B';
+  ROOMS.t7.stairs={flag:'lower',cells:[[7,2],[8,2]],to:['t8',7,9,1]};
+  ROOMS.t8.stairs={flag:'lower',cells:[[7,10],[8,10]],to:['t7',7,3,0]};
+  ROOMS.t5.stairs={flag:'upper',cells:[[7,1],[8,1]],to:['t9',7,9,1]};
+  ROOMS.t9.stairs={flag:'upper',cells:[[7,10],[8,10]],to:['t5',7,2,0]};
+  for(const[id,side]of [['t7','n'],['t8','s'],['t5','n'],['t9','s']]){delete ROOMS[id].doors[side];if(ROOMS[id].localDoors)delete ROOMS[id].localDoors[side];}
+  // Door mouths lead onto the LOWER bank, never an automatic unstick onto the prize ledge.
+  for(const id of ['t7','t8'])for(const x of [1,2]){setMapTile(id,x,4,'#');setMapTile(id,x,5,'.');setMapTile(id,x,6,'.');}
+  for(const x of [13,14]){setMapTile('t10',x,4,'#');setMapTile('t10',x,5,'.');setMapTile('t10',x,6,'.');}
   const OWG = {}, DGG = {};
   const worldKey = (r,x,y) => (r.world || 'light') + ':' + x + ',' + y;
   const dgKey = (r,x,y) => (r.dg || 'keep') + ':' + x + ',' + y;
@@ -1379,6 +1511,15 @@
         R(g, 3, 16, 26, 14, '#d84a4a'); for (let x = 3; x < 29; x += 6) for (let y = 16; y < 30; y += 6) R(g, x + ((y / 6) % 2) * 3, y, 3, 3, '#f8a040'); R(g, 3, 16, 26, 1, '#f88a7a'); R(g, 27, 16, 2, 14, '#a02a2a');
       }, OUT); break;
       case 'dresser': c = mk(32, 16, g => { R(g, 1, 1, 30, 14, '#8a5428'); R(g, 1, 1, 30, 2, '#c08048'); for (let y = 5; y < 14; y += 4) { R(g, 3, y, 26, 3, '#a8683a'); R(g, 14, y + 1, 4, 1, '#f8d040'); } R(g, 4, -0, 4, 2, '#5ab0e8'); }, OUT); break;
+      case 'bellbench':c=mk(32,32,g=>{
+        R(g,3,18,3,13,'#483126');R(g,25,18,3,13,'#483126');R(g,2,11,28,11,'#784b31');R(g,2,11,28,2,'#d39757');R(g,3,13,26,1,'#4e342a');R(g,5,21,22,2,'#3b2c2b');
+        for(const x of [9,22]){E(g,x,9,5,3,'#d6a258');R(g,x-4,6,8,4,'#d6a258');E(g,x,6,4,4,'#d6a258');R(g,x-2,3,2,6,'#f1cd83');E(g,x,10,5,1,'#775037');P(g,x,11,'#e8cf91');}
+        R(g,12,16,9,2,'#243d4d');R(g,17,15,2,5,'#a7c3bf');R(g,4,16,3,2,'#e0d1a9');R(g,5,15,1,4,'#e0d1a9');
+      },OUT);break;
+      case 'bellshelf':c=mk(32,16,g=>{
+        R(g,1,1,30,14,'#6d422e');R(g,2,2,28,11,'#352b2a');R(g,1,13,30,2,'#c28d55');
+        for(const x of [7,16,25]){E(g,x,9,4,3,'#c7924b');R(g,x-3,6,6,4,'#c7924b');R(g,x-1,4,1,5,'#f0cd80');E(g,x,11,4,1,'#efd295');}
+      },OUT);break;
       case 'table': c = mk(32, 32, g => {
         E(g, 17, 28, 14, 3, 'rgba(0,0,0,.35)'); E(g, 16, 14, 15, 11, '#7a4420'); E(g, 16, 13, 14, 10, '#f8f0e0'); E(g, 16, 13, 12, 8, '#e8e0d0');
         for (let i = 0; i < 6; i++) R(g, 3 + i * 5, 21, 3, 3, i % 2 ? '#e83a3a' : '#f8f0e0');
@@ -1404,7 +1545,7 @@
         R(g, 10, 19, 12, 4, '#b8b8c8'); R(g, 11, 19, 10, 1, '#e8e8f0'); R(g, 12, 21, 2, 1, '#3a52d0'); R(g, 15, 21, 2, 1, '#d42a2a'); R(g, 18, 21, 2, 1, '#e8c21a');
       }, OUT); break;
       case 'shopsign': c = mk(64, 20, g => { R(g, 2, 3, 60, 15, '#5a3418'); R(g, 4, 5, 56, 11, '#f8e0a0'); R(g, 4, 5, 56, 2, '#fff4c8'); R(g, 10, 0, 2, 4, '#8a8a9a'); R(g, 52, 0, 2, 4, '#8a8a9a'); }, OUT);
-        if (font) font.center(c.getContext('2d'), "MABEL'S", 32, 7, '#8a2a10', 1); break;
+        if (font) font.center(c.getContext('2d'), "STORES", 32, 7, '#8a2a10', 1); break;
       case 'stand': c = mk(16, 16, g => { E(g, 8, 14, 7, 2, 'rgba(0,0,0,.35)'); R(g, 1, 4, 14, 10, '#7a4420'); R(g, 1, 4, 14, 3, '#c08048'); R(g, 1, 7, 14, 1, '#5a3010'); R(g, 3, 9, 10, 3, '#5a3010'); }, OUT); break;
       default: c = cnv(16, 16);
     }
@@ -1553,6 +1694,53 @@
     lead:[74,0,69,72,0,65,69,0,67,0,62,65,0,60,62,0,70,0,65,69,0,62,65,0,69,0,64,67,0,61,64,0],
     bass:[38,0,45,0,50,0,45,0,36,0,43,0,48,0,43,0,34,0,41,0,46,0,41,0,33,0,40,0,45,0,40,0]};
 
+  SONGS.quay={bpm:106,wave:'triangle',bassWave:'triangle',vol:.05,drums:'o...x...o...x...',
+    lead:tune('D5:2 A4:2 F#4:4 E4:2 F#4:2 A4:4 | B4:2 A4:2 D5:4 C#5:2 B4:2 A4:4 | G4:4 B4:2 E5:2 D5:4 B4:4 | A4:2 F#4:2 E4:4 D4:6 .:2'),
+    bass:tune('D3:4 A2:4 D3:4 F#3:4 | G2:4 D3:4 G2:4 B2:4 | E3:4 B2:4 E3:4 G3:4 | A2:4 E3:4 D3:6 .:2')};
+  SONGS.pumpworks={bpm:112,wave:'triangle',bassWave:'square',vol:.043,drums:'o.......x...x...',
+    lead:tune('F#4:2 .:2 C#5:2 D5:2 A4:4 .:4 | B4:2 .:2 F#4:2 G#4:2 E4:4 .:4 | A4:2 C#5:2 E5:4 D5:2 B4:2 G#4:4 | C#5:2 .:2 B4:2 G#4:2 F#4:6 .:2'),
+    bass:tune('F#2:4 C#3:4 F#2:4 A2:4 | E2:4 B2:4 E2:4 G#2:4 | D2:4 A2:4 D3:4 F#3:4 | C#3:4 G#2:4 F#2:6 .:2')};
+  SONGS.pressure={bpm:152,wave:'square',bassWave:'triangle',vol:.04,drums:'o.x.o.xx',
+    lead:tune('F#4:2 A4:2 C#5:2 .:2 B4:2 G4:2 A4:4 | E5:2 C#5:2 D5:2 B4:2 C#5:4 .:4 | A4:2 F#4:2 E4:2 F#4:2 G4:2 B4:2 D5:4 | C#5:2 B4:2 G#4:2 E4:2 F#4:6 .:2'),
+    bass:tune('F#2:2 C#3:2 F#2:2 C#3:2 E2:2 B2:2 E2:2 B2:2 | D2:2 A2:2 D2:2 A2:2 C#2:2 G#2:2 C#2:2 G#2:2')};
+  function pumpFloor(v,x,y){
+    return tc('pf'+v+':'+x%4+':'+y%4,gg=>{
+      R(gg,0,0,16,16,'#172c43');R(gg,1,1,14,14,'#294b60');
+      R(gg,1,1,14,1,'#507487');R(gg,1,14,14,1,'#182b40');R(gg,14,1,1,14,'#182b40');
+      if(y%3===0){R(gg,0,6,16,4,'#563b39');R(gg,0,6,16,1,'#c17d53');R(gg,0,9,16,1,'#80513e');P(gg,3,7,'#efbd77');P(gg,12,7,'#efbd77');}
+      if((x+y)%4===0){R(gg,7,2,2,2,'#779ca4');P(gg,7,2,'#a8c5bc');}
+      if(v){R(gg,2,11,4,1,'#1b344a');P(gg,6,12,'#1b344a');}
+    });
+  }
+  function buildThirdArt(){
+    ITEMIMG.hook=mk(16,16,gg=>{
+      E(gg,6,10,4,4,'#593b38');E(gg,6,9,4,4,'#d28d4e');E(gg,6,9,2,2,'#f8cf82');
+      R(gg,8,3,3,8,'#abc4c8');R(gg,9,2,2,8,'#edf7e7');R(gg,7,1,7,2,'#abc4c8');
+      R(gg,7,0,1,4,'#edf7e7');R(gg,10,0,1,3,'#edf7e7');R(gg,13,0,1,4,'#edf7e7');
+      R(gg,3,13,7,2,'#274a5b');P(gg,4,7,'#fff2ba');
+    },OUT);
+    ITEMIMG.hookHead=[0,1,2,3].map(dir=>mk(16,16,gg=>{gg.translate(8,8);gg.rotate([Math.PI/2,-Math.PI/2,Math.PI,0][dir]);R(gg,-5,-1,10,3,'#9ab9bf');R(gg,-5,-1,10,1,'#f0f8e7');R(gg,3,-4,2,9,'#e8f0e0');R(gg,3,-4,5,1,'#e8f0e0');R(gg,3,0,5,1,'#e8f0e0');R(gg,3,4,5,1,'#e8f0e0');},OUT));
+    ITEMIMG.moor=mk(16,16,gg=>{E(gg,8,14,6,2,'#182c3b');R(gg,5,8,6,6,'#744e39');R(gg,5,8,2,6,'#c08856');E(gg,8,6,5,5,'#6b4635');E(gg,8,5,5,4,'#e0b368');E(gg,8,5,3,2,'#24394b');P(gg,5,3,'#fff0b0');R(gg,6,13,5,1,'#e0b368');},OUT);
+    ITEMIMG.valve=[0,1].map(on=>mk(16,16,gg=>{R(gg,5,8,6,7,'#633f37');R(gg,5,8,2,7,'#b5724c');E(gg,8,6,6,5,'#d6a762');E(gg,8,6,4,3,on?'#74c4b1':'#23435b');R(gg,7,1,2,10,'#f3d68a');R(gg,3,5,10,2,'#e9c37c');P(gg,4,4,'#fff3ba');},OUT));
+    ITEMIMG.spindle=mk(16,16,gg=>{R(gg,6,2,4,12,'#bc8750');R(gg,6,2,1,12,'#f7d99b');E(gg,8,3,6,2,'#e6b06d');E(gg,8,12,6,2,'#d39c58');R(gg,3,6,10,3,'#6e9caa');R(gg,3,6,10,1,'#d4f0e8');},OUT);
+    ITEMIMG.tidebell=mk(16,16,gg=>{E(gg,8,6,5,5,'#c38c4f');R(gg,3,6,10,6,'#dfa958');R(gg,5,3,3,9,'#ffe09b');E(gg,8,12,7,2,'#a56c3e');R(gg,7,0,2,3,'#f1cf81');R(gg,7,13,3,2,'#f3dca0');},OUT);
+    ITEMIMG.apron=mk(16,16,gg=>{R(gg,5,1,6,4,'#d7e3d6');R(gg,3,4,10,11,'#73959d');R(gg,4,4,2,10,'#d7e3d6');R(gg,6,7,5,4,'#a6bec0');R(gg,7,8,3,1,'#edf6df');R(gg,3,14,10,1,'#d8bb7d');},OUT);
+    SPR.steam=mk(10,10,gg=>{E(gg,5,6,4,3,'#9cced8');E(gg,4,4,3,3,'#d6f1ea');R(gg,5,1,2,3,'#edf8ee');},OUT);
+    SPR.stockpot=[0,1,2,3].map(frame=>mk(56,48,gg=>{
+      // Copper cooker, enamel handles and a hinged lid, readable without borrowed silhouettes.
+      E(gg,28,43,22,4,'#102536');R(gg,8,19,40,20,'#663c35');E(gg,28,36,20,9,'#663c35');
+      R(gg,9,18,38,18,'#b66b43');E(gg,28,34,19,8,'#b66b43');R(gg,12,20,5,15,'#e8a365');R(gg,18,20,2,19,'#ce8752');
+      E(gg,28,20,20,8,'#e5ad72');E(gg,28,21,16,5,frame===3?'#482e3b':'#7f4b36');
+      R(gg,1,20,9,7,'#253d4c');R(gg,3,21,7,2,'#6f98a0');R(gg,46,20,9,7,'#253d4c');R(gg,46,21,7,2,'#6f98a0');
+      const lift=frame===3?12:0;
+      E(gg,28,17-lift,22,6,'#6f4b3b');E(gg,28,15-lift,21,6,'#cb9860');E(gg,26,13-lift,15,4,'#f0c586');R(gg,23,7-lift,10,4,'#31434c');R(gg,24,7-lift,8,1,'#a5c5c4');
+      if(frame===1||frame===3){E(gg,28,7-lift,6,5,'#e2bf72');E(gg,28,7-lift,3,2,'#263e50');P(gg,24,4-lift,'#fff2a8');}
+      R(gg,22,28,4,3,'#192434');R(gg,33,28,4,3,'#192434');P(gg,22,28,'#f8f4cc');P(gg,33,28,'#f8f4cc');
+      if(frame===3){R(gg,23,33,3,1,'#fff0c0');R(gg,31,33,3,1,'#fff0c0');}else R(gg,26,34,5,2,'#4b2e35');
+      for(const x of [14,37]){R(gg,x,40,5,5,'#253b4b');R(gg,x,40,5,2,'#a1b7ae');}
+      if(frame===2){E(gg,28,5,5,3,'#d4f1e9');E(gg,22,1,4,2,'#abd7dd');E(gg,35,1,4,2,'#abd7dd');}
+    },OUT));
+  }
   function reservoirFloor(v,x,y) {
     return tc('rf'+v+':'+(x%4)+':'+(y%4), gg=>{
       R(gg,0,0,16,16,'#234458');R(gg,1,1,14,14,'#426c78');
@@ -1648,7 +1836,7 @@
       }
       installTouch();
       g.imageSmoothingEnabled = false;
-      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); buildSecondArt(); }
+      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); buildSecondArt(); buildThirdArt(); }
       const LB = b => touchPanel ? K.label(b) : K.keyLabel ? K.keyLabel(b) : K.label(b);
 
       // ============================================================ sounds
@@ -1699,13 +1887,13 @@
       let curSong = null;
 
       // ============================================================ the save files (three slots: Jack's mates got there first)
-      const HOF0 = [['LUKE', 14820], ['JK', 12260], ['JACK', 9870], ['DAVE', 7350], ['CAL', 4410], ['MOM', 1250]];
+      const HOF0 = [['mate2',14820],['mate4',12260],['me',9870],['mate1',7350],['mate3',4410],['mom',1250]].map(([id,score])=>[castName(id).toUpperCase().slice(0,8),score]);
       function freshSave(name) {
-        return { name, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, bow: 0, boots: 0, dungeons: {}, activeDg: 'keep', sword: 0, shield: 0, boom: 0, bottle: 0,
+        return { name, terrainRev:2, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, bow: 0, boots: 0, hook: 0, dungeons: {}, activeDg: 'keep', sword: 0, shield: 0, boom: 0, bottle: 0,
           sel: '', f: {}, opened: {}, doors: {}, cleared: {}, seen: {}, gone: {}, room: 'h_home', x: 136, y: 124, dir: 0, time: 0, score: 0, deaths: 0, done: 0, intro: 0 };
       }
       function demoSaves() {
-        const d = freshSave('DAVE SUX'); Object.assign(d, { intro: 1, sword: 1, shield: 1, room: 'village', x: 120, y: 92, gems: 12, time: 2832, score: 380, hp: 3, f: { mom: 1 }, seen: { h_home: 1, home: 1, south: 1, village: 1 } });
+        const d = freshSave((castName('mate1').toUpperCase()+' SUX').slice(0,8)); Object.assign(d, { intro: 1, sword: 1, shield: 1, room: 'village', x: 120, y: 92, gems: 12, time: 2832, score: 380, hp: 3, f: { mom: 1 }, seen: { h_home: 1, home: 1, south: 1, village: 1 } });
         const t = freshSave('TEST'); Object.assign(t, { intro: 1, time: 63, score: 0, seen: { h_home: 1 } });
         return [null, d, t];
       }
@@ -1718,7 +1906,7 @@
         const fading=mode==='fade'&&trans;
         const dest=jumping?trans.to.id:fading?trans.warp[0]:room.id;
         const clean=e=>Object.assign({},e,{hitList:undefined,carried:undefined,getSpr:undefined});
-        const live={slot,room:dest,mode:jumping||fading?'play':mode,
+        const live={mapRevision:2,slot,room:dest,mode:jumping||fading?'play':mode,
           pl:clean(pl),ents:jumping||fading?null:ents.filter(e=>!e.dead).map(clean),shots:jumping||fading?[]:shots,
           tiles:jumping||fading?null:room.t.map(r=>r.join('')),trapOn:room.trapOn,trapPending:room.trapPending,
           menu:menu&&Object.assign({},menu),mapT,dyingT,over,ending:ending&&Object.assign({},ending),co:!!co,box:mode==='ending'&&tb?JSON.parse(JSON.stringify(tb)):null};
@@ -1758,7 +1946,7 @@
 
       // ============================================================ rooms: load, doors, tiles, drawing
       let room = null, ents = [], shots = [], fx = [], pl = null;
-      const SOLID = new Set('HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
+      const SOLID = new Set('j!HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
       const LOW = new Set(['~', 'v']); // you can't walk on them, but things fly over
       const LIFT = { b: 'bush', r: 'rock', p: 'pot' };
       const WALKDOOR = new Set(['n', 'X', 'E']);
@@ -1786,6 +1974,7 @@
             if (rm.trapOn && (st === 'n' || st === 'E' || st === 'X')) st = 'U';
             rm.did[side] = did;
           }
+          if(rm.def.localDoors?.[side])st=localPuzzle(rm.def)[rm.def.localDoors[side]]?'n':'U';
           rm.doors[side] = st;
           for (const [x, y] of DOORCELLS[side]) rm.t[y][x] = st === '#' ? '#' : st;
         }
@@ -1797,8 +1986,24 @@
         const next = def.kind === 'dg' ? (def.dg || 'keep') : S.activeDg || 'keep';
         if (next === S.activeDg) return;
         S.dungeons = S.dungeons || {};
-        S.dungeons[S.activeDg || 'keep'] = {keys:S.keys,big:S.big,map:S.map,comp:S.comp};
-        Object.assign(S,{keys:0,big:0,map:0,comp:0},S.dungeons[next] || {});S.activeDg=next;
+        S.dungeons[S.activeDg || 'keep'] = Object.assign(S.dungeons[S.activeDg || 'keep'] || {},{keys:S.keys,big:S.big,map:S.map,comp:S.comp});
+        const inv=S.dungeons[next]||{};for(const k of ['keys','big','map','comp'])S[k]=inv[k]||0;S.activeDg=next;
+      }
+      function localPuzzle(def) {
+        const id=def.dg || 'pumpworks';
+        const inv=S.dungeons[id] || (S.dungeons[id]={});
+        return inv.puzzles || (inv.puzzles={});
+      }
+      function applyFloods(rm) {
+        for(const f of rm.def.floods || [])if(localPuzzle(rm.def)[f.flag])for(const[x,y]of f.cells)rm.t[y][x]='=';
+        if(rm.def.stairs){const st=rm.def.stairs;for(const[x,y]of st.cells)rm.t[y][x]=localPuzzle(rm.def)[st.flag]?'^':'Z';}
+        if(rm.def.tideBridge && S.f.tidebell)for(const[x,y]of rm.def.tideBridge)rm.t[y][x]='=';
+      }
+      function pullRing(tx,ty) {
+        const flag=room.def.levers?.[tx+','+ty];if(!flag)return;
+        const flags=localPuzzle(room.def);
+        if(!flags[flag]){flags[flag]=1;applyFloods(room);setDoors(room);render(room);shake=3;sparks(tx*16+8,ty*16+8,12,'#a8e8ef');SND.secret();addScore(250);toast={s:flag==='lower'?'LOWER LIFT FILLED - CLIMB NORTH':'RETURN SLUICE OPENED',t:0};save();}
+        else SND.click();
       }
       function makeRoom(id) {
         const def = ROOMS[id];
@@ -1812,16 +2017,16 @@
         }
         if (id === 'grave' && S.f.grave) { rm.t[3][8] = 'G'; rm.t[4][8] = '^'; }
         if (id === 'd9' && S.f.gate) rm.t[3][7] = 'z';
-        if (def.plateGate && S.f['plates_'+id]) rm.t[def.plateGate[1]][def.plateGate[0]]='z';
+        if (def.plateGate && (def.dg==='pumpworks'?localPuzzle(def):S.f)['plates_'+id]) rm.t[def.plateGate[1]][def.plateGate[0]]='z';
         if (def.eye && S.f[def.eye]) {
           for (const [x,y] of def.bridge || []) rm.t[y][x]='=';
           for (const k in def.hidden || {}) if (!S.opened[id+':'+k]) {const [x,y]=k.split(',').map(Number);rm.t[y][x]='c';}
         }
-        applyCrystal(rm);
+        applyCrystal(rm);applyFloods(rm);
         if (rm.kind === 'dg') setDoors(rm);
         return rm;
       }
-      function roomName(id) { return ROOMS[id].name.replace('{N}', (S && S.name ? S.name.trim() : 'JACK') || 'JACK'); }
+      function roomName(id) { return castText(ROOMS[id].name).toUpperCase().replace('{N}', (S && S.name ? S.name.trim() : castName('me').toUpperCase().slice(0,8)) || castName('me').toUpperCase().slice(0,8)); }
       // remember a tile that's gone for good (a blown-up boulder, a bombed wall)
       function goneForGood(rm, x, y) { const a = S.gone[rm.id] = S.gone[rm.id] || []; const k = x + ',' + y; if (!a.includes(k)) a.push(k); }
 
@@ -1898,6 +2103,8 @@
             }
             case '=': gg.drawImage(bridgeTile(f), ox, oy); break;
             case 'F': ground(); gg.drawImage(fenceTile(G, nb4(c => c === 'F')), ox, oy); break;
+            case 'Z':gg.drawImage(gateTile(1),ox,oy);break;
+            case 'j':ground();gg.drawImage(ITEMIMG.moor,ox,oy);break;
             case 'S': ground(); gg.drawImage(SPR_SIGN, ox, oy); break;
             case 'g': case 'G': ground(); gg.drawImage(SPR_GRAVE, ox, oy); if (ch === 'G') { P(gg, ox + 4, oy + 12, '#5a8a5a'); P(gg, ox + 11, oy + 11, '#5a8a5a'); } break;
             case 'O': gg.drawImage(wellTile(G), ox, oy); break;
@@ -1924,7 +2131,7 @@
           }
         } else { // the dungeon
           if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) { R(gg, ox, oy, 16, 16, '#22263a'); return; }
-          const hv = hash(x, y, 9), floor = () => gg.drawImage(rm.def.dg === 'reservoir' ? reservoirFloor(hv < 0.15 ? 1 : 0,x,y) : dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
+          const hv = hash(x, y, 9), floor = () => gg.drawImage(rm.def.dg==='pumpworks'?pumpFloor(hv<.12?1:0,x,y):rm.def.dg === 'reservoir' ? reservoirFloor(hv < 0.15 ? 1 : 0,x,y) : dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
           switch (ch) {
             case '#': gg.drawImage(dgBlock('#'), ox, oy); break;
             case 'B': case '%': floor(); if (ch === 'B') gg.drawImage(dgBlock('B'), ox, oy); break;
@@ -1933,10 +2140,13 @@
             case 'p': floor(); gg.drawImage(SPR_POT, ox, oy); break;
             case 'c': case 'e': floor(); gg.drawImage(chestImg(0, ch === 'e'), ox, oy); break;
             case 'A': case 'a': floor(); gg.drawImage(chestImg(1, ch === 'a'), ox, oy); break;
+            case 'j':floor();gg.drawImage(ITEMIMG.moor,ox,oy);break;
+            case '^':floor();gg.drawImage(stairsTile(),ox,oy);break;
+            case '!':floor();gg.drawImage(ITEMIMG.valve[localPuzzle(rm.def)[rm.def.levers?.[x+','+y]]?1:0],ox,oy);break;
             case 'H': floor(); gg.drawImage(S.f[rm.def.eye] ? ITEMIMG.eyeOn : ITEMIMG.eye,ox,oy); break;
             case '=': floor(); gg.drawImage(bridgeTile(f),ox,oy); break;
             case 'v': {
-              gg.drawImage(waterBase(f, rm.def.dg !== 'reservoir'), ox, oy);
+              gg.drawImage(waterBase(f, !['reservoir','pumpworks'].includes(rm.def.dg)), ox, oy);
               const land = c => c && c !== 'v';
               if (land(T(x, y - 1))) { R(gg, ox, oy, 16, 2, '#565c78'); R(gg, ox, oy + 2, 16, 1, '#2a2e44'); R(gg, ox, oy + 3, 16, 2, 'rgba(60,0,0,.4)'); }
               if (land(T(x, y + 1))) { R(gg, ox, oy + 14, 16, 2, '#7a82a8'); R(gg, ox, oy + 13, 16, 1, '#ff9a6a'); }
@@ -1966,6 +2176,15 @@
             gg.drawImage(houseArt(w, h, st, door, F), hx * 16, hy * 16);
           }
           if (rm.id === 'cliff') gg.drawImage(keepArt(F), 80, 0);
+          if(rm.id==='q_tower'){
+            R(gg,77,0,102,48,'#203a4b');R(gg,80,0,96,42,'#a76c4b');R(gg,82,0,4,42,'#e4af71');R(gg,170,0,6,42,'#60463f');
+            for(let y=4;y<40;y+=11){R(gg,80,y,96,3,'#62473f');R(gg,80,y,96,1,'#e4af71');}
+            R(gg,110,22,36,26,'#172e41');R(gg,112,24,32,24,'#0c1c2e');gg.drawImage(ITEMIMG.tidebell,120,1);
+            F.center(gg,'PUMPWORKS',128,17,'#fff0be',1,'#193448');
+          }
+          if(rm.id==='q_quay'){
+            for(const x of [21,226]){R(gg,x,122,8,40,'#674a3d');R(gg,x+1,122,2,40,'#c89458');gg.drawImage(ITEMIMG.moor,x-4,115);}
+          }
           if (rm.id === 'p_cliff') {
             R(gg,78,4,100,47,'#223e51');R(gg,80,3,96,36,'#65909a');
             for(let xx=82;xx<174;xx+=8){R(gg,xx,5,6,27,'#416879');R(gg,xx,5,1,27,'#9bb7ae');}
@@ -1986,6 +2205,13 @@
           for (const [kind, x, y] of (d.decor || [])) if (kind !== 'rug') { const im = decorArt(kind, F); gg.drawImage(im, x * 16, kind === 'window' ? 6 : kind === 'shopsign' ? 6 : kind === 'clock' ? 2 : y * 16 + (16 - im.height % 16) % 16); }
         } else {
           gg.drawImage(dgFrame(rm.doors),0,0);
+          if(d.dg==='pumpworks'){
+            // Tall copper pipes, tide gauges and floor arrows establish an upper/lower route.
+            for(const x of [18,230]){const door=d.doors?.[x===18?'w':'e'];for(const [y,h]of door?[[24,46],[116,52]]:[[24,144]]){R(gg,x,y,7,h,'#553c39');R(gg,x+1,y,4,h,'#af734c');R(gg,x+1,y,1,h,'#edb97c');}for(const y of door?[34,146]:[34,82,146]){R(gg,x-1,y,9,4,'#674c41');R(gg,x-1,y,9,1,'#d79a61');}}
+            R(gg,37,24,5,24,'#152d43');R(gg,38,25,3,22,'#99c5cb');R(gg,38,37-(localPuzzle(d).lower?8:0),3,10,'#3d8fbb');
+            F.draw(gg,d.gy<2?'2F UPPER':'1F LOWER',175,22,'#efc38a',1,'#182b40');
+            if(rm.id==='t7'){F.draw(gg,'PULL',43,25,'#efc38a',1,'#182b40');F.draw(gg,'LIFT',106,118,'#c0e8e2',1,'#182b40');}
+          }
           if (d.dg === 'reservoir') {
             // Brass cornices and water gauges give the aqueduct its own architecture.
             for (const x of [22,222]) {R(gg,x,20,12,2,'#ac9a60');R(gg,x,22,12,1,'#e2d498');}
@@ -2004,6 +2230,7 @@
         gloop: { hp: 1, w: 6, h: 9, dmg: 1 }, gloopP: { hp: 2, w: 6, h: 9, dmg: 1 }, snap: { hp: 2, w: 6, h: 10, dmg: 1 },
         knight: { hp: 3, w: 6, h: 16, dmg: 2 }, bat: { hp: 1, w: 5, h: 8, dmg: 1, fly: 1 }, ghost: { hp: 2, w: 6, h: 13, dmg: 1, fly: 1 },
         crab: { hp: 2, w: 7, h: 9, dmg: 1 }, spike: { hp: 99, w: 7, h: 13, dmg: 2, tough: 1 }, ball: { hp: 1, w: 5, h: 10, dmg: 1 },
+        stockpot:{hp:18,w:21,h:32,dmg:2,boss:1},
         crouton: {hp:16,w:17,h:30,dmg:2,boss:1},
         cheese: { hp: 8, w: 13, h: 22, dmg: 2, boss: 1 }, baron: { hp: 12, w: 17, h: 30, dmg: 1, boss: 1 },
       };
@@ -2021,10 +2248,12 @@
           const x = tx * 16 + 8, y = ty * 16 + 12;
           if (EN[type]) {
             if (quiet) continue;
+            if(type==='stockpot' && S.f.stockpot)continue;
             if (type === 'crouton' && S.f.crouton) continue;
             if (type === 'cheese' && S.f.cheese) continue; if (type === 'baron' && S.f.baron) continue;
             const e = mkEnt(type, x, y); e.dir = rnd() * 4 | 0;
             if (type === 'cheese') { e.st = 'wait'; e.tm = 50; } if (type === 'baron') { e.st = 'wait'; e.tm = 9999; e.x = 128; e.y = 104; }
+            if(type==='stockpot'){e.st='wind';e.tm=100;e.x=128;e.y=84;e.aimX=128;}
             if(type === 'crouton'){e.st='hover';e.tm=100;e.x=128;e.y=80;e.z=8;}
             ents.push(e);
           } else if (type === 'npc') ents.push(mkEnt('npc', x, y, { name: a, dir: 0, enemy: false, sit: b, w: 6, h: 12, home: [x, y] }));
@@ -2033,7 +2262,8 @@
           else if (type === 'piece') { if (!S.got['piece_' + a]) ents.push(mkEnt('pick', x, y, { kind: 'piece', id: a, perm: 1, enemy: false })); }
           else if (type === 'gem') { const id = 'gem_' + rm.id + tx + '_' + ty; if (!S.got[id]) ents.push(mkEnt('pick', x, y, { kind: 'gem' + a, id, perm: 1, enemy: false })); }
         }
-        for(const k in d.dashTrees || {}){const [x,y]=k.split(',').map(Number),id='tree_'+rm.id+k;if(S.got[id]&&!S.got['piece_'+id])ents.push(mkEnt('pick',x*16+8,y*16+12,{kind:'piece',id,perm:1,enemy:false}));}
+        for(const k in d.dashTrees || {}){if(d.routeTrees?.[k])continue;const [x,y]=k.split(',').map(Number),id='tree_'+rm.id+k;if(S.got[id]&&!S.got['piece_'+id])ents.push(mkEnt('pick',x*16+8,y*16+12,{kind:'piece',id,perm:1,enemy:false}));}
+        if(rm.id==='t11'&&S.f.stockpot&&!S.got.hc_stockpot)ents.push(mkEnt('pick',128,120,{kind:'container',id:'hc_stockpot',perm:1,enemy:false}));
         if(rm.id==='r11'&&S.f.crouton&&!S.got.hc_crouton) ents.push(mkEnt('pick',128,108,{kind:'container',id:'hc_crouton',perm:1,enemy:false}));
         // a fallen heart container or the recipe that was never picked up
         if (rm.id === 'd6' && S.f.cheese && !S.got.hc_cheese) ents.push(mkEnt('pick', 128, 100, { kind: 'container', id: 'hc_cheese', perm: 1, enemy: false }));
@@ -2168,6 +2398,7 @@
             } else if (e.st === 1) { e.run++; if (!moveEnt(e, e.vx, e.vy) || e.run > 60) { e.st = 2; sfx.tone(1800, 0.05, 'square', 0.03); } }
             else { const ddx = e.hx - e.x, ddy = e.hy - e.y; if (Math.abs(ddx) + Math.abs(ddy) < 1.2) { e.x = e.hx; e.y = e.hy; e.st = 0; e.tm = 40; } else { e.x += Math.sign(ddx) * Math.min(1, Math.abs(ddx)); e.y += Math.sign(ddy) * Math.min(1, Math.abs(ddy)); } }
             e.anim = (K.frame >> 2) & 1; break;
+          case 'stockpot': updateStockpot(e);break;
           case 'crouton': updateCrouton(e);break;
           case 'cheese': updateCheese(e, dx, dy); break;
           case 'baron': updateBaron(e, dx, dy); break;
@@ -2198,11 +2429,19 @@
         }
       }
       function dieAnim(e, done) {
-        e.anim = e.type === 'baron' || e.type==='crouton' ? 2 : 4; e.flash = 4;
+        e.anim = e.type==='stockpot'?3:e.type === 'baron' || e.type==='crouton' ? 2 : 4; e.flash = 4;
         if (e.tm % 8 === 0) { puff(e.x + (rnd() - 0.5) * e.w * 2.4, e.y - rnd() * e.h * 1.2); SND.poof(); shake = 4; }
         if (e.tm <= 0) { e.dead = true; puff(e.x, e.y - e.h / 2, true); sparks(e.x, e.y - e.h / 2, 24, e.type === 'baron' ? '#ffffff' : '#f8d848'); shake = 10; done(); }
       }
       function bossHit(e, dmg, how) {
+        if(e.type==='stockpot'){
+          if(e.st==='vent' && how==='hook'){e.st='dizzy';e.tm=150;e.armorHits=0;e.inv=10;shots=[];SND.shut();sparks(e.x,e.y-24,14,'#e0f8ff');shake=3;return true;}
+          if(e.st!=='dizzy'||!['sword','spin'].includes(how)){if(e.st!=='die')SND.tink();return false;}
+          e.hp-=dmg;e.inv=24;e.flash=24;hitStop=3;shake=3;SND.hit();
+          if(e.hp<=8&&!e.phase2){e.phase2=true;text(e.x,e.y-45,'FULL BOIL!','#ffcf78');SND.roar();}
+          if(e.hp<=0){e.st='die';e.tm=100;song(null);}else if(++e.armorHits>=3){e.st='wind';e.tm=85;}
+          return true;
+        }
         if(e.type==='crouton'){
           if(e.st==='eye' && how==='arrow'){e.st='dizzy';e.tm=150;e.z=0;e.inv=12;e.armorHits=0;SND.hit();sparks(e.x,e.y-15,12,'#ffc4a0');return true;}
           if(e.st!=='dizzy' || how==='boom'){SND.tink();return false;}
@@ -2220,6 +2459,28 @@
         if (e.type === 'baron' && e.hp <= 6 && !e.phase2) { e.phase2 = true; text(e.x, e.y - 50, 'GRR!', '#ff8a6a'); }
         if (e.hp <= 0) { e.st = 'die'; e.tm = e.type === 'baron' ? 150 : 90; song(null); sfx.tone(200, 1.2, 'sawtooth', 0.08, 0, 40); }
         return true;
+      }
+      function updateStockpot(e){
+        e.tm--;e.z=0;
+        if(e.st==='die'){e.anim=3;dieAnim(e,()=>{
+          S.f.stockpot=1;addScore(3000);roomCleared();drop(128,120,'container',{id:'hc_stockpot',perm:1,vz:2.5});song('pumpworks');
+          run(function*(){yield 30;yield say('ADMIRAL STOCKPOT: I resign! Nobody said this job involved being opened. The TIDEBELL is east. Please ring it quietly. I have a splitting lid.');}());save();
+        });return;}
+        const hot=e.hp<=8;
+        if(e.st==='wind'){
+          e.anim=(K.frame>>3)&1;
+          // Commit the lane before the whistle; the blast never follows the player.
+          if(e.tm===55){e.aimX=clamp(pl.x,42,214);SND.charged();}
+          if(e.tm<=0){e.st='steam';e.tm=hot?66:48;SND.roar();}
+        }else if(e.st==='steam'){
+          e.anim=2;
+          if(e.tm%12===0)for(const x of [e.aimX-12,e.aimX,e.aimX+12])shoot(x,40,0,2.6,'steam',{refl:false,life:62});
+          if(e.tm<=0){e.st='vent';e.tm=hot?105:145;shots=[];puff(e.x,e.y-34);SND.pick();}
+        }else if(e.st==='vent'){
+          e.anim=1;if(e.tm<=0){e.st='wind';e.tm=100;}
+        }else if(e.st==='dizzy'){
+          e.anim=3;if(e.tm<=0){e.st='wind';e.tm=100;}
+        }
       }
       function updateCrouton(e) {
         e.tm--;
@@ -2290,15 +2551,21 @@
       function newPlayer(x, y, dir) { return { x, y, dir, anim: 0, act: null, at: 0, charge: 0, carry: null, inv: 0, kbx: 0, kby: 0, kbt: 0, pushT: 0, moving: false, spinId: 0, dead: false, cut: false }; }
       function knock(p, sx, sy, sp, n) { const a = Math.atan2(p.y - sy, p.x - sx); p.kbx = Math.cos(a) * sp; p.kby = Math.sin(a) * sp; p.kbt = n; }
       function hurtPlayer(dmg, sx, sy) {
-        if (pl.inv > 0 || pl.dead || co || mode !== 'play') return;
+        if (pl.inv > 0 || pl.dead || co || mode !== 'play' || (pl.act==='grapple'&&pl.hook?.stage==='pull')) return;
+        if(S.shield>=2 && dmg>1)dmg=Math.ceil(dmg/2);
         S.hp = Math.max(0, S.hp - dmg); pl.inv = 70; knock(pl, sx, sy, 2.4, 10); SND.hurt(); shake = Math.max(shake, 4); flashT = 4;
+        if(pl.act==='grapple'){pl.act=null;pl.hook=null;}
         if (pl.act === 'sword' || pl.act === 'charge') pl.act = null;
         if (S.hp <= 0) faint();
       }
       // outdoors, walking off the edge of the screen is fine if the next screen has room for you there
       function solidAtP(px, py) {
         const tx = Math.floor(px / 16), ty = Math.floor(py / 16);
-        if (inRoom(tx, ty)) return SOLID.has(room.t[ty][tx]);
+        if(inRoom(tx,ty)){
+          const c=room.t[ty][tx];
+          // X is a cracked boulder outdoors, but the south EXIT in a dungeon.
+          return SOLID.has(c)&&!(room.kind==='dg'&&c==='X'&&room.doors.s==='X'&&ty===11&&(tx===7||tx===8));
+        }
         if (room.kind === 'dg') return false;
         if (room.kind !== 'ow') return true;
         const nx = tx < 0 ? -1 : tx >= COLS ? 1 : 0, ny = ty < 0 ? -1 : ty >= ROWS ? 1 : 0;
@@ -2434,11 +2701,13 @@
         const say = s => run(function* () { yield { text: s }; }());
         if (c === '~' && room.kind === 'ow') say("The water looks lovely, but you can't swim. Your Mom kept meaning to take you to lessons.");
         else if (c === 'O' && (S.f.recipe || S.done)) run(crossWell());
+        else if(c==='j')say(`A brass MOORING RING. Face it and use the SPOOL SPORK with ${LB('y')}. Leave one clear tile in front for landing.`);
+        else if(c==='!')say('A forked FLOODGATE HANDLE. The SPOOL SPORK can pull it from across a gap.');
         else if (c === 'H') say('A brass EYE watches the water. An ARROW will give it something to look at.');
         else if (c === 'O') say('You look down the well. A frog looks back up at you. Neither of you says anything.');
-        else if (c === 'X') say('A big cracked boulder blocks the way. A BOMB would sort that out.');
+        else if (c === 'X') say(room.kind==='dg'?'The stairs lead outside. Walk down through the doorway.':'A big cracked boulder blocks the way. A BOMB would sort that out.');
         else if (c === 'q' || c === 'J') say('This bit of wall is cracked... it sounds hollow when you knock on it.');
-        else if (c === 'v') say("Bubbling hot tomato sauce. Smells amazing. Do NOT go for a paddle.");
+        else if (c === 'v') say(room.def.dg==='pumpworks'||room.def.dg==='reservoir'?'Deep water. Look for a crossing or a brass mooring ring.':"Bubbling hot tomato sauce. Smells amazing. Do NOT go for a paddle.");
         else if ((c === 'c' || c === 'A') && pl.dir !== 1) say('Open chests from the front (stand below them, facing up).');
         else if (c === 'B' || c === 'G') say('Walk into it and keep pushing to shove it along.');
       }
@@ -2464,17 +2733,21 @@
       function blockLanded(e) {
         room.t[e.ty][e.tx] = e.kind; redrawTile(room, e.tx, e.ty); e.dead = true; sfx.noise(0.1, 0.06, 300);
         // the floor switches: cover them all to lower the gate
-        const gateFlag=room.id==='d9'?'gate':'plates_'+room.id, gate=room.def.plateGate || [7,3];
-        if (room.sw.length && !S.f[gateFlag] && (room.id === 'd9' || room.def.plateGate)) {
+        const gateFlag=room.id==='d9'?'gate':'plates_'+room.id, gate=room.def.plateGate || [7,3],gateFlags=room.def.dg==='pumpworks'?localPuzzle(room.def):S.f;
+        if (room.sw.length && !gateFlags[gateFlag] && (room.id === 'd9' || room.def.plateGate)) {
           const all = room.sw.every(([x, y]) => room.t[y][x] === 'B');
           if (room.sw.some(([x, y]) => x === e.tx && y === e.ty)) SND.click();
-          if (all) { S.f[gateFlag] = 1; room.t[gate[1]][gate[0]] = 'z'; redrawTile(room,gate[0],gate[1]); SND.secret(); shake = 3; sparks(120, 56, 10); save(); }
+          if (all) { gateFlags[gateFlag] = 1; room.t[gate[1]][gate[0]] = 'z'; redrawTile(room,gate[0],gate[1]); SND.secret(); shake = 3; sparks(120, 56, 10); save(); }
         }
       }
       function useItem() {
         if (pl.carry || pl.act) return;
         if (!S.sel) { toast = { s: 'PICK AN ITEM ON THE START MENU', t: 0 }; return; }
-        if (S.sel === 'bow') {
+        if(S.sel==='hook'){
+          pl.act='grapple';pl.at=0;
+          pl.hook={x:pl.x,y:pl.y-8,dir:pl.dir,stage:'out',distance:0,sx:pl.x,sy:pl.y};
+          sfx.tone(600,.09,'square',.04,0,1500);SND.throw();
+        } else if (S.sel === 'bow') {
           if(ents.some(e=>e.type==='arrow'&&!e.dead))return;
           ents.push(mkEnt('arrow',pl.x+DX[pl.dir]*8,pl.y-9+DY[pl.dir]*6,{dir:pl.dir,vx:DX[pl.dir]*4,vy:DY[pl.dir]*4,t:0,enemy:false}));
           pl.act='item';pl.at=0;SND.throw();
@@ -2487,14 +2760,49 @@
           ents.push(mkEnt('boomer', pl.x + vx / m * 6, pl.y - 9 + vy / m * 4, { vx: vx / m * 3.6, vy: vy / m * 3.6, t: 0, back: false, enemy: false }));
           pl.act = 'item'; pl.at = 0; SND.boomer();
         } else if (S.sel === 'bombs') {
-          if (S.bombs <= 0) { toast = { s: 'NO BOMBS LEFT! MABEL SELLS THEM.', t: 0 }; return; }
+          if (S.bombs <= 0) { toast = { s: 'NO BOMBS LEFT! {shop} SELLS THEM.', t: 0 }; return; }
           if (ents.filter(e => e.type === 'bomb' && !e.dead).length >= 2) return;
           const [fx, fy] = frontPt(); S.bombs--;
           ents.push(mkEnt('bomb', clamp(fx, 20, RW - 20), clamp(fy + 4, 28, RH - 14), { t: 0, enemy: false })); SND.bombSet();
         } else if (S.sel === 'soup') {
-          if (S.bottle === 2) { S.bottle = 1; S.hp=S.maxH*2; save(); run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; save(); yield { text: "Glug glug... MINESTRONE! Just like Nonna makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
-          else run(function* () { yield { text: "The bottle's empty. Mabel's shop can fill it up again." }; }());
+          if (S.bottle === 2) { S.bottle = 1; S.hp=S.maxH*2; save(); run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; save(); yield { text: "Glug glug... MINESTRONE! Just like {nan} makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
+          else run(function* () { yield { text: "The bottle's empty. {shop}'s shop can fill it up again." }; }());
         }
+      }
+      function updateHook(){
+        const h=pl.hook;if(!h){pl.act=null;return;}
+        if(h.stage==='pull'){
+          h.t=Math.min(1,(h.t||0)+.1);const k=1-Math.pow(1-h.t,2);
+          pl.x=lerp(h.sx,h.lx,k);pl.y=lerp(h.sy,h.ly,k);pl.moving=true;pl.anim+=2;
+          if(h.t>=1){pl.x=h.lx;pl.y=h.ly;pl.hook=null;pl.act=null;pl.inv=Math.max(pl.inv,10);SND.click();sparks(pl.x,pl.y,4,'#a8d8e8');save();}
+          return;
+        }
+        if(h.stage==='back'){
+          const dx=pl.x-h.x,dy=pl.y-8-h.y,d=Math.hypot(dx,dy);
+          if(d<9){pl.hook=null;pl.act=null;return;}h.x+=dx/d*8;h.y+=dy/d*8;return;
+        }
+        for(let i=0;i<3;i++){
+          h.x+=DX[h.dir]*2.5;h.y+=DY[h.dir]*2.5;h.distance+=2.5;
+          const tx=Math.floor(h.x/16),ty=Math.floor((h.y+4)/16),c=tileAt(room,tx,ty);
+          if(c==='!'){pullRing(tx,ty);h.stage='back';SND.click();return;}
+          if(c==='j'){
+            const lx=(tx-DX[h.dir])*16+8,ly=(ty-DY[h.dir])*16+12;
+            if(plFree(lx,ly)){h.stage='pull';h.lx=lx;h.ly=ly;h.t=0;SND.pick();sparks(h.x,h.y,5,'#f8d878');}
+            else{h.stage='back';SND.tink();toast={s:'THE LANDING IS BLOCKED',t:0};}return;
+          }
+          for(const e of ents)if(!e.dead&&e.enemy&&hitBox(box(e),[h.x-5,h.y-5,h.x+5,h.y+8])){
+            if(e.type==='stockpot')bossHit(e,0,'hook');else if(!(EN[e.type]||{}).boss&&!(EN[e.type]||{}).tough){e.stun=100;SND.hit();sparks(e.x,e.y-8,5);}
+            h.stage='back';return;
+          }
+          if(!c||h.distance>=112||(SOLID.has(c)&&!LOW.has(c))){h.stage='back';SND.tink();sparks(h.x,h.y,3);return;}
+        }
+      }
+      function drawHook(){
+        const h=pl.hook;if(!h)return;
+        const x=Math.round(h.x),y=Math.round(h.y),px=Math.round(pl.x),py=Math.round(pl.y-8);
+        g.strokeStyle='#172338';g.lineWidth=3;g.beginPath();g.moveTo(px,py);g.lineTo(x,y);g.stroke();
+        g.strokeStyle='#e0d8b8';g.lineWidth=1;g.beginPath();g.moveTo(px,py-1);g.lineTo(x,y-1);g.stroke();
+        g.drawImage(ITEMIMG.hookHead[h.dir],x-8,y-8);
       }
       function explode(x, y) {
         fx.push({ k: 'bang', x, y, t: 0, n: 20 }); SND.boom(); shake = 9; flashT = 2;
@@ -2516,6 +2824,11 @@
 
       // ---- getting things: hold it up high, a fanfare, a few words
       const ITEMTXT = {
+        hook:()=>`You got the SPOOL SPORK! Pick it, face a brass MOORING RING and press ${LB('y')}. The washing line reels you across gaps! Forked handles pull FLOODGATES. It also stuns small baddies.`,
+        spindle:()=> 'A BRASS SPINDLE! The bell mender at SCOURING QUAY might know which end goes in first.',
+        washer:()=> 'A SILENT WASHER! Take it back to the bell mender. It stops the bell going CLONK when it should go DING.',
+        apron:()=> 'You got the TINNED APRON! Heavy bumps now hurt half as much. The bell mender tucked a HEART PIECE in its pocket, too!',
+        tidebell:()=> 'You rang the TIDEBELL! The high-water stairs east of SCOURING QUAY have risen. Spork across the last gap to the COOLER ROAD and the north pantry ferry.',
         bow: () => `You got the RAVIOLI RECURVE! Pick it on the item menu. Press ${LB('y')} to fire a crisp breadstick. It never runs out: enchanted bread bin. Brass EYES only open for arrows!`,
         ovenheart: () => 'You got the OVENHEART! A coal that never goes cold. Take it to the AL DENTE FORGE in the south-west of the Salt-Beyond.',
         blade: () => `GRANDAD'S SWORD became the AL DENTE BLADE! Twice the bite, none of the washing up. And OVEN BOOTS: pick them, face a tree and press ${LB('y')} for a running BONK!`,
@@ -2530,16 +2843,21 @@
         container: () => 'You got a HEART CONTAINER! You have one more heart, and you\'re all better!',
         bombs: () => `You got a BOMB BAG and 8 BOMBS! Pick them on the START menu, press ${LB('y')} to put one down... then STAND BACK!`,
         soup: () => `You got a BOTTLE OF MINESTRONE! Pick it on the START menu and press ${LB('y')} to slurp it when you're poorly. It fills every heart!`,
-        refill: () => 'Mabel filled your bottle with hot MINESTRONE!',
+        refill: () => '{shop} filled your bottle with hot MINESTRONE!',
         recipe: () => 'You got the SECRET RECIPE! It says: 1. Tomatoes. 2. Garlic. 3. A pinch of love. 4. NEVER let a meatball near it.',
       };
-      const ITEMICON = { bow:()=>ITEMIMG.bow, ovenheart:()=>ITEMIMG.ovenheart, blade:()=>ITEMIMG.blade, sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
+      const ITEMICON = {hook:()=>ITEMIMG.hook,spindle:()=>ITEMIMG.spindle,washer:()=>ITEMIMG.spindle,apron:()=>ITEMIMG.apron,tidebell:()=>ITEMIMG.tidebell, bow:()=>ITEMIMG.bow, ovenheart:()=>ITEMIMG.ovenheart, blade:()=>ITEMIMG.blade, sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
         piece: () => ITEMIMG.piece, container: () => ITEMIMG.container, bombs: () => ITEMIMG.bomb[0], soup: () => ITEMIMG.bottle[1], refill: () => ITEMIMG.bottle[1], recipe: () => ITEMIMG.recipe };
       function* getItem(what) {
         pl.act = 'get'; pl.getSpr = ITEMICON[what](); pl.carry = null;
-        const big = what === 'boom' || what === 'bigkey' || what === 'sword' || what === 'container' || what === 'recipe';
+        const big = ['hook','apron','tidebell'].includes(what) || what === 'boom' || what === 'bigkey' || what === 'sword' || what === 'container' || what === 'recipe';
         if (big) SND.big(); else if (what === 'key') SND.key(); else SND.item();
         switch (what) {
+          case 'hook':S.hook=1;S.sel='hook';addScore(700);break;
+          case 'spindle':S.f.spindle=1;addScore(200);break;
+          case 'washer':S.f.washer=1;addScore(200);break;
+          case 'apron':S.shield=2;S.f.menderDone=1;addScore(700);break;
+          case 'tidebell':S.f.tidebell=1;addScore(1500);break;
           case 'bow': S.bow=1;S.sel='bow';addScore(600);break;
           case 'ovenheart': S.f.ovenheart=1;addScore(1000);break;
           case 'blade': S.sword=2;S.boots=1;S.f.secondDone=1;addScore(2000);break;
@@ -2581,7 +2899,7 @@
         dungeonInventory(rm.def);
         room = rm; if (!room.fr) render(room);
         pl.x = x; pl.y = y; if (dir != null) pl.dir = dir;
-        pl.act = pl.carry ? null : null; pl.carry = null; pl.kbt = 0; pl.pushT = 0;
+        pl.hook=null;pl.act = pl.carry ? null : null; pl.carry = null; pl.kbt = 0; pl.pushT = 0;
         spawnEnts(room); unstick(); onEnter();
       }
       function onEnter() {
@@ -2592,6 +2910,8 @@
         if (room.def.trap && !S.cleared[id] && enemiesLeft()) room.trapPending = true;
         if (id === 'd10' && room.did.s && !S.doors[room.did.s]) { S.doors[room.did.s] = 1; setDoors(room); render(room); setTimeout(() => SND.door(), 200); }
         if (id === 'd1' && !S.f.keepIn) { S.f.keepIn = 1; run(function* () { yield 20; yield { text: 'THE COLANDER KEEP. It smells of garlic, old socks and danger. Somewhere in here, Baron Meatballo is hiding the recipe.' }; }()); }
+        if(id==='t1'&&!localPuzzle(room.def).entered){localPuzzle(room.def).entered=1;run(function*(){yield 15;yield say('POTHOOK PUMPWORKS. Below: the pumps. Above: the bell. Lower pumps feed an upper lift. A forked handle sets the water moving.');}());}
+        if(id==='t11'&&!S.f.stockpot)run(function*(){yield 25;yield say('ADMIRAL STOCKPOT: Mind the whistle! I mark my steam lane BEFORE I boil. Then I cool off, lid ring showing. No pulling! It is strictly ornamental!');}());
         if(id==='r1'&&!S.f.reservoirIn){S.f.reservoirIn=1;run(function*(){yield 15;yield say('THE RAVIOLI RESERVOIR. Follow the water. Brass eyes watch its sluices; somewhere, a very stale count is making crumbs of the plumbing.');}());}
         if(id==='r11'&&!S.f.crouton) run(function*(){yield 25;yield say('COUNT CROUTON: Behold my beautiful wings! My jam eye? Extremely private. No arrows, please. They make me all wobbly.');}());
         if (id === 'd11' && !S.f.baron) run(bossIntro());
@@ -2635,7 +2955,7 @@
         }
       }
       function openBox(o) {
-        const lines = wrap(String(o.text).toUpperCase(), 36), pages = [];
+        const lines = wrap(castText(o.text).toUpperCase(), 36), pages = [];
         for (let i = 0; i < lines.length; i += 3) pages.push(lines.slice(i, i + 3));
         tb = { pages, p: 0, n: 0, ask: o.ask || null, sel: 0, top: !!(pl && pl.y > 118 && mode === 'play') };
       }
@@ -2676,20 +2996,41 @@
       const say = s => ({ text: s });
 
       // ============================================================ what people say
-      const NN = () => S.name.trim() || 'JACK';
+      const NN = () => S.name.trim() || castName('me').toUpperCase().slice(0,8);
       const cycle = (e, list) => { e.line = ((e.line | 0) + 1) % list.length; return list[(e.line + list.length - 1) % list.length]; };
       function* npcTalk(e) {
         const N = NN();
+        if(e.name==='pump'){yield say(`{greatuncle}: West for a key, east for the plans. Then climb. Brass rings need a clear landing square; forked handles MOVE WATER. Press ${LB('y')} with the Spool Spork.`);return;}
+        if(e.name==='dock'){yield say(S.f.tidebell?'DOCKKEEPER {zeldoDock}: The stairs are up! East, then spork north to the Cooler Road. A ferry home and a chilly new trail.':S.sword>=2?'DOCKKEEPER {zeldoDock}: The Pumpworks bell has stopped the tide. North is the low door. Our bell mender could use a hand, too.':'DOCKKEEPER {zeldoDock}: A firm blade from the forge is a sensible start.');return;}
+        if(e.name==='mender'){
+          if(S.f.menderDone){yield say('{zeldoMender}: The bell goes DING again! I tried teaching it a tune. It only knows one note.');return;}
+          if(!S.f.menderQuest){S.f.menderQuest=1;save();yield say('{zeldoMender}: My bell has lost its BRASS SPINDLE. It fell on the little island at BRINEWATER QUAY, west of the old village. Bring it back? A Spool Spork can reach the mooring ring.');return;}
+          if(!S.f.spindle){yield say('{zeldoMender}: BRINEWATER QUAY. Brass ring on the west island. Pull yourself across, then check the chest.');return;}
+          if(!S.f.washer){S.f.menderFit=1;save();yield say('{zeldoMender}: It fits! It also goes CLONK. Ask the AL DENTE FORGE for a SILENT WASHER, then bring it here. Please. My ears are ringing.');return;}
+          // Commit both rewards before the fanfare: refresh can never lose or duplicate one.
+          S.f.menderDone=1;S.shield=2;S.gems=Math.min(999,S.gems+60);S.pieces++;if(S.pieces>=4){S.pieces=0;S.maxH=Math.min(10,S.maxH+1);S.hp=S.maxH*2;}addScore(950);save();
+          yield say('{zeldoMender}: DING! Beautiful. Here: 60 gems, a HEART PIECE and my TINNED APRON. Heavy bumps hurt half as much. It is surprisingly good at being armour.');pl.act='get';pl.getSpr=ITEMIMG.apron;SND.big();yield 46;pl.act=null;pl.getSpr=null;return;
+        }
+        if(e.name==='ferry'){
+          if(room.id==='village'&&S.f.ferry){yield say('FERRYKEEPER {zeldoFerry}: All aboard for the COOLER ROAD! A shortcut beats walking through two worlds in damp boots.');if((yield {text:'Sail to the Cooler Road?',ask:['YES','NO']})===0)warp('q_beacon',8,10,1);return;}
+          if(room.id==='village'){yield say('FERRYKEEPER {zeldoFerry}: I am waiting for the tide bell. My other boat is at the COOLER ROAD, beyond Scouring Quay.');return;}
+          if(!S.f.tidebell){yield say('FERRYKEEPER {zeldoFerry}: Low tide. Even the boat is thirsty. Ring the Pumpworks bell first.');return;}
+          yield say('FERRYKEEPER {zeldoFerry}: Beyond this road: the COLD PANTRY. Bring a warm jumper for our next expedition. My north pantry ferry sails straight back to DAYLIGHT LASAGNIA.');
+          if((yield {text:'Sail to the daylight village?',ask:['YES','NO']})===0){S.f.ferry=1;warp('village',7,6,0);}return;
+        }
+        if(room.id==='q_steps'){yield say(S.f.tidebell?'The stairs have risen! Spork north to the brass ring.':'The flood shutter is down. Only the TIDEBELL in the Pumpworks can raise it.');return;}
+        if(room.id==='q_quay'){yield say('The bell mender lives in the west cottage. The east cottage sells supplies. The Pumpworks? Follow the copper pipes north.');return;}
         if(room.id==='p_forge') {
+          if(S.f.menderFit&&!S.f.washer){yield say('ELDER {greatuncle}: A silent washer? Felt, a brass rim and absolutely no magic. Do not tell the apprentices.');yield* getItem('washer');return;}
           if(S.f.ovenheart && S.sword<2) {
-            yield say('ELDER PARMESAN: The OVENHEART! At last I can temper a blade without burning the toast. Stand back. This may smell delicious.');
+            yield say('ELDER {greatuncle}: The OVENHEART! At last I can temper a blade without burning the toast. Stand back. This may smell delicious.');
             yield* getItem('blade');return;
           }
-          yield say(S.sword>=2?'ELDER PARMESAN: AL DENTE! Firm to the bite. Your blade has twice the bite too. Those OVEN BOOTS can shake secrets from trees.':'ELDER PARMESAN: Welcome to the wrong side of the salt cellar. Bring the OVENHEART from the RAVIOLI RESERVOIR and I can give Grandad\'s old blade a proper edge.');return;
+          yield say(S.sword>=2?'ELDER {greatuncle}: AL DENTE! Firm to the bite. Your blade has twice the bite too. Dash east through the glinting shore trees. SCOURING QUAY has a bell that needs fixing.':'ELDER {greatuncle}: Welcome to the wrong side of the salt cellar. Bring the OVENHEART from the RAVIOLI RESERVOIR and I can give Grandad\'s old blade a proper edge.');return;
         }
-        if(room.id==='r1') {yield say('OLD SALTY: Three rules of plumbing. Find the MAP. Shoot the BRASS EYE from across the water. And never trust COUNT CROUTON: he is absolutely crackers.');return;}
+        if(room.id==='r1') {yield say('{greatuncle}: Three rules of plumbing. Find the MAP. Shoot the BRASS EYE from across the water. And never trust COUNT CROUTON: he is absolutely crackers.');return;}
         if(room.def.world==='salt') {
-          const lines={luke:'LUKE: The well still leads home. The RESERVOIR is north. I marked the way with my feet. You are welcome.',lady:'MRS PENNE: My hens came through the well too. The Reservoir\'s brass eyes need an ARROW. A bendy breadstick will only annoy them.',cal:'CAL: The forge is in here. It needs an OVENHEART. The Reservoir has one, according to its very small instruction leaflet.',fisher:'OLD SALTY: Even in another world, I cannot swim. An arrow through the Reservoir\'s eye makes its little bridge come out. Clever, that.'};
+          const lines={luke:'{mate2}: The well still leads home. The RESERVOIR is north. I marked the way with my feet. You are welcome.',lady:'{auntie}: My hens came through the well too. The Reservoir\'s brass eyes need an ARROW. A bendy breadstick will only annoy them.',cal:'{mate3}: The forge is in here. It needs an OVENHEART. The Reservoir has one, according to its very small instruction leaflet.',fisher:'{greatuncle}: Even in another world, I cannot swim. An arrow through the Reservoir\'s eye makes its little bridge come out. Clever, that.'};
           yield say(lines[e.name] || 'The salt gets everywhere.');return;
         }
         switch (e.name) {
@@ -2698,44 +3039,44 @@
               yield say(`MOM: ${N}! At last, you're up! Have you HEARD? Princess Zeldo's secret pasta-sauce recipe has been NICKED! In the night!`);
               yield say(`MOM: Your Grandad's old sword and shield are in that chest over there. Take them, find out who did it... and be home in time for your tea!`);
               S.f.mom = 1;
-            } else if (!S.f.elder) yield say(`MOM: Go and see ELDER PARMESAN in FARFALLE VILLAGE. Out the door, follow the path east, then go north. He knows everything. Well, nearly everything.`);
-            else if (!S.f.baron) yield say(cycle(e, [`MOM: Have you got a clean hanky? ...Never mind. Go on, save the day, ${N}.`, "MOM: If you're feeling poorly, Mabel's MINESTRONE is the best. After mine, obviously.", 'MOM: Push a gravestone? Of course not. Unless it really, really wobbles. Why do you ask?']));
+            } else if (!S.f.elder) yield say(`MOM: Go and see ELDER {greatuncle} in FARFALLE VILLAGE. Out the door, follow the path east, then go north. He knows everything. Well, nearly everything.`);
+            else if (!S.f.baron) yield say(cycle(e, [`MOM: Have you got a clean hanky? ...Never mind. Go on, save the day, ${N}.`, "MOM: If you're feeling poorly, {shop}'s MINESTRONE is the best. After mine, obviously.", 'MOM: Push a gravestone? Of course not. Unless it really, really wobbles. Why do you ask?']));
             else yield say(`MOM: My little hero! The whole kingdom's talking about you. Now wipe your feet, ${N}.`);
             break;
           case 'elder':
             if (!S.f.elder) {
-              yield say(`ELDER PARMESAN: Ah, young ${N}. I know why you're here. The thief was BARON MEATBALLO: a big round meanie with a crown and a moustache.`);
-              yield say("ELDER PARMESAN: He's hiding in the COLANDER KEEP, up on the NORTH CLIFFS. But a rockfall has blocked the cliff path. You'll need BOMBS!");
-              yield say("ELDER PARMESAN: Mabel's shop sells them. Here, take 20 GEMS. My pocket money from 1974. Don't spend it all on sweets.");
+              yield say(`ELDER {greatuncle}: Ah, young ${N}. I know why you're here. The thief was BARON MEATBALLO: a big round meanie with a crown and a moustache.`);
+              yield say("ELDER {greatuncle}: He's hiding in the COLANDER KEEP, up on the NORTH CLIFFS. But a rockfall has blocked the cliff path. You'll need BOMBS!");
+              yield say("ELDER {greatuncle}: {shop}'s shop sells them. Here, take 20 GEMS. My pocket money from 1974. Don't spend it all on sweets.");
               S.gems = Math.min(999, S.gems + 20); S.f.elder = 1; SND.gem(); addScore(20); save();
               yield say('You got 20 GEMS! Cut long grass and bushes with your sword to find more.');
-            } else if (!S.bag) yield say('ELDER PARMESAN: BOMBS, young one! Mabel\'s shop is across the square. Then blow up those rocks at the north end of the village.');
-            else if (!S.f.baron) yield say(cycle(e, ['ELDER PARMESAN: In the Keep, SMALL KEYS open small doors, and the BIG KEY opens the big one. I learned that the hard way. Took me three weeks.', 'ELDER PARMESAN: The Baron has a weak spot, I\'m sure of it. Every bully does. Keep your eyes open... and maybe so will he.', `ELDER PARMESAN: Lost? Press ${LB('x')} to look at your map, ${N}.`]));
-            else yield say('ELDER PARMESAN: You did it! I would do a cartwheel, but my knees said no in 1962.');
+            } else if (!S.bag) yield say('ELDER {greatuncle}: BOMBS, young one! {shop}\'s shop is across the square. Then blow up those rocks at the north end of the village.');
+            else if (!S.f.baron) yield say(cycle(e, ['ELDER {greatuncle}: In the Keep, SMALL KEYS open small doors, and the BIG KEY opens the big one. I learned that the hard way. Took me three weeks.', 'ELDER {greatuncle}: The Baron has a weak spot, I\'m sure of it. Every bully does. Keep your eyes open... and maybe so will he.', `ELDER {greatuncle}: Lost? Press ${LB('x')} to look at your map, ${N}.`]));
+            else yield say('ELDER {greatuncle}: You did it! I would do a cartwheel, but my knees said no in 1962.');
             break;
           case 'mabel':
-            yield say(cycle(e, ["MABEL: Welcome to MABEL'S! Everything's out on the stands. Walk up to something and have a look.", "MABEL: Bombs, minestrone, hearts. That's all the essentials, really. And string. I'm out of string.", 'MABEL: Short of gems, love? Long grass is full of them. Nobody knows why.']));
+            yield say(cycle(e, ["{shop}: Welcome to {shop}'S! Everything's out on the stands. Walk up to something and have a look.", "{shop}: Bombs, minestrone, hearts. That's all the essentials, really. And string. I'm out of string.", '{shop}: Short of gems, love? Long grass is full of them. Nobody knows why.']));
             break;
           case 'nonna':
-            if (!S.f.grave) yield say(cycle(e, [`NONNA ROSA: Ooh, a visitor! Sit down, ${N}, have a biscuit. My Pasquale is buried up in the graveyard, north of the lake.`, 'NONNA ROSA: His gravestone was always a bit wobbly... just like him. He used to say: if you want something, give it a good PUSH from the front!', 'NONNA ROSA: That boy on my telly has been there since Tuesday. I think he lives here now.']));
-            else yield say('NONNA ROSA: You found Pasquale\'s little hiding place? He always did keep his treasures under that stone. Bless him.');
+            if (!S.f.grave) yield say(cycle(e, [`{nan}: Ooh, a visitor! Sit down, ${N}, have a biscuit. My last biscuit is buried up in the graveyard, north of the lake.`, '{nan}: That gravestone is nearly as wobbly as my old biscuit tin. The inscription says: if you want something, give it a good PUSH from the front!', '{nan}: That boy on my telly has been there since Tuesday. I think he lives here now.']));
+            else yield say('{nan}: You found my biscuit\'s little hiding place? I always did keep my treasures under that stone. Bless that biscuit.');
             break;
           case 'dave':
-            yield say(cycle(e, ["DAVE: Shh! I'm on the last boss... ARGH! I DIED! That was YOUR fault. You were breathing too loud.", "DAVE: Somebody keeps writing DAVE SUX on everything. When I find out who it is, they're getting a dead arm.", "DAVE: My mate JACK reckons he can do this dungeon in under twenty minutes. No chance.", "DAVE: Have you tried hitting the hens? Don't. Trust me."]));
+            yield say(cycle(e, ["{mate1}: Shh! I'm on the last boss... ARGH! I DIED! That was YOUR fault. You were breathing too loud.", "{mate1}: Somebody keeps writing {mate1} SUX on everything. When I find out who it is, they're getting a dead arm.", "{mate1}: My mate {me} reckons he can do this dungeon in under twenty minutes. No chance.", "{mate1}: Have you tried hitting the hens? Don't. Trust me."]));
             break;
           case 'luke':
-            yield say(cycle(e, ['LUKE: Cut the long grass with your sword! Gems EVERYWHERE. My Mom says it counts as gardening.', `LUKE: Hold ${LB('b')} down, then let go. SPIN ATTACK! It's mint.`, 'LUKE: Bushes and pots can be picked up and thrown, you know. Lift with ' + LB('a') + ', throw with ' + LB('a') + ' again.', 'LUKE: I bet there are heart pieces hidden all over the place. FOUR of them make a whole new heart!']));
+            yield say(cycle(e, ['{mate2}: Cut the long grass with your sword! Gems EVERYWHERE. My Mom says it counts as gardening.', `{mate2}: Hold ${LB('b')} down, then let go. SPIN ATTACK! It's mint.`, '{mate2}: Bushes and pots can be picked up and thrown, you know. Lift with ' + LB('a') + ', throw with ' + LB('a') + ' again.', '{mate2}: I bet there are heart pieces hidden all over the place. FOUR of them make a whole new heart!']));
             break;
           case 'lady':
-            if (!S.f.blast_c_field) yield say(cycle(e, ['MRS PENNE: My grandad says the cave in the PEAPOD FIELDS has a wall that sounds hollow. A bomb might sort it. Bombs sort most things, he says.', 'MRS PENNE: Those hens are mine. Please be nice to them. They are very sensitive.']));
-            else yield say("MRS PENNE: You blew the wall up? Grandad was right! Don't tell him, he'll be unbearable.");
+            if (!S.f.blast_c_field) yield say(cycle(e, ['{auntie}: My grandad says the cave in the PEAPOD FIELDS has a wall that sounds hollow. A bomb might sort it. Bombs sort most things, he says.', '{auntie}: Those hens are mine. Please be nice to them. They are very sensitive.']));
+            else yield say("{auntie}: You blew the wall up? Grandad was right! Don't tell him, he'll be unbearable.");
             break;
           case 'fisher':
-            if (!S.got.piece_lake) yield say(S.boom ? 'OLD SALTY: That bendy breadstick of yours comes BACK when you throw it, eh? Go on then, fetch that shiny thing off the island!' : "OLD SALTY: See that heart shining on the little island? I can't swim out there, me. If only I had something I could throw that comes BACK...");
-            else yield say("OLD SALTY: Ha! You got it! I've been staring at that thing for forty years. Now what'll I look at?");
+            if (!S.got.piece_lake) yield say(S.boom ? '{greatuncle}: That bendy breadstick of yours comes BACK when you throw it, eh? Go on then, fetch that shiny thing off the island!' : "{greatuncle}: See that heart shining on the little island? I can't swim out there, me. If only I had something I could throw that comes BACK...");
+            else yield say("{greatuncle}: Ha! You got it! I've been staring at that thing for forty years. Now what'll I look at?");
             break;
           case 'cal':
-            yield say(cycle(e, ["CAL: Oh, hi. My PC's broken, so I had to go outside. This is like GLOOM, but with more trees.", "CAL: There's a chest up past those trees. I'd get it myself, but... trees.", 'CAL: That pond is magic, I reckon. Stand in front of it and your hearts fill up. Or I fell asleep. One of the two.']));
+            yield say(cycle(e, ["{mate3}: Oh, hi. My PC's broken, so I had to go outside. This is like GLOOM, but with more trees.", "{mate3}: There's a chest up past those trees. I'd get it myself, but... trees.", '{mate3}: That pond is magic, I reckon. Stand in front of it and your hearts fill up. Or I fell asleep. One of the two.']));
             break;
         }
       }
@@ -2743,35 +3084,36 @@
       function* shopTalk(e) {
         const w = e.item;
         if (w === 'bombs') {
-          if (S.bag && S.bombs >= 10) { yield say("MABEL: Your bomb bag's full to bursting, love! Not literally, I hope."); return; }
+          if (S.bag && S.bombs >= 10) { yield say("{shop}: Your bomb bag's full to bursting, love! Not literally, I hope."); return; }
           const r = yield { text: `BOMBS! A bag of 8 for 30 GEMS. They go BANG. Would you like them?`, ask: ['YES', 'NO'] };
           if (r !== 0) return;
-          if (S.gems < 30) { yield say("MABEL: Ooh, you're a bit short, love. 30 gems, please. Try cutting some long grass!"); return; }
-          S.gems -= 30; if (!S.bag) yield* getItem('bombs'); else { S.bombs = Math.min(10, S.bombs + 8); SND.pick(); save(); yield say('MABEL: There you go! Mind your eyebrows.'); }
+          if (S.gems < 30) { yield say("{shop}: Ooh, you're a bit short, love. 30 gems, please. Try cutting some long grass!"); return; }
+          S.gems -= 30; if (!S.bag) yield* getItem('bombs'); else { S.bombs = Math.min(10, S.bombs + 8); SND.pick(); save(); yield say('{shop}: There you go! Mind your eyebrows.'); }
         } else if (w === 'soup') {
-          if (S.bottle === 2) { yield say("MABEL: You've already got a full bottle of minestrone. Save it for when you're poorly!"); return; }
+          if (S.bottle === 2) { yield say("{shop}: You've already got a full bottle of minestrone. Save it for when you're poorly!"); return; }
           const price = S.bottle ? 20 : 40;
           const r = yield { text: S.bottle ? 'A REFILL of hot MINESTRONE for 20 GEMS?' : 'A BOTTLE OF MINESTRONE for 40 GEMS. Fills ALL your hearts when you drink it!', ask: ['YES', 'NO'] };
           if (r !== 0) return;
-          if (S.gems < price) { yield say(`MABEL: That's ${price} gems, love. Come back when your pockets jingle.`); return; }
+          if (S.gems < price) { yield say(`{shop}: That's ${price} gems, love. Come back when your pockets jingle.`); return; }
           S.gems -= price; yield* getItem(S.bottle ? 'refill' : 'soup');
         } else {
-          if (S.hp >= S.maxH * 2) { yield say("MABEL: Hearts? You're fit as a fiddle! Save your gems."); return; }
+          if (S.hp >= S.maxH * 2) { yield say("{shop}: Hearts? You're fit as a fiddle! Save your gems."); return; }
           const r = yield { text: 'A HEART REFILL (3 hearts) for 10 GEMS?', ask: ['YES', 'NO'] };
           if (r !== 0) return;
-          if (S.gems < 10) { yield say("MABEL: 10 gems, love. Sorry!"); return; }
-          S.gems -= 10; S.hp = Math.min(S.maxH * 2, S.hp + 6); SND.heal(); save(); yield say('MABEL: There! Rosy cheeks again.');
+          if (S.gems < 10) { yield say("{shop}: 10 gems, love. Sorry!"); return; }
+          S.gems -= 10; S.hp = Math.min(S.maxH * 2, S.hp + 6); SND.heal(); save(); yield say('{shop}: There! Rosy cheeks again.');
         }
       }
-      const GRAVES = ["HERE LIES DAVE'S HIGH SCORE. IT WAS NOT VERY HIGH.", 'R.I.P. MY EGGBERT. THREE DAYS OLD. I FORGOT TO FEED HIM.', 'HERE LIES THE LAST CHOCOLATE BISCUIT. DAD ATE IT.', 'SIR LANCELOT OF LASAGNA. A GOOD KNIGHT. GOOD NIGHT.',
-        'THE MILLENNIUM BUG. DUE ANY DAY NOW.', 'BOB THE BUSH. SOMEBODY CUT HIM. TWICE.', 'HERE LIES NOBODY. IT IS A VERY QUIET GRAVE.', "MY FIRST GOLDFISH, BUBBLES. HE WAS A BRILLIANT SWIMMER.", 'R.I.P. THE BLUE BUTTON ON MY CONTROLLER. PRESSED TOO HARD.', 'GERALD THE GHOST. GONE, BUT STILL AROUND.', "GRANDAD'S CARDIGAN. IT WAS VERY ITCHY."];
+      const GRAVES = ["HERE LIES {mate1}'S HIGH SCORE. IT WAS NOT VERY HIGH.", 'R.I.P. MY PET EGG. THREE DAYS OLD. I FORGOT TO FEED IT.', 'HERE LIES THE LAST CHOCOLATE BISCUIT. DAD ATE IT.', '{zeldoKnight}, THE KNIGHT WHO LUNCHES. A GOOD KNIGHT. GOOD NIGHT.',
+        'THE MILLENNIUM BUG. DUE ANY DAY NOW.', '{cousin} THE BUSH. SOMEBODY CUT IT. TWICE.', 'HERE LIES NOBODY. IT IS A VERY QUIET GRAVE.', "MY FIRST GOLDFISH, {hamster}. A BRILLIANT SWIMMER.", 'R.I.P. THE BLUE BUTTON ON MY CONTROLLER. PRESSED TOO HARD.', '{zeldoGhost} THE GHOST. GONE, BUT STILL AROUND.', "GRANDAD'S CARDIGAN. IT WAS VERY ITCHY."];
       function signText(id, x, y, c) {
-        if (c === 'G') return 'HERE LIES PASQUALE, BELOVED HUSBAND OF ROSA. HE ALWAYS WAS A BIT OF A PUSHOVER.';
+        const signs={q_moor:'SCOURING QUAY: NORTH. Old shore: WEST. Please wring out your boots before entering town.',q_tower:'POTHOOK PUMPWORKS. Lower pumps, upper walkways. Pull forked handles to move the water. Brass rings carry a washing line.',q_steps:'HIGH WATER STAIRS. Ring the TIDEBELL to raise the shutters. Then Spool Spork north. No paddling.',q_beacon:'NORTH PANTRY POST. Ferry to daylight Lasagnia. Cold Pantry expeditions: bring a warm jumper.'};if(signs[id])return signs[id];
+        if (c === 'G') return 'HERE LIES THE LAST BISCUIT OF {nan}. IT ALWAYS WAS A BIT OF A PUSHOVER.';
         if (c === 'g') return GRAVES[(x * 7 + y * 3) % GRAVES.length];
         if(id==='p_cliff')return 'RAVIOLI RESERVOIR. MAP AND COMPASS IN THE EAST BATH. THE WEST ARMOURY HOLDS AN ENCHANTED BOW. KEEP THE BIG KEY DRY.';
         if (id === 'south') return '↑ FARFALLE VILLAGE     ← HOME     → SUNNY SHORE';
         if (id === 'village') return 'NORTH: THE CLIFFS AND THE COLANDER KEEP. WARNING! ROCKFALL! (A BOMB WOULD SORT THAT OUT.)';
-        if (id === 'shore') return 'Written in the sand: DAVE WAS ERE. Somebody has added, underneath: DAVE SUX.';
+        if (id === 'shore') return 'Written in the sand: {mate1} WAS ERE. Somebody has added, underneath: {mate1} SUX.';
         return 'The writing has worn away.';
       }
 
@@ -2780,8 +3122,8 @@
       function updatePlay() {
         if (co) { if (tb) updateBox(); else if (coWait > 0 && --coWait <= 0) coNext(); updateFx(); return; }
         S.time += 1 / 60;
-        if (pressed('start')) { openMenu(); return; }
-        if (pressed('x') && !pl.carry) { mapOpen(); return; }
+        if (takeAction('start')) { openMenu(); return; }
+        if (pl.actionBuffer?.x && !pl.carry && takeAction('x')) { mapOpen(); return; }
         updatePlayer();
         if (mode !== 'play') return;
         for (const e of ents) if (!e.dead) updateThing(e);
@@ -2803,13 +3145,14 @@
         // actions
         if (pl.act) pl.at++;
         switch (pl.act) {
+          case 'grapple':updateHook();return;
           case 'dash':
             if(pl.at<=18){if(pl.at%5===0)debris(pl.x,pl.y,'grass');break;}
             pl.moving=true;pl.anim+=2;
             if(!plMove(DX[pl.dir]*3.8,DY[pl.dir]*3.8)){
               const [tx,ty]=frontTile(),k=tx+','+ty;
               if(room.def.dashTrees && room.def.dashTrees[k] && !S.got['tree_'+room.id+k]){
-                S.got['tree_'+room.id+k]=1;room.t[ty][tx]='.';goneForGood(room,tx,ty);redrawTile(room,tx,ty);drop(tx*16+8,ty*16+12,'piece',{id:'tree_'+room.id+k,perm:1});SND.secret();
+                S.got['tree_'+room.id+k]=1;room.t[ty][tx]='.';goneForGood(room,tx,ty);redrawTile(room,tx,ty);if(!room.def.routeTrees?.[k])drop(tx*16+8,ty*16+12,'piece',{id:'tree_'+room.id+k,perm:1});else{for(const k2 in room.def.routeTrees){const [x2,y2]=k2.split(',').map(Number);S.got['tree_'+room.id+k2]=1;room.t[y2][x2]='.';goneForGood(room,x2,y2);redrawTile(room,x2,y2);}toast={s:'THE QUAY ROAD IS OPEN',t:0};}SND.secret();
               }
               shake=5;SND.stomp();pl.act=null;knock(pl,pl.x+DX[pl.dir]*8,pl.y+DY[pl.dir]*8,1.5,6);save();
             }else {if(pl.at%4===0)debris(pl.x,pl.y,'grass');if(pl.at>100)pl.act=null;checkEdges();}return;
@@ -2824,10 +3167,10 @@
           case 'throw': case 'item': if (pl.at >= 10) pl.act = null; break;
         }
         if (!pl.act || pl.act === 'charge') {
-          if ((pressed('b') || pl.swordBuffer>0) && S.sword && !pl.carry && !pl.act) { pl.swordBuffer=0; pl.act = 'sword'; pl.at = 0; pl.cut = false; SND.sword(); }
-          else if (pressed('b') && pl.carry) throwIt();
-          else if (pressed('a') && !pl.act) actionA();
-          else if (pressed('y') && !pl.act) useItem();
+          if (pl.actionBuffer?.b && S.sword && !pl.carry && !pl.act) { takeAction('b'); pl.act = 'sword'; pl.at = 0; pl.cut = false; SND.sword(); }
+          else if(pl.carry && takeAction('b'))throwIt();
+          else if(!pl.act && takeAction('a'))actionA();
+          else if(!pl.act && takeAction('y'))useItem();
         }
         if (co || mode !== 'play') return;
         // walking
@@ -2850,6 +3193,7 @@
         const ftx = Math.floor(pl.x / 16), fty = Math.floor((pl.y - 3) / 16), fc = tileAt(room, ftx, fty);
         if (fc && 'dD@^m'.includes(fc)) {
           if (fc === 'm') { const o = room.def.out; warp(o[0], o[1], o[2], o[3]); return; }
+          const stair=room.def.stairs;if(fc==='^'&&stair&&localPuzzle(room.def)[stair.flag]&&stair.cells.some(([x,y])=>x===ftx&&y===fty)){warp(...stair.to);return;}
           const w = (room.def.warps || {})[ftx + ',' + fty]; if (w) { warp(w[0], w[1], w[2], w[3]); return; }
         }
         checkEdges();
@@ -2876,7 +3220,7 @@
             if (e.carried) { if (e.carried.dead) { collect(e); return; } e.x = e.carried.x; e.y = e.carried.y + 8; e.z = 0; return; }
             if (e.vz || e.z > 0) { e.z += e.vz; e.vz -= 0.15; if (e.z <= 0) { e.z = 0; e.vz = Math.abs(e.vz) > 0.8 ? -e.vz * 0.4 : 0; } }
             if (!e.perm && --e.life <= 0) { e.dead = true; return; }
-            if (Math.abs(e.x - pl.x) < 10 && e.y > pl.y - 14 && e.y - 8 < pl.y && e.z < 8 && !pl.dead) collect(e);
+            if (Math.abs(e.x - pl.x) < 10 && e.y > pl.y - 14 && e.y - 8 < pl.y && e.z < 8 && !pl.dead && !(pl.act==='grapple'&&pl.hook?.stage==='pull')) collect(e);
             break;
           }
           case 'thrown': {
@@ -2984,7 +3328,7 @@
       function white(img) { let w = WHITE.get(img); if (!w) { w = tint(img, '#ffffff', 0.85); WHITE.set(img, w); } return w; }
       const fdir = d => d === 2 ? 3 : d === 3 ? 2 : d; // our left/right -> the sprite sheet's (2 is the right-facing one)
       function heroImg() {
-        const PF = personFrames('hero', !!S.shield), d = fdir(pl.dir);
+        const PF = personFrames('hero', !!S.shield,S.shield>=2), d = fdir(pl.dir);
         if (pl.dead) return PF['walk00'];
         if (pl.act === 'get') return PF['get00'];
         if (pl.act === 'sword' || pl.act === 'item' || pl.act === 'throw') return PF['attack' + d + '0'];
@@ -3023,6 +3367,7 @@
           case 'crab': img = SPR.crab[e.anim]; oy = 13; break;
           case 'spike': img = SPR.spike[e.anim]; oy = 15; break;
           case 'ball': img = SPR.ball[e.anim | 0]; ox = 7; oy = 13; break;
+          case 'stockpot':img=SPR.stockpot[e.anim];ox=28;oy=45;break;
           case 'crouton': img=SPR.crouton[e.anim];if(e.phase2)img=img.toast||(img.toast=tint(img,'#d87938',.24));ox=24;oy=38;break;
           case 'cheese': img = SPR.cheese[e.anim]; ox = 16; oy = 30; break;
           case 'baron': img = SPR.baron[e.anim]; ox = 24; oy = 46; break;
@@ -3055,13 +3400,14 @@
         if (e.ghostFade) { g.globalAlpha = 0.3; }
         if (e.stun > 0 && (K.frame >> 2) & 1) { g.globalAlpha = 0.7; }
         g.drawImage(draw, x - ox, y - oy - z);
+        if(e.type==='stockpot'&&e.st==='vent'&&(K.frame>>3)&1)g.drawImage(ITEMIMG.spark[(K.frame>>3)&3],x-4,y-45);
         g.globalAlpha = 1;
-        if (e.stun > 0 || (e.type==='crouton' && e.st==='dizzy') || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
+        if (e.stun > 0 || (e.type==='stockpot' && e.st==='dizzy') || (e.type==='crouton' && e.st==='dizzy') || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
           const r = e.type === 'baron' ? 18 : e.type === 'cheese' ? 12 : 7, top = y - oy - z - 2;
           for (let i = 0; i < 3; i++) { const a = K.t * 5 + i * 2.1; g.drawImage(ITEMIMG.star, Math.round(x + Math.cos(a) * r - 3), Math.round(top + Math.sin(a) * r * 0.3 - 3)); }
         }
       }
-      const SHADOWW = {crouton:19,arrow:3, gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
+      const SHADOWW = {stockpot:23,crouton:19,arrow:3, gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
       function drawRoom(rm, ox, oy, full) {
         g.drawImage(rm.fr[(K.frame / 12 | 0) % 4], ox, oy);
         if (!full) return;
@@ -3080,6 +3426,12 @@
         for(const e of ents)if(e.type==='crouton' && (e.st==='aim'||e.st==='swoop')){
           g.strokeStyle=(K.frame>>2)&1?'#f8df88':'#b85838';g.lineWidth=1;g.beginPath();g.ellipse(e.aimX,e.aimY,17,8,0,0,7);g.stroke();
           R(g,e.aimX-3,e.aimY,7,1,'#f8df88');R(g,e.aimX,e.aimY-3,1,7,'#f8df88');
+        }
+        drawHook();
+        for(const e of ents)if(e.type==='stockpot'&&((e.st==='wind'&&e.tm<=55)||e.st==='steam')){
+          const y0=e.st==='steam'?42:50;
+          for(let y=y0;y<174;y+=8){R(g,Math.round(e.aimX)-18,y,2,4,'#ffc66f');R(g,Math.round(e.aimX)+17,y,2,4,'#ffc66f');}
+          if(e.st==='wind')F.center(g,'WHISTLE!',128,25,'#ffe0a0',1,'#182a3a');
         }
         // long grass round your ankles
         const tallAt = (x, y) => tileAt(room, Math.floor(x / 16), Math.floor((y - 2) / 16)) === '"';
@@ -3152,7 +3504,7 @@
         rows.forEach((r, y) => { for (let x = 0; x < 7; x++) if (r[x] === 'x') { const on = n === 2 || (n === 1 && x < 4); P(gg, x + 1, y + 1, on ? (y === 0 || (y === 1 && x < 3) ? '#ff9aa8' : y > 3 ? '#b81a2a' : '#f0303e') : '#3a1a2a'); } });
         if (n) P(gg, 2, 2, '#ffffff');
       }, '#100810'));
-      const itemIcon = k => k==='bow'?ITEMIMG.bow:k==='boots'?ITEMIMG.boots:k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 ? 1 : 0] : null;
+      const itemIcon = k => k==='hook'?ITEMIMG.hook:k==='bow'?ITEMIMG.bow:k==='boots'?ITEMIMG.boots:k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 ? 1 : 0] : null;
       function drawHUD() {
         const gr = g.createLinearGradient(0, 0, 0, TOP); gr.addColorStop(0, '#141830'); gr.addColorStop(1, '#0a0c1c'); g.fillStyle = gr; g.fillRect(0, 0, W, TOP);
         g.fillStyle = '#c8a040'; g.fillRect(0, TOP - 2, W, 1); g.fillStyle = '#5a4818'; g.fillRect(0, TOP - 1, W, 1);
@@ -3175,23 +3527,23 @@
         g.globalAlpha = a; g.fillStyle = 'rgba(10,12,30,.8)'; g.fillRect(128 - w / 2, TOP + 10, w, 17); g.fillStyle = '#c8a040'; g.fillRect(128 - w / 2, TOP + 10, w, 1); g.fillRect(128 - w / 2, TOP + 26, w, 1);
         F.center(g, banner.s, 128, TOP + 15, '#ffffff', 1, '#000'); g.globalAlpha = 1;
       }
-      function drawToast() { if (!toast) return; const w = F.width(toast.s) + 12; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(128 - w / 2, H - 22, w, 14); F.center(g, toast.s, 128, H - 19, '#fff8c0', 1); }
+      function drawToast() { if (!toast) return; const label=castText(toast.s).toUpperCase(),w = F.width(label) + 12; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(128 - w / 2, H - 22, w, 14); F.center(g, label, 128, H - 19, '#fff8c0', 1); }
       function frameBox(x, y, w, h, fill) { g.fillStyle = '#f0e8d0'; g.fillRect(x, y, w, h); g.fillStyle = '#c8a040'; g.fillRect(x + 1, y + 1, w - 2, h - 2); g.fillStyle = fill || '#16204a'; g.fillRect(x + 2, y + 2, w - 4, h - 4); g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(x + 2, y + 2, w - 4, 2); }
 
       // ============================================================ the START menu: items, the quest, save
       let menu = null;
-      const ITEMS = [['boom','BOOMERANG'],['bombs','BOMBS'],['soup','MINESTRONE'],['bow','RAVIOLI RECURVE'],['boots','OVEN BOOTS']];
-      const owned = k => k==='bow'?S.bow:k==='boots'?S.boots:k==='boom'?S.boom:k==='bombs'?S.bag:k==='soup'?S.bottle>0:false;
+      const ITEMS = [['boom','BOOMERANG'],['bombs','BOMBS'],['soup','MINESTRONE'],['bow','RAVIOLI RECURVE'],['boots','OVEN BOOTS'],['hook','SPOOL SPORK']];
+      const owned = k => k==='hook'?S.hook:k==='bow'?S.bow:k==='boots'?S.boots:k==='boom'?S.boom:k==='bombs'?S.bag:k==='soup'?S.bottle>0:false;
       function openMenu() {
         const i=Math.max(0,ITEMS.findIndex(i=>i[0]===S.sel));
-        menu={row:Math.floor(i/3),col:i%3,t:0,saved:0};mode='menu';SND.menu();save();
+        pl.actionBuffer={};menu={row:Math.floor(i/3),col:i%3,t:0,saved:0};mode='menu';SND.menu();save();
       }
       function updMenu() {
         const M=menu;M.t++;if(M.saved)M.saved--;
         if(pressed('start')||(pressed('b')&&M.row<2)){mode='play';SND.menu();save();return;}
         const nav=pressed('up')||pressed('down')||pressed('left')||pressed('right');
         if(pressed('up'))M.row=(M.row+2)%3;if(pressed('down'))M.row=(M.row+1)%3;
-        const cols=M.row===1?2:3;
+        const cols=3;
         if(pressed('left'))M.col=(M.col+cols-1)%cols;if(pressed('right'))M.col=(M.col+1)%cols;M.col=Math.min(cols-1,M.col);
         if(nav)SND.menu();
         const item=ITEMS[M.row*3+M.col];
@@ -3216,7 +3568,7 @@
         });
         const cur=ITEMS[Math.min(ITEMS.length-1,M.row*3+M.col)];F.center(g,owned(cur[0])?cur[1]:'UNFOUND',71,94,'#c8d8f0',1);
         F.center(g,'- KIT -',190,13,'#f8d048',1,'#000');frameBox(136,22,108,84,'#0a1030');
-        g.globalAlpha=S.sword?1:.2;g.drawImage(S.sword>1?ITEMIMG.blade:ITEMIMG.swordIcon,144,29);g.globalAlpha=S.shield?1:.2;g.drawImage(ITEMIMG.shieldIcon,162,29);g.globalAlpha=1;
+        g.globalAlpha=S.sword?1:.2;g.drawImage(S.sword>1?ITEMIMG.blade:ITEMIMG.swordIcon,144,29);g.globalAlpha=S.shield?1:.2;g.drawImage(S.shield>=2?ITEMIMG.apron:ITEMIMG.shieldIcon,162,29);g.globalAlpha=1;
         g.drawImage(ITEMIMG.pieces[S.pieces],210,27);F.center(g,S.pieces+'/4',218,45,'#ffb0b8',1,'#000');
         g.drawImage(ICON.gem,144,56);F.draw(g,String(S.gems),156,57,'#a8f8b0',1,'#000');
         F.draw(g,'TIME '+clock(S.time),185,57,'#c8d0f0',1);F.draw(g,'HEARTS '+S.maxH,144,72,'#ffb0b8',1);
@@ -3225,13 +3577,18 @@
         [[ITEMIMG.map,S.map],[ITEMIMG.compass,S.comp],[ITEMIMG.bigkey,S.big]].forEach(([im,has],i)=>{g.globalAlpha=has?1:.18;g.drawImage(im,128+i*23,116);g.globalAlpha=1;});
         g.drawImage(ICON.key,202,118);F.draw(g,'X'+S.keys,212,119,'#fff',1,'#000');
         frameBox(12,142,232,36,'#0a1030');F.draw(g,'QUEST:',20,147,'#f8d048',1,'#000');
-        wrap(questLine(),36).slice(0,2).forEach((l,i)=>F.draw(g,l,20,157+i*10,'#ffffff',1,'#000'));
+        wrap(castText(questLine()),36).slice(0,2).forEach((l,i)=>F.draw(g,l,20,157+i*10,'#ffffff',1,'#000'));
         ['CARRY ON','SAVE','SAVE & QUIT'].forEach((o,i)=>{const x=[20,98,160][i],on=M.row===2&&M.col===i;F.draw(g,o,x+10,186,on?'#f8d048':'#9aa0c8',1,'#000');if(on)F.draw(g,'→',x,186,'#f8d048',1);});
         F.center(g,M.saved?'SAVED!':`${LB('start')}: BACK TO THE GAME`,128,203,M.saved?'#a8f8b0':'#8a98b8',1);g.restore();
       }
       const clock = s => { s = s | 0; const h = s / 3600 | 0, m = (s / 60 | 0) % 60; return h + ':' + String(m).padStart(2, '0'); };
       function questLine() {
-        if(S.f.secondDone)return 'Second helping saved! Dash into glinting trees for secret hearts.';
+        if(S.f.tidebell)return 'High-water stairs east of the quay: spork north to the Cooler Road.';
+        if(S.f.stockpot)return 'The Tidebell bower is east of the hob. Ring the bell!';
+        if(S.hook)return 'Pull the lift handle. Cross the spillway; the loft holds the big key.';
+        if(S.activeDg==='pumpworks')return 'West drain watch: small key. West cutlery: a spring-loaded tool.';
+        if(S.f.secondDone)return 'Dash through the east shore trees. Scouring Quay needs a plumber.';
+
         if(S.f.ovenheart)return 'Take the Ovenheart to the Al Dente Forge in the south-west.';
         if(S.f.crouton)return 'Enter the shrine east of the roost. Claim the Ovenheart.';
         if(S.f.second){
@@ -3243,7 +3600,7 @@
         if(S.f.baron)return 'Tea-time saved! The village well glows. A second helping awaits.';
         if(!S.sword)return "Open the chest at home for Grandad's sword and shield.";
         if(!S.f.elder)return 'Visit Elder Parmesan in the village: east, then north.';
-        if(!S.bag)return "Buy bombs at Mabel's shop. Cut grass for extra gems.";
+        if(!S.bag)return "Buy bombs at {shop}'s shop. Cut grass for extra gems.";
         if(!S.f.blast_cliff)return 'Bomb the cracked rocks north of the village.';
         if(!S.f.keepIn)return 'Climb the North Cliffs to the Colander Keep.';
         if(!S.boom)return 'Explore the Keep. Small keys open locked doors.';
@@ -3261,25 +3618,26 @@
         def.map.forEach((row, y) => [...row].forEach((ch, x) => { gg.fillStyle = (def.world==='salt'&&ch==='.')?'#647490':(def.world==='salt'&&ch==='T')?'#303d60':MCOL[ch] || '#58b040'; gg.fillRect(x * 4, y * 4, 4, 4); if (ch === 'T') { gg.fillStyle = def.world==='salt'?'#586b85':'#3a8a34'; gg.fillRect(x * 4, y * 4, 2, 2); } }));
         return MINI[id] = c;
       }
-      function mapOpen() { mode = 'map'; mapT = 0; SND.menu(); }
+      function mapOpen() { pl.actionBuffer={};mode = 'map'; mapT = 0; SND.menu(); }
       function updMap() { mapT++; if (mapT > 6 && (pressed('x') || pressed('a') || pressed('b') || pressed('start'))) { mode = 'play'; SND.menu(); } }
       function drawMap() {
         g.fillStyle = 'rgba(0,0,10,.75)'; g.fillRect(0, 0, W, H);
         if (room.kind === 'dg') return drawDgMap();
         frameBox(22, 6, 212, 194, '#0a1030');
-        F.center(g, room.def.world==='salt'||room.id.startsWith('p_')?'THE SALT-BEYOND':'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
-        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east',p_shop:'p_village',p_forge:'p_home' })[room.id] || 'cliff';
+        F.center(g, room.def.world==='salt'||(room.id.startsWith('p_')||room.id.startsWith('q_'))?'THE SALT-BEYOND':'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
+        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east',p_shop:'p_village',p_forge:'p_home',q_mender:'q_quay',q_shop:'q_quay',q_ferry:'q_beacon' })[room.id] || 'cliff';
         const world=ROOMS[here].world || 'light';
-        for (let gy = 0; gy < 3; gy++) for (let gx = 0; gx < 3; gx++) {
-          const id = OWG[world+':'+gx+','+gy], x = ox + gx * 64, y = oy + gy * 48;
-          if (S.seen[id]) g.drawImage(mini(id), x, y); else { g.fillStyle = '#1a2040'; g.fillRect(x, y, 64, 48); F.center(g, '?', x + 32, y + 20, '#3a4478', 1); }
-          g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeRect(x + 0.5, y + 0.5, 63, 47);
+        const cw=world==='salt'?38:64,mw=world==='salt'?5:3;
+        for (let gy = 0; gy < 3; gy++) for (let gx = 0; gx < mw; gx++) {
+          const id = OWG[world+':'+gx+','+gy], x = ox + gx * cw, y = oy + gy * 48;
+          if (S.seen[id]) g.drawImage(mini(id), x, y,cw,48); else { g.fillStyle = '#1a2040'; g.fillRect(x, y, cw, 48); F.center(g, '?', x + cw/2, y + 20, '#3a4478', 1); }
+          g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeRect(x + 0.5, y + 0.5, cw-1, 47);
         }
         // the keep, and where you are
-        if (S.seen.cliff) { g.drawImage(ITEMIMG.trifork, 0, 0, 24, 24, ox + 64 + 26, oy + 2, 12, 12); }
+        if (world==='light'&&S.seen.cliff) { g.drawImage(ITEMIMG.trifork, 0, 0, 24, 24, ox + 64 + 26, oy + 2, 12, 12); }
         const hx = ROOMS[here].gx || 0, hy = ROOMS[here].gy || 0;
-        const px = room.kind === 'ow' ? pl.x / 4 : 32, py = room.kind === 'ow' ? pl.y / 4 : 24;
-        if ((mapT >> 3) & 1) { g.fillStyle = '#ffffff'; g.fillRect(ox + hx * 64 + px - 3, oy + hy * 48 + py - 5, 6, 6); g.fillStyle = '#e83838'; g.fillRect(ox + hx * 64 + px - 2, oy + hy * 48 + py - 4, 4, 4); }
+        const px = room.kind === 'ow' ? pl.x * cw/256 : cw/2, py = room.kind === 'ow' ? pl.y / 4 : 24;
+        if ((mapT >> 3) & 1) { g.fillStyle = '#ffffff'; g.fillRect(ox + hx * cw + px - 3, oy + hy * 48 + py - 5, 6, 6); g.fillStyle = '#e83838'; g.fillRect(ox + hx * cw + px - 2, oy + hy * 48 + py - 4, 4, 4); }
         F.center(g, roomName(here), 128, 172, '#ffffff', 1, '#000');
         F.center(g, `${LB('x')}: CLOSE THE MAP`, 128, 186, '#5a6090', 1);
       }
@@ -3287,6 +3645,7 @@
         frameBox(22, 6, 212, 194, '#0a1030');
         F.center(g,DUNGEONS[room.def.dg || 'keep'].name,128, 12, '#f8d048', 1, '#000');
         const ox = 72, oy = 26, cw = 36, chh = 24;
+        if(room.def.dg==='pumpworks'){F.draw(g,'2F',35,49,'#c8e2ef',1);F.draw(g,'1F',35,98,'#c8e2ef',1);R(g,69,74,112,1,'#ac895b');}
         for (const id in ROOMS) {
           const r = ROOMS[id]; if (r.kind !== 'dg' || (r.dg || 'keep') !== (room.def.dg || 'keep')) continue;
           const seen = S.seen[id], show = seen || (S.map && !r.secret); if (!show) continue;
@@ -3296,11 +3655,13 @@
           if (d.n && d.n !== 'J') g.fillRect(x + cw / 2 - 3, y, 6, 3); if (d.s) g.fillRect(x + cw / 2 - 3, y + chh - 3, 6, 3); if (d.w) g.fillRect(x, y + chh / 2 - 3, 3, 6); if (d.e) g.fillRect(x + cw - 3, y + chh / 2 - 3, 3, 6);
           if (S.comp) {
             for (const k in (r.chests || {})) if (!S.opened[id + ':' + k]) { g.fillStyle = '#f8d048'; g.fillRect(x + 6 + (k.length % 3) * 6, y + 8, 4, 4); }
-            if (id === DUNGEONS[room.def.dg||'keep'].boss && !S.f[id==='d11'?'baron':'crouton'] && (mapT >> 4) & 1) { if(id==='r11')g.drawImage(SPR.crouton[0],0,0,48,40,x+cw/2-8,y+4,16,14);else g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
+            if (id === DUNGEONS[room.def.dg||'keep'].boss && !S.f[id==='d11'?'baron':id==='t11'?'stockpot':'crouton'] && (mapT >> 4) & 1) { if(id==='t11')g.drawImage(SPR.stockpot[1],0,0,56,48,x+cw/2-8,y+3,16,14);else if(id==='r11')g.drawImage(SPR.crouton[0],0,0,48,40,x+cw/2-8,y+4,16,14);else g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
           }
+          if(r.stairsMark)F.draw(g,r.stairsMark,x+cw-10,y+chh-11,'#ade8ee',1,'#152334');
           if (id === room.id && (mapT >> 3) & 1) { g.fillStyle = '#fff'; g.fillRect(x + cw / 2 - 3, y + chh / 2 - 3, 6, 6); g.fillStyle = '#e83838'; g.fillRect(x + cw / 2 - 2, y + chh / 2 - 2, 4, 4); }
         }
         F.draw(g, S.map ? 'MAP' : 'NO MAP YET', 30, 168, S.map ? '#a8f8b0' : '#5a6090', 1); F.draw(g, S.comp ? 'COMPASS' : 'NO COMPASS', 100, 168, S.comp ? '#a8f8b0' : '#5a6090', 1); F.draw(g, S.big ? 'BIG KEY' : '', 180, 168, '#f8d048', 1);
+        if(room.def.dg==='pumpworks')F.center(g,'A: LIFT / B: RETURN',128,177,'#9dbad1',1);
         F.center(g, roomName(room.id), 128, 152, '#ffffff', 1, '#000');
         F.center(g, `${LB('x')}: CLOSE THE MAP`, 128, 186, '#5a6090', 1);
       }
@@ -3404,7 +3765,7 @@
           const s = store.slots[Fs.row];
           if (Fs.erase) { if (s) { Fs.confirm = Fs.row; Fs.yes = false; SND.menu(); } return; }
           SND.pick();
-          if (s) startFile(Fs.row); else { naming = { slot: Fs.row, name: 'JACK', row: 4, col: 2, t: 0 }; mode = 'name'; }
+          if (s) startFile(Fs.row); else { naming = { slot: Fs.row, name: castName('me').toUpperCase().slice(0,8), row: 4, col: 2, t: 0 }; mode = 'name'; }
         }
       }
       function fairy(x, y) { const f = (K.frame >> 2) & 1; g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x - 5, y - 3 + f, 4, 3); g.fillRect(x + 2, y - 3 + f, 4, 3); g.fillStyle = '#ffffff'; g.fillRect(x - 1, y - 1, 3, 3); g.fillStyle = '#ffe0f0'; g.fillRect(x, y, 1, 1); }
@@ -3452,7 +3813,7 @@
         if (pressed('down')) { N.row = (N.row + 1) % rows; N.col = Math.min(N.col, N.row === 4 ? 2 : 9); SND.menu(); }
         if (pressed('left')) { N.col = (N.col + cols - 1) % cols; SND.menu(); } if (pressed('right')) { N.col = (N.col + 1) % cols; SND.menu(); }
         if (pressed('b')) { if (N.name.length) { N.name = N.name.slice(0, -1); SND.menu(); } else { mode = 'files'; } return; }
-        const end = () => { const nm = N.name.trim() || 'JACK'; store.slots[N.slot] = freshSave(nm); persist(); SND.save(); startFile(N.slot); };
+        const end = () => { const nm = N.name.trim() || castName('me').toUpperCase().slice(0,8); store.slots[N.slot] = freshSave(nm); persist(); SND.save(); startFile(N.slot); };
         if (pressed('start')) { end(); return; }
         if (pressed('a')) {
           if (N.row < 4) { if (N.name.length < 8) { N.name += GRID[N.row][N.col]; SND.blip(); } }
@@ -3471,11 +3832,31 @@
         ['SPACE', 'DEL', 'END'].forEach((o, i) => { const on = N.row === 4 && N.col === i, x = 48 + i * 60; if (on) { g.fillStyle = '#3a4a9a'; g.fillRect(x - 4, 156, F.width(o) + 8, 15); } F.draw(g, o, x, 160, on ? '#f8d048' : '#ffffff', 1, '#000'); });
         F.center(g, `${LB('a')}: TYPE   ${LB('b')}: RUB OUT   START: DONE`, 128, 190, '#8a90c0', 1);
       }
+      function migrateTerrain(i){
+        if(S.terrainRev===2)return;
+        let safe=null;
+        // These were ordinary walkable ground in v1. Rebase old positions before
+        // collision recovery can choose the dry but tool-gated side of the new moat.
+        if(!S.hook&&S.room==='forest'&&S.x>=160&&S.x<=240&&S.y<=96)safe=[200,108];
+        if(!S.hook&&S.room==='p_grave'&&S.x>=128&&S.x<=208&&S.y>=112&&S.y<=176)safe=[120,140];
+        const live=store.live;
+        if(safe){
+          S.x=safe[0];S.y=safe[1];
+          if(live?.slot===i&&live.room===S.room){
+            live.pl=Object.assign({},live.pl,{x:S.x,y:S.y,act:null,carry:null,hook:null,kbt:0,inv:Math.max(30,live.pl?.inv||0)});live.tiles=null;
+          }
+        }
+        if(live?.slot===i&&live.room==='forest'&&live.ents)for(const e of live.ents){
+          if(e.type==='gloop'&&e.hx===216&&e.hy===76)Object.assign(e,{x:184,y:172,hx:184,hy:172,vx:0,vy:0,vz:0,z:0,kbt:0,st:0,tm:45});
+        }
+        S.terrainRev=2;
+      }
       function startFile(i) {
         slot = i; S = store.slots[i]; store.last = i;
-        S.activeDg=S.activeDg||'keep';S.dungeons=S.dungeons||{};S.bow=S.bow||0;S.boots=S.boots||0;
+        S.activeDg=S.activeDg||'keep';S.dungeons=S.dungeons||{};S.bow=S.bow||0;S.boots=S.boots||0;S.hook=S.hook||0;
         for (const k of ['f', 'opened', 'doors', 'cleared', 'seen', 'gone', 'got']) if (!S[k] || typeof S[k] !== 'object') S[k] = {};
         if (!ROOMS[S.room]) { S.room = 'h_home'; S.x = 136; S.y = 124; }
+        migrateTerrain(i);
         S.hp = clamp(S.hp | 0, 1, S.maxH * 2);
         pl = newPlayer(S.x, S.y, S.dir | 0); lastRep = { t: K.t, sc: 0 }; lastRep.sc = 0;
         if (!S.intro) { mode = 'intro'; intro = { page: 0, t: 0 }; song('title'); openBox({ text: INTRO[0][1] }); }
@@ -3563,7 +3944,7 @@
         const k = Math.min(1, over.t / 30);
         g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
         g.fillStyle = `rgba(90,0,10,${0.6 * k})`; g.fillRect(0, 0, W, H);
-        const PF = personFrames('hero', !!S.shield); g.save(); g.translate(128, 100); g.rotate(-Math.PI / 2); g.drawImage(PF['get00'], -12, -8); g.restore();
+        const PF = personFrames('hero', !!S.shield,S.shield>=2); g.save(); g.translate(128, 100); g.rotate(-Math.PI / 2); g.drawImage(PF['get00'], -12, -8); g.restore();
         for (let i = 0; i < 3; i++) { const a = K.t * 4 + i * 2.1; g.drawImage(ITEMIMG.star, Math.round(118 + Math.cos(a) * 12), Math.round(88 + Math.sin(a) * 4)); }
         g.globalAlpha = k; F.center(g, 'YOU FAINTED!', 128, 46, '#ff8a8a', 2, '#000');
         F.center(g, 'HAVE A LITTLE SIT DOWN...', 128, 66, '#ffffff', 1);
@@ -3582,14 +3963,14 @@
         ending.total = Math.min(99999, (S.score | 0) + ending.bonusT + ending.bonusH);
         // after the credits you carry on from the village, everything kept
         S.room = 'village'; S.x = 120; S.y = 92; S.dir = 0; store.slots[slot] = S;
-        const me = { n: (S.name || 'JACK').slice(0, 8), s: ending.total, me: 1 };
+        const me = { n: (S.name || castName('me').toUpperCase().slice(0,8)).slice(0, 8), s: ending.total, me: 1 };
         store.hof = store.hof.filter(h => !h.me || h.n !== me.n).concat([me]).sort((a, b) => b.s - a.s).slice(0, 8);
         ending.rank = store.hof.indexOf(me) + 1;
         persist();
         trans = { warp: null, t: 0, n: 40, phase: 0 }; mode = 'ending'; song(null);save();
       }
       const FEAST = ['zeldo', 'mom', 'elder', 'mabel', 'nonna', 'dave', 'luke', 'cal', 'fisher', 'lady'];
-      const CREDITS = () => ['THE MYTH OF ZELDO', 'A LINK TO THE PASTA', '', '- STARRING -', NN(), '', 'PRINCESS ZELDO', 'MOM', 'ELDER PARMESAN', 'MABEL (OF MABEL\'S)', 'NONNA ROSA', 'DAVE (STILL ON THE LAST BOSS)', 'LUKE', 'CAL (PC STILL BROKEN)', 'OLD SALTY', 'MRS PENNE AND HER HENS', '',
+      const CREDITS = () => ['THE MYTH OF ZELDO', 'A LINK TO THE PASTA', '', '- STARRING -', NN(), '', 'PRINCESS ZELDO', 'MOM', 'ELDER {greatuncle}', '{shop} (OF {shop}\'S)', '{nan}', '{mate1} (STILL ON THE LAST BOSS)', '{mate2}', '{mate3} (PC STILL BROKEN)', '{greatuncle}', '{auntie} AND HER HENS', '',
         '- THE BADDIES -', 'BARON MEATBALLO', 'THE BIG CHEESE', 'THE FORK KNIGHTS', 'THE GLOOPS', 'THE PEA POD SNAPPERS', 'GHOULASH THE GHOST', 'COUNT CROUTON (LIGHTLY TOASTED)', '', 'NO BADDIES WERE HURT IN THE', 'MAKING OF THIS GAME.', 'THEY ALL JUST WENT POOF.', '', '- BIG FORK GAMES 1999 -', '', 'THANKS FOR PLAYING!'];
       function updEnding() {
         const E2 = ending; E2.t++;
@@ -3599,7 +3980,7 @@
           E2.fw = E2.fw.filter(f => ++f.t < 50);
           if (tb) { updateBoxIntro(); return; }
           E2.page++;
-          const lines = [`MOM: That's my ${NN()}! Did you wipe your feet?`, 'DAVE: I could have done it quicker. Probably. Maybe.', `PRINCESS ZELDO: Tonight, EVERYONE eats spaghetti! Three cheers for ${NN()}!`];
+          const lines = [`MOM: That's my ${NN()}! Did you wipe your feet?`, '{mate1}: I could have done it quicker. Probably. Maybe.', `PRINCESS ZELDO: Tonight, EVERYONE eats spaghetti! Three cheers for ${NN()}!`];
           if (E2.page <= lines.length) openBox({ text: lines[E2.page - 1] });
           else { E2.phase = 2; E2.t = 0; }
           return;
@@ -3639,7 +4020,7 @@
           for (let i = 0; i < 50; i++) { g.fillStyle = i % 7 ? '#8a90c8' : '#ffffff'; g.fillRect(hash(i, 1, 21) * W | 0, hash(i, 2, 21) * 150 | 0, 1, 1); }
           const hill = (base, amp, sp, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += 4) g.lineTo(x, base - Math.sin((x + E2.t * sp) * 0.03) * amp); g.lineTo(W, H); g.fill(); };
           hill(180, 12, 0.2, '#2a2a5a'); hill(198, 8, 0.5, '#1a3a3a');
-          const L = CREDITS(), y0 = H - 30 - E2.t * 0.42; g.save(); g.beginPath(); g.rect(0, 0, W, 176); g.clip();
+          const L = CREDITS().map(l=>castText(l).toUpperCase()), y0 = H - 30 - E2.t * 0.42; g.save(); g.beginPath(); g.rect(0, 0, W, 176); g.clip();
           L.forEach((s, i) => { const y = y0 + i * 14; if (y > -10 && y < H) F.center(g, s, 128, Math.round(y), i < 2 ? '#f8d048' : s.startsWith('-') ? '#ff9a8a' : '#ffffff', 1, '#000'); });
           g.restore();
           const ax = (E2.t * 0.6) % (W + 60) - 30; g.drawImage(personFrames('hero', true)['walk2' + ((E2.t >> 3) & 3)], Math.round(ax - 8), 194);
@@ -3691,12 +4072,19 @@
         g.restore();
         drawHUD();
       }
+      function takeAction(b){const yes=!!pl?.actionBuffer?.[b];if(yes)delete pl.actionBuffer[b];return yes;}
       function update() {
         touchNow={...touchPending};for(const k in touchPending)delete touchPending[k];
         if(resumeRun && ['up','down','left','right','a','b','y','x','start'].some(b=>held(b)||pressed(b))){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
         if(resumeRun&&K.stick&&Math.hypot(K.stick().x,K.stick().y)>.25){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
-        if(pl){pl.swordBuffer=pressed('b')?6:Math.max(0,(pl.swordBuffer||0)-1);}
-        if(hitStop>0&&mode==='play'&&!co){hitStop--;if(pressed('start'))openMenu();updateFx();return;}
+        if(pl&&['play','scroll','fade'].includes(mode)&&!co){
+          pl.actionBuffer=pl.actionBuffer||{};
+          for(const b of ['a','b','y','x','start']){
+            if(pressed(b))pl.actionBuffer[b]=12;
+            else if(mode==='play'&&!hitStop&&!pl.act&&pl.actionBuffer[b]){if(--pl.actionBuffer[b]<=0)delete pl.actionBuffer[b];}
+          }
+        }
+        if(hitStop>0&&mode==='play'&&!co){hitStop--;if(takeAction('start'))openMenu();updateFx();return;}
         switch (mode) {
           case 'title': updTitle(); break;
           case 'files': updFiles(); break;
@@ -3739,7 +4127,7 @@
       K.dbg = {
         get S() { return S; }, get pl() { return pl; }, get room() { return room; }, get ents() { return ents; }, get mode() { return mode; }, get tb() { return tb; }, get co() { return co; }, get store() { return store; },
         flush, get fade(){return fade;}, get lastRep() { return lastRep; }, get ending() { return ending; },
-        start(i, name) { if (!store.slots[i]) store.slots[i] = freshSave(name || 'JACK'); store.slots[i].intro = 1; startFile(i); },
+        start(i, name) { if (!store.slots[i]) store.slots[i] = freshSave(name || castName('me').toUpperCase().slice(0,8)); store.slots[i].intro = 1; startFile(i); },
         warp(id, tx, ty, dir) { co = null; tb = null; coQ.length = 0; enterRoom(makeRoom(id), tx * 16 + 8, ty * 16 + 12, dir || 0); mode = 'play'; },
         give(o) { Object.assign(S, o); }, flag(k, v) { S.f[k] = v; }, makeRoom, ROOMS, report, startEnding, explode, toggleCrystal, hurtPlayer, run, getItem, say,
         bonkAll() { for (const e of ents) if (e.enemy && !e.dead && !(EN[e.type] || {}).boss && e.type !== 'spike') bonk(e); },
@@ -3752,7 +4140,8 @@
         if(live && live.slot===slot && ROOMS[live.room]){
           co=null;tb=null;coQ.length=0;trans=null;
           room=makeRoom(live.room);dungeonInventory(room.def);
-          if(live.tiles?.length===ROWS && live.tiles.every(r=>r.length===COLS))room.t=live.tiles.map(r=>r.split(''));
+          if((live.mapRevision===2||!['forest','p_lake','p_grave','p_shore'].includes(live.room))&&live.tiles?.length===ROWS && live.tiles.every(r=>r.length===COLS))room.t=live.tiles.map(r=>r.split(''));
+          for(const k of ['j','!'])room.def.map.forEach((row,y)=>[...row].forEach((c,x)=>{if(c===k)room.t[y][x]=k;}));applyFloods(room);
           room.trapOn=!!live.trapOn;room.trapPending=!!live.trapPending || (!live.ents && room.def.trap && !S.cleared[room.id]);if(room.kind==='dg')setDoors(room);render(room);
           if(live.ents)ents=live.ents;else spawnEnts(room);
           shots=live.shots||[];fx=[];pl=Object.assign(newPlayer(S.x,S.y,S.dir),live.pl);pl.getSpr=null;
@@ -3761,7 +4150,7 @@
           mode=['play','menu','map','dying','gameover','ending'].includes(live.mode)?live.mode:'play';
           if(mode==='menu'&&!menu)mode='play';if(mode==='ending'&&!ending)mode='play';
           if(mode==='dying'||mode==='gameover')S.hp=0;
-          unstick();song(mode==='ending'?'ending':room.def.song||'field');fade=0;banner=null;
+          if(!(pl.act==='grapple'&&pl.hook?.stage==='pull'))unstick();song(mode==='ending'?'ending':room.def.song||'field');fade=0;banner=null;
         }
         if(S.f.recipe&&!S.done || S.f.secondDone&&!S.f.secondCredits)startEnding();
       }

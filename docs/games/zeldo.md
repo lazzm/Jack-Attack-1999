@@ -1,107 +1,142 @@
 # The Myth of Zeldo: A Link to the Pasta
 
-## Scope ledger — 26 October 2026, start of this run
+## Current scope — depth pass, 10 November 2026
 
-The reference is the full 1991–92 16-bit action adventure. This cartridge currently has a complete short adventure, not the reference game's campaign volume. All code, maps, sprites, melodies and dialogue are original kitchen-themed parody work.
+The reference is the full 1991–92 16-bit action adventure. This is an original kitchen-themed parody with three substantial dungeons, not the reference game's full campaign volume. Maps, sprites, dialogue, melodies and effects are authored here; human names come from Cast. Existing file names and legacy save identifiers remain unchanged.
 
-| Feature/content | Original has | We have at start of run |
+| Feature/content | Reference scope | Current cartridge |
 | --- | --- | --- |
-| Campaign | Opening rescue, three early dungeons, alternate-world quest, seven later dungeons, final tower and ending | Home opening, nine overworld screens, one 11-room dungeon, two bosses, feast/credits |
-| Worlds | Large light and dark worlds, interconnected routes | One 3 × 3 overworld; no alternate world |
-| Dungeon progression | 8+ themed dungeons; local maps, compasses, keys, signature equipment and bosses | Colander Keep, map/compass/small and big keys, crystals, blocks, breadstick boomerang |
-| Equipment | Many tools that change exploration; several sword/shield upgrades | Sword/shield, charged spin, bombs, boomerang, one soup bottle; no upgrades |
-| Combat | Directional arcs, stun, knockback, invulnerability, varied bosses | Arc/spin combat, knockback, shield reflection, stun; Big Cheese and Meatballo |
-| Side content | Villages, shops, caves, heart pieces, secret walls/trees, optional challenges | Village with shop and NPCs, caves, four heart pieces, bomb walls and push grave |
-| Presentation | Pixel art, scrolling screens, layered music, file menu, maps, ending | Original 256 × 224 pixel art and music, scrolling, three files, menus, feast/credits |
-| Persistence | Durable progression and sensible continue points | Saves on room entry/menu and some rewards; no automatic active-file restore; transient puzzle/combat refresh needs audit |
-| Controls | Controller movement, sword, contextual action, item, pause/map | Shared console keyboard/gamepad/touch controls; prompts use controller labels even on keyboard |
-| Verification | Full campaign, secrets and boss routes | No dedicated Zeldo regression at start |
+| Campaign | Opening rescue, three early dungeons, alternate-world quest, seven later dungeons, final tower and ending | Home rescue, Salt-Beyond forge chapter, Scouring Quay/Tidebell chapter; two feast/credits sequences and a third chapter resolution. The full campaign remains outstanding. |
+| Worlds | Large light and alternate overworlds, multiple settlements | **24 outdoor screens**: nine daylight and fifteen Salt-Beyond; **11 interiors/caves**. Farfalle, its Salt counterpart, and distinct Scouring Quay. |
+| Dungeons | Many individually themed dungeons with local treasure, keys and tools | **3 dungeons, 36 rooms**: Colander Keep (11), Ravioli Reservoir (12), Pothook Pumpworks (13). **71 screens total**, including interiors and dungeons. Animation frames and credits do not count. |
+| Dungeon inventory | Local maps, compasses, small and big keys | Each dungeon has its own map, compass and keys. Pumpworks floodgates and counterweights live in `S.dungeons.pumpworks.puzzles`; no global key flags. Existing Keep fields migrate through the established `activeDg` inventory swap. |
+| Tool identities | Equipment changes how old and new spaces are explored | Boomerang, bombs, soup bottle, Ravioli Recurve, Oven Boots, **Spool Spork**. The Spork reels to moorings, pulls forked handles, stuns small enemies and opens Stockpot's cooling lid. |
+| Combat/upgrades | Directional sword, shields, varied enemies/bosses, several equipment tiers | Directional swings, charge/spin, stun, knockback, i-frames; **4 boss encounters** including the original mini-boss. Two sword tiers and an optional Tinned Apron armour upgrade; one refillable soup bottle. |
+| Exploration/quests | Heart pieces, containers, hidden caves, town chains, useful shortcuts | **13 heart pieces, 4 boss containers**, bomb walls, push grave, dash trees, mooring islands, shops/forge, bell-mender delivery chain and a two-way daylight/Cooler Road ferry. Ten-heart maximum remains appropriate to these three chapters. |
+| Presentation | Readable native sprites, musical identities, dungeon maps, transitions and rewards | Native **256 × 224**, crisp pixel art with no blur/options. Copper pipes, tide gauges and lower/upper galleries distinguish Pumpworks; original quay, pump and pressure-boss music plus launch/latch/reel/flood cues. |
+| Inputs | Controller movement, sword, action, selected item, menu/map | Keyboard, simulated standard pad and cartridge touch controller. Sword/action/item/map/menu edges survive short animations, hit stops and scrolling; menus freeze and save a reel in progress. Q/T remain house controls. |
+| Saves | Durable progression and safe continuation | Three compatible version-1 files. Half-second snapshots, pagehide/close flush, live tool/crossing/boss/menu state. Rewards commit before presentation. Older live snapshots of modified outdoor screens rebuild terrain once; affected pre-Spork positions move to the mainland once, preserving inventory, hearts, gems and quest flags. Other old room snapshots retain puzzle state. |
+| Physical display/devices | Console game presentation | Real cupboard CRT by default, same-instance LOCK IN. Portrait/landscape/tablet controller layouts reserve space outside the image. Host real-phone entry policy remains separate from this cartridge. |
 
-## Run plan
+## Delivered: the Tidebell route
 
-First capture and critique the existing cartridge. Prioritise durable continuation and a substantial second chapter: alternate-world exploration, a fully keyed themed dungeon, a new tool and boss, and a meaningful sword upgrade. Preserve old files and the existing ending. Test actual input decisions, puzzle routes, combat, save/reload, menus, the room telly, LOCK IN and software rendering cost. Record the exact delivered depth and remaining campaign gap below before finishing.
+After the Al Dente Forge awards the blade and Oven Boots, its dialogue points east. Glinting trees at the Biscuit Breakers' eastern boundary open the road to Dishcloth Marsh, Scouring Quay, the Pumpworks, Spoonbill Reeds, High Water Stairs and the Cooler Road. The expanded Salt map fits all fifteen outdoor screens.
 
-## Next chunk
+The Pumpworks route is designed as a lower-to-upper loop across two real floors (paired A/B stairs on the map):
 
-After the delivered chapter is verified, expand toward the full 8+ dungeon campaign with individually designed puzzle identities and equipment gates. Do not count palette swaps or empty rooms as completed dungeons.
+1. The Lower Siphon offers a west combat/key branch and an east map/compass branch. The first small key opens the Winding Landing.
+2. In Spring Cutlery, pushing a physical counterweight onto its plate opens the Spool Spork vault. This introduces the tower's counterweight vocabulary in safety rather than copying the Reservoir armoury.
+3. First Lift teaches the new tool across a water gap with forward and return moorings. A forked handle fills the lift, lays a central crossing and exposes the A stairs to the upper floor. Door mouths enter the lower bank; automatic collision recovery cannot put the player on the prize ledge.
+4. Upper Spillway asks the player to cross, claim the second local key and use the return mooring. That key pays for the west lock into Headwater Walk.
+5. The upper handle opens the B stairs down to Winding Landing; the earned shortcut works in both directions. Counterweight Loft combines two weights, a raised gate and a grapple to a big-key island. It has its own return ring. The bombable Dry Attic is an optional heart-piece branch.
+6. The big key opens Admiral Stockpot's hob. A whistle and fixed lane marks precede steam; the lane stops tracking before the blast. Steam clears when the lid ring opens. Spork the ring, then strike the open pot with the sword. The second phase boils longer and cools for less time. Hits have brief feedback, while discrete action edges remain buffered.
+7. The defeated pot leaves a once-only heart container and opens Tidebell Bower. Ringing the bell raises the High Water Stairs' shutters. A final grapple reaches the Cooler Road, whose ferry opens a real two-way shortcut to daylight Farfalle. The Cold Pantry is a future expedition, not a claimed fourth playable dungeon.
 
-## Delivered in this run
+Every grapple destination has a clear landing and return route. Real doorway checks also caught a pre-existing collision ambiguity: `X` means a boulder outdoors but the south exit in a dungeon. All three dungeon exits now accept walking; overworld boulders stay solid, and the exit hint describes stairs. A missed shot retracts promptly; enemies can be stunned, and solid walls/shutters stop the line. During the actual reel, damage cannot strand the hero over water. Pause and refresh preserve the reel's exact position and destination.
 
-**The Second Helping** continues after the original feast. The village well leads to the Salt-Beyond, with nine original overworld screens, a second shop and the Al Dente Forge. The 12-room Ravioli Reservoir has its own keys, map, compass and big key. Its armoury block puzzle awards the Ravioli Recurve; arrows operate a sluice, reveal a key and expose Count Crouton's jam eye. A bombable larder and twin weighing plates provide optional and required branches. The two-phase boss opens the Ovenheart shrine; the forge turns Grandad's sword into the Al Dente Blade and grants Oven Boots, followed by a second feast/credits/results sequence. The boots reveal an additional tree secret after the ending.
+## Old places matter again
 
-The old Keep inventory remains in its original save fields; switching dungeons stashes and restores each local inventory. Version 1 files, names, default mate files, flags, balances, doors, collected treasures and the original ending remain compatible. The new campaign uses in-game gems only; shared score reporting still goes through the existing server rate/cap checks.
+- **Brinewater Quay:** a Spork crossing reaches the brass spindle chest; the original island heart piece keeps its save ID. A separate return mooring leads back to the mainland.
+- **Daylight forest:** a mooring enclosure offers a new heart piece and retains the existing gem chest. The old enemy at the new landing has moved onto the mainland.
+- **Salt Flats:** a moored little island offers a gem cache. The nearby original heart piece remains collectible under its original ID.
+- **Bell mender:** accept the request in Scouring Quay's west cottage, recover the Brinewater spindle, return to fit it, ask the forge for a silent washer, and return again. The mender awards 60 gems, a heart piece and the Tinned Apron. The apron appears on the hero and in the kit panel and reduces two-point impacts to one. The complete reward commits atomically and cannot repeat after reload.
 
-| Feature/content | Original has | We have after this run |
+## Harsh critique against the reference
+
+| Priority | Finding at the start of this pass | Delivered response / remaining gap |
 | --- | --- | --- |
-| Campaign volume | Full multi-stage quest with 8+ themed dungeons and final areas | Two complete chapters/endings; **2 dungeons, 23 dungeon rooms**. The full campaign target is still outstanding. |
-| Worlds | Large light and alternate overworlds | Two connected 3 × 3 overworlds, **18 outdoor screens**, plus 8 interiors/caves; 49 screens total |
-| Dungeon identities | Many distinct tools, puzzles, bosses and local treasure sets | 11-room Colander Keep and 12-room Ravioli Reservoir; separate maps/compasses/keys, block/crystal/plate/arrow puzzles; 3 boss encounters including the original mini-boss |
-| Equipment | Broad tool collection, several sword/shield tiers, bottles and upgrades | Five selectable tools: boomerang, bombs, soup, bow, boots; two sword tiers, one shield, one refillable bottle |
-| Exploration rewards | Many heart pieces, containers, secret walls/trees and side quests | 9 heart pieces across both chapters, 3 boss containers, bomb secrets, push grave, boomerang island retrievals, dash tree, two shops and forge quest |
-| Combat feel | Directional sword arcs, charge/spin, shield, stun, knockback, i-frames | Existing arcs/spin/shield plus normalized diagonal movement, analog-stick walking, a short sword input buffer and three-frame impact stops; Crouton has telegraphed swoops, volleys, an arrow-only opening and a faster second phase |
-| Presentation | Detailed pixel environments, attract animation, menus, maps, music and credits | Original native 256 × 224 art, teal/brass aqueduct architecture, custom toasted-moth sprites, arrow/eye/boot/coal art, two new original music loops, expanded item menu and second ending |
-| Physical display | Game plays on the console TV | Zeldo opts into the cupboard CRT via a backwards-compatible screen hook; camera frames the entire set; T keeps the same cartridge instance and native shape |
-| Devices | Controller and responsive modern hosting | Keyboard, standard gamepad buttons/analog stick, original controller-style touch pad; portrait/landscape/tablet layouts reserve space outside the game image |
-| Persistence | Durable progression and continuation | Active-file restore, half-second snapshots plus pagehide/visibility/close flushes, tiles/push blocks/bombs/projectiles/enemy phases/inventory/menu/map/death/credits; foreground/background physical-display sessions use an account-bound tab record as well as the shared session record, and wait for room artwork/profile readiness |
-
-### Baseline correction
-
-The original source contains **11** Keep rooms (there is no `d2`), not 12. The initial scope estimate above has been corrected to match the room registry. No additional rooms are counted for recolours, animation frames or credits scenes.
-
-## Critique and ranking
-
-| Priority at start | Harsh finding | Result of this pass |
-| --- | --- | --- |
-| High | One small dungeon cannot stand in for the remembered full campaign. | A substantial, fully connected second chapter added; **the 8+ dungeon/content-volume gap remains high priority for subsequent runs**. |
-| High | Continue files existed, but refreshing did not resume the active cartridge; transient puzzles and consumables were vulnerable. | Settled progression and live room state persist. Reward grants are atomic, soup heals before its animation, and restoring a trap re-draws its solid shutters. Scripted dialogue resumes at a safe settled state rather than serializing generators. Opening fades now advance on the fixed simulation clock, so slow rendering cannot leave the world dark. |
-| High | The Super Ultra used a detached overlay instead of the real cupboard screen. | Opt-in physical surface, same-instance LOCK IN/lean-back, camera framing, clean cartridge ejection and surface-session restore. Other cartridges keep their existing route. |
-| Medium | The expanded adventure needs genuine tool gates, not just more rooms with enemies. | Earned bow → arrow sluice → second small key → weighted big-key vault → arrow-exposed boss → forge upgrade → dash secret. |
-| Medium | Uniform grey stone made rooms feel like one long cellar. | A distinct aqueduct palette, brass cornices, floor mosaics, blue channels and eye-operated bridges. |
-| Medium | Keyboard prompts displayed controller letters; analog movement and phone controls were incomplete. | Device-aware prompts, analog stick, diagonal normalization and a cartridge-owned touch controller. |
-| Low | Sword impacts lacked a crisp pause and fast follow-up presses could be lost. | Three-frame impact stop and six-frame sword input buffer; damage, knockback and invulnerability remain separate. |
-
-Assessment against the full reference: presentation and core feel are substantially stronger; campaign depth is still the limiting factor. This is a complete additional chapter, not a claim that the full reference scope has been reached. Racing lines, rubber-banding, karts and character selection are not applicable; this game's equivalents are file/name selection, enemy pursuit, boss tells and equipment selection.
+| High | Two dungeons and eighteen outdoor screens still lacked the campaign breadth of the reference. | Thirteen designed dungeon rooms, six outdoor screens, a settlement and town chain added. **The multi-dungeon campaign gap remains high priority.** This pass does not claim the full reference is finished. |
+| High | A new tool must change movement and old-world exploration, not operate one isolated switch. | Spool Spork traversal, remote handles, return moorings, the boss lid, three old-world reward routes and the raised-stairs chapter route. |
+| Medium | A tower needs coherent circulation, not a sequence of watery fight rooms. | Lower hub → tool → lift → upper key → counterweights → boss, with an earned lower return shortcut and an optional attic. Copper pipes/gauges and floor labels make the levels readable. |
+| Medium | A pressure boss could hide its vulnerability behind steam or attack without a committed tell. | The whistle commits the lane; lane marks remain visible; the blast clears for a contrasting ring/cooling window. No homing steam during the punish window. |
+| Medium | Item/action presses could disappear during hit stop or item animation. | Buffered named actions, including a regression that queues a second item press during hook retraction. Menu/map edges remain immediate. |
+| Medium | New islands can trap players if an anchor's landing is water, a chest or a wall. | Every forward and return landing is exercised, including save/restore while reeling. Door entry alcoves stay on the intended bank. |
+| High | Old saves could stand on ground that the new secret moats would enclose before they owned a Spork. | A one-time `terrainRev` migration moves just affected forest/Salt Flats positions to safe mainland entries. Legacy fixtures verify retained hearts, gems, sword, name and inactive file, then verify the next refresh stays put. |
+| Low | Author-written default names and old dialogue bypassed Cast. | New defaults and authored dialogue/credits/epitaphs use Cast; existing file names/Hall of Fame data remain intact. |
 
 ## Verification and captures
 
-Run from the repository root, with a disposable server started in the same shell:
+Use the disposable-server wrapper from the repository root, one browser at a time:
 
 ```sh
-(cd app && exec env PORT=18094 DATA_DIR=/tmp/zeldo-review ADMIN_TOKEN=testtoken node server.js > /tmp/zeldo-review.log 2>&1) & server_pid=$!
-trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-sleep 2
-node tests/games/zeldo.mjs http://localhost:18094
+CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo <label> games/zeldo.mjs
 ```
 
-`--native` runs the isolated cartridge route without the house; `--room-only` runs console/device checks; `--before` loads the repository baseline (or `ZELDO_BASELINE`) for comparable captures. Branch fixtures use the existing cartridge debug placement API and a completed first-chapter save. Movement, fights, menu decisions, block pushes, bow shots, bombs, locks and rewards use browser inputs. This is not an uninterrupted, unaided completion of the original Keep.
+The required gate is three consecutive complete passes, including cartridge insertion/gold placement ghost, native chapters, physical CRT/LOCK IN/Q, shared cartridge ejection, refresh, gamepad and touch. `--native --third-only` is an additional focused diagnostic, not a substitute for the full gate. Branch fixtures seed completed prior chapters and place the player at room starts; movement, weights, locks, item selection, tool use, boss fights and rewards use real browser inputs. This is not a claim of uninterrupted unaided completion of the old Keep.
 
-Captures go to `tests/shots/games/zeldo/` (ignored generated artifacts):
+Captures are in `tests/shots/games/zeldo/`:
 
-- Before/after title, attract animation, files, naming, opening, sword reward, village, inventory, map and Keep/Cheese room.
-- Every new outdoor screen and all 12 Reservoir room starts; local map/compass, armoury bow, arrow frames, sluice, bomb secret, plates/big key, each Crouton phase, Ovenheart, forge feast, credits, results and dash secret.
-- `after-in-room-title.png`, `after-in-room-game.png`, `after-lean-back.png`, LOCK IN, pause, phone-sized portrait/landscape and tablet views; `after-shared-formula-null.png` checks an unchanged Super Ultra cartridge.
-- `after-touch-portrait.png`, `after-touch-landscape.png`, `after-touch-tablet.png`, `after-touch-items.png`; controller movement and menu/map interaction use touch input.
-- `after-refresh-running.png` and `after-refresh-background.png` cover physical-display session restoration.
+- Baseline: `before-title-native.png`, `before-keep-start-native.png`, `before-menu-native.png`, `before-performance.json`.
+- New region: `after-quay-q_*.png`, `after-quay-road-open.png`, `after-expanded-salt-map-native.png`.
+- Every new room: `after-pump-start-t*-native.png`; map/keys/counterweights/attic: `after-pump-map-native.png`, `after-pump-small-key-native.png`, `after-pump-big-key-native.png`, `after-pump-dry-attic-native.png`, `after-pump-return-stairs-native.png`.
+- New tool: `after-spool-spork-found-native.png`, `after-spork-extension-native.png`, `after-spork-paused-native.png`, `after-spork-north-landing-native.png`, `after-lower-floodgate-native.png`, `after-upper-shortcut-native.png`.
+- Boss/rewards: `after-stockpot-*-native.png`, `after-pump-heart-container-native.png`, `after-tidebell-native.png`, `after-high-water-route-native.png`, `after-cooler-road-arrival-native.png`.
+- Old secrets/quest: `after-brinewater-spindle-native.png`, `after-old-forest-spork-secret-native.png`, `after-salt-flats-spork-secret-native.png`, `after-mender-reward-native.png`.
+- Physical/device checks: `after-in-room-game.png`, `after-lock-in.png`, `after-gamepad-spork.png`, `after-touch-spork.png`, `after-touch-{portrait,landscape,tablet}.png`, `after-refresh-{running,background}.png`.
 
-Baseline software Chromium native update/draw cost: **0.20 ms median / 0.30 ms p95** at 256 × 224. Measurements include cartridge simulation, canvas drawing and persistence; they exclude 3D house rendering. Later samples varied with host load (roughly 0.10–0.20 ms median / 0.20–1.00 ms p95). The final full cartridge run measured **0.20 ms median / 0.70 ms p95**, versus the initial baseline **0.20 / 0.30 ms**. Exact results are recorded in `before-performance.json` and `after-performance.json`; these are CPU timings, not claims of hardware FPS. Large isolated maxima include scheduling/GC stalls.
+Baseline native update/draw CPU cost on this run: **0.10 ms median / 0.20 ms p95**. After the first complete third-chapter diagnostic: **0.20 / 0.60 ms**; host load and scheduling varied. These timings include cartridge drawing/simulation/save work and exclude the 3D house; they are not hardware FPS measurements. Final gate results and timing samples are recorded below. The native runner stubs audio synthesis; neither native sample includes 3D house rendering.
 
 ## Next chunk to build
 
-1. Add a third fully designed dungeon beyond the Salt-Beyond forge, with a grappling kitchen tool and vertical/floodgate route identity. Use the existing `dg` namespace and per-dungeon inventory instead of adding global key flags.
-2. Connect the new tool to multiple existing overworld secrets and a meaningful route to the next chapter. Expand the overworld beyond the present 18 screens, with distinct settlements and optional quest chains.
-3. Continue toward at least eight substantial themed dungeons, with individually designed tools/bosses, several sword/shield tiers, more bottles, more heart pieces and a final multi-dungeon resolution. Avoid counting reskins or empty connecting rooms as completed content.
-4. The host's real handheld user-agent entry still routes to JackOS (`pc-only.js`/`mobile-desktop.js`). Zeldo's touch controls are exercised in a touch-capable Chromium house session; enabling the whole house on actual phone entry is a separate host-policy migration outside this cartridge's scope.
+1. **Cold Pantry expedition:** a fourth substantial dungeon reached from the Cooler Road. Design a cold/storage route identity and a new tool with a different movement/combat role; preserve Pumpworks' local inventory and the ferry's usefulness. Build a real next region rather than counting the current Cold Pantry dialogue as content.
+2. Continue toward at least eight distinct dungeons, larger interconnected worlds and a final multi-dungeon resolution. Add further sword/shield tiers, a second usable bottle and more secrets with permanent exploration rewards. Revisit the heart cap as campaign length grows.
+3. Add more authored town quest chains and multi-tool overworld loops. Keep new people Cast-backed and keep old reward/save IDs stable.
+4. Complete an uninterrupted start-to-third-bell play-through, real physical gamepad testing, real phone/tablet GPU checks and a subjective audio listening pass. Real handheld user-agent entry and GPU behavior require the host device suite; this cartridge pass exercises touch-capable Chromium. Host entry routing remains outside this cartridge's scope.
 
-## Remaining verification limits
+No deployment, version bump, changelog edit, commit, push, container command or live-data access is part of this run.
 
-Physical gamepad hardware, real phone/tablet GPUs and subjective music listening are not covered by browser automation. Full old-Keep completion and every optional secret have not been re-played end to end. The final report records smoke gate results and any unresolved physical-session checks honestly.
+## Diagnostic history for this pass
+
+Each label below was run as `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo <label> games/zeldo.mjs <flags>`. Results are the inner test's real result, not the wrapper's last shell command. Intermediate failures are retained here rather than reported as passing gates.
+
+| Label | Flags | Real result | Finding / disposition |
+| --- | --- | --- | --- |
+| `zeldo-before` | `--before --native` | 0 | Baseline captures and CPU timing. |
+| `zeldo-native-check` | `--native` | 1 | Missing styles for newly introduced NPC roles; added original role sprites. |
+| `zeldo-third-check` | `--native --third-only` | 1 | Combat driver chased rather than striking; replaced it with real charged-spin combat and retained survival/clear assertions. |
+| `zeldo-third-check2` | `--native --third-only` | 1 | The queued second item press correctly fired; the diagnostic now asserts that firing and then waits for its retraction. |
+| `zeldo-third-check3` | `--native --third-only` | 1 | Driver stopped below the fallen container; added the actual approach/collection input. |
+| `zeldo-third-check4` | `--native --third-only` | Interrupted, 143 | No completed test verdict. |
+| `zeldo-third-check5` | `--native --third-only` | 1 | Spindle chest obstructed the incoming grapple ray; moved it beside the landing. |
+| `zeldo-third-check6` | `--native --third-only` | 1 | Old forest enemy occupied the new reward landing; moved it onto the mainland. |
+| `zeldo-third-check7` | `--native --third-only` | 0 | Complete third-course diagnostic before the final floor/stair refinement. |
+| `zeldo-full-review` | none | Interrupted, 143 | Reached physical-display foreground refresh; no completed test verdict. Subsequent long runs stayed continuously polled. |
+| `zeldo-gate-1` | none | 0 | Complete native, physical display, refresh, gamepad and touch suite before the final stair refinement. |
+| `zeldo-stairs-review` | `--native --third-only` | 0 | Actual A/B stairs, local inventory without global puzzle leakage, legacy migration and active-boss CPU sample. |
+
+`--routes --native --third-only` adds real doorway approaches, lower-bank entry assertions, A-stair descent, cave entrance/exit, the attic doorway and the boss/shrine connection. It supplements the normal branch fixtures without weakening them. The final results and archived timings follow below.
+
+Additional completed diagnostic results:
+
+| Label | Flags | Real result | Disposition |
+| --- | --- | --- | --- |
+| `zeldo-gate-2`, `zeldo-gate-3`, `zeldo-gate-4` | none | 0 each | Three complete consecutive passes before the final old-terrain migration/exit review; the final build is repeated below. |
+| `zeldo-routes-final` | `--native --third-only --routes` | 1 | Real door traversal exposed the `X` exit/boulder collision ambiguity. |
+| `zeldo-routes-final2` | `--native --third-only --routes` | 0 | All three dungeon exits, new door banks, actual floor connections, side branches, attic and shrine; both old-moat save migrations. |
 
 ## Final verification record
 
-- `node tests/games/zeldo.mjs http://localhost:18094` — **exit 0**, full native chapter route, all room starts, real inventory selection, both boss phases, heart container, forge/ending, physical CRT/LOCK IN/Q/pause, analog standard-pad simulation, touch inputs/layouts, foreground and background page refresh, preserved standing pose/PC power and unchanged Formula Null cartridge path. Throwaway server log: no mod-load failures or runtime errors.
-- `node --check` on all three changed application JavaScript files and the cartridge test; `git diff --check` — **exit 0**.
-- Stock `node tests/smoke.mjs` attempts reached **11/12** with no browser-error or server-log failures; the remaining mobile-desktop check timed out. Higher `SMOKE_SCALE` retries also hit the runner's fixed eight-second action / twenty-second navigation limits under a host load of roughly 28–65 on 12 CPUs. These are recorded failures, not a green stock gate. A separate diagnostic scaled those nested defaults consistently with the runner's documented scaling setting. It completed **11/12**, including mobile-desktop; pc-controls encountered an execution-context/navigation race. All browser-error and server-log checks passed. The stock runner itself was not edited.
+- `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo zeldo-gate-5 games/zeldo.mjs` — **exit 0**.
+- `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo zeldo-gate-6 games/zeldo.mjs` — **exit 0**.
+- `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo zeldo-gate-7 games/zeldo.mjs` — **exit 0**.
 
-No deployment, version bump, changelog edit, commit, push, live-data access or container changes were performed.
+Those are three consecutive complete gates on the final migration/exit implementation. Each includes legacy fields/poses/balances, both prior/new chapter routes, real combat and puzzle inputs, grapple pause/refresh, boss phases, heart/Tidebell rewards, optional quest/secrets, physical cartridge insertion and its gold placement ghost, CRT/LOCK IN/Q, foreground/background refresh, standard-pad grapple, touch grapple and portrait/landscape/tablet layouts. Browser error/warning assertions pass; throwaway server logs contain no mod-load failures.
 
-Final unmodified gate attempt: `node tests/smoke.mjs` — **exit 1, 11/12**. All house/PC/console/control/canonical/browser-error/server-log checks passed; mobile-desktop exceeded its 25-second check budget. The gate remains unverified as a complete green run. No smoke assertions or repository smoke-runner settings were changed.
+- `CMP_T=2100 ~/codex-runs/cmp.sh /opt/stacks/landing-zeldo zeldo-routes-final2 games/zeldo.mjs --native --third-only --routes` — **exit 0**; additional real door/cave/exit and stair approaches.
+- `cd tests && SMOKE_SCALE=3 STORY_SCALE=3 node smoke.mjs` — **exit 0, 12/12**, including browser-errors and server-log. The smoke runner was not edited.
+- `cd tests && node mobile.mjs --only=gate` — **exit 0, 1/1** (61 seconds). Phone portrait/landscape and tablet gate captures reviewed, alongside cartridge touch captures.
+- `node --check app/public/js/rm-g-zeldo.js && node --check tests/games/zeldo.mjs && node --expose-internals tests/parody-audit.cjs && git diff --check` — **exit 0**; parody audit **0** authored spans.
+
+Native timing, milliseconds (median / p95):
+
+| Sample | Meadow update/draw | Active pressure boss update/draw |
+| --- | --- | --- |
+| Final gate 5 | 0.10 / 0.30 | 0.10 / 0.30 |
+| Final gate 6 | 0.10 / 0.30 | 0.10 / 0.30 |
+| Final gate 7 | 0.10 / 0.30 | 0.10 / 0.30 |
+
+Baseline: **0.10 / 0.20 ms**. Final gate 7: **0.10 / 0.30 ms**, with the pressure boss also **0.10 / 0.30 ms**. Raw maxima and sample scope remain in the JSON files; isolated maxima include host scheduling/GC. These are CPU samples at native resolution, not 3D-house FPS or real-device GPU measurements.
+
+Exact commands, every failed/interrupted intermediate diagnostic and all final exit codes are archived in `tests/shots/games/zeldo/verification.json`, with raw test logs in `diagnostics/`. Final timing samples are `after-gate-{5,6,7}-performance.json` and `after-gate-{5,6,7}-pressure-performance.json`; baseline is `before-performance.json`.
+
+**Not verified:** physical gamepad hardware, actual phone/tablet GPUs, subjective music listening, and an uninterrupted unaided start-to-third-bell run of the old campaign. The new and prior chapters use targeted fixtures as described above. No live data, site files, version, changelog, deployment, commit, push or container commands were changed/performed. The unrelated untracked `app/public/audio/voice` was left untouched.
