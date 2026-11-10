@@ -286,6 +286,8 @@ window.SocialIRC = function (X) {
   }
   function connect(noJoin) {
     if (!C || C.connected || C.connecting) return;
+    const client=C,attempt={};client.connectAttempt=attempt;
+    const current=()=>C===client&&client.connectAttempt===attempt&&!client.w.closed;
     C.connecting = true;
     const st = C.wins.get('status'); activate(st);
     const o = { nick: me(), id: Net.me.id }, hst = host(o).split('@')[1];
@@ -302,12 +304,12 @@ window.SocialIRC = function (X) {
       [200, 'info', `${DEFAULTS.length} channels formed. Several more nobody admits to.`],
     ];
     let t = 0;
-    steps.forEach(([d, k, s]) => { t += d; setTimeout(() => { if (C) line(st, k, k === 'notice' ? esc(s) : s.startsWith('***') ? esc(s) : s); }, t); });
+    steps.forEach(([d, k, s]) => { t += d; setTimeout(() => { if (current()) line(st, k, k === 'notice' ? esc(s) : s.startsWith('***') ? esc(s) : s); }, t); });
     setTimeout(() => {
-      if (!C) return; motd(st);
+      if (!current()) return; motd(st);
       C.connected = true; C.connecting = false; got('ircconnect'); title(st);
       Net.relay(0, 'social.irc', { k: 'hi' }); // who's in what? (everyone running JackIRC answers)
-      if (!noJoin) setTimeout(() => join(MAIN), 400);
+      if (!noJoin) setTimeout(() => {if(current()&&client.connected)join(MAIN)}, 400);
     }, t + 300);
   }
   const MOTD = [
@@ -339,6 +341,7 @@ window.SocialIRC = function (X) {
 
   // ---- channels
   function join(name, quiet) {
+    if (!C) return;
     name = lc(name).trim(); if (!name.startsWith('#')) name = '#' + name;
     if (!CH_RE.test(name)) return err(`${name}: Illegal channel name. Use letters, numbers, - and _ (up to 20).`);
     if (!C.connected) return err('Not connected to a server. Press the red Connect button first!');
@@ -372,6 +375,7 @@ window.SocialIRC = function (X) {
   }
   function quit(msg, closing) {
     if (!C) return;
+    C.connectAttempt=null;C.connecting=false;
     if (C.connected) Net.relay(0, 'social.irc', { k: 'q', m: ircClean(msg, 80) });
     C.connected = false;
     [...C.wins.values()].filter(c => c.kind === 'chan').forEach(c => closeChild(c));

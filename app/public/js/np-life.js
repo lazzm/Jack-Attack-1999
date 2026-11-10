@@ -1163,9 +1163,10 @@
     if (c.goal?.key === 'aside' && !c.aside && c.hold <= 0) return false; // the player left; a passing line may finish back at work
     if (c.hold > 0) return true;
     const line = speech.cur;
-    // A passing line must not strand a cleared avoidance goal.
+    // A passing line must not strand a cleared avoidance goal, including the
+    // interval before its checked aside has become a planned route.
     // Explicit conversations and Chapter 1 instructions keep their pose hold.
-    if (!c.goal && !c.aside && line?.c === c && !line.talk && !line.requested && !/^c\d\.|^st\.opening\./.test(line.lineId)) return false;
+    if (!c.goal && line?.c === c && !line.talk && !line.requested && !/^c\d\.|^st\.opening\./.test(line.lineId)) return false;
     // A passing remark can continue while its speaker steps out of the way.
     // It is not a conversation lock, and must not leave a yielded goal null.
     return !!(c.talking && line?.c === c && (line.talk || !/^bark\./.test(line.lineId)));
