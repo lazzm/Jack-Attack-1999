@@ -7,6 +7,7 @@ function fixture(width,blocks=[]){
  const c={RAD:22,STAND:143,LV:{U:73,G:353},D2R:Math.PI/180,clamp:(n,a,b)=>Math.max(a,Math.min(b,n)),grids:{dirty:false,shells:{},block:blocks,walk:[],stairs:[]},W:{x:width/2,z:80,lvl:'G',fy:353,vx:0,vz:140},THINGS:{},onStairs:()=>null,doorContacts:()=>[]};
  const H={ok:true,live:true,mode:'walk',T:{Frustum:Empty,Matrix4:Empty,Sphere:Empty,Vector3:Empty},FRONT:{CAR:{}},W:c.W,LV:c.LV,DOORS:{},ROOMS:{},_:{grids:c.grids}};
  const NV={NEED:25.5,onFlight:()=>false,clear:(lvl,x,z)=>Math.min(x,width-x,z,600-z,...blocks.map(b=>{const dx=Math.max(b.x0-x,0,x-b.x1),dz=Math.max(b.z0-z,0,z-b.z1);return Math.hypot(dx,dz)}))};
+ NV.floor=(lvl,x,z)=>NV.onFlight(x,z)&&(lvl==='U'?z<440:z>410)?NV.ramp(z):c.LV[lvl];
  NV.route=(a,b)=>{const len=Math.hypot(b.x-a.x,b.z-a.z);for(let d=0;d<=len;d+=2){const t=len?d/len:0;if(NV.clear('G',a.x+(b.x-a.x)*t,a.z+(b.z-a.z)*t)<NV.NEED)return null}return{len,doors:[],pts:[{...a,s:0},{...b,s:len}]}};
  c.window={House:H,NPCRig:{},NPCNav:NV,NPCLines:{},Bonfire:{familySpace:()=>150}};
  Object.assign(c,{performance:{now:()=>now},localStorage:{getItem:()=>null,setItem(){}},addEventListener(){},document:{querySelector:()=>null,addEventListener(){}},setTimeout(){},setInterval(){},console});
@@ -59,3 +60,21 @@ assert(!conversation.c.window.testHeld(m),'A finished yield must resume work dur
 console.log('PASS exact aside start and return-to-work without interrupting a passing line');
 
 Object.assign(m,{aside:{narrow:true},h:0});conversation.c.window.testFace(m,{x:m.x+100,z:m.z},1);assert.equal(m.h,0,'A conversation must not turn a flattened body through its wall');
+
+// The flight and the cupboard share X/Z, but not air space. Hidden family
+// fixtures still collide: an adult on the stairs must not pin a crouched
+// player below the solid soffit (the low-end cupboard refresh position).
+{
+ const {c,F,m}=fixture(121),NV=c.window.NPCNav;
+ NV.onFlight=()=>true;NV.ramp=()=>251.7;
+ Object.assign(c.W,{x:60,z:473.4,fy:353,eyeNow:44.2});
+ Object.assign(m,{x:60,z:473.4,lvl:'G',room:'hall'});
+ assert.equal(F.blocker(60,473.4,'G'),null,'A person 57 cm above the player head blocked through the cupboard soffit');
+ Object.assign(c.W,{fy:251.7,eyeNow:143});
+ assert(F.blocker(60,473.4,'G'),'A real same-flight person must remain solid');
+ Object.assign(c.W,{fy:353,eyeNow:44.2});NV.onFlight=()=>false;
+ assert(F.blocker(60,473.4,'G'),'A real same-floor person must remain solid');
+ NV.onFlight=()=>true;Object.assign(c.W,{z:350});m.z=350;
+ assert(F.blocker(60,350,'G'),'A grounded cupboard person must use the ground floor below the flight');
+ console.log('PASS cupboard soffit separates overhead people; real same-flight/same-floor/under-flight contacts remain solid');
+}

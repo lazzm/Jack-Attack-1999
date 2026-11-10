@@ -57,3 +57,30 @@ const floorHits=r=>floorRay.intersectObject(r.group,true).filter(h=>h.object.mat
 assert.equal(floorHits(reviewed.hall).length,0,'Approved baseline already had a threshold surface');
 assert(floorHits(after.hall).some(h=>Math.abs(h.point.y-353)<.01),'Hall carpet must fill the missing threshold');
 console.log('ROUND 2 PASS: approved 52ce5e1 geometry and reviewed hall budget; missing 10 cm doorway floor strip now closed');
+
+// Exercise the real swept leaf against a nearby body at fast and loaded frame
+// cadences. The final pose must be exact once the animation retires; a tiny
+// floating-point remainder used to strand exact-state/browser save checks.
+{
+ const root=new T.Group();root.scale.y=-1;root.add(d.pivot);
+ let time=0;
+ Object.assign(d,{ms:650,ang:1,open:true});
+ const c={T,DOORS:{cupboard:d},ROOMS:{hall:{lvl:'G'},cupboard:{lvl:'G'}},W:{x:270,z:310,fy:353,lvl:'G'},RAD:22,D2R:Math.PI/180,live:true,mode:'walk',grids:{},anims:new Map(),performance:{now:()=>time},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),ease:t=>t<.5?4*t*t*t:1-(-2*t+2)**3/2,buildRoom(){},visCalc(){},dirty(){},sfxDoor(){},emit(){}};
+ vm.createContext(c);
+ vm.runInContext(world.slice(world.indexOf('  function circleBox('),world.indexOf('  function shellContacts('))+world.slice(world.indexOf('  const doorPoint ='),world.indexOf('  const doorObstructs='))+world.slice(world.indexOf('  function setDoor('),world.indexOf('  let visSet =')),c);
+ const tick=n=>{for(const[k,move]of c.anims)if(!move(n))c.anims.delete(k)};
+ for(const cadence of [1000/60,100,1500]){
+  time=0;c.setDoor('cupboard',true,true);Object.assign(c.W,{x:270,z:310});
+  c.setDoor('cupboard',false);
+  for(time=cadence;time<2000;time+=cadence)tick(time);
+  tick(2000);
+  const held=d.ang;assert(held>0&&held<1,'Safe sweep did not arrest for the player');assert(c.anims.has('door:cupboard'));
+  assert.equal(c.doorContacts(c.W.x,c.W.z,303,'G',24,d).length,0,'Leaf crossed the nearby player');
+  Object.assign(c.W,{x:240,z:360});tick(3000);
+  console.log('CUPBOARD SWEEP',JSON.stringify({cadence,held,closed:d.ang,active:c.anims.has('door:cupboard')}));
+  assert.equal(d.ang,0,'Retired safe sweep must finish at the exact closed pose');assert(!c.anims.has('door:cupboard'));
+  time=3000;c.setDoor('cupboard',true);tick(3400);c.setDoor('cupboard',false);c.setDoor('cupboard',true);c.setDoor('cupboard',false);tick(5000);
+  assert.equal(d.ang,0,'Rapid reversals did not close');assert(!c.anims.has('door:cupboard'));
+ }
+ console.log('CUPBOARD SWEEP PASS: real leaf/player collision, 60/10/0.67 FPS, resumed closure, exact endpoints and rapid reversals');
+}

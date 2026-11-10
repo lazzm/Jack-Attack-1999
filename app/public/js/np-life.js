@@ -1029,8 +1029,13 @@
   const space = c => c.seated ? 24 : 26;
   const NO_BLOCKERS = Object.freeze([]);
   function bodyNear(c, lvl) {
-    return c.present && (c.lvl === lvl || NV.onFlight(c.x, c.z) && NV.onFlight(H.W.x, H.W.z)) &&
-      Math.abs((NV.onFlight(c.x,c.z) ? NV.ramp(c.z) : H.LV[c.lvl]) - H.W.fy) < 110;
+    if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z) && NV.onFlight(H.W.x, H.W.z))) return false;
+    // Match placeRig's actual feet, rather than treating every cupboard X/Z
+    // as the flight above it. A crouched head below someone's feet cannot
+    // touch them through the solid soffit, even within the old 110 cm band.
+    const feet = NV.floor(c.lvl, c.x, c.z);
+    const head = H.W.fy - (H.W.eyeNow ?? H.W.eye ?? H.STAND ?? 143);
+    return Math.abs(feet - H.W.fy) < 110 && feet >= head;
   }
   function blocks(x, z, lvl) {
     if (!ready) return false;
