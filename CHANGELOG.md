@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.89.0 - 2026-11-10
+- The Myth of Zeldo has a fourth dungeon: the 14-room Cold Pantry, with a new tool, the Cayenne Caster, and the Grand Glace to defeat. Six more overworld screens, a stronger sword, a second flask and four more heart pieces.
+- When Mom is on the phone the receiver is in her hand, not also on the base. Mom stands up straight at the sink while she washes up.
+- On phones, the bin's label no longer covers the tidy-job title.
+- A few of Mom's lines are reworded so they read and sound more natural, ready for their recordings.
+
 ## 2.88.0 - 2026-11-10
 - The family's hands meet what they're working on: Mom's hands go into the washing-up water, the spoon stirs inside the pan and the watering can's spout is over the plant.
 - Dad turns the newspaper pages for real, from the home news to the sport and the inside pages, and your sister's crayon drawing grows on the paper as she works.
