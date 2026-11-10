@@ -272,7 +272,29 @@
     const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(50,GY-3,-826),770);
     const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;
     seeds.forEach(([x,z,h,a],i)=>{pose.position.set(x,GY-.02,z);pose.rotation.set(0,a,0);pose.scale.set(1.8,h,1.8);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);color.set(['#6f8749','#7d9551','#657f46','#82965b'][i%4]);mesh.setColorAt(i,color)});
-    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=true;r.group.add(mesh);H.dirty();
+    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=true;r.group.add(mesh);
+    // A few low, solid lawn flowers and clover rosettes, clustered away from
+    // the mowing job and its saved strips. One vertex-coloured garden batch.
+    const detail=K.batch(),D=K.into(detail),turf=M({c:'#fff',vc:true,sh:1,sp:'#000'});
+    const colours=[];
+    const plant=(geo,x,y,z,o)=>{const before=detail.parts.get(turf)?.pos.length||0,c=geo.userData.lawnColour;D.geo(geo,x,y,z,turf,o);const after=detail.parts.get(turf).pos.length;for(let i=before;i<after;i+=3)colours.push(c.r,c.g,c.b)};
+    const petal=new T.SphereGeometry(1,5,3),leaflet=new T.SphereGeometry(1,5,3),stem=new T.CylinderGeometry(.12,.16,1,4);
+    const tinted=(geo,c)=>{const g=geo.clone(),colour=new T.Color(c);g.userData={...g.userData,lawnColour:colour};return g};
+    const white=tinted(petal,'#faf9ef'),gold=tinted(petal,'#b89029'),green=tinted(leaflet,'#3f6938'),stalk=tinted(stem,'#536b39');
+    for(const [cx,cz]of [[-190,-480],[-205,-955],[270,-1110],[345,-740]]){
+      for(let n=0;n<4;n++){
+        const x=cx+(random()-.5)*29,z=cz+(random()-.5)*37,h=1.5+random()*1.7;
+        plant(stalk,x,GY-h/2,z,{sy:h});
+        for(let k=0;k<6;k++){const a=k*Math.PI/3;plant(white,x+Math.cos(a)*1.25,GY-h,z+Math.sin(a)*1.25,{sx:1.15,sy:.3,sz:.52,ry:-a/D2R})}
+        plant(gold,x,GY-h-.23,z,{sx:.7,sy:.35,sz:.7});
+      }
+      for(let n=0;n<12;n++){
+        const x=cx+(random()-.5)*58,z=cz+(random()-.5)*56,a=random()*Math.PI*2;
+        for(let k=0;k<3;k++){const b=a+k*Math.PI*2/3;plant(green,x+Math.cos(b)*1.15,GY-.65-random()*.35,z+Math.sin(b)*1.15,{sx:1.45,sy:.3,sz:1.0,ry:-b/D2R})}
+      }
+    }
+    detail.build(r.group).forEach(m=>{m.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));m.name='garden-lawn-flowers';m.userData.noPick=1});
+    for(const g of [petal,leaflet,stem,white,gold,green,stalk])g.dispose();H.dirty();
   });
   function cutGrassGeometry(cells){
     if(!grassField||!cut)return;const color=new T.Color();

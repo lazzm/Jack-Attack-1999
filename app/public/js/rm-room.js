@@ -342,7 +342,10 @@
   }
   function curtain(B, x, y, z, w, h, m) { // gathered fabric: soft pleats, a little fuller at the bottom
     const g = new T.PlaneGeometry(w, h, 48, 12), p = g.attributes.position, u = g.attributes.uv;
-    for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i), k = 0.75 + 0.25 * (py / h + 0.5); p.setZ(i, Math.sin(px / w * Math.PI * 14) * 2.6 * k + 2.6); u.setX(i, u.getX(i) * w * 1.6 / 64); u.setY(i, (1 - u.getY(i)) * h / 64); } // (the print tiles at its real 64 cm size, measured along the unpleated width)
+    for (let i = 0; i < p.count; i++) { const px=p.getX(i),py=p.getY(i),down=py/h+.5,t=px/w,phase=t*Math.PI*14+.24*Math.sin(down*4+t*3),k=.72+.28*down;
+      p.setZ(i,3+Math.sin(phase)*2.6*k+.45*Math.sin(down*9+t*5)*Math.sin(down*Math.PI));
+      p.setX(i,px*(1+.035*down)+.45*Math.sin(down*Math.PI)*Math.sin(t*7));
+      p.setY(i,py+.55*Math.sin(phase)*Math.pow(down,5)); u.setX(i, u.getX(i) * w * 1.6 / 64); u.setY(i, (1 - u.getY(i)) * h / 64); } // (the print tiles at its real 64 cm size, measured along the unpleated width)
     g.computeVertexNormals();
     B.geo(K.thicken(g,.12),x,y+h/2,z,m,{});
   }
@@ -968,7 +971,7 @@
     const dg = new T.PlaneGeometry(bw + 14, bl - 34, 18, 24); const p = dg.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const u=p.getX(i)/(bw+14)+.5,v=p.getY(i)/(bl-34)+.5;
-      let y=-Math.sin(u*Math.PI)*6-Math.sin(v*9+u*5)*1.6-Math.sin(u*13-v*4)*1.2; y-=Math.pow(Math.sin((u+v)*Math.PI*7)*Math.sin((u-v)*Math.PI*7),2)*.65;
+      let y=-Math.sin(u*Math.PI)*6-Math.sin(v*9+u*5)*1.6-Math.sin(u*13-v*4)*1.2+K.quiltFold(u,v); y-=Math.pow(Math.sin((u+v)*Math.PI*7)*Math.sin((u-v)*Math.PI*7),2)*.65;
       if(u<.08)y+=(.08-u)*190;if(u>.94)y+=(u-.94)*140;
       // The reading patch is compressed flat by the magazine. Include a mesh
       // cell around it so no triangle leaves the solid cover hovering on a fold.

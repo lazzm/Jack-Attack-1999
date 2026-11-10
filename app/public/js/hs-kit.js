@@ -951,9 +951,9 @@
 
   // Closed upholstery with a pinched perimeter and broad, softly filled faces.
   // The small grid spends triangles on the silhouette and compression, not seams.
-  function softBox(w,h,d,r,seed=0) {
+  function softBox(w,h,d,r,seed=0,load=0) {
     const sizes=[w,h,d],thin=sizes.indexOf(Math.min(...sizes)),axes=[0,1,2].filter(a=>a!==thin);
-    const segments=sizes.map((_,a)=>a===thin?3:6),geo=new T.BoxGeometry(w,h,d,...segments),p=geo.attributes.position;
+    const segments=sizes.map((_,a)=>a===thin?3:14),geo=new T.BoxGeometry(w,h,d,...segments),p=geo.attributes.position;
     r=Math.min(r,Math.min(...sizes)/2-.01);
     for(let i=0;i<p.count;i++){
       const a=[p.getX(i),p.getY(i),p.getZ(i)],core=a.map((v,j)=>Math.max(-sizes[j]/2+r,Math.min(sizes[j]/2-r,v))),delta=a.map((v,j)=>v-core[j]),length=Math.hypot(...delta)||1;
@@ -961,6 +961,16 @@
       const u=a[axes[0]]/(sizes[axes[0]]/2),v=a[axes[1]]/(sizes[axes[1]]/2),fill=Math.max(0,1-u*u)*Math.max(0,1-v*v);
       const crease=Math.sin(u*11+v*3+seed)*Math.sin(v*9-u*2+seed)*Math.pow(Math.max(Math.abs(u),Math.abs(v)),5);
       a[thin]*=.64+.36*fill-.035*crease;
+      // Seams pull short diagonal tucks into the stuffing; broad sitting
+      // pressure remains between them. Identical edge coordinates stay welded.
+      let tuck=0;
+      for(let axis=0;axis<2;axis++)for(const side of [-1,1])for(const v0 of [-.57,.34]){
+        const edge=axis?v:u,along=axis?u:v,inset=1-side*edge,across=along-v0-side*inset*.52;
+        const groove=Math.exp(-across*across/.012),shoulder=Math.exp(-((Math.abs(across)-.15)**2)/.014);
+        tuck+=(groove-.28*shoulder)*Math.exp(-inset*inset/.17)*Math.sin(Math.min(1,inset*3)*Math.PI/2);
+      }
+      const face=Math.sign(a[thin]),pressure=Math.exp(-((u-.12*Math.sin(seed))**2/.36+(v+.08)**2/.48));
+      a[thin]-=face*sizes[thin]*(.18*tuck+(.055+load)*pressure);
       // A little uneven stuffing avoids the manufactured perfect slab read.
       a[thin]-=sizes[thin]*.035*fill*Math.sin(u*2+seed)*Math.cos(v*3);
       a[axes[0]]+=sizes[axes[0]]*.007*Math.sin(v*4+seed)*fill;
@@ -977,41 +987,64 @@
     return geo;
   }
 
-  // Shared solid foliage lobes: angular leaf masses, never camera-facing cards.
+  // Diagonal tension ridges and a turned hem, in duvet UV space. Shared by
+  // the static bed and its chore replacement so a late load keeps the folds.
+  function quiltFold(u,v) {
+    const ridge=(d,w)=>Math.exp(-d*d/(w*w));
+    return 2.4*ridge(u-(.19+.28*v),.055)-1.1*ridge(u-(.26+.28*v),.035)
+      +1.8*ridge(u-(.82-.2*v),.045)*Math.sin(v*Math.PI)
+      +Math.sin(v*19+u*3)*Math.pow(Math.abs(u-.5)*2,8)*1.35
+      +2.1*ridge(v-(.88+.045*Math.sin(u*6)),.035)*Math.sin(u*Math.PI);
+  }
+
+  // Closed, shared leaf clumps. Small scallops catch the light while branch
+  // tiers leave real sky holes; no alpha cards or view-dependent surfaces.
   const CANOPIES=new Map();
   function canopy(seed,detail=false) {
     seed=seed%4;const key=seed+(detail?4:0);if(CANOPIES.has(key))return CANOPIES.get(key);
-    const g=new T.SphereGeometry(1,detail?12:8,detail?8:5),p=g.attributes.position;
+    const g=new T.SphereGeometry(1,detail?10:7,detail?5:4),p=g.attributes.position;
     for(let i=0;i<p.count;i++){
       const x=p.getX(i),y=p.getY(i),z=p.getZ(i),a=Math.atan2(z,x),band=Math.sqrt(Math.max(0,1-y*y));
-      const ripple=1+band*(.16*Math.sin(a*5+y*4+seed)+.10*Math.cos(a*3-y*7+seed));
-      p.setXYZ(i,x*ripple,y*(1+.075*Math.sin(a*4+seed)*band),z*ripple);
+      const ripple=1+band*(.18*Math.sin(a*5+y*4+seed)+.12*Math.cos(a*3-y*7+seed));
+      p.setXYZ(i,x*ripple,y*(1+.1*Math.sin(a*4+seed)*band),z*ripple);
     }
     g.computeVertexNormals();CANOPIES.set(key,g);return g;
   }
   function branchingTree(B,x,y,z,height,spread,trunk,leaf,species=0,detail=false,foliage=null) {
     const b=B.at(x,y,z),birch=species%3===1,pear=species%3===2;
-    const crown=(seed,x,y,z,o)=>{if(foliage)foliage.push({matrix:xform(b.base,x,y,z,o),seed});else b.geo(canopy(seed,detail),x,y,z,leaf,o)};
-    const limb=(a,c,r0,r1)=>{const v=new T.Vector3(...c).sub(new T.Vector3(...a)),q=new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),v.clone().normalize()),g=new T.CylinderGeometry(r1,r0,v.length(),7);g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(q));
+    const crown=(seed,x,y,z,o,shade)=>{if(foliage)foliage.push({matrix:xform(b.base,x,y,z,o),seed,shade});else b.geo(canopy(seed,detail),x,y,z,leaf,o)};
+    const limb=(a,c,r0,r1)=>{const v=new T.Vector3(...c).sub(new T.Vector3(...a)),q=new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),v.clone().normalize()),g=new T.CylinderGeometry(r1,r0,v.length(),6);g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(q));
       const p=g.attributes.position,midY=(a[1]+c[1])/2;for(let i=0;i<p.count;i++)if(p.getY(i)+midY>0)p.setY(i,-midY);g.computeVertexNormals();b.geo(g,(a[0]+c[0])/2,(a[1]+c[1])/2,(a[2]+c[2])/2,trunk,{uv:45});g.dispose()};
-    const lean=birch?height*.045:-height*.025,top=birch?.91:.70;
-    limb([0,0,0],[lean,-height*top,3],birch?9:13,birch?2.4:5);
-    for(let i=0;i<5;i++){
-      const a=i*2.399+species*.7,start=[lean*.45,-height*(.38+i*.048),1.5],reach=spread*(birch?.54:.79)*(1+(i%2)*.12),end=[lean+Math.cos(a)*reach,-height*(.67+(i%3)*.065),Math.sin(a)*reach];
-      limb(start,end,birch?3.2:4.5,1.2);
-      const rr=spread*(birch?.47:pear?.60:.67);
-      crown(i+species,end[0],end[1]-height*.06,end[2],{sx:rr,sy:height*(birch?.16:pear?.19:.13),sz:rr*(.85+(i%2)*.13),ry:i*47});
+    const lean=birch?height*.045:-height*.025;
+    limb([0,0,0],[lean,-height*.89,3],birch?9:13,1.5);
+    for(let i=0;i<6;i++){
+      const a=i*2.399+species*.7,start=[lean*.45,-height*(.38+i*.054),1.5],reach=spread*(birch?.58:.85)*(1+(i%2)*.12),end=[lean+Math.cos(a)*reach,-height*(.62+i*.042),Math.sin(a)*reach];
+      limb(start,end,birch?3.2:4.5,.9);
+      // Each primary branch forks into three staggered terminal sprays. The
+      // underside is smaller and dark; the outer tips and upper tier are lit.
+      for(let j=0;j<3;j++){
+        const angle=a+(j-1)*.72,rr=spread*(birch?.25:pear?.34:.36),inside=j===0?.76:1,tip=[end[0]*inside+Math.cos(angle)*spread*(j===1?.22:.06),end[1]-height*(.025+j*.035),end[2]*inside+Math.sin(angle)*spread*(j===1?.22:.08)];
+        if(j!==1)limb(end,tip,1.25,.35);
+        crown(i*3+j+species,...tip,{sx:rr*(j===1?.96:1.08),sy:height*(birch?.07:pear?.068:j===0?.082:.07),sz:rr*.91,ry:i*47+j*37},j===0?.83:j===1?1.10:.98);
+      }
     }
-    for(let i=0;i<3;i++)crown(i+1,lean+(i-1)*spread*.23,-height*(.83+i*.053),Math.sin(i*2)*spread*.23,{sx:spread*(birch?.40:.56),sy:height*(pear?.17:.13),sz:spread*.52,ry:i*71});
+    for(let i=0;i<4;i++){
+      const a=i*2.4+species,tip=[lean+Math.cos(a)*spread*.31,-height*(.88+i*.024),Math.sin(a)*spread*.33];
+      limb([lean,-height*.76,3],tip,1.8,.4);
+      crown(i+1,...tip,{sx:spread*.32,sy:height*.075,sz:spread*.27,ry:i*71},1.06);
+    }
   }
 
   function foliageInstances(parts,material) {
     const geo=canopy(0,true).clone(),p=geo.attributes.position,n=geo.attributes.normal,colours=[];
-    for(let i=0;i<p.count;i++){const shade=.91+.06*Math.max(0,-n.getY(i));colours.push(shade,shade,shade)}
+    for(let i=0;i<p.count;i++){
+      const up=Math.max(0,-n.getY(i)),shade=.72+.32*up;
+      colours.push(shade*(1+.035*up),shade,shade*(1-.065*up));
+    }
     geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));geo.computeBoundingBox();
     const bounds=new T.Box3(),mesh=new T.InstancedMesh(geo,material,parts.length),colour=new T.Color();
     for(let i=0;i<parts.length;i++){
-      const part=parts[i];mesh.setMatrixAt(i,part.matrix);colour.setRGB(1-(part.seed%3)*.018,1-(part.seed%2)*.012,1-(part.seed%3)*.025);mesh.setColorAt(i,colour);
+      const part=parts[i],shade=part.shade||1;mesh.setMatrixAt(i,part.matrix);colour.setRGB(shade*(1-(part.seed%3)*.018),shade,shade*(1-(part.seed%3)*.025));mesh.setColorAt(i,colour);
       bounds.union(geo.boundingBox.clone().applyMatrix4(part.matrix));
     }
     // r128 culls an InstancedMesh against its base geometry's sphere.
@@ -1069,7 +1102,7 @@
     const batch = new Batch(), B = into(batch).at(o.cx, o.cy, o.cz, along ? 0 : 90);
     const U = a => along ? a - o.cx : o.cz - a, dir = d => along ? d : -d;
     const panels = o.glass ? [[-0.17, 0.2], [0.17, 0.2]] : [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]];
-    const ph = (h - 1) * 0.38, pw = w * 0.34, mw = 1.5, mt = 0.7;
+    const ph = (h - 1) * 0.38, pw = w * 0.34, mw = 1.5;
     if(o.glazing){
       const g=o.glazing;
       // Real edge thickness, one shared glass material, and a bead on each face.
@@ -1082,13 +1115,18 @@
     }
     const exposed=o.hinge||o.brass; // warm exposed undercoat shares the existing hardware batch
     for(const side of [-1,1])for(const face of [-1,1]){const shape=new T.Shape();shape.moveTo(-1.2,-2.5);shape.lineTo(.7,-2.1);shape.lineTo(1.05,.2);shape.lineTo(.3,2.7);shape.lineTo(-.9,1.2);shape.closePath();B.geo(new T.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false,curveSegments:1}),side*(w/2-1.3),h/2-3.1,face>0?t2-.015:-t2-.105,exposed);}
+    // One continuous moulding ring replaces four overlapping bevelled bars.
+    // The old butt overlaps and slab intersections made broken bright seams.
+    const ring=new T.Shape(),hole=new T.Path(),iw=pw-mw*2,ih=ph-mw*2;
+    ring.moveTo(-pw/2,-ph/2);ring.lineTo(pw/2,-ph/2);ring.lineTo(pw/2,ph/2);ring.lineTo(-pw/2,ph/2);ring.closePath();
+    hole.moveTo(-iw/2,-ih/2);hole.lineTo(-iw/2,ih/2);hole.lineTo(iw/2,ih/2);hole.lineTo(iw/2,-ih/2);hole.closePath();ring.holes.push(hole);
+    const moulding=new T.ExtrudeGeometry(ring,{depth:.4,steps:1,bevelEnabled:true,bevelSize:.2,bevelThickness:.15,bevelSegments:1,curveSegments:1});
     const vfxLevers=[];
     for (const s of [-1, 1]) {
       for (const [pu, pv2] of panels) {
-        const px = pu * w * 1.5, py = (h - 1) * pv2, z = s * (t2 + mt / 2 - 0.15);
-        B.rbox(px, py - ph / 2 + mw / 2, z, pw, mw, mt, 0.32, o.mould); B.rbox(px, py + ph / 2 - mw / 2, z, pw, mw, mt, 0.32, o.mould);
-        B.rbox(px - pw / 2 + mw / 2, py, z, mw, ph - mw * 2 + 0.2, mt, 0.32, o.mould); B.rbox(px + pw / 2 - mw / 2, py, z, mw, ph - mw * 2 + 0.2, mt, 0.32, o.mould);
-        B.box(px, py, s * (t2 + 0.03), pw - mw * 2 + 0.2, ph - mw * 2 + 0.2, 0.06, o.field || o.mould);
+        const px=pu*w*1.5,py=(h-1)*pv2;
+        B.geo(moulding,px,py,s*(t2+.185),o.mould,{ry:s<0?180:0});
+        B.box(px, py, s * (t2 + 0.085), pw - mw * 2 - 0.12, ph - mw * 2 - 0.12, 0.10, o.field || o.mould);
       }
       // lever on a round rose, pointing back towards the hinge
       const hu = U(o.handleA), hy = o.handleY - o.cy, lu = dir(o.leverDir || -1);
@@ -1100,6 +1138,7 @@
       B.rbox(hu, hy + 5.5, s * (t2 + 0.15), 1.6, 3.2, 0.3, 0.1, o.brass);
     }
     if (o.hingeA != null) for (const fy of [0.12, 0.5, 0.88]) B.cyl(U(o.hingeA), -h / 2 + h * fy, (o.hingeSide || 1) * t2, 0.6, 0.6, 9, 10, o.hinge || o.brass);
+    moulding.dispose();
     const built=batch.build(pv),brass=built.find(m=>m.material===o.brass);
     if(brass){const p=brass.geometry.attributes.position,n=brass.geometry.attributes.normal;pv.userData.vfxLevers={geometry:brass.geometry,ranges:vfxLevers,position:p.array.slice(),normal:n.array.slice()};}
     return slab;
@@ -1108,5 +1147,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { glazing, glassEdge, FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, softBox, canopy, branchingTree, foliageInstances, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { glazing, glassEdge, FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, softBox, quiltFold, canopy, branchingTree, foliageInstances, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();
