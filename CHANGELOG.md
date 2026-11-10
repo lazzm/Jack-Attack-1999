@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.88.0 - 2026-11-10
+- The family's hands meet what they're working on: Mom's hands go into the washing-up water, the spoon stirs inside the pan and the watering can's spout is over the plant.
+- Dad turns the newspaper pages for real, from the home news to the sport and the inside pages, and your sister's crayon drawing grows on the paper as she works.
+- Conversations between the family flow better: they pass the talk between all three, glance back to whoever spoke, and pick up again if you interrupt. 78 more recorded lines have mouth shapes timed to the words.
+- 9 more recorded lines, 763 in all. About 20 are still text-only; a few of them will be reworded so they record cleanly.
+
 ## 2.87.0 - 2026-11-10
 - The Myth of Zeldo has a third dungeon: a two-floor, 13-room pump works built around a new grappling tool, the Spool Spork, with lifts, floodgates and its own boss. Six new overworld screens open up beyond it, with a town and an optional quest. Old saves carry on where they left off.
 - Doors close all the way and stay closed, instead of sometimes stopping a hair short.

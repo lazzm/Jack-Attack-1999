@@ -1,0 +1,123 @@
+{
+ "created": "2026-11-10",
+ "why": "Seventh batch: one-line retakes of the 2.75.0 talk lines, recorded three lines per request with Received Pronunciation asked for. Each clip passed voice-qa (after repair), a transcript check (spelling and number differences only allowed) and an accent check.",
+ "accepted": {
+  "talk.dad.afternoon.11": {
+   "file": "talk.dad.afternoon.11.mp3",
+   "character": "dad",
+   "dur": 6.216,
+   "sha256": "ccb290a55404ac4aa648212a3b83ab903347a5213b1e02c76565cf40a3e8ce19",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.chapter.1": {
+   "file": "talk.mom.context.chapter.1.mp3",
+   "character": "mom",
+   "dur": 4.008,
+   "sha256": "1f091db273d6bd4182a603b806e2009df5522166d3c5846d27436520c35a062e",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.console.ps": {
+   "file": "talk.mom.context.console.ps.mp3",
+   "character": "mom",
+   "dur": 4.896,
+   "sha256": "6916a1856f79810e9a13fd4abf762d0eb5dcbb4deb7300124a811e6874254fde",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.dow.2": {
+   "file": "talk.mom.context.dow.2.mp3",
+   "character": "mom",
+   "dur": 5.232,
+   "sha256": "0e17ac66a393e8e7de2d7ba97d08593b23f240e1fcc0e36f93f6625fe7495a5c",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.bin.remind.01": {
+   "file": "talk.mom.job.bin.remind.01.mp3",
+   "character": "mom",
+   "dur": 1.608,
+   "sha256": "111003874b0e05eeb2224974c6ac135fa4ad49743becccc08c215a821cb67ed5",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.car.remind.02": {
+   "file": "talk.mom.job.car.remind.02.mp3",
+   "character": "mom",
+   "dur": 2.568,
+   "sha256": "2f7ea5dd56787e728aa2abbf260e4f0bfe5151723fd9a1475d5ce5897a7eaf36",
+   "heard": "bucket, sponge, and a rinse, love.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cat.remind.01": {
+   "file": "talk.mom.job.cat.remind.01.mp3",
+   "character": "mom",
+   "dur": 4.296,
+   "sha256": "c235b9ab56ab02044b275badfa762bf1e8749cc80dad7750d864af3c65eb1a01",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.shopping.remind.02": {
+   "file": "talk.mom.job.shopping.remind.02.mp3",
+   "character": "mom",
+   "dur": 1.776,
+   "sha256": "6fb539245dd95eca7b15d25748069e3f7b0373f43687f4de3706fd8a8505a583",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.videos.give.02": {
+   "file": "talk.mom.job.videos.give.02.mp3",
+   "character": "mom",
+   "dur": 4.536,
+   "sha256": "b224080e9e2e610eee0fbc0e49589a4bf04f6a1f163aad89d415ef39078056a8",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  }
+ }
+}
