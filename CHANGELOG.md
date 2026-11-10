@@ -5,6 +5,7 @@
 - When Mom is on the phone the receiver is in her hand, not also on the base. Mom stands up straight at the sink while she washes up.
 - On phones, the bin's label no longer covers the tidy-job title.
 - A few of Mom's lines are reworded so they read and sound more natural, ready for their recordings.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo with the Cold Pantry, Bonfire end to end, phones (same speed as 2.88.0), voices 9/9, characters, zero, Bounce Quest 64, cupboard, voice recordings, people pass, identity twice, the phone UI check, seasons, performance, physics, smoke; the Bonfire art check timed out once under the full check's load and passed four times on its own (on 2.89.0 and 2.88.0).
 
 ## 2.88.0 - 2026-11-10
 - The family's hands meet what they're working on: Mom's hands go into the washing-up water, the spoon stirs inside the pan and the watering can's spout is over the plant.
