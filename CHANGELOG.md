@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.86.0 - 2026-11-10
+- Bounce Quest 64 has 66 golden acorns: a seventh course, Sherbet Sandstorm, with rolling dunes, wind to ride and scarabs to dodge, and a risky Cocoa Express shortcut inside the coaster (commit to the jump; a safety net catches you if you miss). Hopping while falling no longer misfires.
+- The garden trees have layered crowns with branches you can see into, the lawn has mowing stripes, daisies and clover, and the sofa cushions, duvet and curtains crease and fold where they bend. Door and skirting trim meets the walls cleanly.
+
 ## 2.85.0 - 2026-11-09
 - The family move more naturally: they sip with the elbow low and the head tipping to the cup, hold the phone to their ear on calls, fold the paper or magazine away before they stand and pick it up again when they're back, nod along while washing up or cooking, and pass the conversation to each other with a look and a small gesture. 53 more lines have their own acting.
 - Better on phones: Dad's PC is fully usable sideways, with the whole taskbar clear of the controls; the mobile phone is bigger with proper-sized keys; carrying something shows one clear Place button; and the pause menu scrolls properly with your finger again (it could get stuck at the top), with Resume always in reach.
