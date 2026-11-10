@@ -246,11 +246,11 @@ try {
         const D = H.DOORS.lounge.closedBounds, out = { inDoor: 0, minD: 999 };
         F.debug.sim(25, 0.1, d => { const m = d.find(c => c.id === 'mom'); out.minD = Math.min(out.minD, Math.hypot(m.x - H.W.x, m.z - H.W.z)); if (m.x > D.x0 - 25 && m.x < D.x1 + 25 && m.z > D.z0 - 25 && m.z < D.z1 + 25 && Math.abs(m.v) < 5) out.inDoor += 0.1; });
         H.setWalkFrom({ x: 300, y: 353 - (H.STAND || 128), z: 300, lvl: 'G', seat: 0 });
-        F.debug.sim(60, 0.1); out.after = F.debug.dump().find(c => c.id === 'mom'); out.speech = F.debug.speech.cur && {id:F.debug.speech.cur.lineId,talk:F.debug.speech.cur.talk,requested:F.debug.speech.cur.requested}; return out;
+        F.debug.sim(60, 0.1); out.after = F.debug.dump().find(c => c.id === 'mom'); out.speech = F.debug.speech.cur && {id:F.debug.speech.cur.lineId,talk:F.debug.speech.cur.talk,requested:F.debug.speech.cur.requested}; const m=F.chars.mom;out.intent={hold:m.hold,aside:m.aside,pass:m.pass,plan:m.plan.map(s=>s.k),turnTo:m.turnTo?.id,turnPlan:m.turnPlan};return out;
       });
       assert(r.minD >= 38, 'Mom walked into me in the doorway: ' + r.minD.toFixed(1));
       assert(r.inDoor < 3, 'Mom loitered in the doorway: ' + r.inDoor.toFixed(1) + ' s');
-      assert(r.after.room === 'lounge' && r.after.step === 'act', 'Mom got to the phone once I moved: ' + JSON.stringify({after:r.after,speech:r.speech}));
+      assert(r.after.room === 'lounge' && r.after.step === 'act', 'Mom got to the phone once I moved: ' + JSON.stringify({after:r.after,speech:r.speech,intent:r.intent}));
       await page.evaluate(() => { HouseFamily.debug.go('mom', null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }

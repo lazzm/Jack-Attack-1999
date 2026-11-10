@@ -59,6 +59,19 @@ const remark={c:m,talk:false,lineId:'bf.mom.remark'};conversation.F.debug.speech
 assert(!conversation.c.window.testHeld(m),'A finished yield must resume work during a passing line');assert.equal(conversation.F.debug.speech.cur,remark,'Resuming work must keep the current line');
 console.log('PASS exact aside start and return-to-work without interrupting a passing line');
 
+// A passing chapter remark may already be playing when avoidance chooses
+// its checked destination and clears the old goal. Planning must consume it.
+Object.assign(m,{goal:null,cur:null,plan:[],aside:{x:90,z:300,lvl:'G'},hold:0,pass:null,talking:true});
+const chapter={c:m,lineId:'talk.mom.context.chapter.2',talk:false,requested:false};
+conversation.F.debug.speech.cur=chapter;
+assert(!conversation.c.window.testHeld(m),'A pending checked aside must be planned during an unrequested chapter remark');
+assert.equal(conversation.F.debug.speech.cur,chapter,'Planning an aside must not cancel its speech');
+for(const line of [{...chapter,talk:true},{...chapter,requested:true},{...chapter,lineId:'c1.mom.give'},{...chapter,lineId:'st.opening.mom'}]){
+ conversation.F.debug.speech.cur=line;assert(conversation.c.window.testHeld(m),'Explicit dialogue/story instructions must keep their pose hold');
+}
+conversation.F.debug.speech.cur=chapter;m.hold=99;assert(conversation.c.window.testHeld(m),'Explicit player hold must win over an avoidance destination');m.hold=0;
+console.log('PASS checked-aside planning keeps passing speech and explicit conversation/story holds');
+
 Object.assign(m,{aside:{narrow:true},h:0});conversation.c.window.testFace(m,{x:m.x+100,z:m.z},1);assert.equal(m.h,0,'A conversation must not turn a flattened body through its wall');
 
 // The flight and the cupboard share X/Z, but not air space. Hidden family

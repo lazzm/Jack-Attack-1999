@@ -32,7 +32,8 @@ try{
   let port;for(let p=18080;p<=18099;p++)if(await new Promise(resolve=>{const s=net.createServer();s.once('error',()=>resolve(false));s.listen(p,'127.0.0.1',()=>s.close(()=>resolve(true)))})){port=p;break;}assert(port);
   data=await mkdtemp('/tmp/jhp-r10-gate-');server=spawn(process.execPath,['server.js'],{cwd:root+'app',env:{...process.env,PORT:String(port),DATA_DIR:data,ADMIN_TOKEN:'testtoken'},stdio:['ignore','pipe','pipe']});for(const s of [server.stdout,server.stderr])s.on('data',d=>serverLog+=d);
   const base='http://127.0.0.1:'+port;for(let n=0;n<100;n++){try{if((await fetch(base+'/robots.txt')).ok)break}catch{}await new Promise(r=>setTimeout(r,100))}
-  await run('voices',['tests/voices.mjs',base,...(process.argv.find(a=>a.startsWith('--voices-only='))?['--only='+process.argv.find(a=>a.startsWith('--voices-only=')).slice(14)]:[])],{env:{SMOKE_SCALE:'3'}});await stopServer();await writeFile('/tmp/r10-gate-server.log',serverLog);assert(!/mod failed to load/i.test(serverLog));
+  // Voices retains its own normal host scaling, or an explicit caller override.
+  await run('voices',['tests/voices.mjs',base,...(process.argv.find(a=>a.startsWith('--voices-only='))?['--only='+process.argv.find(a=>a.startsWith('--voices-only=')).slice(14)]:[])]);await stopServer();await writeFile('/tmp/r10-gate-server.log',serverLog);assert(!/mod failed to load/i.test(serverLog));
  }
  if(!only||only.includes('cupboard')){
   let port;for(let p=18080;p<=18099;p++)if(await new Promise(resolve=>{const s=net.createServer();s.once('error',()=>resolve(false));s.listen(p,'127.0.0.1',()=>s.close(()=>resolve(true)))})){port=p;break;}assert(port);

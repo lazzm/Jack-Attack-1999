@@ -31,7 +31,7 @@ await withTestServer(async base=>{
   let innerSize=[touch?390:1366,touch?844:860];
   async function stage(eye,target){await f.view(eye,target);await p.evaluate(target=>{HousePause.close();House.hush();House._.setMode('walk');House.W.eyeNow=House.W.eye;const P=House.P;P.y=House.W.fy-House.W.eye;P.rx=Math.atan2(-(target[1]-P.y),Math.hypot(target[0]-P.x,target[2]-P.z))*180/Math.PI;P.ry=Math.atan2(target[0]-P.x,-(target[2]-P.z))*180/Math.PI;House.dirty()},target);await finger();await p.waitForTimeout(400)}
   async function press(k){const b=p.locator('.ht-hud [data-k="'+k+'"]');if(touch){await b.waitFor({state:'visible'});await b.tap()}else await p.keyboard.press(k)}
-  async function shot(name){await p.evaluate(()=>House.dirty());await p.waitForTimeout(180);if(['pause','scrolled'].includes(process.env.UI_HUD_CAPTURE)&&name!=='pause-scrolled')return null;console.log('CAPTURE',phase,innerSize.join('x'),name);const path=fileURLToPath(new URL(innerSize.join('x')+'-'+name+'.png',out));await p.screenshot({path,scale:'css',timeout:60000});return path}
+  async function shot(name){await p.evaluate(()=>House.dirty());await p.waitForTimeout(180);if(process.env.UI_HUD_PROGRESS==='1')console.log('STATE',phase,innerSize.join('x'),name);if(['pause','scrolled'].includes(process.env.UI_HUD_CAPTURE)&&name!=='pause-scrolled')return null;console.log('CAPTURE',phase,innerSize.join('x'),name);const path=fileURLToPath(new URL(innerSize.join('x')+'-'+name+'.png',out));await p.screenshot({path,scale:'css',timeout:60000});return path}
   try{
    await section('pc',async()=>{
    // A production F ray enters the monitor, then real T/LOCK IN toggles both ways.
