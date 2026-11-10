@@ -1,7 +1,7 @@
 /* BOUNCE QUEST 64 (N64, in Jack's room): a proper 3D collect-a-thon. King Grumpus has pinched the golden acorns of
  * Biscuit Island and hidden them all over the place. Bopper hops round the island (9 acorns) and through the magic
- * doors in Acorn Plaza into six worlds (Custard Cove, Frosty Flapjack Peaks, Ghoulish Ginger Manor, Tick-Tock Tower, Custard Grotto, Treacle Troubleworks),
- * six to eight named acorns in each, three outfit stages, three more in the enclosed Cocoa Coaster, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 60 in all.
+ * doors in Acorn Plaza into seven worlds (Custard Cove, Frosty Flapjack Peaks, Ghoulish Ginger Manor, Tick-Tock Tower, Custard Grotto, Treacle Troubleworks, Sherbet Sandstorm),
+ * six to eight named acorns in each, three outfit stages, three more in the enclosed Cocoa Coaster, then King Grumpus in the Biscuit Barrel for the Crown Acorn. 66 in all.
  * Moves: jump, land-and-jump-again for a double then triple jump, a twirl in the air, long jump (run, hold Z, press A),
  * side flip (reverse and jump while running), backflip (stand still, hold Z, press A), ground pound (Z in the air), wall kick (jump at a wall, press A as you touch
  * it), punch-punch-kick (B), jump kick (B in the air). Camera: L / R turn it round (like the yellow C buttons).
@@ -14,7 +14,7 @@
   const GID = 'n64.hop';
   const SECRETS = [
     ['rm.hop.king', 'Crumbs!', 'Somebody very grumpy is waiting behind the crowned door in Bounce Quest 64.'],
-    ['rm.hop.every', 'Every Last Acorn', 'There are sixty golden acorns in Bounce Quest 64. Find the lot.'],
+    ['rm.hop.every', 'Every Last Acorn', 'There are sixty-six golden acorns in Bounce Quest 64. Find the lot.'],
     ['rm.hop.wall', 'Wall Kicker', 'In Bounce Quest 64, a certain golden acorn can only be reached by kicking off walls.'],
   ];
   for (const [id, n, h] of SECRETS) { try { if (window.Apps && Apps.defineSecret && !(Apps.secrets && Apps.secrets[id])) Apps.defineSecret(id, n, h); } catch (e) {} }
@@ -68,6 +68,7 @@
     grotto: { bpm: 88, wave: 'sine', vol: .085, bassWave: 'triangle',
       lead: [74,-1,0,81,-1,0,78,-1,76,-1,0,73,-1,0,69,-1,71,-1,0,78,-1,0,76,-1,74,-1,0,69,71,-1,73,-1,74,-1,0,81,-1,0,85,-1,83,-1,81,-1,78,-1,76,-1,74,-1,73,-1,71,-1,69,-1,74,-1,-1,-1,0,0,0,0],
       bass: [38,0,0,0,45,0,0,0,42,0,0,0,45,0,0,0,43,0,0,0,50,0,0,0,45,0,0,0,49,0,0,0], drums:'........x.......' },
+    sands:{bpm:118,wave:'triangle',vol:.075,bassWave:'triangle',lead:[69,0,70,73,76,0,73,70,69,-1,0,76,77,76,73,0,67,0,69,70,73,0,70,69,67,-1,0,73,74,73,70,0,65,0,69,72,76,0,74,72,69,0,70,73,76,77,76,73,70,0,69,67,65,0,67,69,70,73,70,69,65,-1,0,0],bass:[45,0,52,0,48,0,52,0,43,0,50,0,47,0,50,0,41,0,48,0,45,0,48,0,40,0,47,0,44,0,47,0],drums:'o..xx...o.x...x.'},
     foundry:{bpm:126,wave:'triangle',vol:.07,bassWave:'square',lead:[67,0,70,72,0,75,74,0,72,70,67,0,65,0,67,0,63,0,67,70,0,74,72,0,70,67,65,0,63,-1,0,0,67,70,72,75,0,79,77,75,74,0,72,70,67,0,65,0,63,65,67,70,72,0,70,67,65,0,63,62,60,-1,0,0],bass:[36,0,43,0,39,0,43,0,41,0,48,0,43,0,46,0],drums:'o...x.o.o...x.x.'},
     foundryBoss:{bpm:148,wave:'square',vol:.04,bassWave:'triangle',lead:[60,0,63,0,67,66,63,0,58,0,62,0,65,64,62,0,60,0,67,0,70,69,67,0,63,0,62,58,60,-1,0,0],bass:[36,0,36,43,0,36,0,43,34,0,34,41,0,34,0,41],drums:'o.x.o...o.x.x...'},
     ending: { bpm: 104, wave: 'triangle', vol: 0.08, bassWave: 'sine',
@@ -175,14 +176,14 @@
       // the door paintings: one per world
       function doorTex(k) {
         return tex('door' + k, 64, 96, g => {
-          const P = [['#2a9ad8', '#ffe08a'], ['#a8d0f0', '#ffffff'], ['#3a2a5a', '#c8a0ff'], ['#e88a3a', '#ffe0a0'], ['#5a0a0a', '#ffb02a'], ['#246c89', '#8bdad5'], ['#af7274','#8de0d0']][k];
+          const P = [['#2a9ad8', '#ffe08a'], ['#a8d0f0', '#ffffff'], ['#3a2a5a', '#c8a0ff'], ['#e88a3a', '#ffe0a0'], ['#5a0a0a', '#ffb02a'], ['#246c89', '#8bdad5'], ['#af7274','#8de0d0'],['#dcaa77','#8ce5db']][k];
           const gr = g.createLinearGradient(0, 0, 0, 96); gr.addColorStop(0, P[0]); gr.addColorStop(1, '#101020'); g.fillStyle = gr; g.fillRect(0, 0, 64, 96);
           g.save(); g.translate(32, 44);
           if (k === 0) { g.fillStyle = '#ffe08a'; g.beginPath(); g.ellipse(0, 26, 30, 10, 0, 0, 7); g.fill(); g.fillStyle = '#f08ab0'; g.beginPath(); for (let i = 0; i <= 8; i++) { const a = Math.PI + i / 8 * Math.PI; g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16 + 4); } g.fill(); g.strokeStyle = '#a04a70'; g.lineWidth = 1.5; for (let i = 1; i < 8; i++) { const a = Math.PI + i / 8 * Math.PI; g.beginPath(); g.moveTo(0, 4); g.lineTo(Math.cos(a) * 16, Math.sin(a) * 16 + 4); g.stroke(); } }
           else if (k === 1) { g.strokeStyle = '#fff'; g.lineWidth = 3; for (let i = 0; i < 6; i++) { g.rotate(Math.PI / 3); g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -20); g.moveTo(0, -12); g.lineTo(-6, -17); g.moveTo(0, -12); g.lineTo(6, -17); g.stroke(); } }
           else if (k === 2) { g.fillStyle = '#f0f0ff'; g.beginPath(); g.arc(0, -4, 15, Math.PI, 0); g.lineTo(15, 16); for (let i = 0; i < 5; i++) g.lineTo(15 - (i + 0.5) * 6, i % 2 ? 16 : 11); g.lineTo(-15, 16); g.fill(); g.fillStyle = '#201030'; g.beginPath(); g.arc(-5, -4, 3, 0, 7); g.arc(5, -4, 3, 0, 7); g.fill(); g.beginPath(); g.ellipse(0, 5, 3, 4, 0, 0, 7); g.fill(); }
           else if (k === 3) { g.fillStyle = '#fff8e0'; g.beginPath(); g.arc(0, 0, 20, 0, 7); g.fill(); g.strokeStyle = '#3a2a1a'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -14); g.moveTo(0, 0); g.lineTo(10, 4); g.stroke(); g.lineWidth = 2; g.beginPath(); g.arc(0, 0, 20, 0, 7); g.stroke(); }
-          else if(k===6){g.fillStyle='#ddab70';g.beginPath();g.ellipse(0,4,18,15,0,0,7);g.fill();g.fillStyle='#9be5da';g.fillRect(-20,-14,40,5);g.strokeStyle='#f6e6ba';g.lineWidth=4;g.beginPath();g.arc(21,2,9,-1.5,1.5);g.stroke();g.fillStyle='#302d45';g.fillRect(-8,-1,4,5);g.fillRect(5,-1,4,5);}
+          else if(k===7){g.fillStyle='#f6d291';g.beginPath();g.moveTo(-25,22);g.lineTo(0,-23);g.lineTo(25,22);g.closePath();g.fill();g.strokeStyle='#99536a';g.lineWidth=3;for(let y=-5;y<23;y+=8){g.beginPath();g.moveTo(-10-y*.5,y);g.lineTo(10+y*.5,y);g.stroke();}g.fillStyle='#83dcd3';g.beginPath();g.arc(15,-17,7,0,7);g.fill();}else if(k===6){g.fillStyle='#ddab70';g.beginPath();g.ellipse(0,4,18,15,0,0,7);g.fill();g.fillStyle='#9be5da';g.fillRect(-20,-14,40,5);g.strokeStyle='#f6e6ba';g.lineWidth=4;g.beginPath();g.arc(21,2,9,-1.5,1.5);g.stroke();g.fillStyle='#302d45';g.fillRect(-8,-1,4,5);g.fillRect(5,-1,4,5);}
           else if (k === 5) { g.strokeStyle = '#b6fff2'; g.lineWidth = 3; for (const [x,y,r] of [[-12,17,9],[9,-2,13],[-8,-25,6]]) { g.beginPath(); g.arc(x,y,r,0,7); g.stroke(); } g.fillStyle='#f0d79a'; g.fillRect(-28,28,56,6); }
           else { g.fillStyle = '#ffd23a'; g.beginPath(); g.moveTo(-18, 10); g.lineTo(-18, -8); g.lineTo(-9, 2); g.lineTo(0, -14); g.lineTo(9, 2); g.lineTo(18, -8); g.lineTo(18, 10); g.closePath(); g.fill(); g.fillStyle = '#e8261c'; g.beginPath(); g.arc(0, 2, 3, 0, 7); g.fill(); }
           g.restore();
@@ -379,7 +380,7 @@
           const slot = signCells.size; signCells.set(key, slot); const g = signCanvas.getContext('2d'), x = slot % 4 * 128, y = (slot / 4 | 0) * 64;
           g.fillStyle = '#392819'; g.fillRect(x, y, 128, 64); g.strokeStyle = '#ba8d52'; g.lineWidth = 2; g.strokeRect(x + 2, y + 2, 124, 60);
           const bold = wrap(key,10), large = bold.length <= 2 && bold.every(s=>K.font.width(s,2)<=120), lines = large ? bold : wrap(key,19); lines.forEach((s,i)=>K.font.center(g,s,x+64,y+8+i*(large?20:10),'#ffe0a0',large?2:1));
-          K.font.center(g, 'READ SIGN', x + 64, y + 52, '#e8bf79', 1); signAtlas.needsUpdate = true;
+          K.font.center(g, n.expressMarker?'HOP THE GAP':'READ SIGN', x + 64, y + 52, '#e8bf79', 1); signAtlas.needsUpdate = true;
         }
         const slot = signCells.get(key), u = slot % 4 / 4, v = 1 - ((slot / 4 | 0) + 1) / 16;
         for (const side of [-1, 1]) { const geo = new T.PlaneGeometry(1.54, 0.84), uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, u + uv.getX(i) / 4, v + uv.getY(i) / 16); const face = new T.Mesh(geo, signInk); face.position.set(0, 1.25, side * 0.081); face.rotation.y = side < 0 ? Math.PI : 0; n.mesh.add(face); }
@@ -395,7 +396,7 @@
         const W_ = 0xffffff, BK = 0x141018;
         const eyes = (x, y, z, s, look) => [pt(S.ball(10), W_, x, y, z, s, s * 1.3, s * 0.6), pt(S.ball(10), W_, -x, y, z, s, s * 1.3, s * 0.6), pt(S.ball(8), BK, x + (look || 0), y - s * 0.05, z - s * 0.3, s * 0.45, s * 0.65, s * 0.3), pt(S.ball(8), BK, -x + (look || 0), y - s * 0.05, z - s * 0.3, s * 0.45, s * 0.65, s * 0.3)];
         let P;
-        if(kind==='kettle'||kind==='foreman'){P=[pt(S.ball(12),0xbc8759,0,.8,0,1.5,1.2,1.35,0,0,0,.3),pt(S.cyl(12),0x685674,0,1.34,0,1.3,.12,1.2),...(kind==='kettle'?[pt(S.hemi(12),0xd8bb79,0,1.39,0,1.18,.36,1.1),pt(S.ball(8),0x765575,0,1.65,0,.25,.2,.25)]:[]),pt(S.tor(.1,12),0x705368,.76,.9,.05,.9,.9,.9,0,Math.PI/2),pt(S.cyl(8,.7),0xd7b16e,-.75,1,-.05,.34,.85,.34,0,0,-.9),...eyes(.24,1,-.61,.22),pt(S.box(),0x463049,0,.63,-.66,.3,.05,.04),...[-1,1].map(q=>pt(S.ball(8),0x486f78,q*.38,.17,-.07,.48,.32,.65))];
+        if(kind==='postmaster'){P=[pt(S.ball(12),0x6a9e9f,0,.85,0,1,1.1,.8,0,0,0,.3),pt(S.hemi(14),0x7d9e67,0,.95,.3,1.15,.7,1.2,Math.PI/2),pt(S.cyl(14),0xd0bc82,0,.95,.3,1.17,.08,1.22,Math.PI/2),pt(S.ball(10),0xb4cc86,0,1.6,-.12,.75,.7,.7),...eyes(.18,1.7,-.44,.18),pt(S.ball(8),0xa8c47b,0,1.46,-.48,.45,.26,.32),pt(S.cyl(12),0x547b8d,0,2,-.12,.9,.24,.8),pt(S.box(),0xf2d8a1,0,1.94,-.45,.85,.06,.46),pt(S.box(),0xf4d08d,0,2.02,-.51,.14,.13,.025),...[-1,1].flatMap(q=>[pt(S.ball(8),0x6a9e9f,q*.56,1,-.05,.22,.6,.27),pt(S.ball(8),0xa8c47b,q*.56,.75,-.05,.24,.25,.25),pt(S.ball(8),0x6d5367,q*.23,.13,-.12,.4,.26,.6)]),pt(S.box(),0xc28c68,.55,.65,.03,.45,.6,.35),pt(S.box(),0xffe1a3,.55,.7,-.16,.25,.22,.035),pt(S.box(),0x87616d,.08,1,-.4,.09,1,.05,0,0,.6)];}else if(kind==='scarab'){P=[pt(S.ball(12),0x4e9e9b,0,.52,0,1.55,.85,1.8,0,0,0,.3),pt(S.box(),0xf5d083,0,.88,0,.06,.12,1.3),pt(S.ball(10),0xa45d78,0,.5,-.8,.85,.6,.65),...eyes(.18,.65,-1.05,.18),...[-1,1].flatMap(q=>[-.5,0,.5].map(z=>pt(S.cyl(5),0x73526c,q*.7,.3,z,.12,.9,.12,0,0,q*.9)))];}else if(kind==='kettle'||kind==='foreman'){P=[pt(S.ball(12),0xbc8759,0,.8,0,1.5,1.2,1.35,0,0,0,.3),pt(S.cyl(12),0x685674,0,1.34,0,1.3,.12,1.2),...(kind==='kettle'?[pt(S.hemi(12),0xd8bb79,0,1.39,0,1.18,.36,1.1),pt(S.ball(8),0x765575,0,1.65,0,.25,.2,.25)]:[]),pt(S.tor(.1,12),0x705368,.76,.9,.05,.9,.9,.9,0,Math.PI/2),pt(S.cyl(8,.7),0xd7b16e,-.75,1,-.05,.34,.85,.34,0,0,-.9),...eyes(.24,1,-.61,.22),pt(S.box(),0x463049,0,.63,-.66,.3,.05,.04),...[-1,1].map(q=>pt(S.ball(8),0x486f78,q*.38,.17,-.07,.48,.32,.65))];
         } else if (kind === 'pearl') { P=[pt(S.ball(14),0xcef7ee,0,0,0,.8,.8,.8,0,0,0,.2),pt(S.ball(8),0xffffff,-.16,.18,-.3,.2,.2,.12)];
         } else if (kind === 'jelly') { P=[pt(S.hemi(12),0x9b9ee0,0,1,0,1.4,.9,1.4),pt(S.cyl(12),0x5c6fa8,0,.96,0,1.4,.12,1.4),...eyes(.2,1.15,-.5,.2),...[0,1,2,3,4,5].map(i=>pt(S.cyl(5),0x8ac6ca,Math.sin(i)*.42,.5,Math.cos(i)*.42,.12,.95,.12,0,0,Math.sin(i)*.2))];
         } else if (kind === 'grumpy' || kind === 'king') {
@@ -469,15 +470,25 @@
       function mesh(kind, x, y, z, s, m) { const me = new T.Mesh(model(kind), m || matV()); me.position.set(x, y, z); if (s) me.scale.setScalar(s); WG.add(me); return me; }
 
       // ================================================================ THE WORLDS
-      const WN = { foundry:'TREACLE TROUBLEWORKS', snowhall:'THE COCOA COASTER', hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
-      const ORDER = ['cove', 'peaks', 'manor', 'tower', 'boss', 'grotto', 'foundry'];
-      const NEED = { cove: 0, peaks: 3, manor: 7, tower: 12, boss: 18, grotto: 5, foundry:15 };
+      const WN = { sands:'SHERBET SANDSTORM',foundry:'TREACLE TROUBLEWORKS', snowhall:'THE COCOA COASTER', hub: 'BISCUIT ISLAND', cove: 'CUSTARD COVE', peaks: 'FROSTY FLAPJACK PEAKS', manor: 'GHOULISH GINGER MANOR', tower: 'TICK-TOCK TOWER', boss: 'THE BISCUIT BARREL', grotto: 'CUSTARD GROTTO' };
+      const ORDER = ['cove', 'peaks', 'manor', 'tower', 'boss', 'grotto', 'foundry', 'sands'];
+      const NEED = { cove: 0, peaks: 3, manor: 7, tower: 12, boss: 18, grotto: 5, foundry:15, sands:21 };
       // ---- Biscuit Island (the hub)
       const PLX = -4, PLZ = 8;
       function hubG0(x, z) { const r = Math.hypot(x, z * 1.08); return -4 + sstep(46, 31, r) * 5.6 + 9.5 * ex(x, z, -14, -12, 120) + 2.6 * ex(x, z, 6, 18, 40) - 3.4 * ex(x, z, 11, 4, 26) + 0.4 * Math.sin(x * 0.3) * Math.cos(z * 0.27) * sstep(40, 25, r); }
       const PH = hubG0(PLX, PLZ);
       const LX = 18, LZ = -16, LB = hubG0(LX, LZ) - 0.5, LTOP = LB + 17, WX = -21, WZ = 16, WB = hubG0(WX, WZ) - 0.5, TRX = -3, TRZ = 24, TB = hubG0(TRX, TRZ) - 0.3, PDX = 11, PDZ = 4, PRZ = -6;
       const WORLDS = {};
+      function hubDoor(w,i){
+            const a = Math.PI + (i - 2) * 0.5 + (i>=7?.5:0), x = PLX + Math.sin(a) * 9, z = PLZ + Math.cos(a) * 9, ry = a + Math.PI, fx = -Math.sin(a), fz = -Math.cos(a);
+            const rx = Math.cos(ry), rz = -Math.sin(ry); // the door's local x axis
+            for (const s of [-1, 1]) box(x + rx * s * 1.75, PH, z + rz * s * 1.75, 0.9, 4.4, 1.1, { ry, t: 'brick', c: 0xf0e8ff, props: { nocam: 1 } });
+            box(x, PH + 4.4, z, 4.4, 0.9, 1.2, { ry, t: 'brick', c: 0xf0e8ff });
+            deco(ptM(S.cyl(3), 0xd8c8f0, M(x, PH + 5.4, z, 0, ry + Math.PI / 2, Math.PI / 2, 1.2, 4.6, 1.2)), 'v');
+            box(x - fx * 0.15, PH, z - fz * 0.15, 2.6, 4.4, 0.4, { ry, c: 0x5a3a2a });
+            const pm = new T.Mesh(new T.PlaneGeometry(2.5, 3.9), mat('door' + i, { map: doorTex(i) })); pm.position.set(x + fx * 0.07, PH + 1.98, z + fz * 0.07); pm.rotation.y = ry; WG.add(pm);
+            DOORS.push({ i, w, need: NEED[w], x, z, fx, fz, ry, y: PH });
+      }
       WORLDS.hub = {
         song: 'hub', fog: [0xa8d4f8, 50, 170], water: 0, killY: -20, spawn: [8, 31, 0], bound: 70,
         light: { amb: 0.8, sun: 0.75, sky: 0xf0f8ff, gnd: 0x5a7a4a, dir: [0.4, 1, 0.3] },
@@ -497,16 +508,7 @@
           deco(ptM(S.cyl(30), 0xf0e8e0, M(PLX, PH - 0.12, PLZ, 0, 0, 0, 21, 0.3, 21), 0), 'cobble');
           cyl(PLX, PH, PLZ, 2.4, 0.7, { t: 'cobble', c: 0xe8e0f0 }); cyl(PLX, PH + 0.7, PLZ, 0.45, 1.7, { c: 0xd8d0e0 }); cyl(PLX, PH + 2.3, PLZ, 1.3, 0.3, { c: 0xd8d0e0, top: 1.4 });
           deco(ptM(S.cyl(20), 0x5ab8ff, M(PLX, PH + 0.62, PLZ, 0, 0, 0, 4.4, 0.04, 4.4)), 'vb'); deco(ptM(S.cyl(14), 0x8ad0ff, M(PLX, PH + 2.62, PLZ, 0, 0, 0, 2.3, 0.04, 2.3)), 'vb');
-          ORDER.forEach((w, i) => {
-            const a = Math.PI + (i - 2) * 0.5, x = PLX + Math.sin(a) * 9, z = PLZ + Math.cos(a) * 9, ry = a + Math.PI, fx = -Math.sin(a), fz = -Math.cos(a);
-            const rx = Math.cos(ry), rz = -Math.sin(ry); // the door's local x axis
-            for (const s of [-1, 1]) box(x + rx * s * 1.75, PH, z + rz * s * 1.75, 0.9, 4.4, 1.1, { ry, t: 'brick', c: 0xf0e8ff, props: { nocam: 1 } });
-            box(x, PH + 4.4, z, 4.4, 0.9, 1.2, { ry, t: 'brick', c: 0xf0e8ff });
-            deco(ptM(S.cyl(3), 0xd8c8f0, M(x, PH + 5.4, z, 0, ry + Math.PI / 2, Math.PI / 2, 1.2, 4.6, 1.2)), 'v');
-            box(x - fx * 0.15, PH, z - fz * 0.15, 2.6, 4.4, 0.4, { ry, c: 0x5a3a2a });
-            const pm = new T.Mesh(new T.PlaneGeometry(2.5, 3.9), mat('door' + i, { map: doorTex(i) })); pm.position.set(x + fx * 0.07, PH + 1.98, z + fz * 0.07); pm.rotation.y = ry; WG.add(pm);
-            DOORS.push({ i, w, need: NEED[w], x, z, fx, fz, ry, y: PH });
-          });
+          ORDER.slice(0,7).forEach(hubDoor);
           // the lighthouse and its winding steps
           cyl(LX, LB, LZ, 2.5, LTOP - LB, { t: 'stripe', top: 0.82, cr: 2.6 });
           cyl(LX, LTOP - 0.4, LZ, 3.4, 0.4, { c: 0xb8b8b0 }); cyl(LX, LTOP, LZ, 1.3, 1.6, { c: 0xfff6a0, cr: 1.4 }); deco(ptM(S.cone(12), 0xe83a2a, M(LX, LTOP + 2.4, LZ, 0, 0, 0, 4, 1.6, 4)));
@@ -1244,10 +1246,40 @@
       for(let i=0,s=0;i<=SNOW_RUN;i++){const p=snowCenter(4+i);if(i){const a=SNOW_POINTS[i-1];s+=Math.hypot(p.x-a.x,p.y-a.y,p.z-a.z);}SNOW_POINTS.push({...p,s});}
       const SNOW_LENGTH=SNOW_POINTS[SNOW_RUN].s;
       function snowAt(s){if(s<0){const a=snowAt(0);return {...a,x:a.x+a.tx*s,y:a.y+a.slope*s,z:a.z+a.tz*s};}s=clamp(s,0,SNOW_LENGTH);let lo=0,hi=SNOW_RUN;while(hi-lo>1){const m=(lo+hi)>>1;if(SNOW_POINTS[m].s<s)lo=m;else hi=m;}const a=SNOW_POINTS[lo],b=SNOW_POINTS[hi],f=(s-a.s)/(b.s-a.s||1),dx=b.x-a.x,dz=b.z-a.z,h=Math.hypot(dx,dz)||1;return{x:lerp(a.x,b.x,f),y:lerp(a.y,b.y,f),z:lerp(a.z,b.z,f),tx:dx/h,tz:dz/h,nx:dz/h,nz:-dx/h,slope:(b.y-a.y)/(b.s-a.s||1),angle:Math.atan2(-dx,-dz)};}
-      function snowFloor(x,z){if(z<4&&z>-23&&Math.abs(x)<11.3)return 40;if(z>SNOW_END-2&&z<SNOW_END+21&&Math.abs(x)<12)return 0;if(z<4||z>SNOW_END)return -100;const a=snowCenter(z),b=snowCenter(z+.1),h=Math.hypot(b.x-a.x,.1),lane=(x-a.x)*h/.1;return Math.abs(lane)<snowWidth(z)+.3?a.y+Math.abs(lane)/45:-100;}
-      function snowInside(x,y,z,pad=.15){if(z<4&&z>-22)return Math.abs(x)<11-pad&&y>40+pad&&y<48.7-pad;if(z>=SNOW_END&&z<SNOW_END+20)return Math.abs(x)<12-pad&&y>pad&&y<9-pad;const a=snowCenter(z),b=snowCenter(z+.1),lane=(x-a.x)*Math.hypot(b.x-a.x,.1)/.1,h=y-a.y,w=h<4.8?6.4:h<7.7?lerp(6.4,4.7,(h-4.8)/2.9):lerp(4.7,0,(h-7.7));return z>=4&&z<SNOW_END&&h>Math.abs(lane)/45+pad&&h<8.7-pad&&Math.abs(lane)<w*snowWidth(z)/6.4-pad;}
+      // The Cocoa Express is a real second centreline, joined inside both mouths.
+      const CUT_START=SNOW_LENGTH*.34,CUT_JOIN=SNOW_LENGTH*.66,CUT_POINTS=[];
+      {const a=snowAt(CUT_START),d=snowAt(CUT_JOIN),p0={x:a.x-a.nx*3.3,y:a.y,z:a.z-a.nz*3.3},p3={x:d.x-d.nx*3.3,y:d.y,z:d.z-d.nz*3.3},p1={x:p0.x+a.tx*12,y:p0.y+a.slope*12,z:p0.z+a.tz*12},p2={x:p3.x-d.tx*12,y:p3.y-d.slope*12,z:p3.z-d.tz*12};let len=0;
+        for(let i=0;i<=160;i++){const t=i/160,u=1-t,b=(k)=>u*u*u*p0[k]+3*u*u*t*p1[k]+3*u*t*t*p2[k]+t*t*t*p3[k],p={x:b('x'),y:b('y'),z:b('z')};if(i){const q=CUT_POINTS[i-1];len+=Math.hypot(p.x-q.x,p.y-q.y,p.z-q.z);}CUT_POINTS.push({...p,s:len});}}
+      const CUT_LENGTH=CUT_POINTS[160].s,CUT_GAP=[28,37];
+      function cutAt(s){const v=clamp(s,0,CUT_LENGTH);let lo=0,hi=160;while(hi-lo>1){const m=(lo+hi)>>1;if(CUT_POINTS[m].s<v)lo=m;else hi=m;}const a=CUT_POINTS[lo],b=CUT_POINTS[hi],f=(v-a.s)/(b.s-a.s||1),dx=b.x-a.x,dz=b.z-a.z,h=Math.hypot(dx,dz)||1,p={s:v,x:lerp(a.x,b.x,f),y:lerp(a.y,b.y,f),z:lerp(a.z,b.z,f),tx:dx/h,tz:dz/h,nx:dz/h,nz:-dx/h,slope:(b.y-a.y)/(b.s-a.s||1),angle:Math.atan2(-dx,-dz)};if(s<0){p.x+=p.tx*s;p.z+=p.tz*s;p.y+=p.slope*s;}return p;}
+      function cutAtZ(z){if(z<CUT_POINTS[0].z||z>CUT_POINTS[160].z)return null;let lo=0,hi=160;while(hi-lo>1){const m=(lo+hi)>>1;if(CUT_POINTS[m].z<z)lo=m;else hi=m;}const a=CUT_POINTS[lo],b=CUT_POINTS[hi];return cutAt(lerp(a.s,b.s,(z-a.z)/(b.z-a.z)));}
+      function cutLow(s){return s>=CUT_GAP[0]&&s<=CUT_GAP[1]?-2.5:0;}
+      function cutInside(x,y,z,pad=.15){const a=cutAtZ(z);if(!a)return false;const lane=(x-a.x)/a.nx,h=y-a.y;let lo=0,hi=160;while(hi-lo>1){const m=(lo+hi)>>1;if(CUT_POINTS[m].z<z)lo=m;else hi=m;}const distance=lerp(CUT_POINTS[lo].s,CUT_POINTS[hi].s,(z-CUT_POINTS[lo].z)/(CUT_POINTS[hi].z-CUT_POINTS[lo].z));const floor=cutLow(distance),w=h<4.8?3.2:h<7.7?lerp(3.2,2.35,(h-4.8)/2.9):lerp(2.35,0,h-7.7);return h>floor+Math.abs(lane)/22.5+pad&&h<8.7-pad&&Math.abs(lane)<w-pad;}
+      // Subtract overlapping convex tunnel cells, leaving one sealed fork surface.
+      // Both profiles are sampled on the same Z planes, so their intersections meet exactly.
+      function snowTunnel(){const profile=[[-6.4,.65],[-5.4,.12],[0,0],[5.4,.12],[6.4,.65],[6.4,4.8],[4.7,7.7],[0,8.7],[-4.7,7.7],[-6.4,4.8]],pos=[],cols=[],uv=[];
+        const section=(z,cut,outer)=>{const i=clamp(Math.floor(z-4),0,SNOW_RUN-1),q=cut?cutAtZ(z):snowAt(lerp(SNOW_POINTS[i].s,SNOW_POINTS[i+1].s,clamp(z-4-i,0,1)));if(!q)return null;const width=cut?3.2:snowWidth(z),gap=cut&&z>=cutAt(CUT_GAP[0]).z&&z<=cutAt(CUT_GAP[1]).z,low=gap?-2.72:0;return profile.map(([x,y],i)=>new T.Vector3(q.x+(x*width/6.4+Math.sign(x)*outer)*q.nx,q.y+y+(i<5?low:0)+(y<1?-outer:outer),z));};
+        const planes=(a,b)=>{const center=new T.Vector3();for(const p of [...a,...b])center.add(p);center.multiplyScalar(1/20);const ps=[];for(let i=0;i<10;i++){const p=new T.Plane().setFromCoplanarPoints(a[i],b[i],b[(i+1)%10]);if(p.distanceToPoint(center)>0)p.negate();ps.push(p);}ps.push(new T.Plane(new T.Vector3(0,0,-1),a[0].z),new T.Plane(new T.Vector3(0,0,1),-b[0].z));return ps;};
+        const split=(poly,plane)=>{const inside=[],outside=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=plane.distanceToPoint(a),db=plane.distanceToPoint(b);(da<=.00001?inside:outside).push(a);if((da<-.00001&&db>.00001)||(da>.00001&&db<-.00001)){const p=a.clone().lerp(b,da/(da-db));inside.push(p);outside.push(p);}}return[inside,outside];};
+        const emit=(poly,c,reverse)=>{for(let i=1;i+1<poly.length;i++){const tri=reverse?[poly[0],poly[i+1],poly[i]]:[poly[0],poly[i],poly[i+1]];for(const p of tri){pos.push(p.x,p.y,p.z);cols.push(...hexA(c));uv.push(p.x*.16,p.z*.2+p.y*.1);}}};
+        const surface=(poly,c,other,reverse)=>{if(!other){emit(poly,c,reverse);return;}let inside=poly;for(const plane of other){const parts=split(inside,plane);emit(parts[1],c,reverse);inside=parts[0];if(inside.length<3)break;}};
+        const zs=new Set();for(let z=4;z<=SNOW_END;z+=2)zs.add(z);for(const q of CUT_POINTS)zs.add(q.z);for(const d of CUT_GAP)zs.add(cutAt(d).z);const steps=[...zs].filter(z=>z>=4&&z<=SNOW_END).sort((a,b)=>a-b).filter((z,i,a)=>!i||z-a[i-1]>.0001);
+        for(let k=0;k+1<steps.length;k++){const z=steps[k],next=steps[k+1];for(const outer of [0,.28]){const a=section(z,false,outer),b=section(next,false,outer),c=section(z,true,outer),d=section(next,true,outer),mainPlanes=planes(a,b),cutPlanes=c&&d?planes(c,d):null;for(let j=0;j<10;j++){const n=(j+1)%10,col=outer?0x43566d:j<4?(Math.floor(z/24)%2?0xd8eaf2:0xc5dfea):j<7?0x6e91ae:0x4c6d91;surface([a[j],b[j],b[n],a[n]],col,cutPlanes,!!outer);if(c&&d)surface([c[j],d[j],d[n],c[n]],outer?0x4b5269:j<4?0xe6c287:j<7?0x6d9fae:0x4a6386,mainPlanes,!!outer);}}}
+        for(const z of [4,SNOW_END]){const a=section(z,false,0),b=section(z,false,.28);for(let j=0;j<10;j++)emit([a[j],a[(j+1)%10],b[(j+1)%10],b[j]],0x8cacc1,false);}
+        const chunks=new Map();for(let i=0;i<pos.length;i+=9){const key=Math.floor(((pos[i+2]+pos[i+5]+pos[i+8])/3-4)/32);if(!chunks.has(key))chunks.set(key,{p:[],c:[],u:[]});const b=chunks.get(key);for(let j=0;j<9;j++){b.p.push(pos[i+j]);b.c.push(cols[i+j]);}for(let j=0;j<6;j++)b.u.push(uv[i/9*6+j]);}
+        SNOW.tunnelChunks=[];for(const [key,b]of chunks){const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(b.p,3));geo.setAttribute('color',new T.Float32BufferAttribute(b.c,3));geo.setAttribute('uv',new T.Float32BufferAttribute(b.u,2));geo.computeVertexNormals();geo.computeBoundingSphere();const mesh=new T.Mesh(geo,mat('coasterIce',{vcol:true,map:TEX.ice(),side:T.DoubleSide}));WG.add(mesh);CAM_MESHES.push(mesh);SNOW.tunnelChunks.push({mesh,lo:key*32+2,hi:key*32+38});}
+
+        for(let d=5;d<CUT_LENGTH;d+=9){const a=cutAt(d);for(const lane of [-2.6,2.6]){deco(pt(S.box(),0x453948,a.x+a.nx*lane,a.y+2.4,a.z+a.nz*lane,.35,.65,.35));deco(pt(S.box(),0xffd785,a.x+a.nx*lane,a.y+2.4,a.z+a.nz*lane,.25,.4,.25));}if(d<CUT_GAP[0]-2||d>CUT_GAP[1]+2)deco(pt(S.box(),0xffdc8a,a.x,a.y+.05,a.z,.2,.06,2,0,a.angle,0));}
+        for(const distance of CUT_GAP){const a=cutAt(distance);deco(pt(S.box(),0xf0b466,a.x,a.y+.13,a.z,6.4,.26,.45,0,a.angle,0));}
+        const netBeam=(a,b,c)=>{const start=V3(...a),end=V3(...b),dir=end.clone().sub(start),length=dir.length(),q=new T.Quaternion().setFromUnitVectors(V3(0,0,1),dir.normalize()),m=new T.Matrix4().compose(start.add(end).multiplyScalar(.5),q,V3(.12,.12,length));deco(ptM(S.box(),c,m,.2));};
+        const netPoint=(d,lane,lift=0)=>{const a=cutAt(d);return[a.x+a.nx*lane,a.y-2.56+Math.abs(lane)/22.5+lift,a.z+a.nz*lane];};
+        for(let d=CUT_GAP[0]+.4;d<CUT_GAP[1];d+=.65){netBeam(netPoint(d,-3.15),netPoint(d,0),0x9c7966);netBeam(netPoint(d,0),netPoint(d,3.15),0x9c7966);}for(const lane of [-2,-1,0,1,2])netBeam(netPoint(CUT_GAP[0],lane,.018),netPoint(CUT_GAP[1],lane,.018),0xa6876a);
+        const a=cutAt(4);for(const lane of [-2.8,2.8])deco(pt(S.box(),0xffcc7d,a.x+a.nx*lane,a.y+2,a.z+a.nz*lane,.28,4,.28));deco(pt(S.box(),0xe8bd76,a.x,a.y+4.05,a.z,5.9,.3,.4,0,a.angle,0));for(const side of [-1,1])deco(pt(S.box(),0x6d5974,a.x+a.nx*side*2.2,a.y+4.06,a.z+a.nz*side*2.2,.35,.33,.43,0,a.angle,0));
+      }
+      function snowFloor(x,z){if(z<4&&z>-23&&Math.abs(x)<11.3)return 40;if(z>SNOW_END-2&&z<SNOW_END+21&&Math.abs(x)<12)return 0;if(z<4||z>SNOW_END)return -100;const a=snowCenter(z),b=snowCenter(z+.1),h=Math.hypot(b.x-a.x,.1),lane=(x-a.x)*h/.1;let floor=Math.abs(lane)<snowWidth(z)+.3?a.y+Math.abs(lane)/45:Infinity;const c=cutAtZ(z);if(c){const l=(x-c.x)/c.nx;if(Math.abs(l)<3.2)floor=Math.min(floor,c.y+Math.abs(l)/22.5+cutLow(c.s));}return Number.isFinite(floor)?floor:-100;}
+      function snowInside(x,y,z,pad=.15){if(cutInside(x,y,z,pad))return true;if(z<4&&z>-22)return Math.abs(x)<11-pad&&y>40+pad&&y<48.7-pad;if(z>=SNOW_END&&z<SNOW_END+20)return Math.abs(x)<12-pad&&y>pad&&y<9-pad;const a=snowCenter(z),b=snowCenter(z+.1),lane=(x-a.x)*Math.hypot(b.x-a.x,.1)/.1,h=y-a.y,w=h<4.8?6.4:h<7.7?lerp(6.4,4.7,(h-4.8)/2.9):lerp(4.7,0,(h-7.7));return z>=4&&z<SNOW_END&&h>Math.abs(lane)/45+pad&&h<8.7-pad&&Math.abs(lane)<w*snowWidth(z)/6.4-pad;}
       let SNOW=null,SCHOOL=null;
-      function snowNew(){return{phase:'lodge',s:0,lane:0,laneV:0,speed:0,air:0,jvy:0,jumpBuf:0,hops:0,t:0,race:false,rivalS:0,rivalV:0,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,mittens:0,finishT:0,mesh:null,mittMeshes:[]};}
+      function snowNew(){return{phase:'lodge',route:'main',cutS:0,cutUsed:false,recoverT:0,s:0,lane:0,laneV:0,speed:0,air:0,jvy:0,jumpBuf:0,hops:0,t:0,race:false,rivalS:0,rivalV:0,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,mittens:0,finishT:0,mesh:null,mittMeshes:[]};}
       WORLDS.snowhall={song:'peaks',spawn:[0,-12,Math.PI],spawnY:40,bound:530,square:true,ground:snowFloor,killY:-20,fog:[0x344f79,35,90],light:{sky:0xd9eaff,gnd:0x3a405c,amb:.9,sun:.6,dir:[-.4,1,.3]},build(){
         SNOW=snowNew();sky([[0,'#243858'],[1,'#7389aa']],0,0);
         const Y=40;
@@ -1270,12 +1302,7 @@
         for(let i=0;i<3;i++)box(-4.5-i*.9,Y,-3,1,.65+i*.65,1.8,{t:'crate'});
         const mittenSites=[[6,41.95,-17],[-7,43.3,-3],[-7,41.5,-8]];
         mittenSites.forEach(([x,y,z],i)=>{const m=new T.Mesh(merge([pt(S.ball(10),[0xf1ba65,0xc87874,0x66aaba][i],0,.3,0,.55,.7,.4),pt(S.ball(8),0xf3d8ad,.27,.23,0,.28,.38,.3),pt(S.cyl(8),0xf3d8ad,0,0,0,.55,.18,.42)]),matV());m.position.set(x,y,z);WG.add(m);SNOW.mittMeshes.push(m);});
-        const prof=[[-6.4,.65],[-5.4,.12],[0,0],[5.4,.12],[6.4,.65],[6.4,4.8],[4.7,7.7],[0,8.7],[-4.7,7.7],[-6.4,4.8]],pos=[],colors=[],uv=[];
-        const vertex=(p,c,u,v)=>{pos.push(...p);colors.push(...hexA(c));uv.push(u,v);};
-        const point=(a,p,outer)=>[a.x+a.nx*(p[0]*snowWidth(a.z)/6.4+(outer?Math.sign(p[0])*.3:0)),a.y+p[1]+(outer?(p[1]<1?-.3:.3):0),a.z+a.nz*(p[0]*snowWidth(a.z)/6.4+(outer?Math.sign(p[0])*.3:0))];
-        const quad=(a,b,c,d,col,u,v)=>{vertex(a,col,u,v);vertex(b,col,u+1,v);vertex(c,col,u+1,v+1);vertex(a,col,u,v);vertex(c,col,u+1,v+1);vertex(d,col,u,v+1);};
-        for(let i=0;i<SNOW_RUN;i+=2){const a=snowAt(SNOW_POINTS[i].s),b=snowAt(SNOW_POINTS[Math.min(SNOW_RUN,i+2)].s);for(let j=0;j<prof.length;j++){const k=(j+1)%prof.length,light=i%24<4;const c=j<4?(light?0xe9d6ae:0xbcd8ef):j<6||j>8?(light?0x9b8c83:0x6486ad):0x354967;quad(point(a,prof[j],false),point(b,prof[j],false),point(b,prof[k],false),point(a,prof[k],false),c,j,i/4);quad(point(a,prof[k],true),point(b,prof[k],true),point(b,prof[j],true),point(a,prof[j],true),0x3f536c,j,i/4);if(i===0||i===SNOW_RUN-2){const s=i===0?a:b;quad(point(s,prof[j],false),point(s,prof[k],false),point(s,prof[k],true),point(s,prof[j],true),0x87adcf,j,0);}}}
-        const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('color',new T.Float32BufferAttribute(colors,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.computeVertexNormals();const chute=new T.Mesh(geo,mat('coasterIce',{vcol:true,map:TEX.ice(),side:T.DoubleSide}));WG.add(chute);CAM_MESHES.push(chute);
+        snowTunnel();
         for(let s=12;s<SNOW_LENGTH;s+=18){const a=snowAt(s),side=(Math.floor(s/18)%2?1:-1);deco(pt(S.box(),0x403b43,a.x+a.nx*side*5.9*snowWidth(a.z)/6.4,a.y+2.5,a.z+a.nz*side*5.9*snowWidth(a.z)/6.4,.55,.9,.55));deco(pt(S.box(),0xffcc78,a.x+a.nx*side*5.9*snowWidth(a.z)/6.4,a.y+2.55,a.z+a.nz*side*5.9*snowWidth(a.z)/6.4,.4,.55,.4));for(const lane of [-3,3])deco(pt(S.box(),0xf2d48c,a.x+a.nx*lane,a.y+.16,a.z+a.nz*lane,.12,.06,1.5,0,a.angle,0));}
         for(const f of [.29,.56,.79]){const a=snowAt(SNOW_LENGTH*f);deco(pt(S.box(),0xd9edf4,a.x,a.y+.22,a.z,9,.44,.6,0,a.angle,0));}
         for(let s=8;s<SNOW_LENGTH-8;s+=8){const a=snowAt(s),lane=Math.sin(s*.035)*2.5;coin(a.x+a.nx*lane,a.y+1,a.z+a.nz*lane);}
@@ -1286,23 +1313,30 @@
         for(let i=0;i<8;i++)box(-3.5+i,3.61,SNOW_END+5.1,.5,.5,.04,{c:i%2?0x344a67:0xffffe8,solid:false});
         acorn('finish','THE COCOA COASTER',-4,1.5,SNOW_END+10,{hidden:true,cond:'finish'});acorn('rival','FLIPPER CRAMP REMATCH',4,1.5,SNOW_END+10,{hidden:true,cond:'rival'});acorn('cocoa','THREE LOST MITTENS',0,41.4,-16,{hidden:true,cond:'cocoa'});
         npc('tortoise',castN('grandad')+' THE COCOA KEEPER',1,-18,.4,()=>['WELCOME TO THE COCOA COASTER! A CHUTE SO FAST THE COCOA GETS THERE BEFORE THE MUG.',SNOW.mittens===7?'THREE MITTENS! ONE OF THEM MUST BE A SPARE. YOUR ACORN IS ON THE RUG.':'FIND MY THREE LOST MITTENS. LOOK ON THE COUNTER, THE BENCH AND THE DRYING RACK.'],{y:40});
-        npc('percy',castN('mate2')+' THE SLOPE SOAP',3,-1,0,()=>['I AM '+castN('mate2')+', THE SLOPE SOAP. CLEAN ROUND THE BENDS. FILTHY AT WINNING.','RACE ME TO THE CHECKERED ARCH! STEER LEFT AND RIGHT. HOLD '+L('c')+' OR PULL BACK TO BRAKE.','HOLD FORWARD TO TUCK. '+L('a')+' HOPS THE THREE SNOW RIDGES. NO SHORTCUTS THROUGH THE WALLS!'],{y:40,snowRival:true,done:()=>snowStart(true)});
+        npc('percy',castN('mate2')+' THE SLOPE SOAP',3,-1,0,()=>['I AM '+castN('mate2')+', THE SLOPE SOAP. CLEAN ROUND THE BENDS. FILTHY AT WINNING.','RACE ME TO THE CHECKERED ARCH! STEER LEFT AND RIGHT. HOLD '+L('c')+' OR PULL BACK TO BRAKE.','HOLD FORWARD TO TUCK. '+L('a')+' HOPS THE THREE SNOW RIDGES. THE LEFT COCOA EXPRESS IS SHORTER. MIND ITS GAP!'],{y:40,snowRival:true,done:()=>snowStart(true)});
         sign(-3,0,Math.PI,['COCOA COASTER. WALK INTO THE CHUTE FOR A PRACTICE RUN.','LEFT / RIGHT STEER. FORWARD TUCKS. '+L('c')+' OR BACK BRAKES. '+L('a')+' HOPS. THE CAMERA FOLLOWS THE CHUTE.'],40);
         sign(0,SNOW_END+14,0,['BACK TO THE FIRE. PRESS '+L('b')+' HERE TO RETURN TO THE LODGE.','RACE THE SLOPE SOAP FOR ANOTHER ACORN. THE SAME COURSE, THE SAME RULES.'],0);
-        sign(0,-20,0,['BACK TO THE PEAKS. PRESS '+L('b')+' HERE TO GO OUTSIDE.'],40);
+        sign(0,-20,0,['BACK TO THE PEAKS. PRESS '+L('b')+' HERE TO GO OUTSIDE.'],40);const es=cutAt(4),plate=new T.Mesh(merge([pt(S.box(),0x7d5972,0,1.25,0,2.1,.9,.16),pt(S.box(),0xf1d29a,0,1.25,0,2.2,1,.1)]),matV());plate.position.set(es.x-es.tx*.26,es.y+2.95,es.z-es.tz*.26);plate.rotation.y=es.angle;plate.scale.x=1.4;letterSign({mesh:plate,lines:['COCOA EXPRESS.'],expressMarker:true});WG.add(plate);CAM_MESHES.push(plate);
       }};
-      function snowStart(race){if(!SNOW)return;Object.assign(SNOW,{phase:race?'count':'run',race,s:0,lane:0,laneV:0,speed:4,air:0,jvy:0,jumpBuf:0,hops:0,t:race?3:0,rivalS:0,rivalV:4,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,finishT:0});P.power=null;P.powerT=0;P.gnd=true;P.st='slide';P.stT=0;music('coaster');snowPlace();snowCamera(0,true);say(race?'READY TO LATHER?':'THE COCOA COASTER!',1.5,'LEFT / RIGHT STEER. FORWARD TUCKS. '+L('c')+' BRAKES. '+L('a')+' HOPS.');saveNow();}
-      function snowPlace(){const q=SNOW,a=snowAt(q.s);P.x=a.x+a.nx*q.lane;P.z=a.z+a.nz*q.lane;P.y=a.y+Math.abs(q.lane)/45+q.air;P.face=a.angle;P.yaw=a.angle;P.vx=a.tx*q.speed;P.vz=a.tz*q.speed;P.vy=q.jvy;P.gnd=q.air<=0;P.st=q.air>0?'jump':'slide';P.plat=null;}
-      function snowStep(dt){const q=SNOW;if(!q||!['count','run'].includes(q.phase))return false;
+      function snowStart(race){if(!SNOW)return;Object.assign(SNOW,{phase:race?'count':'run',route:'main',cutS:0,cutUsed:false,recoverT:0,race,s:0,lane:0,laneV:0,speed:4,air:0,jvy:0,jumpBuf:0,hops:0,t:race?3:0,rivalS:0,rivalV:4,rivalAir:0,rivalJvy:0,rivalMask:0,bumps:0,bumpMask:0,finishT:0});P.power=null;P.powerT=0;P.gnd=true;P.st='slide';P.stT=0;music('coaster');snowPlace();snowCamera(0,true);say(race?'READY TO LATHER?':'THE COCOA COASTER!',1.5,'LEFT / RIGHT STEER. FORWARD TUCKS. '+L('c')+' BRAKES. '+L('a')+' HOPS.');saveNow();}
+      function snowPlace(){const q=SNOW,a=q.route==='cut'?cutAt(q.cutS):snowAt(q.s);P.x=a.x+a.nx*q.lane;P.z=a.z+a.nz*q.lane;P.y=a.y+Math.abs(q.lane)/(q.route==='cut'?22.5:45)+q.air;P.face=a.angle;P.yaw=a.angle;P.vx=a.tx*q.speed;P.vz=a.tz*q.speed;P.vy=q.jvy;P.gnd=q.air<=(q.route==='cut'?cutLow(q.cutS):0)+.0001;P.st=P.gnd?'slide':q.jvy>0?'jump':'fall';P.plat=null;}
+      function snowStep(dt){const q=SNOW;if(!q||!['count','run','recover'].includes(q.phase))return false;
+        q.jumpBuf=IN.a?.14:Math.max(0,q.jumpBuf-dt);
+        if(q.phase==='recover'){q.t+=dt;q.recoverT+=dt;if(q.race)snowRivalStep(dt);if(q.recoverT>1&&!fading)iris({op:'snowRetry'});return true;}
         if(q.phase==='count'){q.t-=dt;P.vx=P.vz=P.vy=0;if(q.t<=0){q.phase='run';q.t=0;say('GO!',.8);K.sfx.tone(1100,.2,'square',.07);}else if(Math.ceil(q.t)!==Math.ceil(q.t+dt)){say(String(Math.ceil(q.t)),.8);K.sfx.tone(660,.1,'square',.06);}return true;}
-        q.t+=dt;q.jumpBuf=IN.a?.14:Math.max(0,q.jumpBuf-dt);if(q.jumpBuf>0&&q.air<=0){q.hops++;P.stT=0;q.jvy=7.5;q.jumpBuf=0;snd.jump(0);}
-        q.jvy-=22*dt;q.air=Math.max(0,q.air+q.jvy*dt);if(q.air===0)q.jvy=0;
-        const a=snowAt(q.s),ahead=snowAt(q.s+2),bend=wrapA(ahead.angle-a.angle)/2;
+        q.t+=dt;if(q.jumpBuf>0&&q.air<=(q.route==='cut'?cutLow(q.cutS):0)+.0001){q.hops++;P.stT=0;q.jvy=7.5;q.jumpBuf=0;snd.jump(0);}
+        q.jvy-=22*dt;q.air=Math.max(q.route==='cut'?cutLow(q.cutS):0,q.air+q.jvy*dt);if(q.air===(q.route==='cut'?cutLow(q.cutS):0))q.jvy=0;
+        const a=q.route==='cut'?cutAt(q.cutS):snowAt(q.s),ahead=q.route==='cut'?cutAt(q.cutS+2):snowAt(q.s+2),bend=wrapA(ahead.angle-a.angle)/2;
         const brake=IN.cH||IN.y>.3;q.speed=clamp(q.speed+(4-a.slope*18+(IN.y<-.4?2:0)-q.speed*.17-(brake?13:0))*dt,brake?4:7,26);
         q.laneV+=(IN.x*22+bend*q.speed*q.speed*.2)*dt;q.laneV*=Math.exp(-dt*3.4);q.lane+=q.laneV*dt;
-        const edge=snowWidth(snowAt(q.s).z)-1.05;if(Math.abs(q.lane)>edge){q.lane=clamp(q.lane,-edge,edge);q.laneV*=-.35;q.speed=Math.max(5,q.speed*.72);if(q.bumps<=0){snd.pound();burst(P.x,P.y+.4,P.z,0xd3edff,7,3,{life:.35});q.bumps=.35;}}q.bumps=Math.max(0,q.bumps-dt);
-        const old=q.s;q.s=Math.min(SNOW_LENGTH,q.s+q.speed*dt);
-        [.29,.56,.79].forEach((f,i)=>{const s=SNOW_LENGTH*f;if(old<s&&q.s>=s&&!(q.bumpMask&(1<<i))){q.bumpMask|=1<<i;if(q.air<.5){q.speed*=.68;K.sfx.noise(.12,.06,800);burst(P.x,P.y+.2,P.z,0xe6f4ff,7,3,{life:.3});}}});
+        const edge=q.route==='cut'?2:snowWidth(snowAt(q.s).z)-1.05;if(Math.abs(q.lane)>edge){q.lane=clamp(q.lane,-edge,edge);q.laneV*=-.35;q.speed=Math.max(5,q.speed*.72);if(q.bumps<=0){snd.pound();burst(P.x,P.y+.4,P.z,0xd3edff,7,3,{life:.35});q.bumps=.35;}}q.bumps=Math.max(0,q.bumps-dt);
+        const old=q.s;
+        if(q.route==='cut'){q.cutS=Math.min(CUT_LENGTH,q.cutS+q.speed*dt);q.s=lerp(CUT_START,CUT_JOIN,q.cutS/CUT_LENGTH);
+          if(q.cutS>=CUT_GAP[0]&&q.cutS<=CUT_GAP[1]+1&&q.air<-.05){q.cutS=Math.min(q.cutS,CUT_GAP[1]-.6);if(q.air<=-2.49){q.phase='recover';q.recoverT=0;q.speed=0;q.jvy=0;snd.boing();say('THE SAFETY NET!',2,'NO LIFE LOST. BACK TO THE APPROACH.');saveNow();}}
+          if(q.cutS>=CUT_LENGTH){q.route='main';q.s=CUT_JOIN;q.lane-=3.3;q.cutUsed=true;prog.records.coasterCut=(prog.records.coasterCut||0)+1;say('COCOA EXPRESS CLEAR!',1.6);K.sfx.seq([[76,.2],[81,.2],[88,.5]],{bpm:300,vol:.07});saveNow();}
+        }else{q.s=Math.min(SNOW_LENGTH,q.s+q.speed*dt);if(old<CUT_START&&q.s>=CUT_START&&q.lane<-2.1){const beyond=q.s-CUT_START;q.route='cut';q.cutS=beyond;q.lane+=3.3;q.air=Math.max(0,q.air);say('COCOA EXPRESS!',1.4,'HOP THE GAP. THE NET CATCHES A MISS.');}}
+
+        [.29,.56,.79].forEach((f,i)=>{const s=SNOW_LENGTH*f;if(q.route!=='cut'&&old<s&&q.s>=s&&!(q.bumpMask&(1<<i))){q.bumpMask|=1<<i;if(q.air<.5){q.speed*=.68;K.sfx.noise(.12,.06,800);burst(P.x,P.y+.2,P.z,0xe6f4ff,7,3,{life:.3});}}});
         if(q.race)snowRivalStep(dt);
         snowPlace();P.run+=dt*q.speed;if(K.frame%8===0)burst(P.x-a.tx*.8,P.y+.08,P.z-a.tz*.8,0xe4f6ff,2,1,{grav:1,life:.25,size:.07});if(K.frame%50===0)K.sfx.noise(.12,.025+q.speed*.001,700+q.speed*50);
         if(q.s>=SNOW_LENGTH){q.phase='finish';music('peaks');q.gate.b.open=false;q.gate.m.position.y=0;q.speed=0;P.vx=P.vz=P.vy=0;P.gnd=true;P.st='idle';P.y=0;q.air=0;P.z=SNOW_END+2;reveal('finish');const key=q.race?'coasterRace':'coaster';prog.records[key]=Math.min(Number(prog.records[key])||999,q.t);if(q.race&&q.rivalS<SNOW_LENGTH){reveal('rival');say('YOU WIN! CLEAN AS A WHISTLE!',3,castN('mate2')+': I HAD A FLIPPER CRAMP!');}else say(q.race?'SOAP GETS THERE FIRST!':'COASTER COMPLETE!',3,'FETCH YOUR ACORN. '+L('b')+' BY THE SIGN RETURNS TO THE FIRE.');saveNow();}return true;
@@ -1310,9 +1344,10 @@
       function snowRivalStep(dt){const q=SNOW;const r=snowAt(q.rivalS),turn=Math.abs(wrapA(snowAt(q.rivalS+4).angle-r.angle)),oldR=q.rivalS;for(const f of [.29,.56,.79])if(SNOW_LENGTH*f-q.rivalS>0&&SNOW_LENGTH*f-q.rivalS<3.8&&q.rivalAir===0)q.rivalJvy=7.5;q.rivalJvy-=22*dt;q.rivalAir=Math.max(0,q.rivalAir+q.rivalJvy*dt);if(q.rivalAir===0)q.rivalJvy=0;q.rivalV=clamp(q.rivalV+(5-r.slope*15-q.rivalV*.16-turn*8)*dt,6,23.8);q.rivalS=Math.min(SNOW_LENGTH,q.rivalS+q.rivalV*dt);[.29,.56,.79].forEach((f,i)=>{if(oldR<SNOW_LENGTH*f&&q.rivalS>=SNOW_LENGTH*f&&!(q.rivalMask&(1<<i))){q.rivalMask|=1<<i;if(q.rivalAir<.5)q.rivalV*=.68;}});}
       function snowUpdate(dt){if(!SNOW)return;const q=SNOW;if(q.phase==='lodge'&&P.z>2.4&&Math.abs(P.x)<5.5)snowStart(false);
         if(q.phase==='lodge')q.mittMeshes.forEach((m,i)=>{m.visible=!(q.mittens&(1<<i));if(m.visible&&Math.hypot(P.x-m.position.x,P.z-m.position.z)<1&&Math.abs(P.y+.7-m.position.y)<1.1){q.mittens|=1<<i;m.visible=false;snd.coin();if(q.mittens===7){reveal('cocoa');say('ALL THREE MITTENS!',2,'THE COCOA KEEPER HAS AN ACORN ON THE RUG.');}else say('MITTEN '+[0,1,1,2,1,2,2,3][q.mittens]+' OF 3',1.3);saveNow();}});
-        const n=NPCS.find(n=>n.snowRival);if(n?.mesh){if(['count','run'].includes(q.phase)||(q.phase==='finish'&&q.race)){if(q.phase==='finish')snowRivalStep(dt);const a=snowAt(q.rivalS),lane=1.5;n.x=a.x+a.nx*lane;n.y=a.y;n.z=a.z+a.nz*lane;n.mesh.position.set(n.x,n.y+(q.rivalS>=SNOW_LENGTH?0:.2+(q.rivalAir||0)),n.z);n.mesh.rotation.set(q.rivalS>=SNOW_LENGTH?0:-1.2,a.angle,0);n.mesh.visible=q.race;}else{n.x=3;n.y=40;n.z=-1;n.mesh.visible=true;n.mesh.position.set(3,40,-1);n.mesh.rotation.x=0;}}
+        const n=NPCS.find(n=>n.snowRival);if(n?.mesh){if(['count','run','recover'].includes(q.phase)||(q.phase==='finish'&&q.race)){if(q.phase==='finish')snowRivalStep(dt);const a=snowAt(q.rivalS),lane=1.5;n.x=a.x+a.nx*lane;n.y=a.y;n.z=a.z+a.nz*lane;n.mesh.position.set(n.x,n.y+(q.rivalS>=SNOW_LENGTH?0:.2+(q.rivalAir||0)),n.z);n.mesh.rotation.set(q.rivalS>=SNOW_LENGTH?0:-1.2,a.angle,0);n.mesh.visible=q.race;}else{n.x=3;n.y=40;n.z=-1;n.mesh.visible=true;n.mesh.position.set(3,40,-1);n.mesh.rotation.x=0;}}
       }
-      function snowCamera(dt,snap){const q=SNOW;if(!q||!['count','run'].includes(q.phase))return false;const a=snowAt(q.s-5.8),b=snowAt(q.s+1.2);C.pos.set(a.x+a.nx*q.lane*.65,a.y+3.1+q.air*.25,a.z+a.nz*q.lane*.65);C.look.set(P.x+b.tx*.8,P.y+.8,P.z+b.tz*.8);C.yaw=C.want=b.angle;C.ty=P.y;cam.position.copy(C.pos);cam.lookAt(C.look);const f=62+q.speed*.22;if(Math.abs(cam.fov-f)>.01){cam.fov=f;cam.updateProjectionMatrix();}return true;}
+      function snowCull(){if(SNOW?.tunnelChunks)for(const c of SNOW.tunnelChunks)c.mesh.visible=c.lo<P.z+110&&c.hi>P.z-110;}
+      function snowCamera(dt,snap){const q=SNOW;if(!q||!['count','run','recover'].includes(q.phase))return false;const a=q.route==='cut'?cutAt(q.cutS-5.8):snowAt(q.s-5.8),b=q.route==='cut'?cutAt(q.cutS+1.2):snowAt(q.s+1.2);C.pos.set(a.x+a.nx*q.lane*.65,a.y+3.1+q.air*.25,a.z+a.nz*q.lane*.65);C.look.set(P.x+b.tx*.8,P.y+.8,P.z+b.tz*.8);C.yaw=C.want=b.angle;C.ty=P.y;cam.position.copy(C.pos);cam.lookAt(C.look);const f=62+q.speed*.22;if(Math.abs(cam.fov-f)>.01){cam.fov=f;cam.updateProjectionMatrix();}return true;}
       function snowInput(){if(!SNOW||!IN.b||!P.gnd)return false;if(SNOW.phase==='finish'&&Math.hypot(P.x,P.z-(SNOW_END+14))<3){iris({op:'snowTop'});return true;}if(SNOW.phase==='lodge'&&Math.hypot(P.x,P.z+20)<3){iris({op:'snowOut'});return true;}return false;}
 
       // A real island playground: lessons only count after the coach starts them.
@@ -1517,7 +1552,54 @@
       const gotAc = id => curW === 'hub' ? !!prog.got[id] : !!(prog.ac[curW] && prog.ac[curW][id]);
       const nAc = () => Object.keys(prog.got).length + Object.keys(prog.ac).reduce((n, w) => n + Object.keys(prog.ac[w] || {}).length, 0);
       const nAcW = w => w === 'hub' ? Object.keys(prog.got).length : Object.keys(prog.ac[w] || {}).length;
-      const TOTAL = 60;
+      // ---- Sherbet Sandstorm: rolling terrain, wind lanes and a walkable stepped temple.
+      let SS=null;
+      const SAND_FLAGS=[[-25,25],[-34,1],[-28,-28],[25,-34],[32,12]],SAND_BELLS=[[-35,13],[33,-30],[-42,-19]];
+      function sandGround(x,z){const dunes=2+1.7*Math.sin(x*.065)*Math.cos(z*.052)+6*ex(x,z,-32,-23,260)+8*ex(x,z,29,-30,250)+5*ex(x,z,34,23,180)+3*ex(x,z,-30,22,200),r=Math.max(Math.abs(x)/18,Math.abs(z+23)/18);const base=lerp(2,dunes,sstep(.85,1.5,r)),court=Math.max(Math.abs(x+35)/6.3,Math.abs(z+36)/5.8);return lerp(5.2,base,sstep(1,1.8,court));}
+      WORLDS.sands={song:'sands',spawn:[0,54,0],exitAt:[-10,56],bound:77,square:true,ground:sandGround,killY:-35,fog:[0xe5bb9d,65,175],light:{sky:0xffead0,gnd:0x705274,amb:.85,sun:.8,dir:[-.4,1,.35]},build(){
+        SS={bells:0,bellTimes:[-1,-1,-1],relay:'idle',elapsed:0,next:0,parcel:gotAc('parcel')?'delivered':'waiting',bellMeshes:[],flagMeshes:[],wind:[]};
+        sky([[0,'#77528f'],[.4,'#dc9b97'],[.62,'#ffe0b0'],[1,'#ffe0b0']],5,76,0xffd7b5);farRing(12,145,200,15,35,0xbe9c9a,0x8b7394,-3);
+        const sand=hexA(0xf4cd89),rose=hexA(0xc5968e),cream=hexA(0xffe5ad);terrain(164,112,0,0,sandGround,(x,z,y,sl)=>mix3(mix3(sand,cream,.3+.2*Math.sin(x*.5+z*.13)),rose,clamp(sl*.6,0,.5)));
+        // Nine complete solid tiers, broad enough to choose an acrobatic route on any face.
+        for(let i=0;i<9;i++){const width=28-i*2.5,y=2+i*1.2;box(0,y,-23,width,1.2,width,{t:'sandbrick',c:i%2?0xd0a384:0xe4bd8c});box(0,y+1.12,-23,width+.12,.08,width+.12,{t:'sandbrick',c:i%3?0xf3d69f:0x6a9e9e});}
+        for(const [x,z] of [[-19,-5],[19,-5],[-19,-41],[19,-41]]){const y=sandGround(x,z);cyl(x,y,z,1.1,5,{t:'sandbrick',c:0xe2bd8e,seg:8,top:.75});deco(pt(S.cone(4),0x74c2bc,x,y+5.5,z,1.6,1,1.6,0,Math.PI/4));for(let j=0;j<3;j++)deco(pt(S.box(),0xaa6f83,x,y+1+j,z-.99,.45,.2,.04));}
+        acorn('summit','THE SHERBET ON TOP',0,14.2,-23);
+        // A half-buried open courtyard: walls have real thickness and the floor stays readable.
+        const courtY=sandGround(-35,-36);box(-35,courtY-.1,-36,12,.3,11,{t:'sandbrick',c:0xe5c58d});for(const x of [-41,-29]){box(x,courtY,-36,.65,2.1,11,{t:'sandbrick',c:0xb89187});for(const z of [-40,-32])cyl(x,courtY,z,.65,4.5,{t:'sandbrick',c:0xd6b58d,seg:8});}box(-35,courtY,-41.5,12,2.1,.65,{t:'sandbrick',c:0xb89187});
+        SS.parcelMesh=new T.Mesh(merge([pt(S.box(),0xc78e61,0,.4,0,.9,.7,.65),pt(S.box(),0xffe4af,0,.76,0,.65,.035,.5),pt(S.box(),0x6bb7af,.2,.79,0,.2,.035,.2),pt(S.box(),0x8f5b78,0,.4,-.34,.12,.7,.025)]),matV());WG.add(SS.parcelMesh);SS.parcelSite=[-35,courtY+.2,-37];
+        acorn('parcel','RETURN TO SENDER',10,sandGround(10,43)+1.3,43,{hidden:true,cond:'parcel'});
+        acorn('bells','THREE BELLS BEFORE TEA',-9,sandGround(-9,4)+1.3,4,{hidden:true,cond:'bells'});
+        acorn('post','THE EXPRESS SAND POST',32,sandGround(32,12)+1.5,12,{hidden:true,cond:'post'});
+        acorn('reds','EIGHT RED DESERT STAMPS',-4,sandGround(-4,46)+1.3,46,{hidden:true,cond:'reds'});
+        acorn('c100','A HUNDRED SHERBET PENNIES',0,sandGround(0,47)+1.3,47,{hidden:true,cond:'c100'});
+        SAND_BELLS.forEach(([x,z],i)=>{const y=sandGround(x,z);cyl(x,y-.1,z,2.8,.4,{t:'sandbrick',c:0xa18a8d});const b=cyl(x,y+.3,z,1.15,.3,{t:'metal',c:0x80c8be,props:{sandBell:i}});const m=new T.Mesh(merge([pt(S.tor(.09,14),0xf2cb85,0,0,0,1.65,1.65,1.65,Math.PI/2),pt(S.box(),0xf6dca0,0,0,0,1.6,.12,.1),pt(S.box(),0xf6dca0,0,0,0,.1,.12,1.6)]),matV());m.position.set(x,y+.65,z);WG.add(m);SS.bellMeshes.push(m);for(const dx of [-2.3,2.3]){box(x+dx,y,z+1.8,.35,3.7,.35,{t:'wood',c:0x7a5b64});}box(x,y+3.7,z+1.8,5,.3,.4,{t:'wood',c:0x7a5b64});deco(pt(S.hemi(12),0xe4ba72,x,y+3.1,z+1.8,1.2,1.1,1.2,Math.PI,0,0));coinRing(x,y+1.1,z,3.5,9);});
+        SAND_FLAGS.forEach(([x,z],i)=>{const y=sandGround(x,z),m=new T.Mesh(S.tor(.07,20),mat('sandFlag'+i,{color:0xf5d88b,emissive:0x4b3420}));m.position.set(x,y+1.8,z);m.scale.setScalar(2);WG.add(m);SS.flagMeshes.push(m);for(const side of [-1,1])cyl(x+side*2.5,y,z,.16,3.5,{t:'wood',c:0x83596e});for(let k=0;k<=i;k++)deco(pt(S.box(),0x8ccfc2,x-1+i*.05+k*.38,y+.07,z,.2,.07,.7));});
+        npc('postmaster','POSTMASTER '+castN('mate3'),6,46,0,()=>SS.parcel==='carry'?['MY LOST TEA PARCEL! THE STAMP SAYS FIRST CLASS. THE TEA SAYS LAST WEEK.','THANK YOU! YOUR ACORN IS BY THE POSTBAG.']:SS.parcel==='delivered'&&gotAc('post')?['THE POST IS IN. THE TEA IS OUT. A PERFECT AFTERNOON.']:gotAc('post')?['YOUR EXPRESS POST ROUND IS ALREADY IN!','MY TEA PARCEL IS STILL IN THE WESTERN RUINS. PRESS '+L('b')+' BESIDE IT AND BRING IT BACK.']:['SHERBET SANDSTORM. THE WIND DELIVERS EVERYTHING EXCEPT MY TEA.','THE GREEN WIND LANES PUSH ALONG THE SAND. YOU CAN STILL STEER AND HOP.','RUN THROUGH FIVE GOLD POST HOOPS IN ORDER. 55 SECONDS.','A LOST PARCEL IS IN THE WESTERN RUINS. PRESS '+L('b')+' BESIDE IT AND BRING IT BACK.','READY FOR THE POST ROUND? OFF YOU HOP!'],{y:sandGround(6,46),sandFriend:true,done:()=>{if(SS.parcel==='carry'){SS.parcel='delivered';reveal('parcel');snd.coin();}else if(!gotAc('post')){SS.relay='run';SS.elapsed=0;SS.next=0;P.inv=Math.max(P.inv,1);say('THE EXPRESS SAND POST!',2,'FOLLOW THE FIVE GOLD HOOPS. 55 SECONDS.');}saveNow();}});
+        // Wind is strongest at each lane's centre and fades at its boundaries.
+        for(const [x,z0,z1,dir] of [[-33,-39,35,-1],[32,-39,34,1]]){for(let z=z0;z<=z1;z+=4){const y=sandGround(x,z);for(const side of [-1,1])deco(pt(S.box(),0x8bc9b6,x+side*.4,y+.06,z,.15,.08,1.3,0,side*dir*.5));SS.wind.push({x,z,dir});}for(const z of [z0+5,z1-5]){const y=sandGround(x+5,z);cyl(x+5,y,z,.13,4.6,{t:'wood',c:0x8d6677});for(let k=0;k<4;k++)deco(pt(S.cyl(8,.8),k%2?0xf1d4a0:0x74bdb4,x+5,y+4.2,z+dir*(.3+k*.5),.65-k*.1,.6,.65-k*.1,Math.PI/2));}}
+        SS.windMesh=new T.InstancedMesh(merge([pt(S.ico(),0xffe2a2,0,0,0,.09,.05,.5)]),matV(),SS.wind.length);SS.windMesh.frustumCulled=false;WG.add(SS.windMesh);
+        for(const [x,z] of [[-14,30],[22,30],[-26,-12],[28,-14],[39,6]])enemy('scarab',x,z,{range:9,st:'idle',t:0,vx:0,vz:0,h:1.2,r:.75});
+        for(const [x,z] of [[0,51],[-31,24],[-38,1],[-35,-36],[32,-30],[37,22],[-12,-5]])coinRing(x,sandGround(x,z)+1,z,4,12);
+        for(const [x,z,dx,dz] of [[-32,30,0,-3],[33,-35,0,3],[-17,6,2,0]])for(let i=0;i<20;i++){const xx=x+dx*i,zz=z+dz*i;coin(xx,sandGround(xx,zz)+.9,zz);}
+        for(let i=0;i<9;i++)coin(0,3.8+i*1.2,-8-i*1.25);
+        for(const [x,z,y] of [[-7,43,null],[-35,17,null],[-38,-36,null],[0,-23,14.4],[33,-30,null],[37,22,null],[20,-40,null],[-22,-5,null]])red(x,y??sandGround(x,z)+1.2,z);
+        for(const [x,z] of [[-46,31],[45,-39],[47,14],[-47,-7]]){const y=sandGround(x,z);cyl(x,y-.4,z,1.8,3.2,{t:'sandbrick',c:0xbe9c91,seg:7,top:.65});deco(pt(S.ball(10),0x8eb2aa,x,y+3,z,2.2,.9,2.2));}
+        // Ribbed sugar cacti break the dune silhouettes; their feet are real solid trunks.
+        for(const [x,z] of [[-45,45],[-22,35],[19,15],[46,-19],[-48,-28],[13,-49],[47,35],[-17,-48]]){const y=sandGround(x,z);cyl(x,y-.1,z,.5,3.8,{c:0x739f94,seg:8});for(const side of [-1,1]){deco(pt(S.cyl(8),0x81b6a1,x+side*.6,y+1.5,z,.55,1.2,.55,0,0,Math.PI/2));deco(pt(S.cyl(8),0x81b6a1,x+side*1.1,y+2,z,.55,1.2,.55));deco(pt(S.ball(8),0xd69aa0,x+side*1.1,y+2.65,z,.65,.35,.65));}deco(pt(S.hemi(8),0x91c2a9,x,y+3.8,z,.95,.6,.95));for(let k=0;k<4;k++)deco(pt(S.box(),0xb9d4a5,x-.25+k*.16,y+1.9,z-.46,.045,3.4,.04));}
+        for(let i=-2;i<=2;i++)for(let k=-1;k<=1;k++)deco(pt(S.box(),(i+k)%2?0x82b9ac:0xc19191,-35+i*.8,courtY+.205,-36+k*.8,.55,.01,.55,0,Math.PI/4));
+        sign(-6,51,0,['SHERBET SANDSTORM. SIX ACORNS.','THE TEMPLE IS NORTH. THE RUINS ARE NORTHWEST.','GREEN CHEVRONS MARK THE WIND LANES. THE GROUND IS ALWAYS SAFE SAND.'],sandGround(-6,51));sign(-29,30,0,['THE SHERBET STREAM.','FOLLOW THE CHEVRONS. STEER AGAINST THE WIND OR HOP OUT TO LEAVE IT.'],sandGround(-29,30));sign(-11,-2,0,['THREE BELLS BEFORE TEA.','POUND THE THREE MINT DRUMS. THE BRASS BELLS MARK EACH ONE.'],sandGround(-11,-2));life(40,sandGround(40,-4)+1,-4);sandsAnim();
+      }};
+      function sandsInput(){if(!SS||!P.gnd||SS.parcel!=='waiting')return false;const [x,y,z]=SS.parcelSite;if(Math.hypot(P.x-x,P.z-z)>2||Math.abs(P.y-y)>1.5)return false;SS.parcel='carry';IN.b=false;say('FIRST CLASS TEA!',2,'TAKE THE PARCEL TO THE POSTMASTER.');K.sfx.tone(950,.2,'triangle',.08);saveNow();return true;}
+      function sandsPound(o){if(!SS||!Number.isInteger(o.sandBell))return;const bit=1<<o.sandBell;if(SS.bells&bit)return;SS.bells|=bit;SS.bellTimes[o.sandBell]=clock;K.sfx.seq([[69+o.sandBell*4,.3],[76+o.sandBell*4,.5]],{bpm:190,vol:.09,wave:'sine'});burst(o.x,o.y1+.2,o.z,[0xffe2a1,0x9ae0d3],12,4,{ring:true});if(SS.bells===7){reveal('bells');say('THREE BELLS! TEA TIME!',2);}else say('DING! FIND THE NEXT MINT DRUM.',1.5);saveNow();}
+      function sandWind(x,y,z){if(!SS||!P.gnd||P.plat||Math.abs(z+2)>38||y-sandGround(x,z)>.8)return 0;return (-3.5*(1-sstep(2.5,5.5,Math.abs(x+33)))+3.5*(1-sstep(2.5,5.5,Math.abs(x-32))))*(1-sstep(34,38,Math.abs(z+2)));}
+      function sandsUpdate(dt){if(!SS||P.st==='dead')return;
+        if(P.gnd&&Math.abs(P.z+2)<38&&P.y-sandGround(P.x,P.z)<.8){for(const [x,dir] of [[-33,-1],[32,1]]){const f=1-sstep(2.5,5.5,Math.abs(P.x-x));if(f>0){if(K.frame%12===0)burst(P.x,P.y+.1,P.z,0xffdf9e,2,1,{size:.07,life:.3,grav:1});}}}
+        if(SS.relay==='run'){SS.elapsed+=dt;const flag=SAND_FLAGS[SS.next];if(flag&&Math.hypot(P.x-flag[0],P.z-flag[1])<2.4&&Math.abs(P.y-sandGround(...flag))<3){SS.next++;snd.coin();burst(P.x,P.y+1,P.z,[0xffda8c,0x8bd7c5],10,3);if(SS.next===5){SS.relay='won';prog.records.sands=Math.min(Number(prog.records.sands)||999,SS.elapsed);reveal('post');say('THE POST IS IN!',2);saveNow();}else{say('POST HOOP '+SS.next+' OF 5',1.2);saveNow();}}else if(SS.elapsed>=55){SS.relay='lost';say('LAST POST!',2,'BACK TO THE POSTMASTER FOR ANOTHER ROUND.');saveNow();}}
+        sandsAnim();
+      }
+      function sandsAnim(){if(!SS)return;SS.bellMeshes.forEach((m,i)=>{const f=SS.bells&(1<<i)?sstep(0,.3,clock-SS.bellTimes[i]):0;m.rotation.y=f*Math.PI/2;m.scale.y=1-f*.45;});SS.flagMeshes.forEach((m,i)=>{m.material.color.setHex(SS.relay==='run'&&SS.next===i?0xfff2ad:i<SS.next?0x83e1c4:0xcfa478);m.rotation.y=Math.sin(clock*1.5+i)*.12;});SS.wind.forEach(({x,z,dir},i)=>{const zz=z+((clock*4+i*.37)%4-2)*dir;pdum.position.set(x+Math.sin(i)*1.6,sandGround(x,zz)+.2,zz);pdum.rotation.set(0,0,0);pdum.scale.set(1,1,1);pdum.updateMatrix();SS.windMesh.setMatrixAt(i,pdum.matrix);});SS.windMesh.instanceMatrix.needsUpdate=true;const m=SS.parcelMesh;m.visible=SS.parcel!=='delivered';if(SS.parcel==='carry'){m.position.set(P.x+Math.cos(P.face)*.65-Math.sin(P.face)*.4,P.y+.55,P.z-Math.sin(P.face)*.65-Math.cos(P.face)*.4);m.rotation.y=P.face;}else{m.position.set(...SS.parcelSite);m.rotation.y=.2;}}
+
+      const TOTAL = 66;
       // v2 progress/save keys stay intact; run is the separate suspension record.
       const disk = K.load() || {};
       let runCache = disk.run && disk.run.v === 1 && WORLDS[disk.run.w] ? disk.run : null;
@@ -1542,7 +1624,7 @@
           boss: curW === 'boss' ? Object.assign(fields(BOSS, actorKeys), { rings: BOSS.rings.map(r => fields(r, 'r on x z')) }) : null,
           boo: curW === 'manor' ? fields(BB, actorKeys) : null,
           race: curW === 'peaks' ? fields(PERCY, actorKeys) : null,
-          foundry:FD&&{...fields(FD,'valves valveTimes relay elapsed best'),boss:fields(FD.boss,'st hp t n ringId met'),waves:FD.waves}, coaster:SNOW&&fields(SNOW,'phase s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen airborne'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
+          sands:SS&&fields(SS,'bells bellTimes relay elapsed next parcel'),foundry:FD&&{...fields(FD,'valves valveTimes relay elapsed best'),boss:fields(FD.boss,'st hp t n ringId met'),waves:FD.waves}, coaster:SNOW&&fields(SNOW,'phase route cutS cutUsed recoverT s lane laneV speed air jvy jumpBuf hops t race rivalS rivalV rivalAir rivalJvy rivalMask bumps bumpMask mittens finishT'), school:SCHOOL&&fields(SCHOOL,'active lesson seen airborne'), powerRun:fields(POWER_RUN,'rings pressure gate ledger safeLoot phaseCross'), snow: SNOWB.map(s => fields(s, 'x y z vx vy vz t')), grotto: GROT && fields(GROT, 'pearls gate'),
           dlg: dlg && { name: dlg.name, lines: dlg.lines, i: dlg.i, ch: dlg.ch, npc: NPCS.indexOf(dlg.npc), race: !!dlg.npc?.percy },
           fade: fading && { t: fading.t, dur: fading.dur, done: fading.done, action: fading.action },
           feedback: { shake, flash, msg, msgT, msg2, msgCol },
@@ -1574,7 +1656,7 @@
         if (s.boo && curW === 'manor') { Object.assign(BB, s.boo); BB.mesh.position.set(BB.x, BB.y, BB.z); BB.mesh.visible = !['sleep', 'gone'].includes(BB.st); }
         if (s.race && curW === 'peaks') { Object.assign(PERCY, s.race); PERCY.mesh.position.set(PERCY.x, PERCY.y, PERCY.z); PERCY.npc.x = PERCY.x; PERCY.npc.y = PERCY.y; PERCY.npc.z = PERCY.z; }
         SNOWB.length = 0; (s.snow || []).forEach((q, i) => { if (!snowM[i]) return; snowM[i].visible = true; snowM[i].position.set(q.x, q.y, q.z); SNOWB.push(Object.assign({}, q, { m: snowM[i] })); });
-        if(FD&&s.foundry){Object.assign(FD,fields(s.foundry,'valves valveTimes relay elapsed best'));Object.assign(FD.boss,s.foundry.boss);FD.waves=s.foundry.waves||[];FD.lidSolid.y1=FD.boss.st==='gone'?2:5.63;}if(SNOW&&s.coaster){Object.assign(SNOW,s.coaster);SNOW.mittMeshes.forEach((m,i)=>m.visible=!(SNOW.mittens&(1<<i)));}if(SCHOOL&&s.school)Object.assign(SCHOOL,s.school);
+        if(SS&&s.sands){Object.assign(SS,s.sands);sandsAnim();}if(FD&&s.foundry){Object.assign(FD,fields(s.foundry,'valves valveTimes relay elapsed best'));Object.assign(FD.boss,s.foundry.boss);FD.waves=s.foundry.waves||[];FD.lidSolid.y1=FD.boss.st==='gone'?2:5.63;}if(SNOW&&s.coaster){Object.assign(SNOW,s.coaster);SNOW.mittMeshes.forEach((m,i)=>m.visible=!(SNOW.mittens&(1<<i)));}if(SCHOOL&&s.school)Object.assign(SCHOOL,s.school);
         if (GROT && s.grotto) Object.assign(GROT, s.grotto);if(s.powerRun)Object.assign(POWER_RUN,s.powerRun);powerAnim(clock);
         mode = ['play', 'card', 'dlg', 'win', 'ending', 'over'].includes(s.mode) ? s.mode : 'play'; paused = !!s.paused; pauseI = s.pauseI || 0; card = s.card; winT = s.winT || 0; endT = s.endT || 0; overT = s.overT || 0; overSent = !!s.overSent; lastResult = s.result || null; winA = ACS.find(a => a.id === s.win) || null;
         dlg = null;
@@ -1590,7 +1672,7 @@
         worldAnim(0, clock); animBop(0, clock); trialAnim(0, clock);
         if (GROT) { GROT.pearlMeshes.forEach((m,i)=>m.visible=!(GROT.pearls&(1<<i))); grottoAnim(clock); }
         if (s.visuals) { const v = s.visuals; ENS.forEach((e, i) => setPose(e.mesh, v.enemies[i])); NPCS.forEach((n, i) => setPose(n.mesh, v.npc[i])); if (curW === 'boss') { setPose(BOSS.mesh, v.boss); setPose(BOSS.stars, v.stars); } if (curW === 'manor') setPose(BB.mesh, v.boo); if (curW === 'peaks') setPose(PERCY.mesh, v.race); } if (winA) winA.mesh.visible = true;
-        if(SNOW){const n=NPCS.find(n=>n.snowRival);if(n?.mesh){n.x=n.mesh.position.x;n.z=n.mesh.position.z;n.y=['count','run'].includes(SNOW.phase)||SNOW.phase==='finish'&&SNOW.race?snowAt(SNOW.rivalS).y:40;}}
+        if(SNOW){const n=NPCS.find(n=>n.snowRival);if(n?.mesh){n.x=n.mesh.position.x;n.z=n.mesh.position.z;n.y=['count','run','recover'].includes(SNOW.phase)||SNOW.phase==='finish'&&SNOW.race?snowAt(SNOW.rivalS).y:40;}}
         if (s.lens) { cam.position.fromArray(s.lens.pos); cam.quaternion.fromArray(s.lens.quat); cam.fov=s.lens.fov||60;cam.updateProjectionMatrix(); }
         else { cam.position.copy(C.pos); cam.lookAt(C.look); }
         cam.updateMatrixWorld(true); if(winA){animBop(0,clock);poseReward();}
@@ -1633,14 +1715,15 @@
       function buildWorld(id) {
         if (WG) disposeWorld();
         WG = new T.Group(); T3.add(WG); BK = buckets(); WD = WORLDS[id]; curW = id;
-        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; SNOW = null; SCHOOL = null; FD = null; winA = null; dlg = null; card = null; mission = 0;
+        const worldRandom = K.rnd(64 + Object.keys(WORLDS).indexOf(id) * 113); randomCount = 0; rnd = () => { randomCount++; return worldRandom(); }; CAM_MESHES.length = 0; doorExit = null; P.plat = null; clock = 0; motionClock = 0; TRIAL = null; GROT = null; SNOW = null; SCHOOL = null; FD = null; SS=null; msgT=0;msg=msg2=''; winA = null; dlg = null; card = null; mission = 0;
         BOXES.length = 0; CYLS.length = 0; MOVERS.length = 0; COINS = []; REDS = []; ACS = []; ENS = []; NPCS = []; DOORS = []; LIFE = []; LAMPS = []; PROPS = []; SNOWB.length = 0;
         chestOpen = {}; plugOut = {}; bossDown = false; raceWon = false; PERCY.on = false; PERCY.st = 'idle'; BB.on = false;
         Object.assign(visit, { coins: 0, reds: 0, kills: 0, t: 0, life50: 0, kicks: 0 });
         POWER_RUN={rings:0,pressure:0,gate:0,ledger:false,safeLoot:false,phaseCross:0};powerBoxes=[];powerPortals=[];powerGates=[];powerSwitch=null;powerRings=[];powerLedger=null;
-        WD.build(); buildTrial(id); if(id==='manor')manorSigns();buildPowerContent(id);buildSchool();
+        WD.build(); buildTrial(id); if(id==='manor')manorSigns();buildPowerContent(id);buildSchool();if(id==='hub')ORDER.slice(7).forEach((w,i)=>hubDoor(w,i+7));
         if (WD.exitAt) exitDoorBuild();
         BK.flush();
+        T3.sky(id==='snowhall'?WD.fog[0]:0xa8d4f8);if(SNOW&&WG.userData.dome)WG.userData.dome.visible=false;
         const f = T3.scene.fog; f.color.setHex(WD.fog[0]); f.near = WD.fog[1]; f.far = WD.fog[2];
         const l = WD.light; LT.hemi.color.setHex(l.sky); LT.hemi.groundColor.setHex(l.gnd); LT.hemi.intensity = l.amb; LT.sun.intensity = l.sun; LT.sun.color.setHex(l.sunCol || 0xffffff); LT.sun.position.set(...l.dir);
         baseCoins = COINS.length;
@@ -1649,7 +1732,7 @@
         coinSpark_=new T.InstancedMesh(coinSparkGeo,mat('coinSpark',{color:0xfff1bc,lit:false}),12);coinSpark_.frustumCulled=false;WG.add(coinSpark_);coinScales=[];
         for (const a of ACS) { a.mesh = new T.Mesh(acornGeo, gotAc(a.id) ? matGhost : matAcorn); a.mesh.position.set(a.x, a.y, a.z); a.mesh.visible = !a.hidden; WG.add(a.mesh); }
         for (const e of ENS) { e.mesh = new T.Mesh(model(e.kind), e.kind === 'boohoo' ? ghostMat : matV()); e.mesh.position.set(e.x, e.y, e.z); WG.add(e.mesh); }
-        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if(n.snowRival){const gear=new T.Mesh(merge([pt(S.hemi(12),0x76c5c9,0,1.42,0,.85,.5,.8),pt(S.box(),0xf4d17f,0,1.28,-.48,.62,.2,.12),pt(S.box(),0x415a72,0,1.29,-.55,.49,.12,.05)]),matV());n.mesh.add(gear);}if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost&&!n.snowRival&&!n.foundryBoss) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : 1.6) }); }
+        for (const n of NPCS) { n.mesh = new T.Mesh(model(n.kind), n.ghost ? ghostMat : matV()); n.mesh.position.set(n.x, n.y, n.z); n.mesh.rotation.y = n.face; WG.add(n.mesh); if(n.snowRival){const gear=new T.Mesh(merge([pt(S.hemi(12),0x76c5c9,0,1.42,0,.85,.5,.8),pt(S.box(),0xf4d17f,0,1.28,-.48,.62,.2,.12),pt(S.box(),0x415a72,0,1.29,-.55,.49,.12,.05)]),matV());n.mesh.add(gear);}if (n.kind === 'sign') { letterSign(n); CAM_MESHES.push(n.mesh); } if (n.percy) { PERCY.mesh = n.mesh; PERCY.npc = n; } else if (!n.ghost&&!n.snowRival&&!n.foundryBoss) CYLS.push({ k: 'cyl', x: n.x, z: n.z, r: n.kind === 'sign' ? 0.3 : 0.75, y0: n.y - 0.2, y1: n.y + (n.kind === 'sign' ? 1.75 : n.kind==='postmaster'?2.15:1.6) }); }
         lifeMeshes = LIFE.map(o => { const m = new T.Mesh(model('life'), matV()); m.position.set(o.x, o.y, o.z); m.scale.setScalar(0.9); WG.add(m); return m; });
         snowM = []; for (let i = 0; i < 6; i++) { const m = new T.Mesh(model('snowball'), matV()); m.visible = false; WG.add(m); snowM.push(m); }
         if (id === 'manor') BB.init(); if (id === 'boss') BOSS.init();foundryInit();
@@ -1676,7 +1759,7 @@
       }
       function poundOn(o) {
         if (!o) return;
-        foundryPound(o);
+        foundryPound(o);sandsPound(o);
         if(o.schoolButton&&SCHOOL?.active&&SCHOOL_LESSONS[SCHOOL.lesson]?.[1]==='pound')SCHOOL.seen=true;
         if(o.powerSwitch)unlockPower(o.powerSwitch);
         if (o.trial) trialStart();
@@ -1798,13 +1881,14 @@
         const sp = Math.hypot(P.vx, P.vz), wantF = Math.atan2(-wx, -wz);
         const gnd0 = WD.ground(P.x, P.z), wade = WD.water != null && P.gnd && P.y < WD.water + 0.05 && gnd0 > WD.water - 0.8;
         const onIce = P.gnd && (P.plat ? !!P.plat.ice : !!(WD.ice && WD.ice(P.x, P.z)));
+        const WIND=sandWind(P.x,P.y,P.z);
         const TOP = 8.2 * (P.power==='tin'?.65:wade ? 0.6 : 1);
         if (P.gnd && !IN.cH) { P.crouchSpeed = sp; P.crouchT = 0.14; }
         if (P.gnd) {
           if (P.ctrl > 0 || P.st === 'punch' || (P.st === 'poundLand' && P.stT < 0.25)) { const k = Math.max(0, 1 - 9 * dt); P.vx *= k; P.vz *= k; if (P.st === 'punch' && P.stT > 0.28) P.st = 'idle'; if (P.st === 'poundLand' && P.stT >= 0.25) P.st = 'idle'; }
           else if (IN.cH) { P.st = 'crouch'; const k = Math.max(0, 1 - (onIce ? 1 : 7) * dt); P.vx *= k; P.vz *= k; if (wl > 0.1) P.face += wrapA(wantF - P.face) * Math.min(1, dt * 8); }
           else {
-            const acc = (onIce ? 5 : 44) * dt; let dvx = wx * TOP - P.vx, dvz = wz * TOP - P.vz; const dl = Math.hypot(dvx, dvz); if (dl > acc) { dvx *= acc / dl; dvz *= acc / dl; }
+            const acc = (onIce ? 5 : 44) * dt; let dvx = wx * TOP - P.vx, dvz = wz * TOP + WIND - P.vz; const dl = Math.hypot(dvx, dvz); if (dl > acc) { dvx *= acc / dl; dvz *= acc / dl; }
             if (wl > 0.1 && sp > 6.5 && Math.abs(wrapA(wantF - P.face)) > 2.4 && !onIce) { P.st = 'skid'; P.stT = 0; K.sfx.noise(0.15, 0.05, 1200); }
             if (P.st === 'skid' && P.stT < 0.18) { const k = Math.max(0, 1 - 12 * dt); P.vx *= k; P.vz *= k; } else { P.vx += dvx; P.vz += dvz; if (P.st === 'skid') P.face = wantF; }
             if (wl > 0.1 && P.st !== 'skid') { const d = wrapA(wantF - P.face); P.face += sp < 2 ? d : d * Math.min(1, dt * 15); }
@@ -1848,7 +1932,7 @@
         }
         if (IN.b) {
           if(curW==='peaks'&&P.gnd&&Math.hypot(P.x+46,P.z+13.4)<2){iris({op:'snowIn'});return;}
-          if(snowInput())return;
+          if(snowInput()||sandsInput())return;
           const door = P.gnd && nearManorDoor(); if(door){useManorDoor(door);return;}
           const rang = P.gnd && tryChime(), n = P.gnd && !demo && !rang ? nearTalk() : null;
           if (n) { startTalk(n); return; }
@@ -1928,7 +2012,8 @@
           if (!e.alive) { if (e.dead > 0) { e.dead -= dt; const k = Math.max(0.01, e.dead * 2); m.scale.set(1 + (1 - k) * 0.5, k, 1 + (1 - k) * 0.5); if (e.dead <= 0) m.visible = false; } continue; }
           const dx = P.x - e.x, dz = P.z - e.z, d = Math.hypot(dx, dz) || 0.001, near = d < e.range && Math.abs(P.y - e.y) < 3 && P.st !== 'dead';
           let tx = 0, tz = 0, sp = 0;
-          if(e.kind==='kettle'){e.t+=dt;if(e.st==='idle'&&near&&e.t>1.7){e.st='tell';e.t=0;}else if(e.st==='tell'&&!near){e.st='idle';e.t=0;}else if(e.st==='tell'&&e.t>.9){throwSnow(e);e.st='idle';e.t=0;}if(near)m.rotation.y+=wrapA(Math.atan2(-dx,-dz)-m.rotation.y)*Math.min(1,dt*3);m.position.set(e.x,e.y,e.z);m.scale.setScalar(e.st==='tell'?1+Math.sin(e.t*18)*.06:1);}
+          if(e.kind==='scarab'){e.t+=dt;if(e.st==='idle'&&near&&e.t>1.3){e.st='tell';e.t=0;e.vx=dx/d*9;e.vz=dz/d*9;}else if(e.st==='tell'&&e.t>.85){e.st='charge';e.t=0;}else if(e.st==='charge'&&e.t>.8){e.st='rest';e.t=0;}else if(e.st==='rest'&&e.t>1){e.st='idle';e.t=0;}if(e.st==='charge'){const x=e.x+e.vx*dt,z=e.z+e.vz*dt,g=floorAt(x,z,e.y+.5);if(Math.abs(g-e.y)<.5&&Math.hypot(x-e.hx,z-e.hz)<11){e.x=x;e.z=z;e.y=g;}else{e.st='rest';e.t=0;}}if(e.st==='tell')m.rotation.y=Math.atan2(-e.vx,-e.vz);m.scale.set(1,e.st==='tell'?.8+Math.sin(e.t*22)*.06:1,1);m.position.set(e.x,e.y,e.z);}
+          else if(e.kind==='kettle'){e.t+=dt;if(e.st==='idle'&&near&&e.t>1.7){e.st='tell';e.t=0;}else if(e.st==='tell'&&!near){e.st='idle';e.t=0;}else if(e.st==='tell'&&e.t>.9){throwSnow(e);e.st='idle';e.t=0;}if(near)m.rotation.y+=wrapA(Math.atan2(-dx,-dz)-m.rotation.y)*Math.min(1,dt*3);m.position.set(e.x,e.y,e.z);m.scale.setScalar(e.st==='tell'?1+Math.sin(e.t*18)*.06:1);}
           else if (e.kind === 'jelly') { e.y = e.y0 + Math.sin(t * 1.7 + e.a) * .9; m.position.set(e.x,e.y,e.z); m.rotation.z = Math.sin(t*2+e.a)*.12; } else if (e.kind === 'grumpy' || e.kind === 'snipper') {
             if (near) { tx = dx / d; tz = dz / d; sp = e.kind === 'snipper' ? 3.0 : 3.3; }
             else { e.t -= dt; if (e.t < 0) { e.a += (rnd() - 0.5) * 2.5; e.t = 1 + rnd() * 2; } tx = Math.cos(e.a); tz = Math.sin(e.a); sp = 1.3; if (Math.hypot(e.x - e.hx, e.z - e.hz) > 6) { tx = e.hx - e.x; tz = e.hz - e.z; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l; } }
@@ -2156,15 +2241,15 @@
         const next = ORDER.filter(w=>NEED[w]>n).sort((a,b)=>NEED[a]-NEED[b])[0];
         const L0 = n === 0 ? [`WELL HELLO THERE, BOPPER! I'M MAYOR ${castN('mate1')}.`, 'DISASTER! KING GRUMPUS HAS PINCHED ALL THE GOLDEN ACORNS ON BISCUIT ISLAND AND HIDDEN THEM ALL OVER THE PLACE!', 'THERE ARE NINE RIGHT HERE ON THE ISLAND. HOW ABOUT THE TOP OF THE LIGHTHOUSE FOR A START?', 'THE MAGIC DOORS IN ACORN PLAZA LEAD TO FAR-OFF WORLDS WITH MORE ACORNS. THE FIRST ONE IS OPEN ALREADY.', 'PRESS ' + L('a') + ' TO JUMP. LAND AND PRESS IT AGAIN, AND AGAIN, FOR A TRIPLE JUMP!']
           : ['YOU\'VE FOUND ' + n + ' GOLDEN ACORN' + (n === 1 ? '' : 'S') + '! MARVELLOUS!'];
+        if(n>=NEED.boss)L0.push('KING GRUMPUS HAS LEFT THE CROWNED DOOR OPEN. GO AND SHOW HIM WHAT FOR!');
         if (next && n > 0) L0.push('THE DOOR TO ' + WN[next] + ' OPENS AT ' + NEED[next] + ' ACORNS. YOU NEED ' + (NEED[next] - n) + ' MORE.');
-        if (!next) L0.push('YOU\'VE GOT ENOUGH TO OPEN KING GRUMPUS\'S DOOR! GO AND SHOW HIM WHAT FOR!');
         return L0;
       }
 
       // ================================================================ camera: collision before smoothing, stable camera-relative steering
       const cam = T3.cam, C = { yaw: 0, want: 0, auto: 0, ty: 0, pos: V3(), look: V3(), dist: 9.5, arm: 1, lift: 0 };
       const camRay = new T.Raycaster(), camHits = [], camVisible = [], rayStart = V3(), rayDir = V3();
-      function manorCamera(){return (curW==='snowhall'&&SNOW&&!['count','run'].includes(SNOW.phase))||curW==='manor'&&Math.abs(P.x)<10.6&&P.z<-14.1&&P.z>-25.6&&P.y<9;}
+      function manorCamera(){return (curW==='sands'&&Math.abs(P.x+35)<6.6&&Math.abs(P.z+36)<6.1)||(curW==='snowhall'&&SNOW&&!['count','run','recover'].includes(SNOW.phase))||curW==='manor'&&Math.abs(P.x)<10.6&&P.z<-14.1&&P.z>-25.6&&P.y<9;}
       // The first intersection of a capsule-sized boom with an oriented box/cylinder.
       function cameraRoom(ax, ay, az, bx, by, bz, geometry) {
         const dx = bx - ax, dy = by - ay, dz = bz - az, len = Math.hypot(dx, dy, dz) || 1, pad = .28;
@@ -2216,7 +2301,7 @@
         if(IN.l||IN.r){const delta=wrapA(C.want-C.yaw),steps=Math.max(1,Math.ceil(Math.abs(delta)/.065));let safe=C.yaw;for(let i=1;i<=steps;i++){const a=C.yaw+delta*i/steps;if(manorViewRoom(a)<3.5)break;safe=a;}C.want=safe;}
       }
       function camSnap() { delete C.indoorAuto; C.yaw = C.want = P.face; C.ty = P.y; C.arm = 1; C.lift = 0; C.auto = 0; camUpdate(0, true); }
-      function camUpdate(dt, snap) {
+      function camUpdate(dt, snap) {snowCull();
         const inside=manorCamera(),fov=FD&&['tell','strike','vent','hurt'].includes(FD.boss.st)&&Math.hypot(P.x,P.z+32)<12.5?72:inside?78:60;const nextFov=snap?fov:lerp(cam.fov,fov,1-Math.exp(-dt*7));if(Math.abs(cam.fov-nextFov)>.0001){cam.fov=nextFov;cam.updateProjectionMatrix();}
         if (!snap && !demo && mode === 'play') {
           if (IN.l || IN.r) { C.want += (IN.l ? 1 : -1) * Math.PI / 4; C.auto = 2.5; K.sfx.tone(760, 0.03, 'square', 0.04); }
@@ -2265,7 +2350,7 @@
         for (const a of [base + 1.1, base - 1.1, base + 1.6, base - 1.6]) { const x = mx + Math.sin(a) * dist, z = mz + Math.cos(a) * dist, y = my + 3, f = cameraRoom(mx, my, mz, x, y, z); if (f > best) { best = f; target = [lerp(mx, x, f), lerp(my, y, f), lerp(mz, z, f)]; } }
         C.pos.lerp(tv.set(...target), 1 - Math.exp(-dt * 7)); cam.position.copy(C.pos); C.look.set(mx, my - 0.4, mz); cam.lookAt(C.look);
       }
-      function friendlyCamera(dt,n){const mx=(P.x+n.x)/2,mz=(P.z+n.z)/2,my=Math.max(P.y,n.y)+1.05,base=Math.atan2(P.x-n.x,P.z-n.z),reach=7.2;let best=-1,target=null;for(const side of [-1.0,1.0,-1.4,1.4]){const a=base+side,x=mx+Math.sin(a)*reach,z=mz+Math.cos(a)*reach,y=my+1.9,f=Math.min(cameraRoom(mx,my,mz,x,y,z),cameraRoom(P.x,P.y+1.2,P.z,x,y,z),cameraRoom(n.x,n.y+1.2,n.z,x,y,z));if(f>best){best=f;target=[lerp(mx,x,f),lerp(my,y,f),lerp(mz,z,f)];}}C.pos.lerp(tv.set(...target),1-Math.exp(-dt*8));C.look.set(mx,my,mz);cam.position.copy(C.pos);cam.lookAt(C.look);cam.fov=68;cam.updateProjectionMatrix();}
+      function friendlyCamera(dt,n){const mx=(P.x+n.x)/2,mz=(P.z+n.z)/2,my=Math.max(P.y,n.y)+1.05,base=Math.atan2(P.x-n.x,P.z-n.z),reach=7.2;let best=-1,target=null;for(const side of n.sandFriend?[-1.4,1.4,-1.0,1.0]:[-1.0,1.0,-1.4,1.4]){const a=base+side,x=mx+Math.sin(a)*reach,z=mz+Math.cos(a)*reach,y=my+1.9,f=Math.min(cameraRoom(mx,my,mz,x,y,z),cameraRoom(P.x,P.y+1.2,P.z,x,y,z),cameraRoom(n.x,n.y+1.2,n.z,x,y,z));if(f>best){best=f;target=[lerp(mx,x,f),lerp(my,y,f),lerp(mz,z,f)];}}C.pos.lerp(tv.set(...target),1-Math.exp(-dt*8));C.look.set(mx,my,mz);cam.position.copy(C.pos);cam.lookAt(C.look);cam.fov=68;cam.updateProjectionMatrix();}
       function poseReward() {
         const right = tv2.set(1,0,0).applyQuaternion(cam.quaternion), lift = BOP.hips.position.y - 0.42, side = prog.opt.big ? 1.4 : .95;
         winA.mesh.scale.setScalar(.8); winA.mesh.position.set(P.x + right.x * side, P.y + (prog.opt.big ? 3.4 : 2.65) + lift, P.z + right.z * side);
@@ -2293,10 +2378,11 @@
       let lastResult = null;
       let overSent = false, mode = 'title', menuI = 0, sub = null, subI = 0, idleT = 0, winT = 0, paused = false, pauseI = 0, card = null, overT = 0, endT = 0, fading = null, lockT = 0, demoT = 0, demoI = 0, demoJ = 0;
       const music = s => K.music(prog.opt.mus && s ? SONGS[s] : null);
-      const playSong = () => FD&&!['idle','gone'].includes(FD.boss.st)?'foundryBoss': curW==='snowhall'&&SNOW&&['count','run'].includes(SNOW.phase)?'coaster':curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
+      const playSong = () => FD&&!['idle','gone'].includes(FD.boss.st)?'foundryBoss': curW==='snowhall'&&SNOW&&['count','run','recover'].includes(SNOW.phase)?'coaster':curW === 'manor' && BB.st === 'fight' ? 'boss' : WORLDS[curW].song;
       function iris(action) { if (fading) return; fading = { t: 0, dur: 0.42, action, fn: () => applyTransition(action), done: false }; K.sfx.tone(520, 0.3, 'triangle', 0.05, 0, 160); }
       function applyTransition(a) {
-        if(a.op==='snowIn'){buildWorld('snowhall');spawnInWorld('snowhall');mode='play';music('peaks');}
+        if(a.op==='snowRetry'){Object.assign(SNOW,{phase:'run',route:'main',s:CUT_START-16,cutS:0,lane:0,laneV:0,speed:4,air:0,jvy:0,jumpBuf:0,recoverT:0});snowPlace();snowCamera(0,true);mode='play';music('coaster');}
+        else if(a.op==='snowIn'){buildWorld('snowhall');spawnInWorld('snowhall');mode='play';music('peaks');}
         else if(a.op==='snowTop'){Object.assign(SNOW,{phase:'lodge',s:0,speed:0,air:0,jvy:0});respawnAt(0,40,-10,Math.PI);mode='play';music('peaks');}
         else if(a.op==='snowOut'){buildWorld('peaks');respawnAt(-46,99,-11,0);mode='play';music('peaks');}
         else if (a.op === 'enter') { prog.door = ORDER.indexOf(a.w); buildWorld(a.w); spawnInWorld(a.w); P.hp = HPMAX(); P.inv = 0; mode = 'card'; card = { w: a.w, t: 0 }; K.music(null); K.sfx.seq([[72, 0.5], [79, 0.5], [84, 1]], { bpm: 200, vol: 0.08, wave: 'triangle' }); }
@@ -2495,7 +2581,7 @@
         if (mode === 'card') { card.t += dt; card.sel = card.sel || 0; if (up() || dn()) { card.sel = (card.sel + ACS.length + (up() ? -1 : 1)) % ACS.length; tick(); } if (card.t > 0.6 && (K.pressed('a') || K.pressed('start'))) { mission = card.sel; mode = 'play'; K.resume?.(); okS(); music(WORLDS[curW].song); if (card.w === 'hub' && !card.back && nAc() === 0) say('FIND THE GOLDEN ACORNS!', 2.5); } camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'over') { overT += dt; P.vy = 0; if (overT > 3.2 && !overSent) { overSent = true; sendScore(true, 'GAME OVER', `${nAc()} OF ${TOTAL} GOLDEN ACORNS. THEY'RE SAVED: PICK CONTINUE ON THE TITLE SCREEN.`); } return; }
         if (mode === 'ending') { endingUpdate(dt, t); return; }
-        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && (['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)||FD?.boss.st==='intro')) introCamera(dt);else if(mode==='dlg'&&(dlg.npc?.foundryBoss||dlg.npc?.foundryFriend||dlg.npc?.snowRival||dlg.npc?.coach||curW==='snowhall'&&dlg.npc?.kind==='tortoise'))friendlyCamera(dt,dlg.npc); else camUpdate(dt); animBop(dt, t); return; }
+        if (mode === 'dlg') { dlgUpdate(dt); if (mode === 'dlg' && (['BIG BOOHOO', 'KING GRUMPUS'].includes(dlg.name)||FD?.boss.st==='intro')) introCamera(dt);else if(mode==='dlg'&&(dlg.npc?.foundryBoss||dlg.npc?.foundryFriend||dlg.npc?.sandFriend||dlg.npc?.snowRival||dlg.npc?.coach||curW==='snowhall'&&dlg.npc?.kind==='tortoise'))friendlyCamera(dt,dlg.npc); else camUpdate(dt); animBop(dt, t); return; }
         if (mode === 'win') {
           winT += dt; rewardCamera(dt); animBop(dt, t);
           if (winA) { winA.mesh.material = matAcorn; poseReward(); winA.mesh.rotation.y = t * 4; }
@@ -2510,7 +2596,7 @@
         if (fading) { animBop(dt, t); camUpdate(dt); return; }
         visit.t += dt; readInput();powerInput();
         stepPlayer(dt);
-        snowUpdate(dt);schoolUpdate();foundryUpdate(dt);
+        snowUpdate(dt);schoolUpdate();foundryUpdate(dt);sandsUpdate(dt);
         if (mode !== 'play') { animBop(dt, t); camUpdate(dt); return; }
         enemiesUpdate(dt, t); if (curW === 'peaks') percyUpdate(dt); if (curW === 'manor') BB.update(dt, t); if (curW === 'boss') BOSS.update(dt, t);
         if (P.st !== 'dead') { trialUpdate(dt); grottoUpdate(dt); powerUpdate(dt);powerAnim(t);collectStuff(dt); }
@@ -2608,10 +2694,11 @@
           else if(q.st==='demo')footer.push(['LISTEN... ROUND '+(q.round+1)+' OF 3','#ffe486']);
           if(P.gnd&&Math.hypot(P.x-q.switch.x,P.z-q.switch.z)<2.4&&Math.abs(P.y-q.switch.y)<1.8)footer.push(['JUMP THEN '+L('c')+': '+(q.st==='idle'?'START':'RETRY')+' TRIAL','#fff']);
         }
+        if(mode==='play'&&SS){if(SS.parcel==='carry')footer.push(['TEA PARCEL: BACK TO THE POSTMASTER','#fff0b8']);else if(SS.parcel==='waiting'&&P.gnd){const [x,y,z]=SS.parcelSite;if(Math.hypot(P.x-x,P.z-z)<=2&&Math.abs(P.y-y)<=1.5)footer.push([L('b')+' PICK UP TEA PARCEL','#fff0b8']);}}
         if(mode==='play'&&SCHOOL?.active)footer.push(['LESSON '+(SCHOOL.lesson+1)+'/12: '+SCHOOL_LESSONS[SCHOOL.lesson][0],SCHOOL.seen?'#9fffbd':'#ffe6a0']);
         if(mode==='play'&&P.st==='ledge')footer.push([L('a')+' CLIMB   '+L('c')+' LET GO','#fff0b8']);
         if(mode==='play'&&curW==='peaks'&&Math.hypot(P.x+46,P.z+13.4)<4)footer.push([L('b')+' ENTER THE COCOA LODGE','#fff0ba']);
-        if(mode==='play'&&SNOW){const q=SNOW;if(['count','run'].includes(q.phase))footer.push([q.phase==='count'?'READY... '+Math.ceil(q.t):Math.round(q.speed*3)+' MPH   '+Math.round(q.s/SNOW_LENGTH*100)+'%   '+q.t.toFixed(1)+' SEC','#fff0c0']);if(q.phase==='run')footer.push([q.race?(q.s>=q.rivalS?'YOU ARE AHEAD!':castN('mate2')+' IS AHEAD!'):'STEER  '+L('c')+' BRAKE  '+L('a')+' HOP','#e1f1ff']);}
+        if(mode==='play'&&SNOW){const q=SNOW;if(['count','run','recover'].includes(q.phase))footer.push([q.phase==='count'?'READY... '+Math.ceil(q.t):Math.round(q.speed*3)+' MPH   '+Math.round(q.s/SNOW_LENGTH*100)+'%   '+q.t.toFixed(1)+' SEC','#fff0c0']);if(q.phase==='run')footer.push([q.race?(q.s>=q.rivalS?'YOU ARE AHEAD!':castN('mate2')+' IS AHEAD!'):'STEER  '+L('c')+' BRAKE  '+L('a')+' HOP','#e1f1ff']);}
         if(mode==='play'&&SNOW?.phase==='finish'){const best=prog.records[SNOW.race?'coasterRace':'coaster'];footer.push(['TIME '+SNOW.t.toFixed(2)+'  BEST '+Number(best).toFixed(2)+' SECONDS','#fff0b8']);}
         if(mode==='play'&&curW==='peekaboo')footer.push(['GRILLES '+[0,1,1,2][POWER_RUN.phaseCross]+'/2','#e0cbff']);
         if(mode==='play'&&curW==='brolly')footer.push(['WIND HOOPS '+POWER_RUN.rings+'/3','#f7e6ad']);
@@ -2624,7 +2711,7 @@
           if(P.swimming){footer.push([L('a')+' UP  '+L('c')+' DIVE','#fff']);if(PROPS.some(p=>p.kind==='chest'&&!chestOpen[p.w]&&Math.hypot(P.x-p.b.x,P.z-p.b.z)<2.6&&Math.abs(P.y-p.b.y)<2))footer.push([L('b')+' OPEN CHEST','#ffe299']);}
         }
         const kingBar=mode==='play'&&curW==='boss'&&BOSS.mesh&&['walk','up','aim','charge','dizzy','hurt','hop'].includes(BOSS.st),booBar=mode==='play'&&curW==='manor'&&BB.on&&BB.st==='fight',foundryBar=mode==='play'&&FD&&!['idle','intro','gone','defeated'].includes(FD.boss.st);
-        if(foundryBar){bossBar('THE BIG SOFTY',FD.boss.hp);F.center(hud,FD.boss.st==='vent'?'COOL LID '+Math.max(0,5-FD.boss.t).toFixed(1):FD.boss.st==='tell'?'STOMP COMING!':'HOP THE STEAM RING',W/2,48,FD.boss.st==='vent'?'#bffff4':'#ffe3a0',1);}if(mode==='play'&&FD?.relay==='run')F.center(hud,'TEA BREAK '+Math.max(0,45-FD.elapsed).toFixed(1),W/2,38,'#ddfff5',1);
+        if(foundryBar){bossBar('THE BIG SOFTY',FD.boss.hp);F.center(hud,FD.boss.st==='vent'?'COOL LID '+Math.max(0,5-FD.boss.t).toFixed(1):FD.boss.st==='tell'?'STOMP COMING!':'HOP THE STEAM RING',W/2,48,FD.boss.st==='vent'?'#bffff4':'#ffe3a0',1);}if(mode==='play'&&SS?.relay==='run')F.center(hud,'POST '+SS.next+'/5  '+Math.max(0,55-SS.elapsed).toFixed(1),W/2,38,'#fff3bf',1);if(mode==='play'&&FD?.relay==='run')F.center(hud,'TEA BREAK '+Math.max(0,45-FD.elapsed).toFixed(1),W/2,38,'#ddfff5',1);
         if(kingBar)bossBar('KING GRUMPUS',BOSS.hp);if(booBar)bossBar('BIG BOOHOO',BB.hp);
         if(mode==='play'&&curW==='peaks'&&PERCY.st==='race'){const d=Math.hypot(PERCY.x,PERCY.z-48),me=Math.hypot(P.x,P.z-48);footer.push([me<d?'YOU ARE AHEAD!':`${castN('mate3')} IS AHEAD!`,me<d?'#7aff7a':'#ff8a8a']);}
         footer.forEach(([text,color],i)=>F.center(hud,text,W/2,(kingBar||booBar||foundryBar?H-44:H-18)-i*12,color,1));
@@ -2667,19 +2754,19 @@
       function drawHowto() {
         box2(10, 96, W - 20, 130, 0.88);
         const pg = subI === 0 ? [['THE MOVES', '#ffd23a'], ['RUN: STICK.   JUMP: ' + L('a')], ['LAND AND PRESS ' + L('a') + ' AGAIN: DOUBLE, THEN TRIPLE JUMP'], ['AIR '+L('a')+': TWIRL. REVERSE + '+L('a')+': SIDE FLIP.'], ['LONG JUMP: RUN, HOLD ' + L('c') + ', PRESS ' + L('a')], ['BACKFLIP: STAND STILL, HOLD ' + L('c') + ', PRESS ' + L('a')], ['GROUND POUND: ' + L('c') + ' IN THE AIR'], ['WALL KICK: JUMP AT A WALL, ' + L('a') + ' AS YOU TOUCH'], ['PUNCH, PUNCH, KICK: ' + L('b') + '.  TALK / READ: ' + L('b')], ['CAMERA: ' + L('l') + ' / ' + L('r') + '.   PAUSE: START']]
-          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN '+TOTAL+' GOLDEN ACORNS.'], ['9 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['SIX COURSES, THREE SECRET SWITCH STAGES'], ['COCOA COASTER AND THE KING HAVE THE REST.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['HANG ON A LEDGE: '+L('a')+' CLIMBS, '+L('c')+' DROPS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
+          : subI === 1 ? [['THE GOAL', '#ffd23a'], ['KING GRUMPUS HAS HIDDEN '+TOTAL+' GOLDEN ACORNS.'], ['9 ARE ON BISCUIT ISLAND. THE MAGIC DOORS'], ['SEVEN COURSES, THREE SECRET SWITCH STAGES'], ['COCOA COASTER AND THE KING HAVE THE REST.'], ['COINS MEND YOUR BISCUIT (YOUR HEALTH).'], ['8 RED COINS OR 100 COINS = AN ACORN TOO.'], ['HANG ON A LEDGE: '+L('a')+' CLIMBS, '+L('c')+' DROPS.'], [L('a')+' JUMP '+L('b')+' PUNCH '+L('c')+' CROUCH'], [L('start')+' PAUSE. IT SAVES AS YOU GO.']]
           : subI===2 ? [['A PROPER DIP', '#ffd23a'], ['CUSTARD GROTTO OPENS WITH FIVE ACORNS.'], ['STICK: SWIM. HOLD '+L('a')+': UP. HOLD '+L('c')+': DIVE.'], ['RELEASE UP AND DIVE TO FLOAT GENTLY.'], ['AT THE SURFACE, PRESS '+L('a')+' AGAIN TO LEAP OUT.'], ['BUBBLE VENTS AND THE SURFACE REFILL AIR.'], ['COINS TOP UP AIR AND MEND YOUR BISCUIT.'], [L('b')+' OPENS THE CHEST IN THE WRECK.'], ['FIND THREE PEARLS. FOLLOW THE CURRENT HOOPS.'], ['IN THE MANOR, '+L('b')+' OPENS AND CLOSES THE DOOR.']]
           : [['DRESS FOR THE QUEST','#ffd23a'],['FIND THREE SECRET RINGS ON BISCUIT ISLAND.'],['POUND THEIR SWITCHES TO WAKE MATCHING BOXES.'],[L('b')+' BY A BOX: TAKE ITS TEMPORARY OUTFIT.'],['BROLLY BONNET: HOLD '+L('a')+' IN THE AIR TO GLIDE.'],['TIN BISCUIT: SINK, WALK AND WEIGH DOWN PLATES.'],['PEEKABOO HOOD: CROSS VIOLET GRILLES.'],['SWITCH UNLOCKS STAY ON FILE A.'],['OUTFIT TIMERS FREEZE ON PAUSE.'],['REVISIT THE COVE, GROTTO AND LIBRARY.']];
         pg.forEach(([s, c], i) => (i === 0 ? F.center(hud, s, W / 2, 102, c, 1) : F.draw(hud, s, 18, 106 + i * 12, '#fff', 1)));
         F.center(hud, (subI + 1) + '/4  PRESS ' + L('a'), W / 2, H - 10, '#9ab', 1);
       }
       function drawCard() {
-        const w = card.w, cols = { foundry:['#57455f','#a98d64'],snowhall:['#384c71','#e2c498'], brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
+        const w = card.w, cols = { sands:['#9c698f','#e8c38e'],foundry:['#57455f','#a98d64'],snowhall:['#384c71','#e2c498'], brolly:['#517bb0','#efc679'],pantry:['#285861','#afc49b'],peekaboo:['#25213d','#b9a1dc'],grotto: ['#125977', '#92d2c6'], hub: ['#2a7ad8', '#5ab83a'], cove: ['#2a9ad8', '#f0d090'], peaks: ['#6a9ad8', '#f0f6ff'], manor: ['#1a1040', '#5a3a8a'], tower: ['#e86a5a', '#ffc87a'], boss: ['#3a0a08', '#c8481a'] }[w];
         const gr = hud.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, cols[0]); gr.addColorStop(1, cols[1]); hud.fillStyle = gr; hud.fillRect(0, 0, W, H);
         hud.strokeStyle = '#c8a050'; hud.lineWidth = 6; hud.strokeRect(6, 6, W - 12, H - 12); hud.strokeStyle = '#7a5a1a'; hud.lineWidth = 2; hud.strokeRect(10, 10, W - 20, H - 20);
         const nm = WN[w]; bigText(nm, W / 2, 38, nm.length > 16 ? 17 : 22);
         const list = ACS,row=list.length>8?11:list.length>7?12:15; list.forEach((a, i) => { const g = gotAc(a.id); acIcon(48, 74 + i * row, 10, g ? '#ffc81a' : 'rgba(255,255,255,.35)'); F.draw(hud, (i === (card.sel || 0) ? '> ' : (i + 1) + '. ') + a.name, 60, 70 + i * row, i === (card.sel || 0) ? '#ffd85a' : g ? '#ffe86a' : '#fff', 1, '#000'); });
-        if (curW !== 'hub' && curW !== 'boss') { const a = ACS[card.sel || 0]; const hint = WORLDS[w].power ? 'POUND THE GREAT SWITCH. PRESS '+L('b')+' BY ITS BOX. USE YOUR NEW OUTFIT TO FINISH THE ROUTE.' : a.power ? 'THIS RETURN ROUTE NEEDS '+POWER_DEFS[a.power].name+'. FIND ITS SECRET SWITCH ON BISCUIT ISLAND.' : curW==='foundry'?({stack:'FOLLOW THE STEPS AROUND THE POPPING STACK. HOLD '+L('a')+' FOR HEIGHT.',valves:'GROUND POUND THREE BRASS WHEELS TO COOL THE PAN.',gantry:'TALK TO THE SHIFT BOSS. RUN UP BEFORE EACH MINT GANTRY JUMP.',foreman:'HOP THE STEAM RINGS. BACKFLIP AND POUND THE BLUE LID.',reds:'SEARCH THE YARDS, STACK AND GANTRY FOR EIGHT RED PAY PACKETS.',c100:'FOLLOW EVERY FOUNDRY COIN TRAIL. COINS MEND YOUR BISCUIT.'}[a.id]):curW === 'grotto' ? ({dip:'HOLD '+L('c')+' TO DIVE. '+L('a')+' SWIMS UP. TAKE A BREATH AT THE SURFACE.',chest:'SWIM INTO THE WRECK AND PRESS '+L('b')+' BESIDE THE CHEST.',pearls:'FIND THREE SHINING PEARLS. BUBBLE VENTS REFILL YOUR AIR.',current:'FOLLOW THE THREE GOLD HOOPS UNDERWATER. LET THE CURRENT HELP.',roost:'PRESS '+L('a')+' AT THE SURFACE TO LEAP ONTO THE STEPPING ROCKS.'}[a.id] || 'EXPLORE EVERY DEPTH. COINS MEND YOUR BISCUIT AND TOP UP YOUR AIR.') : a.id === 'trial' ? TRIALS[curW].hint : a.id === 'c100' ? 'FOLLOW EVERY COIN TRAIL. COINS ALSO MEND YOUR BISCUIT.' : a.hidden ? 'TALK TO THE LOCALS AND LOOK FOR SOMETHING TO SET RIGHT.' : 'A SHINY ACORN IS WAITING UP THERE. LOOK FOR A WAY TO CLIMB.'; wrap(hint, 47).slice(0, 2).forEach((s, i) => F.center(hud, s, W / 2, 176 + i * 10, '#eef8ff', 1, '#000')); }
+        if (curW !== 'hub' && curW !== 'boss') { const a = ACS[card.sel || 0]; const hint = WORLDS[w].power ? 'POUND THE GREAT SWITCH. PRESS '+L('b')+' BY ITS BOX. USE YOUR NEW OUTFIT TO FINISH THE ROUTE.' : a.power ? 'THIS RETURN ROUTE NEEDS '+POWER_DEFS[a.power].name+'. FIND ITS SECRET SWITCH ON BISCUIT ISLAND.' : curW==='sands'?({summit:'HOP UP THE NINE TEMPLE TIERS. EVERY SIDE OFFERS A ROUTE.',bells:'POUND THREE MINT DRUMS UNDER THE BRASS BELLS.',post:'ASK THE POSTMASTER. RUN THROUGH FIVE GOLD HOOPS IN ORDER.',parcel:'FIND THE TEA PARCEL IN THE NORTHWEST RUINS. BRING IT HOME.',reds:'LOOK ON DUNES, TEMPLE, COURTYARD AND BELL YARDS.',c100:'FOLLOW THE SAND COIN ROUTES. COINS MEND YOUR BISCUIT.'}[a.id]):curW==='foundry'?({stack:'FOLLOW THE STEPS AROUND THE POPPING STACK. HOLD '+L('a')+' FOR HEIGHT.',valves:'GROUND POUND THREE BRASS WHEELS TO COOL THE PAN.',gantry:'TALK TO THE SHIFT BOSS. RUN UP BEFORE EACH MINT GANTRY JUMP.',foreman:'HOP THE STEAM RINGS. BACKFLIP AND POUND THE BLUE LID.',reds:'SEARCH THE YARDS, STACK AND GANTRY FOR EIGHT RED PAY PACKETS.',c100:'FOLLOW EVERY FOUNDRY COIN TRAIL. COINS MEND YOUR BISCUIT.'}[a.id]):curW === 'grotto' ? ({dip:'HOLD '+L('c')+' TO DIVE. '+L('a')+' SWIMS UP. TAKE A BREATH AT THE SURFACE.',chest:'SWIM INTO THE WRECK AND PRESS '+L('b')+' BESIDE THE CHEST.',pearls:'FIND THREE SHINING PEARLS. BUBBLE VENTS REFILL YOUR AIR.',current:'FOLLOW THE THREE GOLD HOOPS UNDERWATER. LET THE CURRENT HELP.',roost:'PRESS '+L('a')+' AT THE SURFACE TO LEAP ONTO THE STEPPING ROCKS.'}[a.id] || 'EXPLORE EVERY DEPTH. COINS MEND YOUR BISCUIT AND TOP UP YOUR AIR.') : a.id === 'trial' ? TRIALS[curW].hint : a.id === 'c100' ? 'FOLLOW EVERY COIN TRAIL. COINS ALSO MEND YOUR BISCUIT.' : a.hidden ? 'TALK TO THE LOCALS AND LOOK FOR SOMETHING TO SET RIGHT.' : 'A SHINY ACORN IS WAITING UP THERE. LOOK FOR A WAY TO CLIMB.'; wrap(hint, 47).slice(0, 2).forEach((s, i) => F.center(hud, s, W / 2, 176 + i * 10, '#eef8ff', 1, '#000')); }
         if (card.t > 0.6 && (K.t * 2 | 0) % 2) F.center(hud, 'PRESS ' + L('a'), W / 2, H - 26, '#fff', 1, '#000');
         F.center(hud, 'ACORNS ' + nAc() + ' / ' + TOTAL, W / 2, H - 40, '#ffd23a', 1, '#000');
       }
@@ -2697,6 +2784,7 @@
 
       // ================================================================ draw
       function draw() {
+        snowCull();
         const t = clock;
         if (WD.swimEnabled) { const f = clamp((WD.water + .4 - cam.position.y) / 1.5,0,1); T3.scene.fog.color.setHex(WD.fog[0]).lerp(col.setHex(0x2e7c8d),f); T3.scene.fog.near = lerp(28,6,f); T3.scene.fog.far = lerp(110,48,f); }
         if(FD)for(const {m} of FD.steam){const a=cam.position,b=BOP.root.position,v=tv.set(b.x-a.x,b.y+1-a.y,b.z-a.z),len=v.lengthSq(),q=tv2.copy(m.position).sub(a),u=q.dot(v)/(len||1),off=q.addScaledVector(v,-u).length(),near=m.position.distanceTo(a);m.scale.setScalar(m.userData.steamScale*Math.min(clamp((near-2)/3,0,1),u>0&&u<1&&off<2.8?0:1));}
@@ -2740,7 +2828,7 @@
         const r={left:Infinity,top:Infinity,right:-Infinity,bottom:-Infinity},v=new T.Vector3();o.updateWorldMatrix(true,true);cam.updateMatrixWorld(true);
         o.traverseVisible(m=>{const a=m.geometry&&m.geometry.attributes.position;if(!a||!m.visible)return;for(let i=0;i<a.count;i++){v.fromBufferAttribute(a,i).applyMatrix4(m.matrixWorld).project(cam);const x=(v.x+1)*W/2,y=(1-v.y)*H/2;r.left=Math.min(r.left,x);r.right=Math.max(r.right,x);r.top=Math.min(r.top,y);r.bottom=Math.max(r.bottom,y);}});return r;
       }
-      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, get snow(){return SNOW;},snowAt,snowInside,snowEnd:SNOW_END,snowLength:SNOW_LENGTH,get school(){return SCHOOL;},schoolLessons:SCHOOL_LESSONS,get foundry(){return FD;},get total(){return TOTAL;}, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
+      window.__hopDbg = { presentation:()=>({head:screenBounds(BOP.head),reward:winA&&screenBounds(winA.mesh)}), save: saveNow, snapshot, restore: restoreRun, C, cameraRoom, get clock() { return clock; }, get ui() { return { started, menuI, sub, subI, card }; }, get fading() { return fading && { t: fading.t, done: fading.done, action: fading.action }; }, doors: () => DOORS, solids: () => ({ boxes: BOXES, cyls: CYLS, movers: MOVERS }), npcs: () => NPCS, coins: () => COINS, reds: () => REDS, lamps: () => LAMPS, get grotto() { return GROT; }, get snow(){return SNOW;},snowAt,snowInside,cutAt,cutLength:CUT_LENGTH,cutStart:CUT_START,cutJoin:CUT_JOIN,cutGap:CUT_GAP,snowEnd:SNOW_END,snowLength:SNOW_LENGTH,get school(){return SCHOOL;},schoolLessons:SCHOOL_LESSONS,get sands(){return SS;},sandGround,sandFlags:SAND_FLAGS,sandBells:SAND_BELLS,get foundry(){return FD;},get total(){return TOTAL;}, powerDefs:POWER_DEFS, get powerRun(){return POWER_RUN;},powerBoxes:()=>powerBoxes,powerPortals:()=>powerPortals,powerGates:()=>powerGates,get powerSwitch(){return powerSwitch;},coinClarity:()=>({scales:coinScales,coins:COINS.map(c=>({x:c.x,y:c.y,z:c.z,got:c.got})),faces:coinGeo.attributes.position.count/3}), get trial() { return TRIAL; }, props: () => PROPS, title: toTitle, view, P, prog, get mode() { return mode; }, get world() { return curW; }, ACS: () => ACS, ENS: () => ENS, BOSS, BB, PERCY, WORLDS, go(w) { buildWorld(w); spawnInWorld(w); mode = 'play'; music(WORLDS[w].song); }, tp(x, y, z) { respawnAt(x, y, z, P.face); }, air(x, y, z) { Object.assign(P, { x, y, z, vx: 0, vy: 0, vz: 0, gnd: false, st: 'fall', stT: 0 }); }, give(n) { for (let i = 0; i < n; i++) prog.ac['x' + (i / 6 | 0)] = Object.assign(prog.ac['x' + (i / 6 | 0)] || {}, { ['a' + i]: 1 }); }, reveal, visit, get paused() { return paused; } };
       return { update, draw, end() { saveNow();tinEnv.dispose(); removeEventListener('pagehide', onHide); removeEventListener('beforeunload', onHide); document.removeEventListener('visibilitychange', onVisibility); if (window.__hopDbg?.P === P) delete window.__hopDbg; } };
     },
   });
