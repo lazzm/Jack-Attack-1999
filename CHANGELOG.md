@@ -3,6 +3,7 @@
 ## 2.86.0 - 2026-11-10
 - Bounce Quest 64 has 66 golden acorns: a seventh course, Sherbet Sandstorm, with rolling dunes, wind to ride and scarabs to dodge, and a risky Cocoa Express shortcut inside the coaster (commit to the jump; a safety net catches you if you miss). Hopping while falling no longer misfires.
 - The garden trees have layered crowns with branches you can see into, the lawn has mowing stripes, daisies and clover, and the sofa cushions, duvet and curtains crease and fold where they bend. Door and skirting trim meets the walls cleanly.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.85.0), voices 9/9, characters, zero, Bounce Quest 64, cupboard, voice recordings, people pass, identity twice, the phone UI check, seasons, performance, physics, smoke, all first time.
 
 ## 2.85.0 - 2026-11-09
 - The family move more naturally: they sip with the elbow low and the head tipping to the cup, hold the phone to their ear on calls, fold the paper or magazine away before they stand and pick it up again when they're back, nod along while washing up or cooking, and pass the conversation to each other with a look and a small gesture. 53 more lines have their own acting.
