@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.87.0 - 2026-11-10
+- The Myth of Zeldo has a third dungeon: a two-floor, 13-room pump works built around a new grappling tool, the Spool Spork, with lifts, floodgates and its own boss. Six new overworld screens open up beyond it, with a town and an optional quest. Old saves carry on where they left off.
+- Doors close all the way and stay closed, instead of sometimes stopping a hair short.
+- Someone walking upstairs can no longer block you walking through the cupboard under the stairs.
+
 ## 2.86.0 - 2026-11-10
 - Bounce Quest 64 has 66 golden acorns: a seventh course, Sherbet Sandstorm, with rolling dunes, wind to ride and scarabs to dodge, and a risky Cocoa Express shortcut inside the coaster (commit to the jump; a safety net catches you if you miss). Hopping while falling no longer misfires.
 - The garden trees have layered crowns with branches you can see into, the lawn has mowing stripes, daisies and clover, and the sofa cushions, duvet and curtains crease and fold where they bend. Door and skirting trim meets the walls cleanly.
