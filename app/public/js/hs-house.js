@@ -63,10 +63,11 @@
       let a = s0;
       for (const h of holes) { seg(a, h[0], cy, fy); seg(h[0], h[1], cy, h[2]); seg(h[0], h[1], h[3], fy); a = h[1]; }
       seg(a, s1, cy, fy);
-      // skirting along the solid bits (not across doorways)
+      // The panel front is the wall plane. Bury the skirting back 1 mm
+      // into it, including thin walls; butt its ends into the casing backs.
       if (d.skirt !== false) {
-        let b = s0; const sk = (p, q) => { if (q - p < 1) return; const mid = (p + q) / 2; const off = k === 'n' ? [mid, fixed + 0.8] : k === 's' ? [mid, fixed - 0.8] : k === 'w' ? [fixed + 0.8, mid] : [fixed - 0.8, mid]; B.rbox(off[0], fy - 4.5, off[1], k === 'n' || k === 's' ? q - p : 1.6, 9, k === 'n' || k === 's' ? 1.6 : q - p, 0.55, mSkirt); };
-        for (const h of holes) { if (h[3] >= fy - 0.5) { sk(b, h[0] - 6.3); b = h[1] + 6.3; } }
+        let b = s0; const sk = (p, q) => { if (q - p < 1) return; const mid = (p + q) / 2; const off = k === 'n' ? [mid, fixed + 0.7] : k === 's' ? [mid, fixed - 0.7] : k === 'w' ? [fixed + 0.7, mid] : [fixed - 0.7, mid]; B.rbox(off[0], fy - 4.5, off[1], k === 'n' || k === 's' ? q - p : 1.6, 9, k === 'n' || k === 's' ? 1.6 : q - p, 0.55, mSkirt); };
+        for (const h of holes) { if (h[3] >= fy - 0.5) { sk(b, h[0] - 6.1); b = h[1] + 6.1; } }
         sk(b, s1);
       }
     };
@@ -126,9 +127,9 @@
     for (const side of (o.noframe ? [] : (o.frameSides || [1, -1]))) {
       const normal = side === 1 ? 1.1 : -depth - 1.1;
       const [ax, ay, az] = P(a0 - 3.3, (top + fy) / 2, normal), [bx, by, bz] = P(a1 + 3.3, (top + fy) / 2, normal), [tx, ty, tz] = P(mid, top - 3, normal);
-      B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite);
-      B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite);
-      B.box(tx, ty, tz, along ? a1 - a0 + 12.6 : 2.4, 6, along ? 2.4 : a1 - a0 + 12.6, mWhite);
+      B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mSkirt);
+      B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mSkirt);
+      B.box(tx, ty, tz, along ? a1 - a0 + 12.6 : 2.4, 6, along ? 2.4 : a1 - a0 + 12.6, mSkirt);
     }
     // Solid jambs close the wall thickness; Jack's shared jamb is bedroom-owned.
     if (!o.noframe && !o.noreveal) {
@@ -381,7 +382,7 @@
     // the banisters: round the stairwell up here, and down the stairs
     banister(B, [[330, 252], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
     // skirting on the landing walls
-    [[130, 143.7], [236.3, 293.7], [386.3, 443.7], [536.3, 700]].forEach(([a, b]) => B.rbox(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, 0.55, mSkirt));
+    [[130, 143.7], [236.3, 293.7], [386.3, 443.7], [536.3, 700]].forEach(([a, b]) => B.rbox(250.7, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, 0.55, mSkirt));
     stairs(B);
     // ao along the landing walls
     [[130,150],[230,300],[380,450],[530,700]].forEach(([a,b])=>B.ao(250.3,UY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5}));B.ao(330, UY - 16, 130.3, 160, 32, { rx: 180, a: 0.5 });
@@ -1001,7 +1002,7 @@
         room.peopleSeats.push({id:n===1?'armchair':'sofa'+i,room:'lounge',lvl:'G',x:x+cx*c+2*s,z:z-cx*s+2*c,face:ry,h:45,back:true,front:33,footForward:54,support});}
       // A small compression into the deck and back pads closes the former
       // daylight joins without hiding the separate cushion silhouettes.
-      S.geo(K.softBox(cw,16,62,7,i+1),cx,-37,2,m,fabric);
+      S.geo(K.softBox(cw,16,62,7,i+1,.11),cx,-37,2,m,fabric);
       cushionPiping(S,cx,-37,2,cw-.1,61.9,7,pipe);
       S.geo(K.softBox(cw,44,16,7,i+3),cx,-64,-26,m,{rx:8,uv:60});
     }
@@ -1038,7 +1039,18 @@
     for(let i=0;i<8;i++){const p=v(...points[i]),q=v(...points[(i+1)%8]);path.add(i%2?new T.CubicBezierCurve3(p,p.clone().lerp(v(...corners[(i-1)/2]),.55228475),q.clone().lerp(v(...corners[(i-1)/2]),.55228475),q):new T.LineCurve3(p,q))}
     B.geo(new T.TubeGeometry(path,56,0.36,5,true),x,y,z,m);
   }
-  function curtainG(B, x, y, z, w, h, m) { const g = new T.BoxGeometry(w, h, .5, 40, 1, 1), p = g.attributes.position, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { const px = p.getX(i); p.setZ(i, p.getZ(i) + Math.sin(px / w * Math.PI * 10) * 3.2 + 3); u.setX(i,u.getX(i)*w*1.6/64);u.setY(i,(1-u.getY(i))*h/64); } g.computeVertexNormals(); B.geo(g, x, y + h / 2, z, m, { ry: 180 }); }
+  function curtainG(B,x,y,z,w,h,m) {
+    const g=new T.PlaneGeometry(w,h,40,12),p=g.attributes.position,u=g.attributes.uv;
+    for(let i=0;i<p.count;i++){
+      const px=p.getX(i),py=p.getY(i),down=py/h+.5,t=px/w;
+      const phase=t*Math.PI*10+.3*Math.sin(down*4+t*3),full=.64+.36*down;
+      p.setZ(i,3.8+Math.sin(phase)*3.2*full+.45*Math.sin(down*8+t*7)*Math.sin(down*Math.PI));
+      p.setX(i,px*(.97+.03*down)+.8*Math.sin(down*Math.PI)*Math.sin(t*6));
+      p.setY(i,py+Math.sin(phase)*.9*Math.pow(down,6));
+      u.setX(i,u.getX(i)*w*1.6/64);u.setY(i,(1-u.getY(i))*h/64);
+    }
+    g.computeVertexNormals();B.geo(K.thicken(g,.5),x,y+h/2,z,m,{ry:180});
+  }
   function sofaTex() { return K.tex('hs.sofa', 512, 512, (g, w, h) => { g.save();g.scale(2,2);w/=2;h/=2; g.fillStyle = '#c8b898'; g.fillRect(0, 0, w, h); const r = K.rnd(8); for (let i = 0; i < 26; i++) { const x = r() * w, y = r() * h; g.fillStyle = ['#b04a4a', '#c86a5a', '#a03a4a'][i % 3]; for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(x + Math.cos(k * 1.26) * 7, y + Math.sin(k * 1.26) * 7, 6, 4, k * 1.26, 0, 7); g.fill(); } g.fillStyle = '#e8c860'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); g.fillStyle = '#5a7a4a'; g.beginPath(); g.ellipse(x + 14, y + 10, 8, 3, 0.6, 0, 7); g.fill(); } A.grain(g, w, h, 4000, 0.06, 9);g.restore();for(let y=0;y<512;y+=3)for(let x=y%6?0:1;x<512;x+=3){g.fillStyle=(x+y)%2?'rgba(252,237,202,.18)':'rgba(40,29,18,.18)';g.fillRect(x,y,2,1)} }, {world:60}); }
   function curtTex() { return K.tex('hs.curt', 128, 128, (g, w, h) => { g.fillStyle = '#6a2a2e'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 16) { g.fillStyle = 'rgba(220,180,100,.2)'; g.fillRect(x, 0, 2, h); } for(let x=0;x<w;x++){g.fillStyle='rgba(6,2,3,'+(.1+.12*Math.sin(x*Math.PI/16))+')';g.fillRect(x,0,1,h)}for(let y=0;y<h;y+=3){g.fillStyle='rgba(223,190,151,.12)';g.fillRect(0,y,w,1)}A.grain(g,w,h,1500,.09,10); }); }
   function netTex() { return K.tex('hs.net.voile', 256, 128, (g,w,h) => {
@@ -1400,8 +1412,11 @@
       for(let i=0;i<p.count;i++){
         const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
         if(kind==='turf'){
-          const fence=Math.min(x-REAR.x0,REAR.x1-x,z-REAR.z0),edge=Math.max(0,1-fence/28),wear=z>-1315&&z<-385?Math.max(0,1-Math.abs(x+220)/16):0,patch=.025*Math.sin(x*.029+z*.019)*Math.sin(z*.041);
-          colours.push(1-edge*.17-wear*.04+patch,1-edge*.11-wear*.09+patch,1-edge*.23-wear*.12+patch);continue;
+          const fence=Math.min(x-REAR.x0,REAR.x1-x,z-REAR.z0),edge=Math.max(0,1-fence/35);
+          const path=z>-1315&&z<-385?Math.exp(-(((x+218)/24)**2)):0;
+          const line=Math.exp(-(((x-255)/53)**2)-((z+760)/225)**2),wear=Math.max(path*.65,line*.55);
+          const stripe=.055*Math.cos((x-REAR.x0)*Math.PI/58),patch=.025*Math.sin(x*.029+z*.019)*Math.sin(z*.041);
+          colours.push(1-edge*.17+wear*.11+patch+stripe,1-edge*.11-wear*.10+patch+stripe,1-edge*.23-wear*.14+patch+stripe);continue;
         }
         const shade=kind==='leaf'
           ? .88+.06*Math.sin(x*.075+z*.051)*Math.sin(y*.061)+.05*Math.max(0,-n.getY(i))

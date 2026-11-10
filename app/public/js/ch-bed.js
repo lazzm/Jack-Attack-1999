@@ -368,7 +368,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       let base = -Math.sin(u * Math.PI) * 6; if (u < 0.08) base += (0.08 - u) * 190; if (u > 0.94) base += (u - 0.94) * 140;
       const wr = -Math.sin(v*9+u*5)*3.1-Math.sin(u*13-v*4)*2.2;
       const hem=Math.pow(Math.abs(u-.5)*2,8),fold=Math.sin(v*18+u*4)*hem*1.1;
-      base+=fold;
+      base+=fold+K.quiltFold(u,v)*(1-duvK.t*.8);
       let neat = -Math.sin(u * Math.PI) * 2.6 - 0.6; if (u < 0.07) neat += (0.07 - u) * 240; if (u > 0.95) neat += (u - 0.95) * 160; if (v > 0.97) neat += (v - 0.97) * 90;
       const b = Math.max(0, Math.min(1, duvK.s * .55 + duvK.f * .45));
       const y2 = base + (neat - base) * b + wr * (1 - duvK.t) * (1 - 0.5 * b) - duvK.lift * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
