@@ -1487,8 +1487,9 @@
       'CCCCCC....CCCCCC','C......::......C','C......::......C','C~~~~~~..~~~~~~C',
       'C~~~~~~ZZ~~~~~~C','.......::......C',':::::::::......C','C......::......C',
       'C..i...::...i..C','C......::......C','C.S....::......C','CCCCCCCCCCCCCCCC'],proofBridge:[[7,4],[8,4]],ents:[['npc',11,7,'pantry']]},
+    // (the pantry's front and sign fill rows 0-2: solid, with the double door as the only way in)
     k_shelves:{gx:0,gy:0,name:'THE COLD PANTRY',map:[
-      'CCCCCCCCCCCCCCCC','CCCCC......CCCCC','CCCCC..@@..CCCCC','CCCCC......CCCCC',
+      'CCCCCCCCCCCCCCCC','CCCCCCCCCCCCCCCC','CCCCCCC@@CCCCCCC','CCCCC......CCCCC',
       'CCC....::....CCC','T......::.......','T......:::::::::','T..iii.::..iii.T',
       'T......::......T','T......::......T','T.S....::......T','TTTTTT....TTTTTT'],warps:{'7,2':['f1',7,10,1],'8,2':['f1',8,10,1]}},
     k_orchard:{gx:1,gy:0,name:'THE ICING ORCHARD',map:[
@@ -3817,8 +3818,10 @@
       function drawBanner() {
         if (!banner) return; const t = banner.t; if (t > 150) { banner = null; return; }
         const a = t < 15 ? t / 15 : t > 120 ? (150 - t) / 30 : 1, w = F.width(banner.s) + 24;
-        g.globalAlpha = a; g.fillStyle = 'rgba(10,12,30,.8)'; g.fillRect(128 - w / 2, TOP + 10, w, 17); g.fillStyle = '#c8a040'; g.fillRect(128 - w / 2, TOP + 10, w, 1); g.fillRect(128 - w / 2, TOP + 26, w, 1);
-        F.center(g, banner.s, 128, TOP + 15, '#ffffff', 1, '#000'); g.globalAlpha = 1;
+        // (below a building's own painted sign at the top of the screen, never over it)
+        const y = TOP + (['k_shelves', 'q_tower'].includes(room?.id) ? 52 : 10);
+        g.globalAlpha = a; g.fillStyle = 'rgba(10,12,30,.8)'; g.fillRect(128 - w / 2, y, w, 17); g.fillStyle = '#c8a040'; g.fillRect(128 - w / 2, y, w, 1); g.fillRect(128 - w / 2, y + 16, w, 1);
+        F.center(g, banner.s, 128, y + 5, '#ffffff', 1, '#000'); g.globalAlpha = 1;
       }
       function drawToast() { if (!toast) return; const label=castText(toast.s).toUpperCase(),w = F.width(label) + 12; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(128 - w / 2, H - 22, w, 14); F.center(g, label, 128, H - 19, '#fff8c0', 1); }
       function frameBox(x, y, w, h, fill) { g.fillStyle = '#f0e8d0'; g.fillRect(x, y, w, h); g.fillStyle = '#c8a040'; g.fillRect(x + 1, y + 1, w - 2, h - 2); g.fillStyle = fill || '#16204a'; g.fillRect(x + 2, y + 2, w - 4, h - 4); g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(x + 2, y + 2, w - 4, 2); }

@@ -542,6 +542,7 @@
     if (!H.live || H.busy || document.hidden || shouts >= 3) return;
     if (Date.now() - lastShout < 6 * 60000) return;
     try { if (window.HouseLife && HouseLife.quiet && HouseLife.quiet()) return; } catch (e) {}
+    try { if (window.HouseFamily?.momWithPlayer?.()) return; } catch (e) {} // (she's right here: no shouting across the house)
     const L = list(); if (!L.length || L.every(id => S.done[id])) return;
     lastShout = Date.now(); shouts++;
     const pool = SHOUTS.filter(text => !/off that computer/.test(text) || H.mode === 'monitor');

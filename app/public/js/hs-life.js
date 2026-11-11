@@ -399,11 +399,17 @@
   // welcome behind that gate: its queued line would be lost, but np-life's
   // account-scoped heard memory would correctly refuse it in the next document.
   const named = () => { try { return window.Cast && Cast.me().first !== 'you'; } catch (e) { return false; } };
+  // The same night bands as Mom's first call (np-life openingCall): before 06:00 and from 22:00.
+  const lateBand = () => { try { const t = now99().t; return t < 6 ? 'early' : t >= 22 ? 'late' : ''; } catch (e) { return ''; } };
+  const firstArrival = () => { try { const s = window.st?.getState?.(); return !!s && !s.flags?.veteran && !Object.keys(s.done || {}).length && window.st.current?.()?.id === 'lad'; } catch (e) { return false; } };
   const hello = () => {
     if (S.hello) return;
     if (!H.live || !window.AccountGate?.allowed || document.hidden || document.querySelector('.hs-loading,#houseEntry') || !named()) return setTimeout(hello, 500);
-    S.hello = 1; save(); const tea = part() === 'tea';
-    voice('MOM', tea ? "{me}! Is that you? Tea's nearly ready!" : "{me}? Is that you coming down? Put the kettle on, love!", undefined, {kind:'welcome'});
+    S.hello = 1; save(); const tea = part() === 'tea', late = lateBand();
+    // Before dawn and late at night nobody is asked to put the kettle on. A brand-new player at
+    // those hours already hears Mom's own night call (np-life openingCall), so one line, not a contradicting pair.
+    if (late && firstArrival()) return;
+    voice('MOM', late === 'early' ? "{me}? Is that you up already? It's not even light out, love!" : late ? "{me}? Is that you still up? It's late, love!" : tea ? "{me}! Is that you? Tea's nearly ready!" : "{me}? Is that you coming down? Put the kettle on, love!", undefined, {kind:'welcome'});
   };
   setTimeout(hello, 2500);
   shoutLoop(); ringLoop();

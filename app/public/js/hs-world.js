@@ -185,6 +185,17 @@
     if (z2 > -1) return null;
     const k = PERSP * em * (P.zm || 1) / -z2,p=out||{};p.x=vw/2+x1*k;p.y=vh/2+y2*k;p.d=-z2;return p;
   }
+  // Touch players are told about taps and their on-screen buttons, never keys or clicks (R253).
+  // Keyboard and mouse players keep the key names. Only plain instructions are rewritten.
+  function touchWords(text){
+    if(typeof text!=='string'||!window.GameInput?.touch)return text;
+    // (markup is left alone: only the words between tags change)
+    return text.split(/(<[^>]*>)/).map(part=>part.startsWith('<')?part:part.replace(/\b(?:press|hit) F or click\b/gi,'tap Use').replace(/\bthen E at\b/g,'then tap Put in at')
+      .replace(/\b(?:press|hit) F\b/g,'tap Use').replace(/\b(?:press|hit) E\b/g,'tap Pick up').replace(/\b(?:press|hit) Q\b/g,'tap Return')
+      .replace(/\b(?:press|hit) R\b/g,'tap Turn').replace(/\b(?:press|hit) J\b/g,'tap the objective').replace(/\b(?:press|hit) Esc\b/g,'tap Menu')
+      .replace(/\bput it into the highlighted slot\b/g,'tap Put in at the highlighted slot')
+      .replace(/\b(?:or )?click(?= (?:it|on|to|the|a|an|and)\b|[.!,]|$)/g,m=>m.startsWith('or ')?'or tap':'tap').replace(/\bClick(?= (?:it|on|to|the|a|an|and)\b)/g,'Tap')).join('');
+  }
   const fwd = () => { const a = P.ry * D2R, b = P.rx * D2R; return new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b)); };
   // the ray through a screen point, in our (y-down) world
   function rayAt(sx, sy) {
@@ -2512,7 +2523,9 @@
       // Fit the printed page in the space left by its compact reading strip.
       // Distance is based on the actual paper rectangle, not its bounding sphere.
       const r=s.panel.getBoundingClientRect(),land=vh<500&&vw>vh,tan=Math.tan(angle);
-      const left=16,top=16,right=land?r.left-16:vw-16,bottom=land?vh-16:r.top-14;
+      const left=16,right=land?r.left-16:vw-16,bottom=land?vh-16:r.top-14;
+      // Keep the HUD counters (the coin tin) off the page: start below them when they share its column.
+      let top=16;for(const e of document.querySelectorAll('.hs-tin')){const b=e.getBoundingClientRect();if(b.width&&b.height&&b.top<vh/3&&b.right>left&&b.left<right&&getComputedStyle(e).visibility!=='hidden')top=Math.max(top,b.bottom+8)}
       const width=Math.max(80,right-left),height=Math.max(80,bottom-top);
       // (6% spare so a slightly turned or curled page still keeps its corners on screen)
       distance=Math.max(s.paper.width/(2*tan*vw/vh*width/vw),s.paper.height/(2*tan*height/vh))*1.06;
@@ -2529,7 +2542,7 @@
       const down=new T.Vector3().crossVectors(f,right).negate();
       t.obj.position.addScaledVector(right,shiftX*d).addScaledVector(down,shiftY*d);
     }
-    if (s.blend) { const b = s.blend, k = clamp((performance.now() - b.t0) / b.ms, 0, 1), e = H5(k); t.obj.position.lerpVectors(b.p, t.obj.position.clone(), e); t.obj.quaternion.copy(b.q).slerp(t.obj.quaternion.clone(), e); if (k >= 1) { s.blend = null; html.classList.remove('hs-inspect-arriving'); } }
+    if (s.blend) { const b = s.blend, k = clamp((performance.now() - b.t0) / b.ms, 0, 1), e = H5(k); t.obj.position.lerpVectors(b.p, t.obj.position.clone(), e); const tq = t.obj.quaternion.clone(); t.obj.quaternion.copy(b.q).slerp(tq, e); if (k >= 1) { s.blend = null; html.classList.remove('hs-inspect-arriving'); } }
     t.obj.updateMatrixWorld(true); dirty();
   }
   function inspectView(view){
@@ -2557,6 +2570,8 @@
     const ray = new T.Raycaster(); ray.layers.enableAll(); ray.setFromCamera(new T.Vector2(ev.clientX / vw * 2 - 1, 1 - ev.clientY / vh * 2), camera);
     const hit = ray.intersectObject(s.t.obj, true).find(h => h.object.userData.cubie);
     s.drag={id:ev.pointerId,x:ev.clientX,y:ev.clientY,startX:ev.clientX,startY:ev.clientY,button:ev.button,moved:false,hit:ev.button===0?hit:null};
+    // Reading on a touch screen: one finger moves along the page while it is magnified, and swipes pages when it is not (it never tilts the paper).
+    if(ev.pointerType==='touch'&&s.paper){if(s.zoom<.97)s.drag.pan=true;else s.drag.swipe=true;}
   }, true);
   document.addEventListener('pointermove', ev => {
     const s = inspection, d = s && s.drag;
@@ -2565,10 +2580,13 @@
     if(!d||d.id!==ev.pointerId||controlsPaused)return;
     ev.preventDefault(); ev.stopImmediatePropagation();
     const x=ev.clientX,y=ev.clientY,dx=x-d.x,dy=y-d.y;if(Math.hypot(x-d.startX,y-d.startY)>5)d.moved=true;
+    if(d.swipe)return;
+    if(d.pan){s.panX=(s.panX||0)+dx;s.panY=(s.panY||0)+dy;d.x=x;d.y=y;poseInspect();return}
     if (d.hit) {if (Math.hypot(dx, dy) > 22) {s.t.obj.userData.cube.drag(d.hit, dx, dy); s.drag = null;}}
     else {s.yaw = (s.yaw+dx*.45)%360; s.pitch = (s.pitch-dy*.45)%360; d.x=x;d.y=y;poseInspect();}
   }, true);
   const inspectUp=ev=>{const s=inspection;s?.t.onInspectView?.(inspectView());s?.points?.delete(ev.pointerId);const d=s?.drag;if(d?.two){if(!s.points.size)s.drag=null;return}if(!d||d.id!==ev.pointerId)return;s.drag=null;
+    if(d.swipe&&ev.type==='pointerup'&&!controlsPaused){const dx=ev.clientX-d.startX,dy=ev.clientY-d.startY;if(Math.abs(dx)>36&&Math.abs(dx)>Math.abs(dy)*1.2){try{s.t.onInspectSwipe?.(dx<0?1:-1)}catch(e){console.error(e)}return}}
     if(ev.type!=='pointerup'||controlsPaused||d.moved||d.button!==0||!s.t.onInspectClick)return;
     const ray=new T.Raycaster();ray.layers.enableAll();ray.setFromCamera(new T.Vector2(ev.clientX/vw*2-1,1-ev.clientY/vh*2),camera);
     const hit=ray.intersectObject(s.t.obj,true).find(h=>{for(let o=h.object;o;o=o.parent)if(!o.visible||o.userData.contactShadow)return false;return true});
@@ -2726,9 +2744,9 @@
     let crossT = 0;
     return {
       el,
-      say(title,text,ms,onShow){if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
+      say(title,text,ms,onShow){text=touchWords(text);if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
       hush() { note.classList.remove('on');notes.length=0;clearTimeout(notePumpT);clearTimeout(noteT); },
-      toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); placeToast(); toastT = setTimeout(() => { toastEl.classList.remove('on'); clearInterval(toastPlaceT); toastPlaceT = 0; }, 4200); if (!toastPlaceT) toastPlaceT = setInterval(placeToast, 250); },
+      toast(title, text) { text = touchWords(text); toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); placeToast(); toastT = setTimeout(() => { toastEl.classList.remove('on'); clearInterval(toastPlaceT); toastPlaceT = 0; }, 4200); if (!toastPlaceT) toastPlaceT = setInterval(placeToast, 250); },
       tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry||/\bis (busy|listening)$/.test(text)?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;

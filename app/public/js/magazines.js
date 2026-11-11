@@ -112,7 +112,7 @@
   };
   const leftMesh=base(left,-10.56),rightMesh=base(right,10.56);
   K.into(spread).cyl(0,-14,-.82,.24,.24,28,12,paper);
-  const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose,view:t.onInspectView};
+  const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose,view:t.onInspectView,swipe:t.onInspectSwipe};
   let slot=0,requested=0,flipping=false,controls,leaf=null,pocket=null,disc=null;
   if(resume?.view==='back')slot=last;
   else if(resume?.view==='inside'&&hasPocket)slot=1;
@@ -195,10 +195,11 @@
   function resize(){if(reading!==state||narrow()===single)return;const saved={view:phase(slot),page:page(slot),pose:H.inspectView?.()};H.endInspect();read(t.id,doc.id,saved)}
   t.inspectPose={yaw:0,pitch:-(H.P?.rx||0),zoom:1,paper:{width:single?21:42.3,height:28}};
   t.onInspectView=()=>save();
+  t.onInspectSwipe=dir=>turn(dir);
   t.onInspectKey=ev=>{if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'||ev.key.toLowerCase()==='f'){if(!ev.repeat)turn(ev.key==='ArrowLeft'?-1:1);return true}};
   t.onInspectEnd=()=>{
    removeEventListener('resize',resize);H.anims.delete('reading.page');removeLeaf();model.traverse(o=>o.geometry?.dispose());t.obj.remove(model);original.forEach(o=>t.obj.add(o));layers();
-   t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;t.onInspectView=old.view;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty();
+   t.onInspectKey=old.key;t.onInspectEnd=old.end;t.onInspectSwipe=old.swipe;t.inspectPose=old.pose;t.onInspectView=old.view;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty();
   };
   if(!H.inspect(t.id)){t.onInspectEnd();return false}model.add(spread);
   if(hasPocket){
@@ -218,7 +219,7 @@
   const panel=document.querySelector('.hs-inspection');if(panel){
    panel.classList.add('magazine-reader');
    panel.querySelector('b').textContent=(C.byId[doc.id]?'JACK ATTACK! — ':'')+doc.title;
-   panel.querySelector('span').className='magazine-reading-hint';panel.querySelector('span').innerHTML='<span data-input-only=keyboard>Drag: turn · ← →: pages · Wheel: zoom · Q: back</span><span data-input-only=touch>Drag: turn · Two fingers: magnify / move</span>';
+   panel.querySelector('span').className='magazine-reading-hint';panel.querySelector('span').innerHTML='<span data-input-only=keyboard>Drag: turn · ← →: pages · Wheel: zoom · Q: back</span><span data-input-only=touch>Swipe: turn pages · Two fingers: magnify · One finger: move when magnified</span>';
    const back=panel.querySelector('button');if(back){back.className='magazine-back';back.textContent='Back';}
    controls=document.createElement('span');controls.className='magazine-page-controls';for(const n of [-1,1]){const button=document.createElement('button');button.type='button';button.dataset.turn=n;button.addEventListener('click',()=>turn(n));controls.appendChild(button)}controls.appendChild(document.createElement('small'));
    if(hasPocket){const button=document.createElement('button');button.type='button';button.dataset.coverDisc='';button.textContent='Take inside-cover CD';button.addEventListener('click',()=>{if(flipping||phase(slot)!=='inside'||!discPresent())return;H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(button)}panel.appendChild(controls);
