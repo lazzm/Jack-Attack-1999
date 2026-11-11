@@ -192,10 +192,26 @@
   // Keep material identity for switches, props and batches. The full path is r128 Phong; low rungs reuse its material interface for vertex diffuse.
   function interiorUniforms(){const uniform=v=>({value:v});return {houseBakeReady:uniform(0),houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
   let interiorCheap=false;
-  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()},houseClip0:{value:new T.Vector4()},houseClip1:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
+  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()},houseClip0:{value:new T.Vector4()},houseClip1:{value:new T.Vector4()},houseRim:{value:new T.Color()},houseUp:{value:new T.Vector3(0,1,0)}}},interiorDark=new T.Color('#000');
+  // Night separation (no extra lights): props, furniture, doors and levers get a dim
+  // edge term in the room's own night colour (moonlight, or the practical lamp's bounce).
+  // Upward faces (floors, table tops, lawns) are excluded, so pools and exposure stay put.
+  // Black by day: the branch skips it. Shell walls and floors never compile it.
+  const RIM_GLSL=`uniform vec3 houseRim,houseUp;
+        float houseRimTerm(vec3 n,vec3 v){float f=1.0-clamp(dot(n,v),0.0,1.0);f*=f;return f*(1.0-smoothstep(.35,.8,dot(n,houseUp)));}`;
+  const RIM_VERTEX=`
+        if(houseRim.r+houseRim.g+houseRim.b>.001){
+          vIndirectFront+=houseRim*houseRimTerm(geometry.normal,geometry.viewDir);
+          #ifdef DOUBLE_SIDED
+          vIndirectBack+=houseRim*houseRimTerm(backGeometry.normal,geometry.viewDir);
+          #endif
+        }`;
   const interiorViewProjectors=[new T.Matrix4(),new T.Matrix4()],interiorViewTransform=new T.Matrix4(),interiorPlane=new T.Vector4();
-  function interiorFor(r,camera){
+  function interiorFor(r,camera,rim){
     const state=INTERIOR_BAKES.get(r?.id),shared=INTERIOR_SHADER.uniforms;
+    // The vertex rungs light props with fewer lamps: their edge carries a little more.
+    shared.houseRim.value.copy(rim||interiorDark);if(interiorCheap)shared.houseRim.value.multiplyScalar(1.5);
+    if(camera)shared.houseUp.value.set(0,1,0).transformDirection(camera.matrixWorldInverse);
     if(!state){shared.houseSun.value=interiorDark;return}
     for(const key in state.uniforms)shared[key].value=state.uniforms[key].value;
     shared.houseBounds0.value=state.uniforms.houseAperture.value[0];shared.houseBounds1.value=state.uniforms.houseAperture.value[1];
@@ -259,7 +275,8 @@
         vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + houseDoorIrradiance;`);
       shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>',T.ShaderChunk.aomap_fragment.replace('texture2D( aoMap, vUv2 ).r','lightMapTexel.a'));
     }
-    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);'+
+      (this.userData.interiorShell?'':'\nif(houseRim.r+houseRim.g+houseRim.b>.001)irradiance+=houseRim*houseRimTerm(normal,normalize(vViewPosition));'));
     interiorSun(shader);
   }
   function pendantTint(shader){
@@ -283,7 +300,11 @@
     shader.vertexShader=T.ShaderLib.lambert.vertexShader.replace('#include <lights_lambert_vertex>',lighting);
     shader.fragmentShader=T.ShaderLib.lambert.fragmentShader;
     if(this.userData.pendant)pendantTint(shader);
-    if(!this.userData.interiorShell)return;
+    if(!this.userData.interiorShell){
+      // The same night edge per vertex: a few ALU, no fragment cost on the cheapest rungs.
+      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+RIM_GLSL).replace(lighting,lighting+RIM_VERTEX);
+      return;
+    }
     // While weights load, retain vertex lamp fill so a night-time refresh is
     // readable. Publication replaces it with the finished pools in one frame.
     shader.vertexShader=shader.vertexShader
@@ -322,6 +343,7 @@
     shader.fragmentShader=(shader.fragmentShader.slice(0,shader.fragmentShader.indexOf('uniform vec3 houseSky'))+shader.fragmentShader.slice(shader.fragmentShader.indexOf('#include <packing>')))
       .replace('#include <common>',`#include <common>
         ${varyings}uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;uniform vec4 houseBounds0,houseBounds1,houseClip0,houseClip1;
+        ${RIM_GLSL}
         float houseMask(vec4 a,vec2 uv,float side){
           if(a.y<=a.x||side<.5)return 0.0;
           float u=uv.x,v=uv.y;
@@ -630,7 +652,9 @@
       const ph=document.getElementById('bootPower')?.classList,night=ph?.contains('rm-night'),dawn=ph?.contains('rm-dawn'),dusk=ph?.contains('rm-dusk');
       const daylight=night?.018:dawn?.32:dusk?.3:1,lamps=(typeof r.lights==='function'?r.lights():r.lights)||[];
       const key=hour+'|'+sun.rise+','+sun.set+'|'+daylight+'|'+lamps.map(l=>l.i).join(',')+'|'+spills.map(s=>[H.DOORS[s[1]]?.ang,typeof H.ROOMS[s[0]]?.lights==='function'?H.ROOMS[s[0]].lights().map(l=>l.i).join(','):'']).join(';');if(key===lastUpdate)return;lastUpdate=key;
-      uniforms.houseSky.value.set(dusk?'#ffb56d':dawn?'#c5dbff':'#c4d9ff').multiplyScalar(daylight*.72);
+      // At night the window weights carry a cool moonlit bounce (weak, but enough to model the
+      // floor and walls by the glass on every rung, including the one-lamp path).
+      uniforms.houseSky.value.set(dusk?'#ffb56d':dawn?'#c5dbff':night?'#9fb4e6':'#c4d9ff').multiplyScalar(night?.12:daylight*.72);
       const match=points=>{let a=0;for(const p of points){const l=lamps.find(l=>Math.hypot(l.x-p[0],l.y-p[1],l.z-p[2])<6);if(l)a=Math.max(a,l.i||0)}return a};
       uniforms.houseMain.value.set('#ffd39a').multiplyScalar(match(main)*(r.id==='cupboard'?.28:1.6));
       const spillColour=(s,c)=>{c.set('#ffce96');if(!s){c.multiplyScalar(0);return}const door=s[1]?H.DOORS[s[1]]:null,open=door?Math.max(0,door.ang||0):1,other=H.ROOMS[s[0]],ls=(typeof other?.lights==='function'?other.lights():other?.lights)||[],warm=ls.some(l=>l.i>.4&&new T.Color(l.c||'#fff').r>new T.Color(l.c||'#fff').b);c.multiplyScalar(open*(warm?.62:daylight*.28))};

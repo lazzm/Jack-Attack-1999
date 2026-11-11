@@ -363,6 +363,7 @@
       rig.slots.forEach((s,i)=>{if(i<active&&!s.t&&remaining.length)s.t=remaining.shift()});
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
       rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
+      const rim=typeof r.rim==='function'?r.rim():r.rim;rig.rim=rim&&rim.i>0?new T.Color(rim.c).multiplyScalar(rim.i*Math.PI):null;
       const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=r.lightBake?0:sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
     }
     tickLights(0);
@@ -387,7 +388,7 @@
     if(moving)dirty();
   }
   function applyRoomRig(r) {
-    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera);
+    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera,rig.rim);
     hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
@@ -404,7 +405,7 @@
       pl.intensity=s.cur*shimmer*(tv?tv.intensity:1);if(l){pl.position.set(l.x,l.y,l.z);if(tv)pl.color.copy(tv.color);else pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
-    const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
+    const r=roomRigs.get(id);return r?{rim:r.rim?r.rim.toArray():null,ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
       lights:r.slots.filter(s=>s.cur>0.003&&s.l).map(s=>({key:s.key,x:s.l.x,y:s.l.y,z:s.l.z,i:s.cur}))}:null;
   }
   function prewarm() { // build every room and push its textures/geometry to the GPU in one hidden pass, so nothing pops in later

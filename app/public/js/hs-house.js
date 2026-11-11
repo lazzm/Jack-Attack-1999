@@ -230,6 +230,13 @@
     if (phase() === 'night') return {sky: '#8699bd', gnd: '#51483f', i: lit(id)?(id==='landing'||id==='hall'?.24:id==='kitchen'?.18:.14):(id==='landing'||id==='hall'?.19:.105)};
     return phase() === 'dawn' ? {sky:'#c3d7f2',gnd:'#666674',i:.23} : {sky:'#d3ad91',gnd:'#615044',i:.2};
   }
+  // Night separation colour for props and doors (hs-kit houseRim): moonlight outside and in
+  // unlit rooms, the ceiling bulb's warm bounce where it is on. Nothing by day.
+  function nightRim(id, outside) {
+    if (phase() !== 'night') return null;
+    if (outside) return {c: '#93a7d8', i: .34};
+    return lit(id) ? {c: '#e6cfae', i: .22} : {c: '#8a9ecf', i: .32};
+  }
   function outdoorAmb(ground) {
     return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .52} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
   }
@@ -1995,9 +2002,12 @@
       sun: () => phase() === 'day' ? { x: -60, y: -100, z: 1200, tx: -60, ty: GY, tz: 400, c: '#fff4e0', i: 0.35 } : null,
       stations: [{ id: 'telly', n: 'The telly', pose: () => look('G', -50, 521, LT.x, GY - 70, LT.z, 150) }, { id: 'fire', n: 'The fireplace', pose: () => look('G', 100, 521, -270, GY - 90, 500, 158) }, { id: 'window', n: 'The window', pose: () => look('G', 70, 521, -60, 230, 700, 158) }] },
     garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-340,-1476,440,-176],[205,-176,440,-56]], bx0:-338, bx1:438, bz0:-1474, bz1:-58, build: buildGarden, outside: true, windowViews:[{room:'bedroom',bounds:bedroomGlass},{room:'kitchen',bounds:rearGlass}],
-      lights: () => [{ x: 120, y: GY - 230, z: -190, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 500 }],
-      amb: () => outdoorAmb('#78855a'),
-      sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
+      // The back-door lantern, and the lit kitchen window's spill across the patio and the near lawn.
+      lights: () => [{ x: 120, y: GY - 230, z: -190, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.8, d: 760 }, ...(phase() === 'night' && lit('kitchen') ? [{ x: -100, y: GY - 150, z: -225, c: '#ffd49a', i: .7, d: 430 }] : [])],
+      // Night: the moon is over the west fence, behind the patio, so the shed, fences and
+      // planting face it; less flat sky fill keeps the same overall exposure.
+      amb: () => phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .44} : outdoorAmb('#78855a'),
+      sun: () => phase() === 'night' ? { x: -900, y: -800, z: 150, tx: 0, ty: GY, tz: -500, c: '#8496cc', i: 0.27 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G',120,-260,-40,GY-80,-1000,H.STAND) }, { id: 'shed', n: 'The shed', pose: () => look('G',-180,-1120,-230,GY-100,-1330,H.STAND) }, { id: 'house', n: 'The house', pose: () => look('G',20,-900,80,60,-176,H.STAND) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
       lights: () => phase()==='day'?[]:[
@@ -2019,7 +2029,7 @@
     init() {
       if (this.ready) return Promise.resolve();
       for (const id in ROOMDEF) {
-        const d = ROOMDEF[id]; let r = H.ROOMS[id];
+        const d = ROOMDEF[id]; if (!d.rim) d.rim = () => nightRim(id, d.outside); let r = H.ROOMS[id];
         const build=d.build;d.build=room=>{build(room);const positions={landing:[250.6,UY-118,244,90],hall:[205.6,GY-118,244,90],lounge:[194.4,GY-118,576,-90],kitchen:[194.4,GY-118,246,-90]};if(positions[id])ceilingSwitch(room,id,...positions[id])};
         if (r) { Object.assign(r, d); r.built = false; } else r = H.room(id, d); // (the landing was a stub, so the bedroom door knew where it went)
         this.rooms[id] = r;
