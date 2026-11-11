@@ -37,9 +37,14 @@ await withTestServer(async base=>{
   await p.waitForTimeout(2500);
   if(!before){const n0=await p.evaluate(()=>+(document.querySelector('#trayNotices:not([hidden]) span')?.textContent||0));await p.locator('#trayNotices').tap();await p.waitForTimeout(700);const t=await p.evaluate(()=>({balloons:[...document.querySelectorAll('#toastWrap .balloon')].map(b=>b.textContent),tray:document.querySelector('#trayNotices:not([hidden])')?.textContent||null}));evidence.tapped=t;await shot('tray-tapped');
    check(t.balloons.length===1&&+t.tray<=n0-1,'tapping the tray shows one waiting notice '+JSON.stringify(t));}
-  // A big screen gets its balloons back.
-  await p.setViewportSize({width:1366,height:860});await p.waitForTimeout(7000);const big=await p.evaluate(()=>[...document.querySelectorAll('#toastWrap .balloon')].length);evidence.big=big;await shot('wide');
-  check(big>=1,'balloons stayed in the tray on a big screen');
+  // A big screen shows new balloons as usual, and what waits in the tray stays there (no backlog flood).
+  await p.evaluate(()=>document.querySelectorAll('#toastWrap .balloon').forEach(b=>b._gone?.()));await p.waitForTimeout(500);
+  const held=await p.evaluate(()=>+(document.querySelector('#trayNotices:not([hidden]) span')?.textContent||0));
+  await p.setViewportSize({width:1366,height:860});await p.waitForTimeout(3000);
+  const flood=await p.evaluate(()=>[...document.querySelectorAll('#toastWrap .balloon')].map(b=>b.textContent));
+  await p.evaluate(()=>Desk.toast('Wide screen','A new notice (tray test)',9000));await p.waitForTimeout(2500);
+  const big=await p.evaluate(()=>({balloons:[...document.querySelectorAll('#toastWrap .balloon')].map(b=>b.textContent),tray:+(document.querySelector('#trayNotices:not([hidden]) span')?.textContent||0)}));evidence.big={held,flood,...big,gate:await p.evaluate(()=>({blk:document.querySelector('.jlogoff:not(.jlbye), .logon, .dialwin')?.className||null,boot:!!document.querySelector('#boot:not(.gone)'),body:document.body.className,mode:House.mode}))};await shot('wide');
+  if(!before){check(flood.length===0,'growing the screen released held balloons: '+flood.join(' | '));check(big.balloons.some(t=>/Wide screen/.test(t)),'a new notice did not show on a big screen');check(big.tray>=held,'tray lost notices on a big screen');}
  }finally{await writeFile(path.join(out,'evidence.json'),JSON.stringify({phase,findings,evidence},null,1));await f.browser.close()}
 });
 console.log(before?'SUMMARY desk-tray before: '+findings.length+' findings':'PASS desk-tray');
