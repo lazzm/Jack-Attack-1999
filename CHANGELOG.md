@@ -10,6 +10,7 @@
 - A bucket and suds when Dad washes the car, stone caps on the front wall, no seam under the stairs, and the Zeldo pantry sign is solid.
 - Phones work less hard: the job arrow is far cheaper to draw, the street and garden are only drawn through the windows from indoors, and pictures load when first needed.
 - Twelve new recordings of Mom's reminders.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.91.0), voices 9/9, characters, zero, Bounce Quest, cupboard, voice recordings, people pass, identity, both phone UI checks, the magazine reader, first job, the PC tray, seasons, performance, physics, smoke; after fixing the two problems the first full check found (the job arrow could sit over the job note, and night lighting made normal phones slower), the phone UI check five times in a row and phone speed in pairs; then, after making the first job show straight away for new desktop players, the first-job check three times, both phone UI checks, Chapter 1 and smoke again; the cupboard check failed once under the full check's load and passed twice on its own.
 
 ## 2.91.0 - 2026-11-11
 - The carriage clock on the lounge mantel has a proper face with hands and numerals, showing the time in the house. The photos on the mantel are all different now: a day at the seaside, a Year 7 school photo, your sister's ballet certificate and cards.
