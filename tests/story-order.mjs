@@ -83,7 +83,7 @@ for(const scenario of scenarios){
    await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>House.paused),false);
    await shot('02-bed-tracked');
    assert.deepEqual(await p.evaluate(()=>{const ids=new Set(StoryGuide.targets()),bad=[];House.scene.traverse(o=>{if(o.userData.questRim&&o.visible&&!ids.has(o.userData.questRim))bad.push(o.userData.questRim)});return bad}),[]);
-   const calm=await p.evaluate(async()=>{const points=[];for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,40));const m=document.querySelector('.st-marker');points.push([parseFloat(m.style.left),parseFloat(m.style.top)])}return points});
+   const calm=await p.evaluate(async()=>{const points=[];for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,40));const m=document.querySelector('.st-marker'),at=/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(m.style.transform)||[0,NaN,NaN];points.push([parseFloat(at[1]),parseFloat(at[2])])}return points});
    assert(Math.max(...calm.map(v=>v[0]))-Math.min(...calm.map(v=>v[0]))<3,'Idle marker jitters horizontally');
    assert(Math.max(...calm.map(v=>v[1]))-Math.min(...calm.map(v=>v[1]))<3,'Idle marker jitters vertically');
    await refresh();assert.equal(await p.evaluate(()=>st.tracked().key),'chore.bed');

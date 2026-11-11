@@ -48,7 +48,8 @@
       panel.querySelector('i').style.width = (100 * (1 - (QUEUE.length + busyRaster) / total)) + '%';
       if (QUEUE.length || busyRaster) {if (performance.now() - start < 12000) return setTimeout(check, 40);}
       // Texture uploads belong to loading, not the first frame the player turns toward a shelf.
-      try { for (const t of Object.values(TEX)) if (H.ren.initTexture) H.ren.initTexture(t); }
+      // Only art that something shown uses uploads now (House._.warmTextures); the rest uploads when first drawn.
+      try { if (H._?.warmTextures) H._.warmTextures(); else for (const t of Object.values(TEX)) if (H.ren.initTexture) H.ren.initTexture(t); }
       finally { panel.remove(); loadingPanel = null; H.emit('loading', false); H.dirty(); }
     };
     setTimeout(check, 0);

@@ -14,7 +14,7 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 .st-copy nav{display:flex;justify-content:space-between;align-items:center;gap:8px;font:12px Tahoma,Arial,sans-serif}
 .st-copy button{font:inherit;background:#c0c0c0;border:2px outset #fff;padding:3px 8px;color:#000}
 /* A game-manual arrow at the border, with a crisp light/dark keyline. */
-.st-marker{position:absolute;transform:translate(-50%,-50%);width:40px;height:34px;pointer-events:none;will-change:left,top,opacity}
+.st-marker{position:absolute;transform:translate(-50%,-50%);width:40px;height:34px;pointer-events:none;will-change:transform,opacity}
 .st-arrow{display:block;width:40px;height:34px;transform-origin:center}
 .st-arrow svg{display:block;width:100%;height:100%;animation:st-compass-pulse 1.6s ease-in-out infinite}
 @keyframes st-compass-pulse{50%{transform:scale(.86)}}

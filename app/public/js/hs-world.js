@@ -430,7 +430,7 @@
       for (const o of root.children) if (STATIC_ROOT.includes(o.name)) { if (!staticRoot.includes(o)) staticRoot.push(o); try { HouseStatic?.merge(o); } catch (e) { console.error('hs merge', o.name, e); } }
       K.setQuality?.('high',scene);
       compileVariants(Q.adapt);
-      scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && !tx.isCubeTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
+      warmTextures();
       // Upload every room's geometry without shading a whole invisible house.
       // The textures and shader variants above are still warmed before play.
       const previousScissor = ren.getScissor(new T.Vector4()), previousScissorTest = ren.getScissorTest();
@@ -439,6 +439,27 @@
       ren.render(scene, camera);
     } catch (e) { console.error('hs prewarm', e); }
   }
+  // Texture warm-up (docs/PERF-AUDIT-2026-11-11.md). Ahead of time, upload only the art of things that are shown: a
+  // mesh whose own visibility chain is on (room groups and doors count as shown, so every room is ready before its
+  // door opens). Art on stored, boxed or not-yet-delivered things, and catalogue art no material uses, uploads the
+  // first time it is drawn: three.js uploads it before that draw, so nothing ever appears blank, and memory is only
+  // spent on what a player actually sees. An idle pass every few seconds warms newly shown things in the rooms you
+  // can see and the rooms next door, before you turn or walk to them.
+  const warmStack=[];
+  function warmTextures(ids){
+    if(!ren.initTexture)return 0;
+    const always=new Set(),stack=warmStack;stack.length=0;let n=0;
+    for(const id in ROOMS)always.add(ROOMS[id].group);
+    for(const id in DOORS){const d=DOORS[id];if(d.pivot)always.add(d.pivot);if(d.frame)always.add(d.frame);}
+    if(ids){for(const id of ids)if(ROOMS[id]?.built)stack.push(ROOMS[id].group);for(const o of root.children)if(!always.has(o))stack.push(o);}else stack.push(scene);
+    while(stack.length){
+      const o=stack.pop();if(!o.visible&&!always.has(o))continue;
+      const ms=o.material;if(ms)for(const m of Array.isArray(ms)?ms:[ms]){if(!m||m.visible===false)continue;for(const k in m){const tx=m[k];if(tx&&tx.isTexture&&!tx.isCubeTexture&&!ren.properties.get(tx).__webglTexture){try{ren.initTexture(tx);n++}catch(e){}}}}
+      for(let i=0;i<o.children.length;i++)stack.push(o.children[i]);
+    }
+    return n;
+  }
+  setInterval(()=>{if(!live||document.hidden)return;(window.requestIdleCallback||setTimeout)(()=>{const ids=new Set(visSet);for(const id of visSet)for(const did of ROOMS[id]?.links||[])for(const other of DOORS[did]?.rooms||[])ids.add(other);warmTextures(ids)})},5000);
   // Merge each built room's static meshes (js/hs-static.js); incremental, so later additions join on the next pass.
   const STATIC_ROOT=['neighbourhood','family-house-roof'],staticRoot=[]; // (outdoor scenery hanging off the root, drawn with the room you're in)
   function mergeRoom(r){ if(!r||!r.built||!window.HouseStatic)return; try{ HouseStatic.merge(r.group); }catch(e){ console.error('hs merge', r.id, e); } }
@@ -2955,6 +2976,80 @@
   function litCollect(o){const ms=o.material;if(Array.isArray(ms)){for(let i=0;i<ms.length;i++)litMaterial(ms[i])}else if(ms)litMaterial(ms)}
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
+  // Aperture narrowing (docs/PERF-AUDIT-2026-11-11.md). From indoors, an outdoor room reached only through bounded
+  // window apertures, and the outdoor scenery (street, roofs, night pools), submit only the meshes whose bounds meet the
+  // view through those apertures: each box of a route is projected to a screen rectangle, widened by 4 px, and a
+  // narrowed frustum is built from it. Doorways without a box, the room you stand in, and everything when you are
+  // outside (indoor rooms own the outward faces of their window frames) are never narrowed. A mesh is skipped for one
+  // frame only (restored after the frame), and only when it has no children and three would cull it the ordinary way
+  // (frustumCulled, not skinned, on the camera's layer).
+  // Test harness only (A/B pixel comparisons): House._.aperture(false). No player-facing switch.
+  let apertureOn = true, apertureCount = 0, apertureLast = 0;
+  const apertureHidden = [], apertureFrusta = [], apertureRect = [0, 0, 0, 0], apertureStack = [], sceneryFrusta = [], roomFrusta = [];
+  const apertureClip = new T.Matrix4(), apertureSub = new T.Matrix4(), apertureSphere = new T.Sphere();
+  const SCENERY = ['neighbourhood', 'family-house-roof', 'night-light-pools'];
+  // Screen rectangle (NDC) seen through every box of a route; false when it is off screen.
+  function apertureView(path, rect) {
+    const e = apertureClip.elements, px = 8 / Math.max(1, vw), py = 8 / Math.max(1, vh);
+    rect[0] = -1; rect[1] = 1; rect[2] = -1; rect[3] = 1;
+    for (const box of path) {
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, behind = false;
+      for (let i = 0; i < 8; i++) {
+        const x = i & 1 ? box.max.x : box.min.x, y = i & 2 ? box.max.y : box.min.y, z = i & 4 ? box.max.z : box.min.z;
+        const w = e[3] * x + e[7] * y + e[11] * z + e[15];
+        if (w <= 1e-3) { behind = true; break; }
+        const sx = (e[0] * x + e[4] * y + e[8] * z + e[12]) / w, sy = (e[1] * x + e[5] * y + e[9] * z + e[13]) / w;
+        if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy;
+      }
+      if (behind) continue; // (the box reaches behind the eye: keep the whole rectangle)
+      rect[0] = Math.max(rect[0], x0 - px); rect[1] = Math.min(rect[1], x1 + px); rect[2] = Math.max(rect[2], y0 - py); rect[3] = Math.min(rect[3], y1 + py);
+      if (rect[0] >= rect[1] || rect[2] >= rect[3]) return false;
+    }
+    return true;
+  }
+  function apertureFrustum(i, rect) {
+    const f = apertureFrusta[i] || (apertureFrusta[i] = new T.Frustum()), w = rect[1] - rect[0], h = rect[3] - rect[2];
+    apertureSub.set(2 / w, 0, 0, -(rect[1] + rect[0]) / w, 0, 2 / h, 0, -(rect[3] + rect[2]) / h, 0, 0, 1, 0, 0, 0, 0, 1).multiply(apertureClip);
+    return f.setFromProjectionMatrix(apertureSub);
+  }
+  const apertureBoxes = new WeakMap(), apertureWorldBox = new T.Box3();
+  function apertureBox(g) {
+    const p = g.attributes.position; let b = apertureBoxes.get(g);
+    if (!b || b.version !== p.version || b.array !== p.array || b.count !== p.count) { b = b || { box: new T.Box3() }; b.box.setFromBufferAttribute(p); b.version = p.version; b.array = p.array; b.count = p.count; apertureBoxes.set(g, b); }
+    return b.box;
+  }
+  function apertureTree(root, frusta) {
+    const stack = apertureStack; stack.length = 0; stack.push(root);
+    while (stack.length) {
+      const o = stack.pop(); if (!o.visible) continue;
+      const ch = o.children; if (ch.length) { for (let i = 0; i < ch.length; i++) stack.push(ch[i]); continue; }
+      if (!(o.isMesh || o.isPoints || o.isLine) || !o.frustumCulled || o.isSkinnedMesh || !o.layers.test(camera.layers)) continue;
+      const g = o.geometry; if (!g || !g.attributes?.position) continue;
+      if (!g.boundingSphere) g.computeBoundingSphere();
+      apertureSphere.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);
+      // Long merged batches (a whole street per material) have spheres that reach the eye; their box is far tighter.
+      // Instances and morphs only have three's own sphere. The box follows the position data's version.
+      const box = o.isInstancedMesh || g.morphAttributes?.position || g.attributes.position.isInterleavedBufferAttribute ? null : apertureBox(g);
+      if (box) apertureWorldBox.copy(box).applyMatrix4(o.matrixWorld);
+      let seen = false; for (let i = 0; i < frusta.length; i++) if (frusta[i].intersectsSphere(apertureSphere) && (!box || frusta[i].intersectsBox(apertureWorldBox))) { seen = true; break; }
+      if (!seen) { o.visible = false; apertureHidden[apertureCount++] = o; }
+    }
+  }
+  function apertureCull() {
+    camera.updateMatrixWorld(); apertureClip.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    // Only looking out: indoor rooms own outward-facing parts of their windows (frames, sills), seen beside the glass.
+    if (!cur || cur.outside) return;
+    let pool = 0, outdoorOpen = false, outdoorSeen = false; sceneryFrusta.length = 0;
+    for (const [id, paths] of vegetationRoutes) {
+      const r = ROOMS[id]; if (!r?._renderDrawn || r === cur) { if (r?.outside) outdoorOpen = true; continue; }
+      roomFrusta.length = 0; let open = false;
+      for (const path of paths) { if (!path) { open = true; break; } if (apertureView(path, apertureRect)) roomFrusta.push(apertureFrustum(pool++, apertureRect)); }
+      if (r.outside) { outdoorSeen = true; if (open) outdoorOpen = true; else for (const f of roomFrusta) sceneryFrusta.push(f); }
+      if (!open && r.outside) apertureTree(r.group, roomFrusta);
+    }
+    if (outdoorOpen || !outdoorSeen) return;
+    for (const obj of root.children) if (obj.visible && SCENERY.includes(obj.name)) apertureTree(obj, sceneryFrusta);
+  }
   function renderLit(renderer) {
     let hiddenVegetation = 0;K.interiorScreen?.(renderer);
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
@@ -2986,6 +3081,7 @@
           if(mesh?.visible){vegetationHidden[hiddenVegetation++]=mesh;mesh.visible=false;r._vegetationSkipped=true;}
         }
       }
+      if (apertureOn && renderer===ren && !window.House?.god) apertureCull();
       // All opaque surfaces before glass; depth remains shared between rooms.
       for(let pass=0;pass<2;pass++){
         const transparent=pass===1,order=transparent?litTransparentIDs:litIDs;
@@ -2998,6 +3094,7 @@
       }
     } finally {
       for(let i=0;i<hiddenVegetation;i++)vegetationHidden[i].visible=true;
+      for(let i=0;i<apertureCount;i++)apertureHidden[i].visible=true;apertureLast=apertureCount;apertureCount=0;
       for(let i=0;i<nodeCount;i++){const n=litNodes[i];n.obj.visible=n.restore}
       for(let i=0;i<materialCount;i++){const s=litMaterials[i];s.m.visible=s.on}
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
@@ -3612,7 +3709,7 @@
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,showFps,adapt:adaptTo,screenRate,screenBudget, perf:perfSnapshot, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
-    _: { HOLD, movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, renderForBenchmark:render, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
+    _: { HOLD, movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, renderForBenchmark:render, warmTextures, aperture(on){if(on!==undefined){apertureOn=!!on;dirty()}return apertureOn}, apertureSkipped:()=>apertureHidden.slice(0,apertureLast), setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
   // A detached snapshot for diagnostics: no scene objects or writable references escape.
   window.__jhpDebug = () => ({
