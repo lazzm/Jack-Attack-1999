@@ -63,10 +63,12 @@
     const s = tracked(), tick = celebration && Date.now() < tickUntil;
     const carryingFirst = s?.id === 'lad' && window.House?.THINGS[House.held()]?.gameId?.startsWith('gb.');
     // A brand-new player's first objective stays up under Mom's arrival shouts from downstairs (R242);
-    // everywhere else speech hides it exactly as before, so the HUD layout never changes mid-game.
+    // The arrival notes ("Have a look round", "My room": the controls, bottom left) used to hide it for their whole
+    // 15-20 s on desktop; they sit clear of it, so it stays up beside them too.
+    // Everywhere else speech and notes hide it exactly as before, so the HUD layout never changes mid-game.
     const arrival = !!state && !state.flags?.veteran && !Object.keys(state.done || {}).length && s?.id === 'lad';
     document.documentElement?.classList?.toggle('st-arrival', arrival);
-    line.hidden = !visible() || carryingFirst || window.StoryGuide?.strength === 'off' || (!s && !tick) || !!document.querySelector(arrival ? '.rm-note.on,.hs-voice.on,.np-bub:not(.np-out):not(.np-edge),.ht-coach:not(.bye)' : '.rm-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)'); // (a discovery notice stacks beside it instead: hs-world placeToast)
+    line.hidden = !visible() || carryingFirst || window.StoryGuide?.strength === 'off' || (!s && !tick) || !!document.querySelector(arrival ? '.hs-voice.on,.np-bub:not(.np-out):not(.np-edge),.ht-coach:not(.bye)' : '.rm-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)'); // (a discovery notice stacks beside it instead: hs-world placeToast)
     line.classList.toggle('st-tick', !!tick);
     const firstText = s?.id === 'lad' ? window.HouseCases?.inserted('console.gb') ? 'Play the Game Lad on my desk.' : 'Pick up the Blockology game box.' : s?.text;
     const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + firstText + (window.GameInput?.touch ? '' : '  [J]') : '';

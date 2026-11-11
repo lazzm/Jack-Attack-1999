@@ -4,7 +4,7 @@
 .st-objective[hidden]{display:none}.st-objective.st-tick{color:#c7dc9b;border-color:#9bb572}
 html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-objective{display:none}
 .hs-ui:has(.hs-voice.on) .st-objective,html:not(.st-arrival) .hs-ui:has(.hs-call.on) .st-objective{visibility:hidden}
-.hs-ui:has(.rm-note.on,.np-bub:not(.np-out):not(.np-edge)) .st-objective,html:not(.st-arrival) .hs-ui:has(.np-bub:not(.np-out)) .st-objective{visibility:hidden}
+.hs-ui:has(.np-bub:not(.np-out):not(.np-edge)) .st-objective,html:not(.st-arrival) .hs-ui:has(.rm-note.on,.np-bub:not(.np-out)) .st-objective{visibility:hidden}
 /* (st-arrival: a brand-new player's first objective stays up beside Mom's shouts from another room, R242) */
 .hs-ui:has(.np-bub:not(.np-out),.hs-voice.on,.hs-call.on) .hs-hold:not(.blocked) .hs-hmode{visibility:hidden}
 @media(max-width:900px){.st-objective{top:92px;max-width:calc(100vw - 40px);width:max-content}}
