@@ -62,7 +62,7 @@
     if (!line) return;
     const s = tracked(), tick = celebration && Date.now() < tickUntil;
     const carryingFirst = s?.id === 'lad' && window.House?.THINGS[House.held()]?.gameId?.startsWith('gb.');
-    line.hidden = !visible() || carryingFirst || window.StoryGuide?.strength === 'off' || (!s && !tick) || !!document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)');
+    line.hidden = !visible() || carryingFirst || window.StoryGuide?.strength === 'off' || (!s && !tick) || !!document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)'); // (a discovery notice stacks beside it instead: hs-world placeToast)
     line.classList.toggle('st-tick', !!tick);
     const firstText = s?.id === 'lad' ? window.HouseCases?.inserted('console.gb') ? 'Play the Game Lad on my desk.' : 'Pick up the Blockology game box.' : s?.text;
     const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + firstText + (window.GameInput?.touch ? '' : '  [J]') : '';

@@ -1,5 +1,5 @@
 // Native pass-two evidence. Fixtures prepare accounts/poses; trusted browser inputs exercise each UI.
-// Run from any folder: node /path/to/tests/ui-hud-pass2.mjs [--before] [--only=guide,desktop,paper,glass]
+// Run from any folder: node /path/to/tests/ui-hud-pass2.mjs [--before] [--only=guide,desktop,paper,glass,cupgames,notice]
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -14,8 +14,8 @@ const requested=process.argv.find(a=>a.startsWith('--sizes='))?.slice(8).split('
 const sizes=[[390,844],[844,390],[740,360],[768,1024],[1366,860]].filter(s=>!requested||requested.includes(s.join('x'))),evidence=[],findings=[];
 const check=(ok,why)=>{if(!ok){findings.push(why);if(!before)throw Error(why)}};
 const run=async(name,fn)=>{if(!only||only.includes(name)){console.log('SECTION',phase,name);await fn()}};
-const assets=['js/st-guide.js','css/st.css','js/apps.js','style.css','css/apps.css','js/magazines.js','js/hs-world.js','css/hs-captions.css','js/rm-room.js','js/rm-tv.js','js/rm-g-zeldo.js'];
-if(only){try{const old=JSON.parse(await readFile(new URL('evidence.json',out),'utf8'));const section=e=>e.state.startsWith('guide')?'guide':e.state.startsWith('desktop')?'desktop':e.state.startsWith('paper')?'paper':'glass';evidence.push(...old.evidence.filter(e=>!only.includes(section(e))));}catch{}}
+const assets=['js/st-guide.js','css/st.css','js/apps.js','style.css','css/apps.css','js/magazines.js','js/hs-world.js','css/hs-captions.css','js/rm-room.js','js/rm-tv.js','js/rm-g-zeldo.js','js/st-engine.js','css/rm-g-zeldo.css','css/rm-g-plumb.css'];
+if(only){try{const old=JSON.parse(await readFile(new URL('evidence.json',out),'utf8'));const section=e=>e.state.startsWith('guide')?'guide':e.state.startsWith('desktop')?'desktop':e.state.startsWith('paper')?'paper':e.state.startsWith('cup-')?'cupgames':e.state.startsWith('notice')?'notice':'glass';evidence.push(...old.evidence.filter(e=>!only.includes(section(e))));}catch{}}
 await withTestServer(async base=>{
  const name='PassTwo',password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name,pass:password})})).ok);
  const f=await roomFixture(base,{account:name,password,signup:false,resume:true,opening:true,hour:12,seed:1999,touch:true,width:390,height:844,contextOptions:{isMobile:true,deviceScaleFactor:1,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'},storageState:await bonfireLogin(base,password,name,{pv:12,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),onPage:async p=>{await p.addInitScript(()=>localStorage.setItem('jhp_touch_slow_asked','true'));if(before)for(const file of assets)await p.route('**/'+file+'*',r=>r.fulfill({contentType:file.endsWith('.js')?'application/javascript':'text/css',body:execFileSync('git',['show','HEAD:app/public/'+file],{cwd:new URL('../',import.meta.url),encoding:'utf8'})}));}});
@@ -84,6 +84,49 @@ await withTestServer(async base=>{
    }else{await p.keyboard.press('Enter');await p.locator('.zeldo-controls [data-zeldo=a]').tap();}
    await p.evaluate(()=>window.passTwoInstance=RoomTV.dbg());for(const s of sizes){await resize(s);await until(()=>{if(House.gliding)return false;const w=Room._.tvPose(RoomTV._dbg().con);return ['x','y','z'].every(k=>Math.abs(w[k]-House.P[k])<.5)});const kind=gid.startsWith('sn.')?'cupboard':'bedroom';const a=await projection(kind);await shot(kind+'-glass',{projection:a,area:await p.evaluate(()=>RoomTV.screenArea())});check(a.x>=-1&&a.y>=-1&&a.x+a.w<=s[0]+1&&a.y+a.h<=s[1]+1,'Glass outside '+s+' '+gid);await p.locator('.rm-tools .rm-lock').tap();await until(()=>RoomTV.lockIn());await p.locator('.rm-tools .rm-lock').tap();await until(()=>!RoomTV.lockIn()&&!House.gliding&&!document.querySelector('.rm-lockin'));await p.waitForTimeout(400);await until(()=>!House.gliding);const back=await projection(kind);check(Math.abs(back.h-a.h)<2,'T out did not return to the same framing '+s+' '+gid+' '+a.h+' '+back.h);check(await p.evaluate(()=>RoomTV.dbg()===passTwoInstance),'T restarted game');}
    await p.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);check(await p.evaluate(()=>RoomTV.dbg()===passTwoInstance),'Q restarted game');
+  }
+ });
+ await run('notice',async()=>{
+  // Discovery notices stack clear of the objective note instead of covering (or hiding) it.
+  await p.evaluate(async()=>{if(House.mode!=='walk'){House._.setMode('walk')}House.putBack();await Chores.part('kitchen');House.buildRoom(House.ROOMS.kitchen);await Chores.part('bedroom');ChoreKit.S.prog.cat=ChoreKit.S.prog.cat||{};st.track('chore.cat');House.hush()});
+  for(const s of sizes){await resize(s);
+   for(const carry of [false,true]){
+    await stage([100,210,240],[-100,265,-145],'G');
+    if(carry){await p.evaluate(()=>{const t=House.THINGS.mug;t.at={...t.at,room:'kitchen',x:100,y:285,z:170,hide:false};House.ROOMS.kitchen.things.add(t.obj);House.place(t)});await stage([100,210,240],[100,285,170],'G');await p.keyboard.press('e');await until(()=>House.held()==='mug');await stage([100,210,240],[-100,265,-145],'G');}
+    for(const [title,text] of [['Something found!','Intergalactic Battles: An Old Hope — the complete game box'],['★ SECRET FOUND! ★','Back issues of JACK ATTACK! magazine, bundled with string (1 of 1311 found)']]){
+     let r;for(let attempt=0;attempt<4;attempt++){
+     // The family chats freely here: retake a notice that a new bubble interrupted.
+     await until(()=>!document.querySelector('.np-bub:not(.np-out)'));
+     await p.evaluate(([a,b])=>Room.toast(a,b),[title,text]);await until(()=>{const e=document.querySelector('.hs-ui .rm-toast.on');return !!e&&+getComputedStyle(e).opacity>.9});await p.waitForTimeout(300);
+     r=await p.evaluate(()=>{const v=e=>{if(!e)return null;const r=e.getBoundingClientRect(),c=getComputedStyle(e);return r.width&&r.height&&c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>.5?{x:r.x,y:r.y,w:r.width,h:r.height}:null};return{toast:v(document.querySelector('.hs-ui .rm-toast.on')),objective:v(document.querySelector('.hs-ui .st-objective')),speech:v(document.querySelector('.np-bub:not(.np-out)')),line:(e=>e&&{hidden:e.hidden,vis:getComputedStyle(e).visibility,display:getComputedStyle(e).display})(document.querySelector('.hs-ui .st-objective')),blockers:[...document.querySelectorAll('.rm-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)')].map(e=>e.className)}});
+     if(!r.speech&&!r.blockers.length&&!await p.evaluate(()=>!!document.querySelector('.np-bub:not(.np-out)')))break;await p.evaluate(()=>{document.querySelector('.hs-ui .rm-toast')?.classList.remove('on')});}
+     await shot('notice-'+(carry?'carry-':'')+(title.includes('SECRET')?'secret':'found'),r);
+     // (While the family speaks the objective steps aside for the bubble, as it always has.)
+     check(r.toast&&(r.objective||r.speech||r.blockers.length),'Notice or objective missing '+s+' '+JSON.stringify(r));
+     if(r.toast&&r.objective){const a=r.toast,b=r.objective;check(!(Math.min(a.x+a.w,b.x+b.w)>Math.max(a.x,b.x)&&Math.min(a.y+a.h,b.y+b.h)>Math.max(a.y,b.y)),'Notice overlaps the objective '+s+(carry?' carrying':''));check(a.x>=0&&a.y>=0&&a.x+a.w<=s[0]&&a.y+a.h<=s[1],'Notice off screen '+s);}
+     await p.evaluate(()=>{document.querySelector('.hs-ui .rm-toast')?.classList.remove('on')});await p.waitForTimeout(250);
+    }
+    if(carry){await p.keyboard.press('q');await until(()=>!House.held());}
+   }
+  }
+ });
+ await run('cupgames',async()=>{
+  // Every Super Ultra cartridge plays on the cupboard set: the whole picture, clear of its pad and bars.
+  const controls='.rm-tools button,.rm-livebar .rm-b,.rm-pad:not([hidden]) :is(.rm-pl,.rm-pr,.rm-pm),.zeldo-dpad,.zeldo-actions,.plumb-dpad,.plumb-actions,.party-pad,.party-buttons';
+  for(const gid of ['sn.zero','sn.plumb','sn.fight','sn.zeldo']){
+   await resize([390,844]);if(await p.evaluate(()=>House.mode!=='walk'))await p.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);await p.evaluate(()=>House.putBack());
+   await p.evaluate(()=>House.goRoom('cupboard',0));await until(()=>!House.gliding);await p.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});
+   await playCase(f,gid,{press:()=>key('e')});await until(()=>RoomTV._dbg()?.st==='game'&&!House.gliding);await p.keyboard.press('Enter');await p.waitForTimeout(1200);
+   const name=gid.slice(3);
+   for(const s of sizes.filter(s=>['390x844','844x390','1366x860'].includes(s.join('x')))){
+    await resize(s);await until(()=>{if(House.gliding)return false;const w=Room._.tvPose('sn');return ['x','y','z'].every(k=>Math.abs(w[k]-House.P[k])<.5)});await p.waitForTimeout(300);
+    const glass=await projection('cupboard'),ink=await p.evaluate(sel=>[...document.querySelectorAll(sel)].filter(e=>{const r=e.getBoundingClientRect(),c=getComputedStyle(e);return r.width&&r.height&&c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0}).map(e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,what:e.className||e.textContent}}),controls);
+    await shot('cup-'+name,{projection:glass,ink});
+    check(glass.x>=-1&&glass.y>=-1&&glass.x+glass.w<=s[0]+1&&glass.y+glass.h<=s[1]+1,'Cupboard picture cropped '+s+' '+gid);
+    check(glass.h>=Math.min(200,s[1]*.5),'Cupboard picture too small to read '+s+' '+gid+' '+Math.round(glass.h));
+    for(const o of ink)check(!(Math.min(o.x+o.w,glass.x+glass.w)>Math.max(o.x,glass.x)+1&&Math.min(o.y+o.h,glass.y+glass.h)>Math.max(o.y,glass.y)+1),'Control covers the cupboard picture '+s+' '+gid+' '+o.what);
+   }
+   await p.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
   }
  });
  assert.deepEqual(f.errors,[]);console.log('PASS UI HUD PASS TWO',phase,'findings',findings.length);

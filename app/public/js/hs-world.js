@@ -2686,7 +2686,21 @@
       <div class="hs-toast rm-toast"></div>
       <div class="hs-fade"></div>`;
     const $ = s => el.querySelector(s);
-    let noteT=0,toastT=0,holdKey='',snapKey='',tipKey='',tipW=0,tipH=0;
+    let noteT=0,toastT=0,toastPlaceT=0,holdKey='',snapKey='',tipKey='',tipW=0,tipH=0;
+    // A notice stacks under the objective note (or above it, if there is no
+    // room below) instead of covering it. Layout boxes ignore the slide-in.
+    function placeToast(){
+      if(!toastEl.classList.contains('on'))return;
+      toastEl.style.top='';const host=toastEl.offsetParent;if(!host)return;
+      const hr=host.getBoundingClientRect(),box={l:toastEl.offsetLeft,t:toastEl.offsetTop,w:toastEl.offsetWidth,h:toastEl.offsetHeight};
+      for(const o of host.querySelectorAll('.st-objective,.se-objective')){
+        const c=getComputedStyle(o),r=o.getBoundingClientRect();if(c.display==='none'||c.visibility==='hidden'||!r.width||!r.height)continue;
+        const ox=r.left-hr.left,oy=r.top-hr.top;
+        if(box.l<ox+r.width+8&&box.l+box.w>ox-8&&box.t<oy+r.height+8&&box.t+box.h>oy-8){
+          const below=oy+r.height+8,above=oy-8-box.h;box.t=below+box.h<=host.clientHeight-8||above<8?below:above;toastEl.style.top=box.t+'px';
+        }
+      }
+    }
     const note = $('.hs-note'), toastEl = $('.hs-toast'), tipEl = $('.hs-tip'), hold = $('.hs-hold');
     const notes = []; let notePumpT = 0;
     function pumpNote() {
@@ -2711,7 +2725,7 @@
       el,
       say(title,text,ms,onShow){if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
       hush() { note.classList.remove('on');notes.length=0;clearTimeout(notePumpT);clearTimeout(noteT); },
-      toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
+      toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); placeToast(); toastT = setTimeout(() => { toastEl.classList.remove('on'); clearInterval(toastPlaceT); toastPlaceT = 0; }, 4200); if (!toastPlaceT) toastPlaceT = setInterval(placeToast, 250); },
       tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry||/\bis (busy|listening)$/.test(text)?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;

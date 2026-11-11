@@ -4,7 +4,7 @@ const src=fs.readFileSync(__dirname+'/../app/public/js/rm-tv.js','utf8');
 const fn=src.slice(src.indexOf('  function frameSurface(ms) {'),src.indexOf('  function releaseSurface()'));
 const jobs=new Map(),moves=[];let next=0;
 const H={focused:true,gliding:true,glideTo(p,o){assert(!this.gliding,'Framing cancelled the focus move');moves.push({p,o})}};
-const c=vm.createContext({R:{House:H},V:{gid:'test',surface:{}},defs:{test:{screenPose:()=>({x:1,y:2,z:3})}},setTimeout:f=>{jobs.set(++next,f);return next},clearTimeout:id=>jobs.delete(id)});
+const c=vm.createContext({_:{}/* rm-tv's Room._ (no tvPose here: the game's own pose is the fallback) */,R:{House:H},V:{gid:'test',surface:{}},defs:{test:{screenPose:()=>({x:1,y:2,z:3})}},setTimeout:f=>{jobs.set(++next,f);return next},clearTimeout:id=>jobs.delete(id)});
 vm.runInContext(fn,c);const frame=()=>vm.runInContext('frameSurface(450)',c);
 const tick=()=>{const pending=[...jobs.values()];jobs.clear();pending.forEach(f=>f())};
 frame();assert.equal(moves.length,0);assert.equal(jobs.size,1);
