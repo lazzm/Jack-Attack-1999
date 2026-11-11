@@ -605,7 +605,8 @@
     // Finish the focus move first, and abandon framing if the player leaves.
     clearTimeout(V.frameTimer);
     if(H.gliding){const view=V;V.frameTimer=setTimeout(()=>{if(V===view)frameSurface(ms)},50);return;}
-    const pose=V.surface&&typeof def?.screenPose==='function'?def.screenPose(V.surface):_.tvPose?.(V.con);
+    // The room frames every live glass (the cupboard set's too) from the real control areas.
+    const pose=_.tvPose?.(V.con,V.surface)||(V.surface&&typeof def?.screenPose==='function'?def.screenPose(V.surface):null);
     if(pose)H.glideTo(pose,{ms:ms||250,lock:true});
   }
   function releaseSurface() {
@@ -1047,7 +1048,12 @@
     const style=getComputedStyle(V.el),number=name=>parseFloat(style.getPropertyValue(name))||0;
     const origin=V.el.getBoundingClientRect(),toolbar=$(V.el,'.rm-tools').getBoundingClientRect();
     const bar=$(V.el,'.rm-livebar'),br=bar?.getBoundingClientRect();
-    const area={left:number('--rm-screen-left'),right:number('--rm-screen-right'),top:Math.max(number('--rm-screen-top'),toolbar.bottom-origin.top+6),bottom:Math.max(number('--rm-screen-bottom'),!V.lockedIn&&br?.height?origin.bottom-br.top+8:0)};
+    // Leaving LOCK IN frames the room while the shrink still hides the live
+    // bar: use its last measurement at this size, else reframe once it shows.
+    const sizeKey=innerWidth+'x'+innerHeight;let barSpace=0;
+    if(!V.lockedIn&&br?.height){barSpace=origin.bottom-br.top+8;V.barSpace={key:sizeKey,px:barSpace};}
+    else if(!V.lockedIn&&bar){if(V.barSpace?.key===sizeKey)barSpace=V.barSpace.px;else V.reframeAfterLock=true;}
+    const area={left:number('--rm-screen-left'),right:number('--rm-screen-right'),top:Math.max(number('--rm-screen-top'),toolbar.bottom-origin.top+6),bottom:Math.max(number('--rm-screen-bottom'),barSpace)};
     // A portrait tablet can fit a larger picture above the wings. Compare the
     // real control rectangles with the clear strip between them, keeping both
     // thumbs at the case edges in either layout.
@@ -1096,6 +1102,7 @@
     V.lockTimer = setTimeout(() => {
       if (V !== view) return; V.lockAnim = 0; wrap.style.transition = ''; wrap.style.transform = '';
       V.el.classList.remove('rm-lock-from', 'rm-lock-out'); if (!V.lockedIn) V.el.classList.remove('rm-lockin');
+      if (!V.lockedIn && V.reframeAfterLock) { V.reframeAfterLock = false; frameSurface(200); }
       if (R.House?.dirty) R.House.dirty();
     }, ms + 20);
     if (R.House?.dirty) R.House.dirty();

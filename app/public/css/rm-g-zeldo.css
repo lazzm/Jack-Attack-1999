@@ -16,3 +16,5 @@
 .zeldo-dpad.up-active .up,.zeldo-dpad.down-active .down,.zeldo-dpad.left-active .left,.zeldo-dpad.right-active .right{background:#617267;box-shadow:inset 2px 2px #1e3029}
 .rm-tvv:has(.zeldo-controls) .rm-help{display:none}
 .rm-tvv:has(.zeldo-controls) .rm-livebar{bottom:174px}
+/* With the controls as side wings, the live bar sits low between them, leaving the glass the height. */
+@media (orientation:landscape), (min-width:600px) and (min-height:600px){.rm-tvv:has(.zeldo-controls) .rm-livebar{bottom:max(8px,env(safe-area-inset-bottom));left:170px;right:170px}}

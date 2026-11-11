@@ -140,6 +140,42 @@
   let speechAt=0, speechNow=false, viewW=window.innerWidth||0, viewH=window.innerHeight||0;
   window.addEventListener?.('resize',()=>{viewW=window.innerWidth;viewH=window.innerHeight;});
   function speaking(now){if(now-speechAt>=100||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)') || (window.innerWidth<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
+  // Reserve the whole printed tag and the rotating arrow, not the arrow's
+  // 40 x 34 parent. DOM measurements are sampled, never made on every frame.
+  const inkSelector='.hs-top,.hs-map,.hs-tin,.ch-jobs,.rm-coin,.rm-tinbtn,.rm-counter,.rm-found,.rm-hunt,.hs-toast.on,.ht-coach-card,.hs-hold:not([hidden]),.hs-tip.on,.hs-note.on,.hs-voice.on,.hs-call.on,.ht-target.on,.st-objective:not([hidden]),.se-objective:not([hidden]),.ch-chip:not([hidden]),.np-bub:not(.np-out),.ht-acts .ht-b,.ht-top .ht-b,.ht-stick,.ht-look,.st-chapter:not([hidden])';
+  let inkAt=0,ink=[],tagSize={w:180,h:46},tagKey='',safe={top:0,right:0,bottom:0,left:0};
+  function guidePosition(tx,ty,w,h,now){
+    const key=label.textContent+'|'+w+'|'+h;
+    if(now>=inkAt||key!==tagKey){
+      inkAt=now+100;tagKey=key;
+      const css=getComputedStyle(H.ui.el),number=k=>parseFloat(css.getPropertyValue('--hud-safe-'+k))||0;
+      safe={top:number('top'),right:number('right'),bottom:number('bottom'),left:number('left')};
+      const r=label.getBoundingClientRect();tagSize={w:r.width,h:r.height};
+      ink=[...document.querySelectorAll(inkSelector)].filter(e=>{const c=getComputedStyle(e);return c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0;}).map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+      // A speech bubble's tail points at the speaker's face: keep that clear too.
+      for(const e of document.querySelectorAll('.np-bub:not(.np-out)')){const r=e.getBoundingClientRect();if(r.width&&r.height)ink.push({left:r.left,right:r.right,top:r.bottom,bottom:Math.min(h,r.bottom+h*.28)});}
+    }
+    // All four borders are candidates. A name tab always faces into the view.
+    // Include an eight-pixel breathing space around other ink and keep the
+    // arrow's diagonal corners inside the safe area at every rotation.
+    let best=null;
+    for(const side of ['left','right']){
+      const l=side==='left'?-27:-24-tagSize.w,r=side==='left'?24+tagSize.w:27,t=-27,b=Math.max(27,tagSize.h-17);
+      const x0=safe.left+6-l,x1=w-safe.right-6-r,y0=safe.top+6-t,y1=h-safe.bottom-6-b;
+      if(x1<x0||y1<y0)continue;
+      const xs=[clamp(tx,x0,x1),x0,x1],ys=[clamp(ty,y0,y1),y0,y1];
+      for(const o of ink){xs.push(clamp(o.left-8-r,x0,x1),clamp(o.right+8-l,x0,x1));ys.push(clamp(o.top-8-b,y0,y1),clamp(o.bottom+8-t,y0,y1));}
+      const tryAt=(cx,cy)=>{
+        const box={left:cx+l,right:cx+r,top:cy+t,bottom:cy+b};
+        if(ink.some(o=>box.left<o.right+8&&box.right>o.left-8&&box.top<o.bottom+8&&box.bottom>o.top-8))return;
+        const score=(cx-tx)**2+(cy-ty)**2+(side===(tx>w/2?'right':'left')?0:1600);
+        if(!best||score<best.score)best={x:cx,y:cy,side,score};
+      };
+      for(const cy of ys){tryAt(x0,cy);tryAt(x1,cy);}
+      for(const cx of xs){tryAt(cx,y0);tryAt(cx,y1);}
+    }
+    return best;
+  }
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
     const visible=show() && mode!=='off', speech=visible&&speaking(now);
@@ -153,7 +189,7 @@
     for(const m of marks)for(const shell of m.shells){shell.visible=full;shell.material.uniforms.strength.value=pulse;}
     marker.hidden=prompt.hidden=true;
     const chapterInk = titleUntil === -1 || titleUntil > Date.now();
-    if(sampled && full && !speech && !chapterInk) {
+    if(sampled && full && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
       const w=viewW,h=viewH; // (cached on resize: reading any viewport size here forced a style/layout flush every frame)
       const marginX=25,top=25,bottom=25;
@@ -172,14 +208,12 @@
         tx=cx+vx*k;ty=cy+vy*k;
       }
       tx=clamp(tx,marginX,w-marginX);ty=clamp(ty,top,h-bottom);
-      // Slide along the border past the room plate/map and the phone's thumbs;
-      // never move the compass into the room itself.
-      if(tx<=marginX+1||tx>=w-marginX-1){const low=window.GameInput?.touch&&H.held()&&h>w?236:156,high=h-(window.GameInput?.touch?(h<500?200:270):55);ty=clamp(ty,Math.min(low,high),Math.max(low,high));}
-      else if(ty<=top+1){
-        if(window.GameInput?.touch){tx=w-marginX;ty=H.held()&&h>w?260:180;}
-        else tx=clamp(tx,Math.min(240,w/2),Math.max(w/2,w-150));
-      }
-      else if(window.GameInput?.touch){tx=h>w?84:w/2;}
+      marker.hidden=false;marker.dataset.state='edge';
+      const text=sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m';if(label.textContent!==text)label.textContent=text;
+      // No free border space (a full-width notice, say): wait rather than cover ink.
+      const placement=guidePosition(tx,ty,w,h,now);
+      if(!placement)marker.hidden=true;else{
+      tx=placement.x;ty=placement.y;marker.dataset.side=placement.side;
       if(activeId!==sampled.id){activeId=sampled.id;x=tx;y=ty;angle=targetAngle;alpha=0;}
       const ease=1-Math.exp(-dt*12);
       // Position is pinned immediately: interpolating between edges would send
@@ -188,10 +222,9 @@
       alpha+=(1-alpha)*(1-Math.exp(-dt*12));
       marker.hidden=false;marker.dataset.state='edge';
       marker.style.left=x+'px';marker.style.top=y+'px';marker.style.opacity=alpha.toFixed(3);
-      marker.dataset.side=x>w/2?'right':'left';
-      marker.dataset.border=y>=h-bottom-1?'bottom':'side';
-      arrow.style.transform='rotate('+angle+'rad)';label.textContent=sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m';
-      }
+      marker.dataset.border='side';
+      arrow.style.transform='rotate('+angle+'rad)';
+      }}
     }
     if(titleUntil===-1)titleUntil=Date.now()+5000;
     card.hidden=speech||titleUntil<Date.now(); if(!card.hidden)card.textContent=titleText;
