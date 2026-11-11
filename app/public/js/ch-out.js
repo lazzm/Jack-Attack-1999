@@ -89,6 +89,13 @@
     id: 'car', room: 'drive',
     build(r) {
       const scale = r.carFrame.s;
+      // Same sloping window plane as the solid car cabin; all coordinates
+      // derive from its frame. Never wash the parking space or a player's tool.
+      r.npcWorkSurface=action=>{
+        if(action!=='carwash'||r.car?.present===false||carTool)return null;
+        const p=carPoint(-(75-20*9/47),-95,30),support=carPoint(-(75-29*9/47),-104,-24);
+        return {...p,rx:8*scale,rz:5*scale,slope:9/47,support};
+      };
       MUD.forEach(([lx, ly, lz, f], i) => {
         const {x,y,z}=carPoint(lx,ly,lz);
         const m = M({ c: '#fff', map: mudTex(i, i === 9), tr: true, dw: false, sh: 10 }).clone();

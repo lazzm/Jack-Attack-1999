@@ -63,8 +63,8 @@
   const seat = o => Object.assign({ h: 45, back: true }, o);
   const SPOT = {
     // kitchen
-    sink: { lvl: 'G', x: -80, z: -97, approach: [-80, -84], face: 180, act: 'washup', look: [-80, 260, -140] },
-    hob: { lvl: 'G', x: -10, z: -84, face: 180, act: 'cook' },
+    sink: { lvl: 'G', x: -80, z: -97, approach: [-80, -84], face: 180, act: 'washup', look: [-80, 230, -180] },
+    hob: { lvl: 'G', x: -36, z: -84, face: 180, act: 'cook' },
     kettle: { lvl: 'G', x: -192, z: -82, face: 175, act: 'mug' },
     // (a cuppa somewhere out of the way: never in the strip in front of the worktop, never in the doorway's path)
     kmug1: { lvl: 'G', x: -205, z: 105, face: 60, act: 'mug' },
@@ -82,10 +82,10 @@
     hallPost: { lvl: 'G', x: 262, z: 610, face: 160 },
     landingSis: { lvl: 'U', x: 290, z: 335, face: 150 },
     // garden, drive
-    gardenWater: { lvl: 'G', x: -80, z: -700, face: -90, act: 'water' },
+    gardenWater: { lvl: 'G', x: -92, z: -700, face: -90, act: 'water' },
     gardenLook: { lvl: 'G', x: 10, z: -850, face: 200 },
     gardenYoyo: { lvl: 'G', x: 40, z: -540, face: 160, act: 'yoyo' },
-    carwash: { lvl: 'G', x: CAR.x-126, z: CAR.z, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
+    carwash: { lvl: 'G', x: CAR.x-116, z: CAR.z, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
     carStory: { lvl: 'G', x: CAR.x-124, z: CAR.z-188, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
     // Jack's room (story visits)
     bedDoorMom: { lvl: 'U', x: 178, z: 196, face: -95 },
@@ -174,8 +174,9 @@
     // Work uses the same room/thing surfaces as the visible models. The
     // callback is read only while working; no chore steps or placements change.
     c.rig.workSurface = action => {
-      const room=H.ROOMS[action==='water'?'garden':'kitchen'];
-      return room?.npcWorkSurface?.(action)||room?.workSurfaces?.[action]||null;
+      const room=H.ROOMS[action==='water'?'garden':action==='carwash'?'drive':'kitchen'];
+      // (undefined: that room or chore isn't built yet, so the rig keeps its free mime)
+      return room?.npcWorkSurface?room.npcWorkSurface(action):room?.workSurfaces?.[action];
     };
     // Read the real hinge frame only during a reach. No navigation changes.
     const handle = new T.Vector3(), otherHandle = new T.Vector3(), contact = { x: 0, y: 0, z: 0 };
@@ -502,7 +503,7 @@
   }
   const prio = c => ({ mom: 3, dad: 2, sister: 1 })[c.id];
   const travelAction = c => c.goal?.away && c.goal.away !== 'bed' ? 'leave' : null;
-  function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow || /^(washup|cook|water)$/.test(c.rig?.st.action||'')) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
+  function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow || /^(washup|cook|wipe|water|carwash)$/.test(c.rig?.st.action||'')) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
   // Listening is presentation only: no route, position, dialogue or random draw
   // changes. A wide group gets small turns with a pause between them. The rig's
   // existing exclusive support-foot solve lifts one shoe while the other stays.
@@ -768,7 +769,7 @@
     c.hold = 99; conversationHud();
     const p = player(), d = dist(c, p);
     H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0, 'np.' + c.id);
-    if (!c.seated && d < 82 && sameFloor(c, p) && !/^(washup|cook|water)$/.test(c.rig?.st.action||'')) { // (half a pace back if there's room: never into the worktop)
+    if (!c.seated && d < 82 && sameFloor(c, p) && !/^(washup|cook|wipe|water|carwash)$/.test(c.rig?.st.action||'')) { // (half a pace back if there's room: never into the worktop)
       const a0 = Math.atan2(c.x - p.x, c.z - p.z); c.backoff = null;
       for (const da of [0, 0.5, -0.5, 0.9, -0.9]) {
         const a = a0 + da, step = 32, tx = c.x + Math.sin(a) * step, tz = c.z + Math.cos(a) * step;

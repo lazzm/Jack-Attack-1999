@@ -20,12 +20,14 @@ const report={baseline,work:[],pages:[],budgets:{}};
 // Follow the production sink stance: the hands cannot reach the bowl from
 // the old, distant foot position without folding the torso over the counter.
 const stanceSource=baseline?execFileSync('git',['show','HEAD:app/public/js/np-life.js'],{cwd:__dirname,encoding:'utf8'}):fs.readFileSync(__dirname+'/../app/public/js/np-life.js','utf8');
+const hobX=Number(stanceSource.match(/hob: \{[^\n]*?x: (-?[\d.]+)/)[1]);
 const sinkZ=Number(stanceSource.match(/sink: \{[^\n]*?z: (-?[\d.]+)/)[1]);
+const waterX=Number(stanceSource.match(/gardenWater: \{[^\n]*?x: (-?[\d.]+)/)[1]),houseSource=baseline?execFileSync('git',['show','HEAD:app/public/js/hs-house.js'],{cwd:__dirname,encoding:'utf8'}):fs.readFileSync(__dirname+'/../app/public/js/hs-house.js','utf8'),[,bedX,bedR]=houseSource.match(/water:\{x:REAR\.flowers\.x\+(\d+),y:GY-8,z:REAR\.flowers\.z-6,rx:(\d+)/).map(Number);
 for(const [action,x,z,h,surface]of [
  ['washup',-80,sinkZ,Math.PI,{x:-81,y:263,z:-142,rx:1.5,rz:1}],
  ['washup',-80,sinkZ,Math.PI,{x:-81,y:267,z:-142,rx:1.5,rz:1}],
- ['cook',-10,-84,Math.PI,{x:-24,y:253.3,z:-134,rx:3.1,rz:3.1}],
- ['water',-80,-700,-Math.PI/2,{x:-127,y:345,z:-706,rx:5,rz:6}]]){
+ ['cook',hobX,-84,Math.PI,{x:-24,y:253.3,z:-134,rx:3.1,rz:3.1}],
+ ['water',waterX,-700,-Math.PI/2,{x:-170+bedX,y:345,z:-706,rx:bedR,rz:6}]]){
  const r=w.NPCRig.create('mom',{tier:'low'});r.floor=()=>353;r.teleport(x,353,z,h);r.workSurface=()=>surface;r.set({action});step(r,180);
  let height=0,outside=0,fingerGap=0,solidRadius=0,panBottom=0,bodyClearance=Infinity;const samples=[];const geom=r.mesh.geometry,vertices=[];for(let j=0;j<geom.attributes.position.count;j++)if(geom.attributes.skinIndex.getX(j)===w.NPCRig.BONES.indexOf(action==='washup'?'p_sponge':action==='cook'?'p_spoon':'p_can'))vertices.push(j);
  for(let i=0;i<240;i++){

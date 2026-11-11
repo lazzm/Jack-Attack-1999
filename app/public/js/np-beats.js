@@ -19,6 +19,25 @@
     'talk.dad.evening.06': {to:'previous',gesture:'offer',relay:{at:2.57,to:'family'}},
     'talk.mom.evening.02': {to:'previous',gesture:'agree'},
     'talk.dad.afternoon.01': {to:'previous',gesture:'question'},
-    'talk.sister.afternoon.03': {to:'previous',gesture:'offer'}
+    'talk.sister.afternoon.03': {to:'previous',gesture:'offer'},
+    'bark.sis.line2': {to:'mom',gesture:'offer'},
+    'bark.sis.tea3': {to:'previous',gesture:'question',relay:{at:1.1,to:'mom'}},
+    'bark.sis.cut1': {to:'mom',gesture:'question'},
+    'bark.dad.mess1': {to:'previous',gesture:'question',relay:{at:2.2,to:'family'}},
+    'bark.dad.tea3': {to:'previous',gesture:'offer',relay:{at:1.4,to:'family'}},
+    'talk.dad.afternoon.11': {to:'previous',gesture:'offer',relay:{at:3.4,to:'mom'}},
+    'talk.dad.afternoon.10': {to:'previous',gesture:'agree',relay:{at:3.8,to:'family'}},
+    'talk.dad.evening.11': {to:'previous',gesture:'offer'},
+    'talk.dad.evening.12': {to:'previous',gesture:'agree'},
+    'talk.mom.evening.10': {to:'previous',gesture:'agree',relay:{at:6,to:'sister'}},
+    'talk.mom.evening.12': {to:'previous',gesture:'offer',relay:{at:2.8,to:'dad'}},
+    'talk.mom.evening.11': {to:'sister',gesture:'offer'},
+    'talk.mom.afternoon.09': {to:'previous',gesture:'agree',relay:{at:2.6,to:'dad'}},
+    'talk.mom.afternoon.10': {to:'previous',gesture:'offer'},
+    'talk.sister.afternoon.09': {to:'previous',gesture:'offer',relay:{at:2.5,to:'family'}},
+    'talk.sister.afternoon.11': {to:'previous',gesture:'question',relay:{at:2.8,to:'family'}},
+    'talk.sister.afternoon.10': {to:'previous',gesture:'offer'},
+    'talk.sister.evening.09': {to:'previous',gesture:'offer',relay:{at:2.2,to:'family'}},
+    'talk.sister.evening.12': {to:'previous',gesture:'offer'}
   });
 })();

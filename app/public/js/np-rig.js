@@ -1113,7 +1113,33 @@
     if (on('mug')) { const M = at('mug'); G.add(tube([M[0] + 3.2, M[1] - 4.5, M[2]], [M[0] + 3.2, M[1] + 4.5, M[2]], 3.5, 3.6, sg), (x, y) => y > M[1] + 4.2 ? C('#7a4a2a') : C('#d8493b'), 'p_mug'); G.add(torusArc([M[0] - 0.2, M[1], M[2]], 2.0, 0.55, Math.PI, [0, 0, 90], null, 6, 4), C('#d8493b'), 'p_mug'); }
     if (on('sponge')) { const Sp = at('sponge'); G.add(rbox([Sp[0], Sp[1] - 1, Sp[2] + 1.5], [4.6, 3.2, 8], 1.0, null, 1), (x, y) => y > Sp[1] - 0.3 ? C('#3c8a3e') : C('#f2d24a'), 'p_sponge'); }
     if (on('spoon')) { const Sw = at('spoon'); G.add(tube([Sw[0], Sw[1] + 3, Sw[2]], [Sw[0], Sw[1] - 22, Sw[2] + 3], 0.6, 0.55, 4), C('#c79a5c'), 'p_spoon'); G.add(ell([Sw[0], Sw[1] - 24, Sw[2] + 3.2], [1.9, 3.0, 0.8], [6, 4]), C('#c79a5c'), 'p_spoon'); }
-    if (on('can')) { const Cn = at('can'), green = C('#3f8f4c'); G.add(rbox([Cn[0], Cn[1] - 13, Cn[2] + 3], [11, 15, 20], 3.2, null, 2), green, 'p_can'); G.add(tube([Cn[0], Cn[1] - 14, Cn[2] + 12], [Cn[0], Cn[1] - 6, Cn[2] + 30], 1.3, 0.9, 5), green, 'p_can'); G.add(ell([Cn[0], Cn[1] - 6, Cn[2] + 30.5], [2.2, 2.2, 1.0], [6, 4], [-60, 0, 0]), C('#2f6f3a'), 'p_can'); G.add(torusArc([Cn[0], Cn[1] - 3, Cn[2] + 2], 6.4, 0.9, Math.PI, [0, 90, 0], null, 8, 4), green, 'p_can'); }
+    if (on('can')) { const Cn = at('can'), green = C('#3f8f4c'); G.add(rbox([Cn[0], Cn[1] - 13, Cn[2] + 3], [11, 15, 20], 3.2, null, 2), green, 'p_can'); G.add(tube([Cn[0], Cn[1] - 14, Cn[2] + 12], [Cn[0], Cn[1] - 6, Cn[2] + 30], 1.3, 0.9, 5), green, 'p_can'); G.add(ell([Cn[0], Cn[1] - 6, Cn[2] + 30.5], [2.2, 2.2, 1.0], [6, 3], [-60, 0, 0]), C('#2f6f3a'), 'p_can'); G.add(torusArc([Cn[0], Cn[1] - 3, Cn[2] + 2], 6.4, 0.9, Math.PI, [0, 90, 0], null, 6, 3), green, 'p_can'); }
+    // Mom has no raygun geometry: her spare joint carries the watering-can
+    // spray. Bind space: x/z are centimetres, y is a fraction of the live pour
+    // (the joint is stretched from the rose to the soil each frame). Closed
+    // three-sided streaks and drops break the spray up; it widens as it falls
+    // and ends in a darker wet patch with a few splash flecks. Same skeleton,
+    // material and draw as her body at every LOD.
+    if (on('can')) { const P=J.p_raygun,pale=C('#e2eff3'),blue=C('#a9cfdf'),deep=C('#86b6cb'),A=new T.Vector3(),B=new T.Vector3(),N=new T.Vector3(),M=new T.Vector3();
+      const sx=(i,f)=>P[0]+i*(.45+3.6*f),sz=(i,f)=>P[2]+(i?-1.5:2.6)*f;
+      const solid=(pos,center,color)=>{ // outward winding, flat facets
+        for(let k=0;k<pos.length;k+=9){A.fromArray(pos,k+3).sub(B.fromArray(pos,k));M.fromArray(pos,k+6).sub(B);N.crossVectors(A,M);
+          M.fromArray(pos,k).add(A.fromArray(pos,k+3)).add(B.fromArray(pos,k+6)).multiplyScalar(1/3).sub(center);
+          if(N.dot(M)<0)for(let q=0;q<3;q++){const t=pos[k+3+q];pos[k+3+q]=pos[k+6+q];pos[k+6+q]=t;}}
+        const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.computeVertexNormals();G.add(g,color,'p_raygun',{noAO:true});
+      };
+      const piece=(x0,z0,x1,z1,f0,f1,r,color,spin=0)=>{const m=f0+(f1-f0)*.38,top=[x0,P[1]-f0,z0],bot=[x1,P[1]-f1,z1],cx=x0+(x1-x0)*.38,cz=z0+(z1-z0)*.38,ring=[0,1,2].map(k=>[cx+Math.cos(k*2.094+spin)*r,P[1]-m,cz+Math.sin(k*2.094+spin)*r]),pos=[];
+        for(let k=0;k<3;k++){const a=ring[k],b=ring[(k+1)%3];pos.push(...top,...a,...b,...bot,...b,...a);}
+        solid(pos,new T.Vector3(cx,P[1]-m,cz),color);};
+      const streak=(i,f0,f1,r,color,spin)=>piece(sx(i,f0),sz(i,f0),sx(i,f1),sz(i,f1),f0,f1,r,color,spin);
+      for(const [i,f0,f1,r,c]of [[0,0,.27,.45,pale],[0,.35,.6,.55,blue],[0,.68,.88,.62,pale],[-1,.04,.23,.42,blue],[-1,.3,.5,.5,pale],[-1,.6,.77,.56,deep],[1,0,.17,.42,pale],[1,.25,.45,.5,deep],[1,.54,.71,.56,blue],
+        [0,.93,.965,.62,blue],[-1,.84,.875,.58,pale],[-1,.91,.94,.55,blue],[1,.78,.81,.58,pale],[1,.87,.9,.58,blue]])streak(i,f0,f1,r,c,i*.7);
+      const lx=P[0],lz=P[2]+.6;
+      for(const [a,d]of [[.4,3.6],[2.5,4.4],[4.4,3.2]]){const x=lx+Math.cos(a)*d,z=lz+Math.sin(a)*d;piece(x,z,x+Math.cos(a)*.8,z+Math.sin(a)*.8,.975,.998,.45,pale,a);}
+      // The wet patch: an irregular dark disc just proud of the soil.
+      const wet=[],y=P[1]-1+.004,rad=[7,5.8,7.6,6.2,7.2,5.6];for(let k=0;k<6;k++){const a0=k*Math.PI/3,a1=(k+1)*Math.PI/3,r0=rad[k],r1=rad[(k+1)%6];wet.push(lx,y,lz,lx+Math.cos(a1)*r1,y,lz+Math.sin(a1)*r1,lx+Math.cos(a0)*r0,y,lz+Math.sin(a0)*r0);}
+      solid(wet,new T.Vector3(lx,y-1,lz),C('#2b1d13'));
+    }
     if (on('mag')) { const Mg = at('mag'); G.add(printedBox([Mg[0], Mg[1], Mg[2]], [21, 28, 0.8], 0.25, [0, 0, 0]), C('#ffffff'), 'p_mag', {cell:CELL.print,noAO:true}); }
     if (on('phone')) {
       const Ph = at('phone'), cream = C('#e4ddc8'), grey = C('#4a4c54');
@@ -1122,7 +1148,7 @@
       // Solid details stay in the existing skinned mesh/material.
       const detail = (y,z,size,color) => G.add(rbox([Ph[0]+.83,Ph[1]+y,Ph[2]+z],size,.08,[6,0,0],1),color,'p_phone');
       detail(-4,1.5,[.3,2.6,3.4],C('#a8c878'));
-      for(let i=0;i<12;i++)detail(-1+Math.floor(i/3)*1.4,.1+(i%3)*1.3,[.3,1,1],grey);
+      for(let i=0;i<6;i++)detail(-.3+Math.floor(i/3)*2.8,.1+(i%3)*1.3,[.3,2.4,1],grey); // (key pairs: pays for the watering spray)
       detail(-6.3,1.7,[.3,.6,2.2],grey);
       G.add(tube([Ph[0],Ph[1]-6.5,Ph[2]-.6],[Ph[0],Ph[1]-10.6,Ph[2]-.95],.3,.3,3),C('#222222'),'p_phone');
     }
@@ -1633,9 +1659,10 @@
     const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 27, lookR: [0,0,150], props: { sponge: 1 } };
     const workP=new T.Vector3(),workOffset=new T.Vector3(),workQ=new T.Quaternion();
     function surfacePoint(action,t){
-      const p=rig.workSurface?.(action);if(!p||![p.x,p.y,p.z].every(Number.isFinite))return null;
+      const p=rig.workSurface?.(action);if(!p||![p.x,p.y,p.z].every(Number.isFinite)||Math.hypot(p.x-st.x,p.z-st.z)>90)return null;
+      if(action==='carwash'){const sn=Math.sin(t*2.4)*(p.rz||0);return toRig(workP,p.x+sn*(p.slope||0),p.y-sn,p.z+Math.cos(t*2.4)*(p.rx||0));}
       toRig(workP,p.x,p.y,p.z);
-      const phase=t*(action==='cook'?3.4:action==='washup'?3:.8),c=Math.cos(st.h),s=Math.sin(st.h);
+      const phase=t*(action==='cook'?3.4:action==='washup'?3:action==='wipe'?2.6:.8),c=Math.cos(st.h),s=Math.sin(st.h);
       const x=Math.cos(phase)*(p.rx||0),z=Math.sin(phase)*(p.rz||0);
       workP.x+=x*c-z*s;workP.z+=x*s+z*c;
       return workP;
@@ -1655,24 +1682,64 @@
         const a=washAct.arms.R;a.hand[0]=-90;a.hand[1]=180;toolTarget(a,p,[0,-S.handLen*.55-1,3.5]);
         const left=washAct.arms.L;left.hand[0]=-55;left.hand[1]=180;workP.x+=10;workP.z-=2;toolTarget(left,workP,[0,-S.handLen*.8,1]);
       }
-      washAct.lookR[1] = S.eyeY - 3; return washAct;
+      washAct.lookR[1] = S.eyeY - 3; return !p&&absent('washup')?restWork:washAct;
     }
-    const cookAct={arms:{L:{ik:[17,0,27],pole:[.8,-.3,-1],hand:[-70,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.7,-.4,-1],hand:[-22,0,0],worldHand:true}},lean:24,lookR:[-5,0,40],props:{spoon:1}};
+    const cookAct={arms:{L:{ik:[17,0,27],pole:[.45,-1,-.3],hand:[-70,0,0],worldHand:true},R:{ik:[0,0,0],pole:[-.35,-1,-.25],hand:[-38,0,0],worldHand:true}},lean:12,lookR:[-8,0,85],props:{spoon:1}};
     function cooking(t,H){
       const a=cookAct.arms.R;a.ik[0]=-7-Math.cos(t*3.4)*3.2;a.ik[1]=H+15;a.ik[2]=33+Math.sin(t*3.4)*3.2;
-      cookAct.arms.L.ik[1]=H+7;cookAct.lookR[1]=H+6;
+      cookAct.arms.L.ik[1]=H+7;cookAct.lookR[1]=S.eyeY-40;
       const p=surfacePoint('cook',t);if(p){
         toolTarget(a,p,[0,-S.handLen*.5-24,5.2]);
         const support=rig.workSurface('cook')?.support;
         if(support){const left=cookAct.arms.L;left.hand[0]=90;left.hand[1]=0;left.hand[2]=180;toRig(workP,support.x,support.y,support.z);toolTarget(left,workP,[0,-S.handLen*.35,S.handLen*.12]);}
       }else if(rig.workSurface){a.ik[0]=-16;a.ik[1]=H-2;a.ik[2]=23;}
-      return cookAct;
+      return !p&&absent('cook')?restWork:cookAct;
     }
-    const waterAct={arms:{L:[6,8,0,25,0],R:{ik:[-12,0,30],pole:[-.7,-.5,-1],hand:[0,0,0],worldHand:true}},lean:6,lookR:[-10,0,60],props:{can:1}};
+    const waterAct={arms:{L:[6,8,0,25,0],R:{ik:[-12,0,30],pole:[-.7,-.5,-1],hand:[0,0,0],worldHand:true}},lean:6,lookR:[-10,0,110],props:{can:1}};
     function watering(t,H){
-      const a=waterAct.arms.R;a.hand[0]=38+Math.sin(t*.8)*7;a.ik[1]=H+2+Math.sin(t*.8)*2;
+      waterAct.lookR[1]=S.eyeY-20;
+      const a=waterAct.arms.R;a.hand[0]=55+Math.sin(t*.8)*6;a.ik[1]=H+2+Math.sin(t*.8)*2;
       const p=surfacePoint('water',t);if(p){p.y+=65;toolTarget(a,p,[S.handLen*.09,-S.handLen*.6-9.4,S.handLen*.16+28.5]);}
-      return waterAct;
+      return !p&&absent('water')?restWork:waterAct;
+    }
+    const restWork={arms:{L:[4,5,0,15,0],R:[4,5,0,18,0]},lean:0};
+    // null: the room says the tool or surface is gone (rest the arms). undefined:
+    // that room/chore is not built yet, so keep the free-standing mime.
+    const absent=action=>!!rig.workSurface&&rig.workSurface(action)!==undefined;
+    const mimeWipe=(t,H)=>({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } });
+    const mimeCar=(t,H)=>({ arms: { L: { ik: [12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [-12 - Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [-10, H + 10, 50], props: { sponge: 1 } });
+    const wipeAct={arms:{L:{ik:[0,0,0],pole:[.45,-1,-.3],hand:[90,0,180],worldHand:true},R:{ik:[0,0,0],pole:[-.45,-1,-.25],hand:[90,0,180],worldHand:true}},lean:18,lookR:[-5,0,110],props:{sponge:1}};
+    function wiping(t,H,car=false){
+      const action=car?'carwash':'wipe',p=surfacePoint(action,t),a=wipeAct.arms.R;
+      if(!p)return absent(action)?restWork:car?mimeCar(t,H):mimeWipe(t,H);
+      wipeAct.lean=car?24:22;wipeAct.lookR[1]=S.eyeY-20;
+      // Wiping turns the sponge within the palm; car washing keeps its broad
+      // face against the sloping glass. These are solid face contact offsets.
+      a.hand[0]=car?90+Math.atan(rig.workSurface(action).slope||0)/D2R:90;
+      toolTarget(a,p,car?[0,-S.handLen*.55-2.6,3.5]:[0,-S.handLen*.55+1.5,4.6]);
+      const support=rig.workSurface(action)?.support,left=wipeAct.arms.L;left.hand[0]=car?a.hand[0]-90:90;
+      if(support){toRig(workP,support.x,support.y,support.z);toolTarget(left,workP,[0,-S.handLen*(car?.28:.35),S.handLen*(car?.225:.12)]);}
+      else{left.ik[0]=17;left.ik[1]=H-8;left.ik[2]=12;}
+      return wipeAct;
+    }
+    const pourTop=new T.Vector3(),pourEnd=new T.Vector3(),pourQ=new T.Quaternion();
+    function wateringStream(dt,talking){
+      if(kind!=='mom')return;
+      const soil=st.action==='water'&&!st.walking&&!st.engage&&!st.listen&&!talking&&B.p_can.scale.x>.98?rig.workSurface?.('water'):null;
+      const on=soil&&[soil.x,soil.y,soil.z].every(Number.isFinite);
+      st.pourK=clamp((st.pourK||0)+(on?dt*5:-dt*7),0,1);
+      const b=B.p_raygun;
+      if(!st.pourK||!on){if(b.scale.x)b.scale.setScalar(0);st.pourK=0;return;}
+      // Solve from the actual rose after the arm, not an independent emitter.
+      pourTop.set(S.handLen*.09,-S.handLen*.6-9.4,S.handLen*.16+28.5).applyQuaternion(W.handR.q).add(W.handR.p);
+      toRig(pourEnd,soil.x,soil.y,soil.z);
+      const length=pourTop.y-pourEnd.y;
+      if(length<2||length>95){b.scale.setScalar(0);return;}
+      pourQ.copy(W.handL.q).invert();
+      b.position.copy(pourTop).sub(W.handL.p).applyQuaternion(pourQ);
+      b.quaternion.copy(pourQ);
+      const width=smooth(st.pourK)*(.96+.04*Math.sin(st.t*11));
+      b.scale.set(width,length,width);
     }
     const magP=new T.Vector3(),magAct={arms:{L:{ik:[10.5,0,0],pole:[.8,-.6,-.8],hand:[200,0,0],worldHand:true},R:{ik:[-10.5,0,0],pole:[-.8,-.6,-.8],hand:[200,0,0],worldHand:true}},lean:-2,lookR:[0,0,34],props:{mag:1}};
     function magazine(t,H){
@@ -1703,7 +1770,7 @@
     const ACT = {
       washup: washing,
       cook: cooking,
-      wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
+      wipe: (t,H) => wiping(t,H),
       water: watering,
       phone: (t, H) => { phoneArm();phoneAct.arms.L=talkArm(t,'L',.6);return phoneAct; },
       paper: reading,
@@ -1713,7 +1780,7 @@
       tea: (t, H) => ({ arms: { L: st.seat&&!st.seat.table ? lap(H).L : { ik: [12, table(H)+3, 27], pole: [.9,-.3,-.7], hand: [-75,0,0] }, R: cupArm(H,true) }, lean: 3, props: { mug: 1 } }),
       draw: drawing,
       yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [-8, H - 4, 30], props: { string: 1 } }; },
-      carwash: (t, H) => ({ arms: { L: { ik: [12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [-12 - Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [-10, H + 10, 50], props: { sponge: 1 } }),
+      carwash: (t,H) => wiping(t,H,true),
       sit: (t, H) => ({ arms: lap(H), lean: -3, props: {} }),
       doze: (t, H) => ({ arms: lap(H), lean: -8, props: {}, doze: 1 }),
       mug: (t, H) => ({ arms: { L: st.seat ? lap(H).L : [6,7,0,22,0], R: cupArm(H,false) }, lean: 0, props: { mug: 1 } }),
@@ -1805,10 +1872,12 @@
       const validReply=st.replyAt> -1e8&&(!st.talkVoice||st.replyVoice===st.talkVoice);
       const returnAge=validReply&&replySource?replyVoice.progress()*replyVoice.dur-(st.replyVoiceAt??0):(now-(st.replyAt??-1e9))/1000;
       if(!replyPaused)st.returnK=talking&&(!st.talkVoice||replyActive)&&validReply&&returnAge>=0&&returnAge<1.35?smooth(returnAge/.25)*(1-smooth((returnAge-.65)/.7)):0;
-      const workJob=!st.walking&&['washup','cook','water'].includes(st.action);
-      if(workJob&&st.engage&&!st.workGrip&&W.armR.p.lengthSq()>1){
+      const workJob=!st.walking&&['washup','cook','wipe','water','carwash'].includes(st.action);
+      // Pause the action clock, not a stale copy of the wrists: a moved or
+      // removed surface must still be read while the player is speaking.
+      if(workJob&&!rig.workSurface&&st.engage&&!st.workGrip&&W.armR.p.lengthSq()>1){
         st.workGrip={};for(const sd of ['L','R'])st.workGrip[sd]={p:W['hand'+sd].p.clone().lerp(W['arm'+sd].p,.025),q:W['hand'+sd].q.clone()};
-      }else if(!workJob||!st.engage)st.workGrip=null;
+      }else if(!workJob||!st.engage||rig.workSurface)st.workGrip=null;
       const attending=!!(st.engage||st.listen||talking);
       if(workJob&&attending&&!st.workAttending)st.workAt=now;
       st.workAttending=workJob&&attending;
@@ -1845,8 +1914,9 @@
         // a relaxed stance: weight on one leg (each person has a favourite side), drifting slowly, now and then swapping
         if (!st.weightSide) st.weightSide = st.lean;
         if (t > st.weightAt) { st.weightAt = t + 5 + Math.random() * 8; st.weightSide = Math.random() < 0.7 ? -st.weightSide : st.lean; }
-        const ws = Math.sin(t * 0.33 + st.seed) * 0.5 + Math.sin(t * 0.13 + st.seed) * 0.3, side = st.weightSide;
-        st.wside += (side - st.wside) * (1 - Math.exp(-dt * 1.2));
+        const bodyTime=workJob&&st.engage&&rig.workSurface?(st.jobPause??t):t;
+        const ws = Math.sin(bodyTime * 0.33 + st.seed) * 0.5 + Math.sin(bodyTime * 0.13 + st.seed) * 0.3, side = st.weightSide;
+        if(!(workJob&&st.engage&&rig.workSurface))st.wside += (side - st.wside) * (1 - Math.exp(-dt * 1.2));
         hx = st.wside * 1.7 + ws * 0.8; roll = st.wside * 3.4 + ws * 1.2; hy -= 0.8 + Math.abs(ws) * 0.3;
         const support = st.feet[0].swing ? -1 : st.feet[1].swing ? 1 : 0;
         const lift = Math.max(st.feet[0].lift, st.feet[1].lift);
@@ -1889,12 +1959,13 @@
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
-      const lean = (act?.lean || 0) - st.returnK*1.4 + (st.walking ? 2 : 0) + (st.engage&&!seat&&S.familyHands&&kind!=='sister'?2.5:0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
+      const lean = (act?.lean || 0) - st.returnK*1.4 + (st.walking ? 2 : 0) + (st.engage&&!seat&&!workJob&&S.familyHands&&kind!=='sister'?2.5:0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin((workJob&&st.engage&&rig.workSurface?jobTime:t) * (1.45 + st.seed * 0.035)) * 0.9 : 0;
+      const workBodyAck=rig.workSurface&&workJob?0:st.workAck;
       let workYaw=0;
-      if(workJob&&st.look){toRig(tmp,st.look.x,st.look.y,st.look.z);workYaw=clamp(Math.atan2(tmp.x,tmp.z),-.8,.8)*st.workAck*.09;}
-      _q.setFromEuler(_e.set((lean * 0.45 -st.workAck*.8+ (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R+workYaw*.45, (-roll * 0.5-readingLean*(st.readingSide||1)*20) * D2R, 'YXZ')); slerpTo('spine', _q, readingLean?1:k); fk('spine');
-      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6-st.workAck*1.2) * D2R, -yaw * 0.8 * D2R+workYaw*.55, (-roll * 0.35-readingLean*(st.readingSide||1)*24) * D2R, 'YXZ')); slerpTo('chest', _q, readingLean?1:k); fk('chest');
-      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(st.workAck*.012, 0, (sd === 'L' ? 1 : -1) * (breathe * 0.5+st.workAck*1.5+st.returnK*(st.replyKind==='question'?1.7:1)) * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
+      if(workJob&&st.look){toRig(tmp,st.look.x,st.look.y,st.look.z);workYaw=clamp(Math.atan2(tmp.x,tmp.z),-.8,.8)*workBodyAck*.09;}
+      _q.setFromEuler(_e.set((lean * 0.45 -workBodyAck*.8+ (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R+workYaw*.45, (-roll * 0.5-readingLean*(st.readingSide||1)*20) * D2R, 'YXZ')); slerpTo('spine', _q, readingLean?1:k); fk('spine');
+      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6-workBodyAck*1.2) * D2R, -yaw * 0.8 * D2R+workYaw*.55, (-roll * 0.35-readingLean*(st.readingSide||1)*24) * D2R, 'YXZ')); slerpTo('chest', _q, readingLean?1:k); fk('chest');
+      for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(workBodyAck*.012, 0, (sd === 'L' ? 1 : -1) * (breathe * 0.5+workBodyAck*1.5+st.returnK*(st.replyKind==='question'?1.7:1)) * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
       // ---- legs: IK to the feet (or to the floor in front of the seat)
       for (let i = 0; i < 2; i++) {
         const f = st.feet[i], sd = i ? 'R' : 'L', s = i ? -1 : 1;
@@ -2002,7 +2073,8 @@
       if (S.familyHands) for (const sd of ['L', 'R']) {
         const right = sd === 'R', held = act?.props || st.props;
         const resetPhase=(t+st.seed*1.3+(right?8:0))%19,settle=near&&!talking&&!st.walking&&resetPhase<1.5?Math.sin(Math.PI*resetPhase/1.5)**2:0;
-        const curl = st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can || held?.phone) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : (right?-3:-1)+settle*7;
+        const supportPalm=sd==='L'&&st.action==='carwash'&&!!rig.workSurface?.('carwash')?.support;
+        const curl = supportPalm?10:st.contactSide === sd && st.contactK > 0.1 ? -38 : right && (held?.mug || held?.sponge || held?.case || held?.spoon || held?.can || held?.phone) ? -38 : right && held?.crayon ? -25 : !right && held?.pad ? -15 : held?.paper || held?.mag ? -12 : (right?-3:-1)+settle*7;
         const finger = B['lid' + sd], targetCurl=curl*D2R, delta=targetCurl-finger.rotation.x;
         // Resting curl is nonzero now. Once settled, avoid rebuilding the same
         // Euler quaternion every frame; retain full easing during a release.
@@ -2025,6 +2097,8 @@
         B.p_string.position.copy(tmp); B.p_string.quaternion.identity(); B.p_string.scale.set(1, len / 30 * B.p_string.scale.x, 1);
         B.yoyo.position.set(tmp.x, tmp.y - len, tmp.z); B.yoyo.rotation.x = t * 30; B.yoyo.scale.setScalar(1);
       } else B.yoyo.scale.setScalar(0);
+      wateringStream(dt,talking);
+      B.p_sponge.rotation.x=st.action==='wipe'?-Math.PI/2:0;
       // the paper and the magazine: held up between the hands, turned to face the reader
       for (const [p, wide] of [['paper', 1], ['mag', 0]]) {
         const b = B['p_' + p]; if (!b.scale.x) continue;
@@ -2090,7 +2164,7 @@
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
       const ackPhase = clamp((now-(st.gestureStart||-1e9))/1100,0,1), ackNod = st.gestureKind === 'nod' ? Math.sin(Math.PI*ackPhase)**2*.16 : 0;
-      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod + st.returnK*(st.replyKind==='question'?.012:st.replyKind==='offer'?.018:.025);
+      const nod = (st.accent || 0) * 0.055 + endNod + ackNod + listenNod + (workJob?st.workAck*.035:0) + st.returnK*(st.replyKind==='question'?.012:st.replyKind==='offer'?.018:.025);
       const stableHead = st.walking && !look;
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
       if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }

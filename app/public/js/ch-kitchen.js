@@ -71,6 +71,15 @@
       // Read actual cosmetic surfaces without completing or changing a chore.
       const panSurface=new T.Vector3();
       r.npcWorkSurface=action=>{
+        if((action==='washup'||action==='wipe')&&H.THINGS['ch.sponge']&&(H.THINGS['ch.sponge'].st==='held'||H.THINGS['ch.sponge'].at.hide||H.THINGS['ch.sponge'].at.room!=='kitchen'))return null;
+        // Wipe only a clear patch: plates, glasses or shopping left there (by
+        // the player or at home before tea) stop the cloth instead of passing through.
+        if(action==='wipe'){
+          const w=r.workSurfaces?.wipe;if(!w)return null;
+          for(const id in H.THINGS){const t=H.THINGS[id],a=t.at;if(!a||a.room!=='kitchen'||a.hide||t.st==='held'||Math.abs((a.y||0)-w.y)>25)continue;
+            if(Math.hypot(a.x-w.x,a.z-w.z)<w.rx+15||Math.hypot(a.x-w.support.x,a.z-w.support.z)<15)return null;}
+          return w;
+        }
         if(action==='washup')return {x:SINK.x+3,y:water.visible?water.position.y:FULL,z:SINK.z+4,rx:1.5,rz:1};
         const pan=dishes[6];
         if(action==='cook'&&pan?.at.room==='kitchen'&&!pan.at.hide&&pan.st!=='held'&&Math.hypot(pan.at.x+24,pan.at.z+134)<5){
