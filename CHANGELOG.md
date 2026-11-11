@@ -1,5 +1,16 @@
 # Jack's Home Page - changelog
 
+## 2.91.0 - 2026-11-11
+- The carriage clock on the lounge mantel has a proper face with hands and numerals, showing the time in the house. The photos on the mantel are all different now: a day at the seaside, a Year 7 school photo, your sister's ballet certificate and cards.
+- The street trees have fuller, leafier tops with real branches.
+- Kitchen cupboard doors have cleaner edges.
+- At night, doors, handles and things you can use stand out a little better, with moonlight near the windows. In the garden the back-door light reaches further and the kitchen window lights the patio.
+- On phones, the arrow pointing to your next job no longer covers the job note or anyone's face, and the "Secret found!" notice sits under the job note instead of hiding it.
+- The PC desktop fits short landscape phone screens; extra icons go into a More Shortcuts folder.
+- Magazines are readable on a phone, with a bigger page and two-finger zoom.
+- Leaning in to the telly or the cupboard games fills the screen with the game.
+- Mom stands more comfortably while she cooks. Water sprays from the watering can and darkens the soil. Dad's hand rests on the car glass while he washes the car. The family have more ways to turn to each other in long conversations.
+
 ## 2.90.0 - 2026-11-10
 - Bounce Quest has an eighth course, Marmalade Treetops: climb through the tree tops, ride the basket lift and the ferry, help Sprout get home and beat the Branch Manager. Six more acorns, 72 in all. Old saves carry on where they were.
 - Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.89.0), voices 9/9, characters, zero, Bounce Quest 72, voice recordings, people pass, identity, the phone UI check, seasons, performance, physics, smoke; the cupboard check failed once under the full check's load and passed twice on its own.
