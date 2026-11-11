@@ -10,6 +10,7 @@
 - Magazines are readable on a phone, with a bigger page and two-finger zoom.
 - Leaning in to the telly or the cupboard games fills the screen with the game.
 - Mom stands more comfortably while she cooks. Water sprays from the watering can and darkens the soil. Dad's hand rests on the car glass while he washes the car. The family have more ways to turn to each other in long conversations.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.90.0), voices 9/9, characters, zero, Bounce Quest, cupboard, voice recordings, people pass, identity, both phone UI checks, seasons, performance, physics, smoke.
 
 ## 2.90.0 - 2026-11-10
 - Bounce Quest has an eighth course, Marmalade Treetops: climb through the tree tops, ride the basket lift and the ferry, help Sprout get home and beat the Branch Manager. Six more acorns, 72 in all. Old saves carry on where they were.
