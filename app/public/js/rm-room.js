@@ -223,6 +223,7 @@
     amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .52 + (LIGHT.main ? .04 : 0)};
       if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .16};
       return ph === 'night' ? {sky: '#8896b0', gnd: '#66616b', i: .21} : {sky: '#c3bdc9', gnd: '#65574f', i: .22}; },
+    rim: () => (skyPhase || 'day') !== 'night' ? null : LIGHT.main ? {c: '#e6cfae', i: .22} : {c: '#8a9ecf', i: .32}, // night separation (hs-kit houseRim)
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });
