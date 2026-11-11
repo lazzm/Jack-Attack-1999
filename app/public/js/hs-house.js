@@ -243,18 +243,36 @@
 
   // Shared print sheet: framed family snaps, engraved door plates, bound rug
   // and address book. All sit on closed meshes; no floating picture cards.
-  function hallPrints() { return M({c:'#fff',pr:true,map:K.tex('hs.family.prints',1024,512,(g)=>{
+  function clockFace(g,date) {
+    g.save();
+    // A gilt mask around the enamel dial, engraved in the corners, as on a
+    // real carriage clock: no paper-looking square behind the round face.
+    g.fillStyle=A.lin(g,0,0,256,256,[[0,'#e2c375'],[.45,'#b58c3c'],[.7,'#d9b866'],[1,'#8f6c2c']]);g.fillRect(0,0,256,256);
+    g.strokeStyle='rgba(92,64,22,.55)';g.lineWidth=2;g.strokeRect(5,5,246,246);g.strokeStyle='rgba(255,236,170,.45)';g.strokeRect(9,9,238,238);
+    for(const [cx,cy,sx,sy] of [[0,0,1,1],[256,0,-1,1],[0,256,1,-1],[256,256,-1,-1]]){g.save();g.translate(cx,cy);g.scale(sx,sy);g.strokeStyle='rgba(84,58,20,.5)';g.lineWidth=1.6;for(let k=0;k<3;k++){g.beginPath();g.moveTo(14+k*5,44-k*3);g.bezierCurveTo(16+k*6,22,24,15+k*5,46-k*3,14+k*5);g.stroke()}g.fillStyle='rgba(84,58,20,.5)';g.beginPath();g.arc(23,23,3,0,7);g.fill();g.restore()}
+    const circle=(r,c)=>{g.fillStyle=c;g.beginPath();g.arc(128,128,r,0,Math.PI*2);g.fill()};
+    circle(121,'#746146');circle(117,'#f7f0d8');g.strokeStyle='#b7a78a';g.lineWidth=1;g.beginPath();g.arc(128,128,112,0,Math.PI*2);g.stroke();
+    for(let i=0;i<60;i++){const a=i*Math.PI/30,major=i%5===0,r0=major?97:103;g.strokeStyle=major?'#302e2b':'#796e59';g.lineWidth=major?2.8:1.2;g.beginPath();g.moveTo(128+Math.sin(a)*r0,128-Math.cos(a)*r0);g.lineTo(128+Math.sin(a)*109,128-Math.cos(a)*109);g.stroke()}
+    const roman=['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+    roman.forEach((s,i)=>{const a=i*Math.PI/6;A.text(g,s,128+Math.sin(a)*84,135-Math.cos(a)*84,'bold 20px Georgia','#37342c','center')});
+    A.text(g,'10 MIN FAST',128,163,'9px Georgia','#756d5a','center');
+    const mins=date.getMinutes()+10,hours=date.getHours()%12+mins/60;
+    const hand=(a,length,width)=>{g.save();g.translate(128,128);g.rotate(a);g.fillStyle='#292d30';g.beginPath();g.moveTo(-width,13);g.lineTo(-width*.65,-length+9);g.lineTo(0,-length);g.lineTo(width*.65,-length+9);g.lineTo(width,13);g.closePath();g.fill();g.restore()};
+    hand(hours*Math.PI/6,57,4.5);hand(mins*Math.PI/30,85,2.7);circle(6,'#65543a');circle(3,'#c8ab65');g.restore();
+  }
+  function hallPrints() { return M({c:'#fff',pr:true,map:K.tex('hs.family.prints',1024,1024,(g)=>{
     const tile=(i,paint)=>{g.save();g.translate(i%4*256,Math.floor(i/4)*256);paint();g.restore();};
     const title=(s,y,size=30)=>{g.fillStyle='#344b53';g.textAlign='center';g.font='bold '+size+'px Georgia';while(g.measureText(s).width>224&&size>10)g.font='bold '+(--size)+'px Georgia';g.fillText(s,128,y);};
-    for(let i=0;i<3;i++)tile([0,1,4][i],()=>{
-      g.fillStyle='#f2e6cb';g.fillRect(0,0,256,256);g.fillStyle=i?'#9aa99a':'#9eb6bf';g.fillRect(17,17,222,180);
-      g.fillStyle=i?'#697a62':'#6f9398';g.fillRect(17,101,222,62);g.fillStyle=i?'#87916b':'#c9b991';g.fillRect(17,157,222,40);
-      if(!i){g.fillStyle='#d7d5bf';g.fillRect(17,138,222,5);}
-      if(i===2){g.strokeStyle='#b2a17c';g.lineWidth=4;for(let x=35;x<240;x+=38){g.beginPath();g.moveTo(x,20);g.lineTo(x,194);g.stroke();}for(let y=45;y<170;y+=34){g.beginPath();g.moveTo(18,y);g.lineTo(238,y);g.stroke();}for(let n=0;n<20;n++){g.fillStyle='#7f9b69';g.beginPath();g.ellipse(37+(n*43)%193,61+(n*17)%110,8,12,.5,0,7);g.fill();g.fillStyle='#a9583b';g.beginPath();g.arc(37+(n*43)%193,65+(n*17)%110,5,0,7);g.fill();}}
-      const people=i===2?[[104,50,137,'#58637b']]:i?[[95,70,88,'#566782'],[164,98,63,'#a66b78']]:[[62,58,130,'#58637b'],[111,72,116,'#a67d70'],[158,99,88,'#6b8060'],[197,126,61,'#a66b78']];
-      for(const [x,y,h,c]of people){g.fillStyle=c;g.beginPath();g.moveTo(x-12,y+27);g.lineTo(x+12,y+27);g.lineTo(x+18,y+h);g.lineTo(x-18,y+h);g.fill();g.lineWidth=9;g.strokeStyle=c;g.beginPath();g.moveTo(x-13,y+34);g.lineTo(x-22,y+h*.8);g.moveTo(x+13,y+34);g.lineTo(x+23,y+h*.8);g.stroke();g.fillStyle='#b88d6b';g.beginPath();g.ellipse(x,y+13,11,15,0,0,7);g.fill();g.fillStyle='#544638';g.beginPath();g.ellipse(x,y+4,11,7,0,Math.PI,Math.PI*2);g.fill();g.fillStyle='#493e35';g.fillRect(x-5,y+13,2,2);g.fillRect(x+3,y+13,2,2);g.fillRect(x-3,y+21,6,1);}
-      g.fillStyle='rgba(243,221,179,.13)';g.fillRect(17,17,222,180);g.textAlign='center';let size=21;g.font='italic '+size+'px Georgia';const caption=['A day at the seaside','First day back, 1998',"Dad's prize tomatoes"][i];while(g.measureText(caption).width>222)g.font='italic '+(--size)+'px Georgia';g.fillStyle='#685749';g.fillText(caption,128,230);
+    ['seaside','siblings','tomatoes'].forEach((kind,i)=>tile([0,1,4][i],()=>A.personalPhoto(g,kind)));
+    tile(8,()=>A.personalPhoto(g,'school'));
+    tile(9,()=>{
+      g.fillStyle='#f4e9cc';g.fillRect(0,0,256,256);g.strokeStyle='#a68c57';g.lineWidth=2;g.strokeRect(12,12,232,232);g.lineWidth=.8;g.strokeRect(18,18,220,220);
+      title('BALLET',53,30);title('Certificate of Merit',81,18);A.text(g,'This is to certify that',128,110,'12px Georgia','#6a5c48','center');title(sis(),143,26);
+      A.text(g,'has passed PRE-PRIMARY',128,167,'12px Georgia','#594b39','center');A.text(g,'with a very springy step',128,184,'italic 11px Georgia','#75654d','center');
+      g.fillStyle='#b69653';A.star(g,128,211,15,12,.83);g.fill();g.strokeStyle='#7c5f58';g.lineWidth=1.1;g.beginPath();g.moveTo(32,217);g.bezierCurveTo(39,199,34,229,48,214);g.bezierCurveTo(60,204,49,225,78,215);g.stroke();A.text(g,'1998',202,220,'12px Georgia','#6a5c48','center');
     });
+    tile(11,()=>{g.fillStyle='#eadfc2';g.fillRect(0,0,256,256);g.strokeStyle='#a4a272';g.lineWidth=5;g.strokeRect(13,13,230,230);g.fillStyle='#6e8b57';for(const s of [-1,1]){g.beginPath();g.ellipse(128+s*26,116,22,9,s*.6,0,7);g.fill()}g.fillStyle='#b96568';for(let i=0;i<5;i++){g.beginPath();g.ellipse(128+Math.cos(i*1.257)*18,94+Math.sin(i*1.257)*18,15,10,i*1.257,0,7);g.fill()}g.fillStyle='#d4b56e';g.beginPath();g.arc(128,94,8,0,7);g.fill();title('THANK YOU',185,24);});
+    tile(12,()=>{g.fillStyle='#dac4d7';g.fillRect(0,0,256,256);g.strokeStyle='#b095ae';g.lineWidth=3;g.strokeRect(12,12,232,232);title('WELL DONE!',61,24);g.fillStyle='#b69151';A.star(g,128,135,45,5,.45);g.fill();A.text(g,sis(),128,219,'italic 24px Georgia','#70465d','center');});
     ['BATHROOM','MOM & DAD'].forEach((s,j)=>tile(j+2,()=>{g.fillStyle='#d8c794';g.fillRect(0,0,256,256);g.strokeStyle='#938157';g.lineWidth=4;g.strokeRect(9,18,238,220);g.translate(0,128);g.scale(1,3.4);title(s,11,30);}));
     tile(5,()=>{g.fillStyle='#e9dfc2';g.fillRect(0,0,256,256);title('PHONE',104,34);title('NUMBERS',154,34);g.strokeStyle='#ad9472';g.lineWidth=3;g.strokeRect(12,12,232,232);});
     tile(6,()=>{g.fillStyle='#69433a';g.fillRect(0,0,256,256);g.fillStyle='#b59a69';g.fillRect(9,4,238,248);g.fillStyle='#344b50';g.fillRect(17,8,222,240);g.fillStyle='#9b7957';g.fillRect(29,14,198,228);g.fillStyle='#6e493e';g.fillRect(36,17,184,222);for(let y=29;y<242;y+=33){g.strokeStyle='#c5ad7f';g.lineWidth=3;g.beginPath();g.moveTo(128,y-11);g.lineTo(159,y);g.lineTo(128,y+11);g.lineTo(97,y);g.closePath();g.stroke();}const fade=g.createLinearGradient(0,0,256,0);fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(.3,'rgba(206,173,127,.02)');fade.addColorStop(.5,'rgba(206,173,127,.25)');fade.addColorStop(.7,'rgba(206,173,127,.02)');fade.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=fade;g.fillRect(0,0,256,256);const rand=K.rnd(1199);for(let n=0;n<9000;n++){g.fillStyle=rand()<.5?'#ffffff0b':'#0000000b';g.fillRect(rand()*256,rand()*256,1,1);}});
@@ -262,7 +280,7 @@
   },{clamp:true,identity:true})}); }
   function printBlock(B,x,y,z,w,h,d,tile,o) {
     const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv;
-    for(let i=0;i<uv.count;i++)uv.setXY(i,(tile%4+uv.getX(i))/4,(2-Math.floor(tile/4)-uv.getY(i))/2);
+    for(let i=0;i<uv.count;i++)uv.setXY(i,(tile%4+uv.getX(i))/4,(4-Math.floor(tile/4)-uv.getY(i))/4);
     return B.geo(geo,x,y,z,hallPrints(),o);
   }
   function familyFrame(B,x,y,z,w,h,tile,ry=0) {
@@ -870,10 +888,42 @@
     fp.box(58, -4, 0, 30, 8, 1.6, M({ c: '#c8a040', family: 'brass' }), { ry: 90 }); [-1, 1].forEach(sd => fp.box(50, -4, sd * 55, 16, 8, 1.6, M({ c: '#c8a040', family: 'brass' }))); // the brass fender
     r.flames = []; for (let i = 0; i < 5; i++) { const f = new T.Mesh(new T.PlaneGeometry(9, 14), new T.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0.0, depthWrite: false })); f.position.set(-280 + 45.5, GY - 22, 500 - 20 + i * 10); f.rotation.y = 90 * D2R; r.group.add(f); r.flames.push(f); }
     // on the mantelpiece: a carriage clock, photos, cards
-    const mp = B.at(-280 + 44, GY - 114, 500);
-    mp.box(0, -8, 0, 7, 16, 12, mBrass); mp.disc(3.6, -9, 0, 4, M('#f8f4e8'), 18, { rz: 90, ry: 90 });
-    [[-40, '#2a5a9a'], [-26, '#9a2a5a'], [30, '#3a7a3a']].forEach(([z, c]) => { mp.box(0, -8, z, 2, 14, 11, M('#c8a040')); mp.plane(1.2, -8, z, 9, 12, M({ c: '#fff', map: photoTex(c) }), { ry: 90 }); });
-    mp.box(0, -9, 44, 1, 16, 12, M('#f4f0e0'), { ry: 20 }); mp.box(0, -8, 52, 1, 14, 10, M('#e8d8f0'), { ry: -15 });
+    const mp = B.at(-280 + 44, GY - 114, 500),clock=mp.at(0,0,0,90);
+    // A glazed brass carriage case, front toward the room (+x). The old
+    // disc's extra quarter turn put the white dial edge-on to the player.
+    clock.rbox(0,-.65,0,13.2,1.3,8.2,.22,mBrass);
+    clock.rbox(0,-15.7,0,12.6,1.1,7.8,.2,mBrass);
+    clock.box(0,-8,-3,10.8,14,1,mBrass);
+    for(const sx of [-1,1])for(const sz of [-1,1])clock.rbox(sx*5.55,-8,sz*3.1,.9,14,.9,.15,mBrass);
+    // The movement is visible through the side glass, recessed behind the dial.
+    clock.cyl(0,-8,-.8,3.2,3.2,2.1,20,mBrass,{rx:90});
+    for(const x of [-2.5,2.5])clock.cyl(x,-5.3,-.4,1.3,1.3,.8,12,mBrass,{rx:90});
+    clock.box(0,-8.4,2.1,10.2,12.3,.55,mBrass);
+    // The dial has its own small canvas: the minute repaint uploads 256 KB,
+    // not the whole family print sheet.
+    r.mantelClockTex=K.tex('hs.mantel.clock',256,256,g=>clockFace(g,window.OwnerTools?.now()||new Date()),{clamp:true});
+    clock.box(0,-8.6,2.47,9.6,10.7,.18,M({c:'#fff',map:r.mantelClockTex}));
+    for(const sx of [-1,1])clock.box(sx*5.5,-8,0,.2,12.5,5.3,K.glazing(.48));
+    clock.box(0,-8,3.4,10.2,12.5,.2,K.glazing(.48));
+    const handle=new T.TorusGeometry(2.1,.32,6,18,Math.PI);handle.rotateZ(Math.PI);clock.geo(handle,0,-17,0,mBrass);
+    for(const x of [-2.1,2.1])clock.cyl(x,-16.7,0,.5,.5,1.4,8,mBrass);
+    clock.shadow(0,.05,0,14,9,.28,{sq:true});
+    // Three different personal objects: a school portrait, a holiday group and
+    // Crystal's printed ballet award. Their mounts, proportions and backs differ.
+    for(const [z,w,h,tile,angle]of [[-40,10.5,14,8,-5],[-25,13,11,0,4],[30,12,16,9,-3]]){
+      const F=mp.at(0,-h/2,z,90+angle),frame=tile===0?M({c:'#fff',map:tex('oak')}):mBrass;
+      F.rbox(0,0,0,w,h,1.7,.18,frame);
+      printBlock(F,0,0,.94,w-1.5,h-1.5,.18,tile);
+      for(const s of [-1,1]){F.box(s*(w/2-.35),0,1.05,.7,h,.45,frame);F.box(0,s*(h/2-.35),1.05,w-1.4,.7,.45,frame)}
+      F.box(0,h/4,-2,1,h/2,3.1,frame,{rx:18});
+    }
+    for(const [z,w,h,tile,angle]of [[44,12,16,11,20],[56,10,14,12,-15]]){
+      const card=mp.at(0,-h/2,z,90+angle);printBlock(card,0,0,.2,w,h,.24,tile);
+      // The fold meets the printed leaf at its top; both bottom edges rest
+      // on the mantel, even though the back leaf leans away from the room.
+      card.box(0,0,.2-h/2*Math.tan(14*D2R),w,h/Math.cos(14*D2R),.24,M('#eadfcf'),{rx:-14});
+    }
+    r.mantelClockMinute=-1;
     // the family telly on its stand, the video underneath, the tapes
     buildTelly(r, B);
     // the sofa (3-seater, floral) facing the telly, Dad's armchair, the coffee table
@@ -1061,7 +1111,6 @@
     g.fillStyle='rgba(247,243,225,.4)';g.fillRect(0,h-5,w,3);
   },{clamp:true}); }
   function tileTex() { return K.tex('hs.hearth', 128, 64, (g, w, h) => { for (let x = 0; x < 8; x++) for (let y = 0; y < 4; y++) { g.fillStyle = (x + y) % 2 ? '#7a4a2a' : '#8a5a34'; g.fillRect(x * 16, y * 16, 16, 16); } g.strokeStyle = '#3a2414'; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, 64); g.stroke(); } }); }
-  function photoTex(c) { return K.tex('hs.photo.' + c, 64, 80, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = A.lin(g, 0, 4, 0, 70, [[0, c], [1, '#e8e0d0']]); g.fillRect(4, 4, w - 8, h - 8); g.fillStyle = '#e0b090'; g.beginPath(); g.arc(32, 34, 10, 0, 7); g.fill(); g.fillStyle = '#3a2a1a'; g.fillRect(22, 24, 20, 6); g.fillStyle = c; g.fillRect(20, 46, 24, 28); }); }
   function landTex() { return K.tex('hs.land', 256, 170, (g, w, h) => { g.fillStyle = A.lin(g, 0, 0, 0, h, [[0, '#a8c0d8'], [0.55, '#e8d8b8'], [0.56, '#6a8a4a'], [1, '#3a5a2a']]); g.fillRect(0, 0, w, h); g.fillStyle = '#5a6a7a'; g.beginPath(); g.moveTo(0, 95); g.lineTo(70, 50); g.lineTo(130, 90); g.lineTo(190, 40); g.lineTo(256, 95); g.fill(); g.fillStyle = '#f4f0e8'; g.fillRect(150, 100, 30, 20); g.fillStyle = '#8a2a1a'; g.beginPath(); g.moveTo(146, 100); g.lineTo(165, 88); g.lineTo(184, 100); g.fill(); A.grain(g, w, h, 3000, 0.08, 12); }); }
   function guideTex() { return A.printed('hs.guide',384,512,(g,w,h)=>{g.fillStyle='#fff0d4';g.fillRect(0,0,w,h);g.fillStyle='#982c39';g.fillRect(0,0,w,106);A.text(g,'TELLY TIMES',w/2,78,'64px '+A.FONT,'#fff','center');g.fillStyle='#192b45';g.fillRect(12,118,w-24,320);window.PrintArt?.paint(g,'hs.tvguide',12,118,w-24,320);g.fillStyle='#111b';g.fillRect(12,388,w-24,50);A.text(g,'GALAXY WALK',w/2,425,'36px '+A.FONT,'#fff','center');A.text(g,'THIS WEEK',22,478,'34px '+A.FONT,'#111');A.text(g,'ALL 5 CHANNELS • 1999',22,502,'bold 17px '+A.UIF,'#982c39')},{clamp:true}); }
   function streetTex() { return K.tex('hs.street', 512, 256, (g, w, h) => {
@@ -1336,7 +1385,14 @@
       const x = cx - w / 2 + (i + 0.5) * (w / n), fz = z + s * 0.9;
       B.rbox(x, cy, fz, dw, h - 0.6, 1.8, 0.6, door);
       const fw = Math.min(6, dw * 0.12), zz = fz + s * 1.05;
-      for (const e of [-1, 1]) { B.box(x + e * (dw / 2 - fw / 2), cy, zz, fw, h - 0.6, 0.5, frame); B.box(x, cy + e * ((h - 0.6) / 2 - fw / 2), zz, dw - fw * 2 + 0.2, fw, 0.5, frame); }
+      // One closed moulding ring: the former rails overlapped the stiles by
+      // 1 mm with coplanar front faces, leaving flickering junction fragments.
+      // A continuous chamfer also gives the inset a deliberate grazing edge.
+      const dh=h-.6,shape=new T.Shape(),hole=new T.Path();
+      shape.moveTo(-dw/2,-dh/2);shape.lineTo(dw/2,-dh/2);shape.lineTo(dw/2,dh/2);shape.lineTo(-dw/2,dh/2);shape.closePath();
+      hole.moveTo(-dw/2+fw,-dh/2+fw);hole.lineTo(-dw/2+fw,dh/2-fw);hole.lineTo(dw/2-fw,dh/2-fw);hole.lineTo(dw/2-fw,-dh/2+fw);hole.closePath();shape.holes.push(hole);
+      const moulding=new T.ExtrudeGeometry(shape,{depth:.5,steps:1,bevelEnabled:true,bevelSegments:1,bevelSize:.16,bevelThickness:.12,curveSegments:1});
+      moulding.translate(0,0,-.25);B.geo(moulding,x,cy,zz,frame,{ry:s<0?180:0});
       const hx = x + (n === 1 ? 1 : (i % 2 ? -1 : 1)) * (dw / 2 - fw / 2), hy = wall ? cy + h / 2 - 9 : cy - h / 2 + 9;
       for (const dy of [-4.2, 4.2]) B.cyl(hx, hy + dy, zz + s * 0.9, 0.35, 0.35, 1.6, 8, brass, { rx: 90 });
       B.rbox(hx, hy, zz + s * 1.75, 1.1, 10, 1.1, 0.5, brass);
@@ -2085,6 +2141,10 @@
     const blink = Math.floor(now / 600) % 2 === 0;
     if(!clockDate||now>=clockNext){
       clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date();
+      const lo=HouseRooms.rooms.lounge,minute=clockDate.getHours()*60+clockDate.getMinutes();
+      if(lo?.group.visible&&lo.mantelClockMinute!==minute){
+        lo.mantelClockMinute=minute;const tx=lo.mantelClockTex;if(tx){clockFace(tx.userData.g,clockDate);tx.needsUpdate=true;H.dirty()}
+      }
       const r=HouseRooms.rooms.kitchen;
       if(r?.hh){const m=clockDate.getMinutes()+clockDate.getSeconds()/60,h=clockDate.getHours()%12+m/60;r.mh.rotation.z=m/60*Math.PI*2;r.hh.rotation.z=h/12*Math.PI*2;}
       if(r?.calendarTex){const t=window.Desk?.today99?.()||{m:clockDate.getMonth()+1,d:clockDate.getDate()},key=t.m+'-'+t.d;if(r.calendarDay!==key){r.calendarDay=key;const tx=r.calendarTex,g=tx.userData.g,p=A.P.calendar;g.save();g.setTransform(tx.image.width/p[0],0,0,tx.image.height/p[1],0,0);p[2](g,p[0],p[1]);g.restore();tx.needsUpdate=true;H.dirty()}}
