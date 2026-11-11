@@ -2733,7 +2733,11 @@
     // room below) instead of covering it. Layout boxes ignore the slide-in.
     function placeToast(){
       if(!toastEl.classList.contains('on'))return;
-      toastEl.style.top='';const host=toastEl.offsetParent;if(!host)return;
+      toastEl.style.top='';
+      // A touch player carrying something: hs-touch stacks every message under the carry tag, this notice included
+      // (--ht-toast-top). Moving it here as well made the two layouts fight, leaving it over the objective.
+      if(html.style.getPropertyValue('--ht-toast-top'))return;
+      const host=toastEl.offsetParent;if(!host)return;
       const hr=host.getBoundingClientRect(),box={l:toastEl.offsetLeft,t:toastEl.offsetTop,w:toastEl.offsetWidth,h:toastEl.offsetHeight};
       for(const o of host.querySelectorAll('.st-objective,.se-objective')){
         const c=getComputedStyle(o),r=o.getBoundingClientRect();if(c.display==='none'||c.visibility==='hidden'||!r.width||!r.height)continue;
@@ -2767,7 +2771,7 @@
       el,
       say(title,text,ms,onShow){text=touchWords(text);if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
       hush() { note.classList.remove('on');notes.length=0;clearTimeout(notePumpT);clearTimeout(noteT); },
-      toast(title, text) { text = touchWords(text); toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); placeToast(); toastT = setTimeout(() => { toastEl.classList.remove('on'); clearInterval(toastPlaceT); toastPlaceT = 0; }, 4200); if (!toastPlaceT) toastPlaceT = setInterval(placeToast, 250); },
+      toast(title, text) { text = touchWords(text); toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); document.dispatchEvent(new Event('hs-hud-restack')); placeToast(); toastT = setTimeout(() => { toastEl.classList.remove('on'); clearInterval(toastPlaceT); toastPlaceT = 0; }, 4200); if (!toastPlaceT) toastPlaceT = setInterval(placeToast, 250); },
       tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry||/\bis (busy|listening)$/.test(text)?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;
@@ -3051,7 +3055,7 @@
     for (const obj of root.children) if (obj.visible && SCENERY.includes(obj.name)) apertureTree(obj, sceneryFrusta);
   }
   function renderLit(renderer) {
-    let hiddenVegetation = 0;K.interiorScreen?.(renderer);
+    let hiddenVegetation = 0;
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
       const r=ROOMS[id];let drawn=visSet.has(id);

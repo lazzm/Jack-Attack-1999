@@ -192,15 +192,18 @@
   // Keep material identity for switches, props and batches. The full path is r128 Phong; low rungs reuse its material interface for vertex diffuse.
   function interiorUniforms(){const uniform=v=>({value:v});return {houseBakeReady:uniform(0),houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
   let interiorCheap=false;
+  // The shell's night window patch is compiled in only at night (a software renderer pays for code in an untaken
+  // branch): by day the cheap-rung shell is exactly the 2.91 program; dusk to night recompiles the few shell programs.
+  // (read from the room clock on first use, so a night-time load compiles the night shell once, not day then night)
+  let interiorMoonNight=null;const shellMaterials=new Set();
+  const moonNight=()=>interiorMoonNight??(interiorMoonNight=typeof document!=='undefined'&&!!document.getElementById('bootPower')?.classList.contains('rm-night'));
   const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:{...interiorUniforms(),houseSunViewDir:{value:new T.Vector3()},houseBounds0:{value:new T.Vector4()},houseBounds1:{value:new T.Vector4()},houseClip0:{value:new T.Vector4()},houseClip1:{value:new T.Vector4()},houseRim:{value:new T.Color()},houseUp:{value:new T.Vector3(0,1,0)},
-    houseMoon:{value:new T.Color()},houseScreen:{value:new T.Vector2(1,1)},houseInvProj:{value:new T.Matrix4()},houseCamWorld:{value:new T.Matrix4()},
+    houseMoon:{value:new T.Color()},houseCamWorld:{value:new T.Matrix4()},
     houseGround:{value:new T.Color()},houseGroundAt:{value:new T.Vector4()},houseGroundGlow:{value:new T.Color()},houseGroundWin:{value:new T.Vector4()},houseGroundSrc:{value:new T.Vector4()}}},interiorDark=new T.Color('#000');
-  // Night window light on the vertex rungs, with no new varyings: the shell rebuilds its view
-  // position from gl_FragCoord inside a night-only uniform branch; flagged props (moonLit: the bed)
-  // take the same projected window per vertex. houseMoon is black by day and on the pixel path,
-  // where houseWindowLight already draws the patch from houseSun.
-  const SCREEN_GLSL=`uniform vec2 houseScreen;uniform mat4 houseInvProj,houseCamWorld;
-        vec3 houseFragView(){vec4 p=houseInvProj*vec4(gl_FragCoord.xy*houseScreen*2.0-1.0,gl_FragCoord.z*2.0-1.0,1.0);return p.xyz/p.w;}`;
+  // Night window light on the vertex rungs: the shell interpolates the window projection from its
+  // vertices (MOON_VERTEX_SHELL) and masks it per pixel, compiled in only at night; flagged
+  // props (moonLit: the bed) take the same projected window per vertex. houseMoon is black by day and
+  // on the pixel path, where houseWindowLight already draws the patch from houseSun.
   const MOON_MASK_GLSL=`float houseMoonMask(vec4 a,vec2 uv,float side){
           if(a.y<=a.x||side<.5)return 0.0;
           vec2 edge=min(uv-a.xz,a.yw-uv);vec2 ramp=smoothstep(vec2(-6.0),vec2(6.0),edge);
@@ -245,6 +248,10 @@
           vIndirectBack+=houseRim*houseRimTerm(backGeometry.normal,geometry.viewDir);
           #endif
         }`;
+  const MOON_VARYINGS='varying vec4 houseMoonUv;varying vec2 houseMoonSide;';
+  const MOON_VERTEX_SHELL=`{vec4 houseP=vec4(mvPosition.xyz,1.0);
+        houseMoonUv=vec4(dot(houseProjector0[0],houseP),dot(houseProjector0[1],houseP),dot(houseProjector1[0],houseP),dot(houseProjector1[1],houseP));
+        houseMoonSide=vec2(dot(houseClip0,houseP),dot(houseClip1,houseP));}`;
   const MOON_VERTEX=`
         if(dot(houseMoon,vec3(1.0))>.001){
           float houseLit=houseMoonAt(vec4(mvPosition.xyz,1.0));
@@ -260,7 +267,7 @@
     const state=INTERIOR_BAKES.get(r?.id),shared=INTERIOR_SHADER.uniforms;
     // The vertex rungs light props with fewer lamps: their edge carries a little more.
     shared.houseRim.value.copy(rim||interiorDark);if(interiorCheap)shared.houseRim.value.multiplyScalar(1.5);
-    if(camera){shared.houseUp.value.set(0,1,0).transformDirection(camera.matrixWorldInverse);shared.houseInvProj.value.copy(camera.projectionMatrixInverse);shared.houseCamWorld.value.copy(camera.matrixWorld)}
+    if(camera){shared.houseUp.value.set(0,1,0).transformDirection(camera.matrixWorldInverse);shared.houseCamWorld.value.copy(camera.matrixWorld)}
     shared.houseGround.value.copy(pool?.lamp||interiorDark);shared.houseGroundGlow.value.copy(pool?.glow||interiorDark);
     if(pool){shared.houseGroundAt.value.copy(pool.at);shared.houseGroundWin.value.copy(pool.win);shared.houseGroundSrc.value.copy(pool.src)}
     shared.houseMoon.value=interiorDark;
@@ -362,12 +369,25 @@
       // prop program on these rungs is the same code as before, by day and by night.
       const moon=!!this.userData.moonLit;
       shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+RIM_GLSL+(moon?'\n'+MOON_UNIFORMS+'\n'+MOON_MASK_GLSL:'')).replace(lighting,lighting+(this.userData.noRim?'':RIM_VERTEX)+(moon?MOON_VERTEX:''));
-      if(this.userData.groundPool)shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\n'+SCREEN_GLSL+'\n'+GROUND_GLSL)
-        .replace(lambertIndirect,'if(dot(houseGround+houseGroundGlow,vec3(1.0))>.001)reflectedLight.indirectDiffuse+=PI*houseGroundLight((houseCamWorld*vec4(houseFragView(),1.0)).xyz);\n'+lambertIndirect);
+      // (the ground pools need the world position: interpolated from the vertices, exact on these flat surfaces)
+      if(this.userData.groundPool){
+        shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform mat4 houseCamWorld;\nvarying vec3 houseGroundW;')
+          .replace('#include <project_vertex>','#include <project_vertex>\nhouseGroundW=(houseCamWorld*vec4(mvPosition.xyz,1.0)).xyz;');
+        shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 houseGroundW;\n'+GROUND_GLSL)
+          .replace(lambertIndirect,'if(dot(houseGround+houseGroundGlow,vec3(1.0))>.001)reflectedLight.indirectDiffuse+=PI*houseGroundLight(houseGroundW);\n'+lambertIndirect);
+      }
       return;
     }
-    shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\n'+SCREEN_GLSL+'\nuniform vec3 houseUp;\n'+MOON_UNIFORMS+'\n'+MOON_MASK_GLSL)
-      .replace(lambertIndirect,'if(dot(houseMoon,vec3(1.0))>.001)reflectedLight.indirectDiffuse+=PI*houseMoon*houseMoonAt(vec4(houseFragView(),1.0))*max(0.0,dot(houseUp,-houseSunViewDir));\n'+lambertIndirect);
+    // The shell's night window patch: the projector and window-plane terms are linear in the view position, so they are
+    // made per vertex and interpolated (exact for a plane, perspective-correct), leaving only the soft-edged mask per
+    // pixel. Rebuilding the view position from gl_FragCoord on every wall and floor pixel slowed the phone's night frame.
+    shellMaterials.add(this);
+    if(moonNight()){
+    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+MOON_UNIFORMS+'\n'+MOON_VARYINGS)
+      .replace('#include <project_vertex>','#include <project_vertex>\n'+MOON_VERTEX_SHELL);
+    shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 houseUp;\n'+MOON_UNIFORMS+'\n'+MOON_VARYINGS+'\n'+MOON_MASK_GLSL)
+      .replace(lambertIndirect,'if(dot(houseMoon,vec3(1.0))>.001)reflectedLight.indirectDiffuse+=PI*houseMoon*min(1.0,houseMoonMask(houseBounds0,houseMoonUv.xy,houseMoonSide.x)+houseMoonMask(houseBounds1,houseMoonUv.zw,houseMoonSide.y))*max(0.0,dot(houseUp,-houseSunViewDir));\n'+lambertIndirect);
+    }
     // While weights load, retain vertex lamp fill so a night-time refresh is
     // readable. Publication replaces it with the finished pools in one frame.
     shader.vertexShader=shader.vertexShader
@@ -426,10 +446,7 @@
           return houseSun*min(1.0,mask)*facing;
         }`);
   }
-  function phongKey(){return (interiorCheap?'house-interior-r10-diffuse-':'house-interior-r8-pixel-')+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')+(this.userData.groundPool?'-ground':'')+(this.userData.noRim?'-norim':'')+(this.userData.moonLit?'-moon':'')}
-  // The drawing buffer the next frame renders into (the main view and the hand-held layer differ).
-  const screenSize=new T.Vector2();
-  function interiorScreen(renderer){renderer.getDrawingBufferSize(screenSize);INTERIOR_SHADER.uniforms.houseScreen.value.set(1/Math.max(1,screenSize.x),1/Math.max(1,screenSize.y))}
+  function phongKey(){return (interiorCheap?'house-interior-r11-diffuse-':'house-interior-r8-pixel-')+(this.userData.interiorShell?(interiorCheap&&moonNight()?'shell-night':'shell'):'prop')+(this.userData.pendant?'-pendant':'')+(this.userData.groundPool?'-ground':'')+(this.userData.noRim?'-norim':'')+(this.userData.moonLit?'-moon':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.userData.spec?.reflect){m.envMap=interiorCheap?null:roomReflection();m.reflectivity=m.userData.spec.reflect;m.combine=T.MixOperation;}
@@ -734,6 +751,7 @@
       // Night: a fixed high moon (one track for the whole night, so a refresh looks the same) lays a
       // cool patch of the window across the floor and furniture; faint under a lit ceiling bulb.
       const moon=night&&MOON[r.id];state.night=!!moon;
+      if(!!night!==moonNight()){interiorMoonNight=!!night;if(interiorCheap)for(const m of shellMaterials)m.needsUpdate=true;}
       if(moon){if(a0?.axis===0)dir.set(a0.sign,moon[1],moon[0]);else dir.set(moon[0],moon[1],a0?.sign||1)}
       else if(a0?.axis===0)dir.set(a0.sign,alt,drift);else dir.set(drift,alt,a0?.sign||1);dir.normalize();
       const sunAmount=night?0:(dawn||dusk?.45:1)*Math.max(.1,Math.sin(progress*Math.PI));
@@ -1250,5 +1268,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { glazing, glassEdge, FINISH, interiorAdapt, interiorFor, interiorScreen, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, softBox, quiltFold, canopy, branchingTree, foliageInstances, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { glazing, glassEdge, FINISH, interiorAdapt, interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, softBox, quiltFold, canopy, branchingTree, foliageInstances, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

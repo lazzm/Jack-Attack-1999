@@ -34,7 +34,10 @@ const consoles=[];Object.keys(memory).forEach(k=>delete memory[k]);clk={md:1111,
 const sis={id:'sister',room:'lounge',goal:{act:'telly'},said:{},seated:true};
 const order=[];for(let i=0;i<20;i++){const id=say(sis,w.api.pick(w.api.barkPool(sis,clk,true),sis));order.push(id);if(w.api.topicOf(id)==='console')consoles.push(i)}
 // A topic only comes back once everything else fresh has been said (an empty pool falls back rather than going quiet).
-assert(consoles.length<=2&&(consoles.length<2||consoles[1]-consoles[0]>=15),'consoles came up at replies '+consoles.join(', ')+': '+order.join(' '));
+// (Her pool has 18 fresh lines off the console topic; how early the first console line falls is chance, so the rule is
+// checked as written: a second console line only after every one of those, never by a fixed gap.)
+const offTopic=w.api.barkPool(sis,clk,true).filter(id=>L[id]&&w.api.topicOf(id)!=='console');
+assert(consoles.length<=2&&(consoles.length<2||offTopic.every(id=>order.slice(0,consoles[1]).includes(id))),'consoles came up at replies '+consoles.join(', ')+' before the rest was said: '+order.join(' '));
 
 // R244: "Who's been using my chair? It's still warm." never while Dad is sitting in it.
 const dad={id:'dad',room:'lounge',goal:{spotKey:'armchair',act:'telly'},cur:{k:'act'},seated:{},said:{}};

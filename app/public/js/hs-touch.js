@@ -301,6 +301,8 @@
       if(el&&getComputedStyle(el).visibility!=='hidden')top+=el.getBoundingClientRect().height+8;
     }
   }
+  // A notice that appears while carrying is stacked at once, not on the next 150 ms pass (hs-world toast).
+  document.addEventListener('hs-hud-restack', () => stackCarryMessages());
   function render() {
     const s = syncState(); let k = s, buttons = '', caption = '';
     if (s === 'walk' || s === 'seat') {

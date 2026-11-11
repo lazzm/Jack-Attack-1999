@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
+import {playCase} from './case-actions.mjs';
 assert(process.argv[2], 'Supply a disposable localhost server URL on port 18080–18099.');
 const base=process.argv[2];
 assert(+new URL(base).port>=18080 && +new URL(base).port<=18099);
@@ -49,8 +50,8 @@ for(const scenario of scenarios){
   await p.waitForTimeout(5500);await drop('ch.binbag','ch.s.kbin');await done('bin');console.log(scenario,'bin complete');
  }
  async function lad(){
-  await p.evaluate(()=>{House._.setMode('walk');House.interact('gb')});await until(()=>RoomTV.open_);
-  await p.evaluate(()=>RoomTV.playPhysical('gb.blocks'));await until(()=>RoomTV._dbg()?.st==='game');await p.keyboard.press('Enter');await done('lad');
+  // An empty Game Lad only says to put a game in (rm-room tvOpen): play Blockology through its real slot.
+  await p.evaluate(()=>House._.setMode('walk'));await playCase(f,'gb.blocks',{press:()=>p.keyboard.press('e')});await p.keyboard.press('Enter');await done('lad');
   await p.waitForTimeout(200);assert(!await p.locator('.st-marker').isVisible());
   await p.keyboard.press('t');assert(!await p.locator('.st-marker').isVisible());await p.keyboard.press('t');
   await p.keyboard.press('q');await until(()=>!RoomTV.open_&&!House.gliding);
@@ -58,6 +59,8 @@ for(const scenario of scenarios){
   // first; Q again leans back to walking, just as it does during normal play.
   if(await p.evaluate(()=>House.mode==='focus'))await p.keyboard.press('q');
   await until(()=>House.mode==='walk'&&!House.gliding);
+  // Mom comes up after the Game Lad (story step meetmom): talk to her at the bedroom door so her jobs follow.
+  if(await p.evaluate(()=>st.current()?.id==='meetmom')){await until(()=>HouseFamily.chars.mom?.present);await p.evaluate(()=>{House.hush();HouseFamily.talk('mom')});await until(()=>st.current()?.id!=='meetmom');}
  }
  async function refresh(){
   await aim([40,-55,180],[40,-10,0]);await p.waitForTimeout(700);

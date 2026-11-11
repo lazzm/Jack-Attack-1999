@@ -151,32 +151,47 @@
   function speaking(now){if((speechDirty||!watched)&&(now-speechAt>=100||now<speechAt)){speechDirty=false;speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)') || ((watched?viewW:window.innerWidth)<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
   function loading(){if(loadingDirty||!watched){loadingDirty=false;loadingNow=!!document.querySelector('.hs-loading,#houseEntry');}return loadingNow;}
   // Reserve the whole printed tag and the rotating arrow, not the arrow's
-  // 40 x 34 parent. DOM measurements are sampled, never made on every frame.
+  // 40 x 34 parent. DOM measurements are made when the HUD changes, never on every frame.
   const inkSelector='.hs-top,.hs-map,.hs-tin,.ch-jobs,.rm-coin,.rm-tinbtn,.rm-counter,.rm-found,.rm-hunt,.hs-toast.on,.ht-coach-card,.hs-hold:not([hidden]),.hs-tip.on,.hs-note.on,.hs-voice.on,.hs-call.on,.ht-target.on,.st-objective:not([hidden]),.se-objective:not([hidden]),.ch-chip:not([hidden]),.np-bub:not(.np-out),.ht-acts .ht-b,.ht-top .ht-b,.ht-stick,.ht-look,.st-chapter:not([hidden])';
   // Without a MutationObserver (old browsers, the unit tests) everything is re-checked as before.
   const watched=typeof MutationObserver!=='undefined';
-  // HUD measurement never runs inside the frame loop (2.92 perf pass, docs/PERF-AUDIT-2026-11-11.md): the rects of
-  // other ink, the safe area and the label size are cached. They are re-measured only after something changes (a HUD
-  // element appears, hides, changes class or style; the viewport resizes; the label text changes), at most ten times
-  // a second, in a task after the frame has painted, so reading layout never forces one. The label's own size comes
-  // from a ResizeObserver. Until the first measurement the marker stays hidden rather than guess.
-  let inkAt=0,ink=[],tagSize={w:180,h:46},safe={top:0,right:0,bottom:0,left:0},inkDirty=true,inkReady=false,inkQueued=false,inkRoots=[H.ui.el];
+  // HUD measurement is made on change, never on every frame (2.92 perf pass, docs/PERF-AUDIT-2026-11-11.md): the rects
+  // of other ink, the safe area and the label size are cached. Whenever the HUD restacks (an element appears, hides or
+  // changes class; a style or CSS variable moves the objective or a notice; a slide-in transition ends; the viewport
+  // resizes; the label text changes) they are re-measured in the same frame, before the marker is placed and before
+  // that frame paints, so the marker is never drawn over HUD ink, not even for one frame. A style change on ink that
+  // is already known re-reads only its rects (no selector query, no computed styles).
+  let inkAt=0,ink=[],inkEls=[],bubEls=[],tagSize={w:180,h:46},safe={top:0,right:0,bottom:0,left:0},inkDirty=true,inkMoved=false,labelDirty=true,inkReady=false,inkRoots=[H.ui.el],measures=0,moves=0;
+  // An element mid-way through a transform transition (a notice sliding in) also reserves its resting layout box.
+  function rectsOf(e,out){
+    const r=e.getBoundingClientRect();if(r.width&&r.height)out.push(r);
+    if(e.offsetParent&&e.getAnimations?.().some(a=>a.transitionProperty==='transform')){const p=e.offsetParent.getBoundingClientRect(),l=p.left+e.offsetLeft,t=p.top+e.offsetTop;if(e.offsetWidth&&e.offsetHeight)out.push({left:l,top:t,right:l+e.offsetWidth,bottom:t+e.offsetHeight});}
+  }
+  function readRects(h){
+    ink=[];for(const e of inkEls)rectsOf(e,ink);
+    // A speech bubble's tail points at the speaker's face: keep that clear too.
+    for(const e of bubEls){const r=e.getBoundingClientRect();if(r.width&&r.height)ink.push({left:r.left,right:r.right,top:r.bottom,bottom:Math.min(h,r.bottom+h*.28)});}
+  }
+  function measureLabel(){const lr=label.getBoundingClientRect();if(lr.width&&lr.height)tagSize={w:lr.width,h:lr.height};labelDirty=false;}
   function measureInk(h=viewH,now=performance.now()){
-    inkQueued=false;inkDirty=false;inkAt=now+100;
-    const lr=label.getBoundingClientRect();if(lr.width&&lr.height)tagSize={w:lr.width,h:lr.height};
+    inkDirty=inkMoved=false;inkAt=now+100;measures++;
+    measureLabel();
     const css=getComputedStyle(H.ui.el),number=k=>parseFloat(css.getPropertyValue('--hud-safe-'+k))||0;
     safe={top:number('top'),right:number('right'),bottom:number('bottom'),left:number('left')};
     const roots=new Set([H.ui.el]),found=[];
-    for(const e of document.querySelectorAll(inkSelector)){roots.add(e.closest?.('.hs-ui,.ht-hud')||e.parentElement||e);const c=getComputedStyle(e);if(c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0)found.push(e)}
-    inkRoots=[...roots];
-    ink=found.map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
-    // A speech bubble's tail points at the speaker's face: keep that clear too.
-    for(const e of document.querySelectorAll('.np-bub:not(.np-out)')){const r=e.getBoundingClientRect();if(r.width&&r.height)ink.push({left:r.left,right:r.right,top:r.bottom,bottom:Math.min(h,r.bottom+h*.28)});}
+    for(const e of document.querySelectorAll(inkSelector)){roots.add(e.closest?.('.hs-ui,.ht-hud')||e.parentElement||e);const c=getComputedStyle(e);if(c.display!=='none'&&c.visibility!=='hidden'&&(+c.opacity>0||e.getAnimations?.().length))found.push(e)} // (fading in counts from its first frame)
+    inkRoots=[...roots];inkEls=found;bubEls=[...document.querySelectorAll('.np-bub:not(.np-out)')];
+    readRects(h);
     inkReady=true;
   }
-  function queueInk(now){if(!watched||inkQueued||!inkDirty||now<inkAt)return;inkQueued=true;setTimeout(()=>measureInk(),0)}
+  // (only what the frame needs: a full measure after a structural change, the known rects after a move, the label after new text)
+  function freshInk(h,now){
+    if(!watched){if(now>=inkAt)measureInk(h,now);return;} // (no observer: sample at most ten times a second, as 2.91 did)
+    if(inkDirty)measureInk(h,now);else if(inkMoved){inkMoved=false;moves++;readRects(h);}
+    if(labelDirty)measureLabel();
+  }
   function guidePosition(tx,ty,w,h,now){
-    if(!watched&&now>=inkAt)measureInk(h,now); // (no observer: sample synchronously, as 2.91 did)
+    freshInk(h,now);
     if(!inkReady)return null;
     // All four borders are candidates. A name tab always faces into the view.
     // Include an eight-pixel breathing space around other ink and keep the
@@ -202,6 +217,15 @@
   // Writes only what changed: no hide-then-show, no same-text replacement, and the marker moves by transform alone.
   const setHidden=(el,v)=>{if(el.hidden!==v)el.hidden=v;}, setText=(el,t)=>{if(el.textContent!==t)el.textContent=t;};
   const setData=(el,k,v)=>{if(el.dataset[k]!==v)el.dataset[k]=v;}, setStyle=(el,k,v)=>{if(el.style[k]!==v)el.style[k]=v;};
+  // The HUD can restack after this frame's tick (a later animation-frame callback, a resize observer). While the
+  // marker is up, such a change re-places it at once, still before the frame paints; the flag ends after the paint.
+  let edge=null,framePhase=false;const endFrame=()=>{framePhase=false;};
+  function replace(){
+    if(!edge||marker.hidden)return;
+    const p=guidePosition(edge.tx,edge.ty,edge.w,edge.h,performance.now());
+    if(!p){setHidden(marker,true);return;}
+    x=p.x;y=p.y;setData(marker,'side',p.side);setStyle(marker,'transform','translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) translate(-50%,-50%)');
+  }
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
     const visible=show() && mode!=='off', speech=visible&&speaking(now);
@@ -213,7 +237,7 @@
     if(now>=nextSample)sample(now);
     const full=mode==='full', pulse=reduceMQ.matches? .75 : .72+Math.sin(now*.0022)*.18;
     for(const m of marks)for(const shell of m.shells){shell.visible=full;shell.material.uniforms.strength.value=pulse;}
-    let markerOn=false,promptOn=false;
+    let markerOn=false,promptOn=false;edge=null;
     const chapterInk = titleUntil === -1 || titleUntil > Date.now();
     if(sampled && full && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
@@ -235,8 +259,10 @@
       }
       tx=clamp(tx,marginX,w-marginX);ty=clamp(ty,top,h-bottom);
       setData(marker,'state','edge');
-      setText(label,sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m');
-      queueInk(now);
+      const text=sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m';if(label.textContent!==text){label.textContent=text;labelDirty=true;}
+      // A hidden marker measures 0 x 0: unhide it before anything is read (same task, so nothing paints in between).
+      if(labelDirty||inkDirty||inkMoved||!inkReady)setHidden(marker,false);
+      edge={tx,ty,w,h};
       // No free border space (a full-width notice, say): wait rather than cover ink.
       const placement=guidePosition(tx,ty,w,h,now);
       if(placement){
@@ -253,21 +279,36 @@
       setStyle(arrow,'transform','rotate('+angle.toFixed(4)+'rad)');
       }}
     }
-    setHidden(marker,!markerOn);setHidden(prompt,!promptOn);
+    setHidden(marker,!markerOn);setHidden(prompt,!promptOn);if(!markerOn)edge=null;
+    if(edge&&!framePhase){framePhase=true;setTimeout(endFrame,0);}
     if(titleUntil===-1)titleUntil=Date.now()+5000;
     setHidden(card,speech||titleUntil<Date.now()); if(!card.hidden)setText(card,titleText);
     if(full && now>=nextGlow && marks.some(m=>m.shells.length)){nextGlow=now+100;H.dirty();}
   }
   marker.style.left=marker.style.top='0px'; // (moved by transform only)
   const own=n=>marker.contains(n)||prompt.contains(n)||card.contains(n);
-  // DOM changes: anything added or removed; class/hidden changes (speech, notices); class/hidden/style changes inside
-  // the HUD roots seen so far (ink to keep clear of).
-  if(watched)new MutationObserver(records=>{for(const r of records){if(own(r.target))continue;if(r.type==='childList'){inkDirty=speechDirty=loadingDirty=true;return}if(r.attributeName!=='style')speechDirty=true;if(!inkDirty&&inkRoots.some(root=>root.contains(r.target)))inkDirty=true}})
-    .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style']});
+  // DOM changes, the whole document including <html> (its classes and CSS variables hide and restack the HUD):
+  // anything added or removed, and class/hidden changes on the page or inside the HUD roots, mean a full measure; a
+  // style change on known ink (a notice or the objective moving, a bubble following a face) re-reads just its rects;
+  // other style changes (the stick's knob, the 3D canvas) are not ink and cost nothing.
+  const docEl=document.documentElement,page=t=>t===docEl||t===document.body||t===H.ui.el;
+  if(watched)new MutationObserver(records=>{
+    for(const r of records){
+      const t=r.target;if(own(t))continue;
+      if(r.type==='childList'){inkDirty=speechDirty=loadingDirty=true;continue;}
+      if(r.attributeName!=='style'){speechDirty=true;if(page(t))loadingDirty=true;if(page(t)||inkRoots.some(root=>root.contains(t)))inkDirty=true;}
+      else if(page(t)||t.matches?.(inkSelector)&&!inkEls.includes(t))inkDirty=true;
+      else if(inkEls.some(e=>e===t||t.contains(e)))inkMoved=true;
+    }
+    if(framePhase&&(inkDirty||inkMoved))replace();
+  }).observe(docEl,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style']});
+  // A notice that slides or fades in has no mutation at its end: re-measure then (its rest box is reserved meanwhile).
+  if(watched)for(const n of ['transitionend','animationend'])document.addEventListener(n,e=>{const t=e.target;if(!t?.matches||own(t))return;if(inkEls.includes(t))inkMoved=true;else if(t.matches(inkSelector))inkDirty=true;else return;if(framePhase)replace();},true);
   window.addEventListener?.('resize',()=>{inkDirty=true;});
-  // (a hidden label reports 0 x 0: keep the last real size)
-  if(window.ResizeObserver)new ResizeObserver(entries=>{for(const e of entries){const b=e.borderBoxSize?.[0],w=b?b.inlineSize:e.contentRect.width,h=b?b.blockSize:e.contentRect.height;if(w&&h)tagSize={w,h};}}).observe(label);
-  window.StoryGuide={get strength(){return mode;},setting(value){if(['full','light','off'].includes(value)){mode=value;localStorage.setItem('jhp_story_guidance',mode);nextSample=0;}tick(performance.now());return mode;},chapter(n,title){titleUntil=-1;titleText='CHAPTER '+n+' — '+title;},targets};
+  // The label's size is read when its text changes; this observer (run after layout, before paint) is the backstop:
+  // a size that still differs re-places the marker in the same frame. (A hidden label reports 0 x 0: keep the last.)
+  if(window.ResizeObserver)new ResizeObserver(entries=>{for(const e of entries){const b=e.borderBoxSize?.[0],w=b?b.inlineSize:e.contentRect.width,h=b?b.blockSize:e.contentRect.height;if(w&&h&&(Math.abs(w-tagSize.w)>.5||Math.abs(h-tagSize.h)>.5)){tagSize={w,h};replace();}}}).observe(label);
+  window.StoryGuide={get strength(){return mode;},setting(value){if(['full','light','off'].includes(value)){mode=value;localStorage.setItem('jhp_story_guidance',mode);nextSample=0;}tick(performance.now());return mode;},chapter(n,title){titleUntil=-1;titleText='CHAPTER '+n+' — '+title;},targets,get stats(){return {measures,moves};}};
   // Screen ink follows the latest camera every frame; idle rim lighting only
   // requests ten room redraws per second and never redraws behind a screen.
   let lastFrame=0;
