@@ -18,7 +18,7 @@
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   // Seasonal objectives (js/season.js) use the same guidance whenever no chapter task is tracked.
   const seasonal = () => { const s = st.tracked(); return s ? s.season || null : window.Season?.current?.() || null; };
-  const show = () => (st.getState() || seasonal()) && window.Net?.connected && window.AccountGate?.allowed && H.live && H.mode === 'walk' && !H.gliding && !H.paused && !H.focused && !window.RoomTV?.open_ && !H.surfaceScreen?.() && !window.HousePause?.open && !document.hidden && !document.querySelector('.hs-loading,#houseEntry');
+  const show = () => (st.getState() || seasonal()) && window.Net?.connected && window.AccountGate?.allowed && H.live && H.mode === 'walk' && !H.gliding && !H.paused && !H.focused && !window.RoomTV?.open_ && !H.surfaceScreen?.() && !window.HousePause?.open && !document.hidden && !loading();
   const has = (id, step) => !!window.ChoreKit?.has(id, step);
   function targets() {
     const s = st.tracked(); if (!s || s.season) return window.Season?.targets?.(s?.season) || [];
@@ -101,11 +101,18 @@
       marks.push({...target,id,shells});
     }
   }
+  // Each geometry's own box, recomputed only when its position data changes (was every sample, five times a second).
+  const boxes = new WeakMap(), boxScratch = new T.Box3();
+  function localBox(g) {
+    const p = g.attributes.position; let c = boxes.get(g);
+    if (!c || !p || p.isInterleavedBufferAttribute || c.version !== p.version || c.array !== p.array || c.count !== p.count || c.morph !== !!g.morphAttributes?.position) { g.computeBoundingBox(); c = { box: g.boundingBox.clone(), version: p?.version, array: p?.array, count: p?.count, morph: !!g.morphAttributes?.position }; boxes.set(g, c); }
+    return c.box;
+  }
   function pointOf(m) {
     if (m.point) return m.point.clone();
     // The shell shares geometry; exclude it from bounds and ignore pick volumes.
     bounds.makeEmpty(); m.obj.updateWorldMatrix(true,true);
-    m.obj.traverse(o => { if (o.isMesh && !o.userData.questRim && !o.userData.contactShadow && o.visible) { o.geometry.computeBoundingBox(); bounds.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); } });
+    m.obj.traverse(o => { if (o.isMesh && !o.userData.questRim && !o.userData.contactShadow && o.visible) bounds.union(boxScratch.copy(localBox(o.geometry)).applyMatrix4(o.matrixWorld)); });
     return bounds.isEmpty() ? m.obj.getWorldPosition(new T.Vector3()) : bounds.getCenter(new T.Vector3());
   }
   function sample(now) {
@@ -139,22 +146,38 @@
   const coarseMQ=matchMedia('(pointer:coarse)'), reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
   let speechAt=0, speechNow=false, viewW=window.innerWidth||0, viewH=window.innerHeight||0;
   window.addEventListener?.('resize',()=>{viewW=window.innerWidth;viewH=window.innerHeight;});
-  function speaking(now){if(now-speechAt>=100||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)') || (window.innerWidth<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
+  // (re-checked only after the DOM changed a class, hidden flag or element; viewW is cached: innerWidth forces layout)
+  let speechDirty=true,loadingDirty=true,loadingNow=false;
+  function speaking(now){if((speechDirty||!watched)&&(now-speechAt>=100||now<speechAt)){speechDirty=false;speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)') || ((watched?viewW:window.innerWidth)<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
+  function loading(){if(loadingDirty||!watched){loadingDirty=false;loadingNow=!!document.querySelector('.hs-loading,#houseEntry');}return loadingNow;}
   // Reserve the whole printed tag and the rotating arrow, not the arrow's
   // 40 x 34 parent. DOM measurements are sampled, never made on every frame.
   const inkSelector='.hs-top,.hs-map,.hs-tin,.ch-jobs,.rm-coin,.rm-tinbtn,.rm-counter,.rm-found,.rm-hunt,.hs-toast.on,.ht-coach-card,.hs-hold:not([hidden]),.hs-tip.on,.hs-note.on,.hs-voice.on,.hs-call.on,.ht-target.on,.st-objective:not([hidden]),.se-objective:not([hidden]),.ch-chip:not([hidden]),.np-bub:not(.np-out),.ht-acts .ht-b,.ht-top .ht-b,.ht-stick,.ht-look,.st-chapter:not([hidden])';
-  let inkAt=0,ink=[],tagSize={w:180,h:46},tagKey='',safe={top:0,right:0,bottom:0,left:0};
+  // Without a MutationObserver (old browsers, the unit tests) everything is re-checked as before.
+  const watched=typeof MutationObserver!=='undefined';
+  // HUD measurement never runs inside the frame loop (2.92 perf pass, docs/PERF-AUDIT-2026-11-11.md): the rects of
+  // other ink, the safe area and the label size are cached. They are re-measured only after something changes (a HUD
+  // element appears, hides, changes class or style; the viewport resizes; the label text changes), at most ten times
+  // a second, in a task after the frame has painted, so reading layout never forces one. The label's own size comes
+  // from a ResizeObserver. Until the first measurement the marker stays hidden rather than guess.
+  let inkAt=0,ink=[],tagSize={w:180,h:46},safe={top:0,right:0,bottom:0,left:0},inkDirty=true,inkReady=false,inkQueued=false,inkRoots=[H.ui.el];
+  function measureInk(h=viewH,now=performance.now()){
+    inkQueued=false;inkDirty=false;inkAt=now+100;
+    const lr=label.getBoundingClientRect();if(lr.width&&lr.height)tagSize={w:lr.width,h:lr.height};
+    const css=getComputedStyle(H.ui.el),number=k=>parseFloat(css.getPropertyValue('--hud-safe-'+k))||0;
+    safe={top:number('top'),right:number('right'),bottom:number('bottom'),left:number('left')};
+    const roots=new Set([H.ui.el]),found=[];
+    for(const e of document.querySelectorAll(inkSelector)){roots.add(e.closest?.('.hs-ui,.ht-hud')||e.parentElement||e);const c=getComputedStyle(e);if(c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0)found.push(e)}
+    inkRoots=[...roots];
+    ink=found.map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+    // A speech bubble's tail points at the speaker's face: keep that clear too.
+    for(const e of document.querySelectorAll('.np-bub:not(.np-out)')){const r=e.getBoundingClientRect();if(r.width&&r.height)ink.push({left:r.left,right:r.right,top:r.bottom,bottom:Math.min(h,r.bottom+h*.28)});}
+    inkReady=true;
+  }
+  function queueInk(now){if(!watched||inkQueued||!inkDirty||now<inkAt)return;inkQueued=true;setTimeout(()=>measureInk(),0)}
   function guidePosition(tx,ty,w,h,now){
-    const key=label.textContent+'|'+w+'|'+h;
-    if(now>=inkAt||key!==tagKey){
-      inkAt=now+100;tagKey=key;
-      const css=getComputedStyle(H.ui.el),number=k=>parseFloat(css.getPropertyValue('--hud-safe-'+k))||0;
-      safe={top:number('top'),right:number('right'),bottom:number('bottom'),left:number('left')};
-      const r=label.getBoundingClientRect();tagSize={w:r.width,h:r.height};
-      ink=[...document.querySelectorAll(inkSelector)].filter(e=>{const c=getComputedStyle(e);return c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0;}).map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
-      // A speech bubble's tail points at the speaker's face: keep that clear too.
-      for(const e of document.querySelectorAll('.np-bub:not(.np-out)')){const r=e.getBoundingClientRect();if(r.width&&r.height)ink.push({left:r.left,right:r.right,top:r.bottom,bottom:Math.min(h,r.bottom+h*.28)});}
-    }
+    if(!watched&&now>=inkAt)measureInk(h,now); // (no observer: sample synchronously, as 2.91 did)
+    if(!inkReady)return null;
     // All four borders are candidates. A name tab always faces into the view.
     // Include an eight-pixel breathing space around other ink and keep the
     // arrow's diagonal corners inside the safe area at every rotation.
@@ -176,18 +199,21 @@
     }
     return best;
   }
+  // Writes only what changed: no hide-then-show, no same-text replacement, and the marker moves by transform alone.
+  const setHidden=(el,v)=>{if(el.hidden!==v)el.hidden=v;}, setText=(el,t)=>{if(el.textContent!==t)el.textContent=t;};
+  const setData=(el,k,v)=>{if(el.dataset[k]!==v)el.dataset[k]=v;}, setStyle=(el,k,v)=>{if(el.style[k]!==v)el.style[k]=v;};
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
     const visible=show() && mode!=='off', speech=visible&&speaking(now);
     if (!visible) {
-      marker.hidden=prompt.hidden=card.hidden=true;
+      setHidden(marker,true);setHidden(prompt,true);setHidden(card,true);
       let dirty=false; for(const m of marks)for(const shell of m.shells){dirty ||= shell.visible;shell.visible=false;}
       if(dirty)H.dirty();nextSample=0;alpha=0;return;
     }
     if(now>=nextSample)sample(now);
     const full=mode==='full', pulse=reduceMQ.matches? .75 : .72+Math.sin(now*.0022)*.18;
     for(const m of marks)for(const shell of m.shells){shell.visible=full;shell.material.uniforms.strength.value=pulse;}
-    marker.hidden=prompt.hidden=true;
+    let markerOn=false,promptOn=false;
     const chapterInk = titleUntil === -1 || titleUntil > Date.now();
     if(sampled && full && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
@@ -197,7 +223,7 @@
       const off=behind||Math.abs(ndc.x)>1||Math.abs(ndc.y)>1;
       // Only the border gets an arrow. Seeing the target removes the compass,
       // and an intervening wall never gets a floating label of its own.
-      if(!off){activeId='';if(!sampled.blocked&&dist<170&&!H.held()&&!window.GameInput?.touch){prompt.hidden=false;prompt.textContent=sampled.action;}}else{
+      if(!off){activeId='';if(!sampled.blocked&&dist<170&&!H.held()&&!window.GameInput?.touch){promptOn=true;setText(prompt,sampled.action);}}else{
       // Behind you means turn round, rather than look through the floor at a
       // low shelf. Choose a consistent right turn when exactly back-to-back.
       const dx=behind?(Math.abs(cam.x)<.001?1:cam.x):cam.x,dy=behind?0:-cam.y;
@@ -208,28 +234,39 @@
         tx=cx+vx*k;ty=cy+vy*k;
       }
       tx=clamp(tx,marginX,w-marginX);ty=clamp(ty,top,h-bottom);
-      marker.hidden=false;marker.dataset.state='edge';
-      const text=sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m';if(label.textContent!==text)label.textContent=text;
+      setData(marker,'state','edge');
+      setText(label,sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m');
+      queueInk(now);
       // No free border space (a full-width notice, say): wait rather than cover ink.
       const placement=guidePosition(tx,ty,w,h,now);
-      if(!placement)marker.hidden=true;else{
-      tx=placement.x;ty=placement.y;marker.dataset.side=placement.side;
+      if(placement){
+      tx=placement.x;ty=placement.y;setData(marker,'side',placement.side);
       if(activeId!==sampled.id){activeId=sampled.id;x=tx;y=ty;angle=targetAngle;alpha=0;}
       const ease=1-Math.exp(-dt*12);
       // Position is pinned immediately: interpolating between edges would send
       // the arrow across the middle of the screen during a quick turn.
       x=tx;y=ty;angle+=Math.atan2(Math.sin(targetAngle-angle),Math.cos(targetAngle-angle))*ease;
       alpha+=(1-alpha)*(1-Math.exp(-dt*12));
-      marker.hidden=false;marker.dataset.state='edge';
-      marker.style.left=x+'px';marker.style.top=y+'px';marker.style.opacity=alpha.toFixed(3);
-      marker.dataset.border='side';
-      arrow.style.transform='rotate('+angle+'rad)';
+      markerOn=true;
+      setStyle(marker,'transform','translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) translate(-50%,-50%)');setStyle(marker,'opacity',alpha.toFixed(3));
+      setData(marker,'border','side');
+      setStyle(arrow,'transform','rotate('+angle.toFixed(4)+'rad)');
       }}
     }
+    setHidden(marker,!markerOn);setHidden(prompt,!promptOn);
     if(titleUntil===-1)titleUntil=Date.now()+5000;
-    card.hidden=speech||titleUntil<Date.now(); if(!card.hidden)card.textContent=titleText;
+    setHidden(card,speech||titleUntil<Date.now()); if(!card.hidden)setText(card,titleText);
     if(full && now>=nextGlow && marks.some(m=>m.shells.length)){nextGlow=now+100;H.dirty();}
   }
+  marker.style.left=marker.style.top='0px'; // (moved by transform only)
+  const own=n=>marker.contains(n)||prompt.contains(n)||card.contains(n);
+  // DOM changes: anything added or removed; class/hidden changes (speech, notices); class/hidden/style changes inside
+  // the HUD roots seen so far (ink to keep clear of).
+  if(watched)new MutationObserver(records=>{for(const r of records){if(own(r.target))continue;if(r.type==='childList'){inkDirty=speechDirty=loadingDirty=true;return}if(r.attributeName!=='style')speechDirty=true;if(!inkDirty&&inkRoots.some(root=>root.contains(r.target)))inkDirty=true}})
+    .observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','style']});
+  window.addEventListener?.('resize',()=>{inkDirty=true;});
+  // (a hidden label reports 0 x 0: keep the last real size)
+  if(window.ResizeObserver)new ResizeObserver(entries=>{for(const e of entries){const b=e.borderBoxSize?.[0],w=b?b.inlineSize:e.contentRect.width,h=b?b.blockSize:e.contentRect.height;if(w&&h)tagSize={w,h};}}).observe(label);
   window.StoryGuide={get strength(){return mode;},setting(value){if(['full','light','off'].includes(value)){mode=value;localStorage.setItem('jhp_story_guidance',mode);nextSample=0;}tick(performance.now());return mode;},chapter(n,title){titleUntil=-1;titleText='CHAPTER '+n+' — '+title;},targets};
   // Screen ink follows the latest camera every frame; idle rim lighting only
   // requests ten room redraws per second and never redraws behind a screen.
