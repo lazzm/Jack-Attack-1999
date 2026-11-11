@@ -283,6 +283,49 @@
     return b;
   }
 
+  // Auto-arrange within the actual JackOS surface. A small desktop uses a
+  // normal shortcuts folder for the remainder, never half a final column.
+  let desktopFolder=null,folderItems=[],folderKey='',layoutPending=false;
+  const more=document.createElement('button');more.type='button';more.id='iconDesktopMore';more.className='dicon';more.hidden=true;
+  more.innerHTML=(J('folder')||ICON.folder)+'<span>More Shortcuts</span>';icons.appendChild(more);
+  function fillDesktopFolder(){
+    if(!desktopFolder||desktopFolder.closed)return;
+    const key=folderItems.map(e=>e.id+'|'+e.textContent+'|'+e.innerHTML).join('\n');
+    if(key===folderKey)return;folderKey=key;
+    desktopFolder.body.replaceChildren();
+    const list=document.createElement('div');list.className='desktop-shortcut-list';
+    for(const source of folderItems){
+      const b=document.createElement('button');b.type='button';b.className='desktop-shortcut';b.innerHTML=source.innerHTML;
+      bindLaunch(b,()=>source.click(),()=>{list.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));b.classList.add('sel')});list.appendChild(b);
+    }
+    if(!folderItems.length){const note=document.createElement('p');note.textContent='All shortcuts are on the desktop.';list.appendChild(note);}
+    desktopFolder.body.appendChild(list);
+    desktopFolder.status.textContent=folderItems.length+' shortcut'+(folderItems.length===1?'':'s');
+  }
+  bindLaunch(more,()=>{
+    if(desktopFolder&&!desktopFolder.closed){desktopFolder.restore();return;}
+    folderKey='';desktopFolder=win('More Shortcuts',null,{w:440,h:350,icon:J('folder')||ICON.folder,status:true,cls:'desktop-shortcut-folder'});fillDesktopFolder();
+  },()=>{icons.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));more.classList.add('sel')});
+  const iconWatch=new MutationObserver(scheduleDesktopIcons);
+  function watchDesktopIcons(){iconWatch.observe(icons,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','style']})}
+  function layoutDesktopIcons(){
+    layoutPending=false;iconWatch.disconnect();
+    const kids=[...icons.children].filter(e=>e!==more&&e.classList.contains('dicon'));
+    for(const e of kids)e.classList.remove('desktop-overflow');
+    const available=kids.filter(e=>!e.hidden&&getComputedStyle(e).display!=='none');
+    const desktop=document.getElementById('desktop'),width=desktop.clientWidth,height=desktop.clientHeight;
+    const cellW=88,cellH=Math.max(84,...available.map(e=>e.offsetHeight));
+    const cols=Math.max(1,Math.floor((width-12+4)/(cellW+4))),rows=Math.max(1,Math.floor((height-16+6)/(cellH+6))),capacity=cols*rows;
+    icons.style.setProperty('--desktop-columns',cols);icons.style.setProperty('--desktop-rows',rows);icons.style.setProperty('--desktop-cell-height',cellH+'px');
+    folderItems=available.slice(available.length>capacity?Math.max(0,capacity-1):available.length);
+    for(const e of folderItems)e.classList.add('desktop-overflow');
+    more.hidden=!folderItems.length;more.title=folderItems.length+' more shortcuts';if(more!==icons.lastElementChild)icons.appendChild(more);
+    fillDesktopFolder();watchDesktopIcons();
+  }
+  function scheduleDesktopIcons(){if(!layoutPending){layoutPending=true;requestAnimationFrame(layoutDesktopIcons)}}
+  watchDesktopIcons();new ResizeObserver(scheduleDesktopIcons).observe(document.getElementById('desktop'));
+  addEventListener('resize',scheduleDesktopIcons);scheduleDesktopIcons();
+
   // ================================================================ Start menu: Programs / Documents / Settings / Find
   function programsTree() {
     const tree = {};

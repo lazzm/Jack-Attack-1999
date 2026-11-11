@@ -2029,21 +2029,9 @@
   }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
   function inserted(con) { const slot='console.'+con;for(const id in mediaThings){const t=mediaThings[id];if(t&&t.st==='snap'&&t.snap===slot)return t;} }
-  function tvPose(con) {
+  function tvPose(con, liveScreen) {
     // Fit the whole portable set, including its bezel, in either orientation.
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
-    if (con === 'sn') {
-      const screen=H.ROOMS.cupboard.cupScreen;screen.updateWorldMatrix(true,false);
-      const v=new T.Vector3(0,-14,7.5).applyMatrix4(screen.parent.matrixWorld),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
-      const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
-      // Match the pad's phone and tablet wings before the controls load.
-      const wings=matchMedia('(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px), (min-width:600px) and (min-height:600px)').matches;
-      const side=touch&&wings?174:8,bottom=touch?(wings?64:300):80,top=58;
-      const aw=Math.max(.2,(innerWidth-side*2)/innerWidth),ah=Math.max(.2,(innerHeight-top-bottom)/innerHeight);
-      const d=Math.max(14/(Math.tan(fov)*ah*.84),17/(Math.tan(fov)*aspect*aw*.84));
-      const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d,off=(bottom-top)*d*Math.tan(fov)/innerHeight;
-      return {x,y,z,rx:-Math.atan2(-v.y+off-y,Math.hypot(v.x-x,v.z-z))/D2R,ry:Math.atan2(v.x-x,-(v.z-z))/D2R,lvl:'G',seat:1};
-    }
     if (con === 'gb') {
       if (gbPlay) return gbPlay.view;
       const a = H.THINGS.gb.at, yaw = (a.ry || 0) * D2R;
@@ -2051,11 +2039,26 @@
       return { x: a.x + Math.sin(yaw) * d * .174, y: a.y - 2.7 - d * .985, z: a.z + Math.cos(yaw) * d * .174, rx: -80, ry: -(a.ry || 0), seat: 1, lvl: 'U' };
     }
     const a=window.RoomTV?.screenArea()||{left:8,right:8,top:58,bottom:8};
+    const glass=liveScreen||(con==='sn'?H.ROOMS.cupboard.cupScreen:R.tvScreen);
+    glass.updateWorldMatrix(true,false);glass.geometry.computeBoundingBox();
+    const size=glass.geometry.boundingBox.getSize(new T.Vector3()),scale=glass.getWorldScale(new T.Vector3());
+    // Frame for the lens the glide lands on (the walking lens, see hs-world's
+    // walkZoom), not the current one: on a rotation this can run before the
+    // house has re-fitted its camera, and a stale lens overfilled the glass.
+    const lens=Math.max(innerWidth/2/Math.tan(47.5*D2R),Math.min(innerHeight/2/Math.tan(30*D2R),innerWidth/2/Math.tan(25*D2R)));
+    const width=size.x*Math.abs(scale.x),height=size.y*Math.abs(scale.y),tan=innerHeight/2/lens;
     const aw=Math.max(.2,(innerWidth-a.left-a.right)/innerWidth),ah=Math.max(.2,(innerHeight-a.top-a.bottom)/innerHeight);
-    const d = Math.max(17.5 / (Math.tan(fov) * 0.83 * ah), 20 / (Math.tan(fov) * aspect * 0.88 * aw));
-    const glass=R.tvScreen,body=glass.parent;
-    return { x: body.position.x+glass.position.x+(a.right-a.left)*d*Math.tan(fov)*aspect/innerWidth, y: body.position.y+glass.position.y+(a.bottom-a.top)*d*Math.tan(fov)/innerHeight, z: body.position.z+glass.position.z+d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    // On a phone the live glass owns the available height, leaving a narrow
+    // reveal of the genuine bezel. A tablet or desktop has room to spare, so
+    // more of the set and the room stays in view (LOCK IN still fills it).
+    const fill=Math.min(innerWidth,innerHeight)>=600?.75:.9;
+    const d=Math.max(height/(2*tan*fill*ah),width/(2*tan*aspect*fill*aw));
+    const v=glass.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(glass.matrixWorld);
+    const right=new T.Vector3(1,0,0).transformDirection(glass.matrixWorld),down=new T.Vector3(0,1,0).transformDirection(glass.matrixWorld);
+    const eye=v.clone().addScaledVector(n,d).addScaledVector(right,(a.right-a.left)*d*tan*aspect/innerWidth).addScaledVector(down,(a.bottom-a.top)*d*tan/innerHeight);
+    return {x:eye.x,y:-eye.y,z:eye.z,rx:-Math.atan2(n.y,Math.hypot(n.x,n.z))/D2R,ry:Math.atan2(-n.x,n.z)/D2R,seat:1,lvl:con==='sn'?'G':'U'};
   }
+
   function tvOpen(con, gameId, resume, locked) {
     if(!consoleConnected(con)){toast('No console connected','Place your console in its highlighted TV-rack slot and press E to connect it.');return;}
     if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;

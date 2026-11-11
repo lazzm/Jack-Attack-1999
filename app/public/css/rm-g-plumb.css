@@ -18,3 +18,5 @@
 .rm-tvv:has(.plumb-controls) .rm-livebar{bottom:174px}
 
 .plumb-actions [data-plumb=b]{background:#e2c146}.plumb-actions [data-plumb=a]{background:#d17b78}.plumb-actions [data-plumb=y]{background:#80bb95}.plumb-actions [data-plumb=select]{background:#aaa5bc}
+/* With the controls as side wings, the live bar sits low between them, leaving the glass the height. */
+@media (orientation:landscape), (min-width:600px) and (min-height:600px){.rm-tvv:has(.plumb-controls) .rm-livebar{bottom:max(8px,env(safe-area-inset-bottom));left:170px;right:170px}}

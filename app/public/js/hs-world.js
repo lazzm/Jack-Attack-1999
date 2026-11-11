@@ -394,7 +394,7 @@
     sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
     // Printed art gets a dim fill of its own picture, scaled by this room's ambient, daylight and lamps (K.PRINTS).
     let lamps=0;for(const sl of rig.slots)lamps+=sl.cur;const fill=Math.min(.2,.02+.09*rig.ambient+.035*Math.min(3,lamps)+.04*rig.sun);
-    if(K.PRINTS)for(const m of K.PRINTS)m.emissiveIntensity=fill;
+    if(K.PRINTS)for(const m of K.PRINTS)m.emissiveIntensity=mode==='inspect'&&inspection?.paper&&m.userData.readingPaper?Math.max(fill,.4):fill;
     const time=performance.now();
     for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=i<rung().lamps;
       // Optional bulb shimmer uses the existing slots, with no new lights,
@@ -2271,9 +2271,10 @@
           if((k==='f'||k==='enter')&&!ev.repeat){try{s.t.onInspectUse?.(s.t)}catch(e){console.error(e)}}
           else if(k==='arrowleft'||k==='arrowright'||k==='r'){s.yaw+=(k==='arrowleft'||ev.shiftKey?-1:1)*(k==='r'?45:10);poseInspect()}
           else if(k==='arrowup'||k==='arrowdown'){s.pitch+=(k==='arrowup'?-10:10);poseInspect()}
-          else if(['+','=','-','_'].includes(k)){s.zoom=clamp(s.zoom+(['+','='].includes(k)?-.08:.08),.78,1.8);poseInspect()}
+          else if(['+','=','-','_'].includes(k)){s.zoom=clamp(s.zoom+(['+','='].includes(k)?-.08:.08),s.paper ? .3 : .78,1.8);poseInspect()}
         }
       }
+      inspection?.t.onInspectView?.(inspectView());
       ev.preventDefault(); ev.stopImmediatePropagation(); return;
     }
     if (focusS?.o.seatId && (KEYMOVE[ev.key] || ev.key===' ' || ev.key==='F2')) {ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)unfocus();return;}
@@ -2494,7 +2495,7 @@
     const back = document.createElement('button'); back.type = 'button'; back.textContent='Back [Q]'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
-    inspection = {t, grip, seat, auto, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
+    inspection = {t, grip, seat, auto, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, paper:ip.paper, radius: size.length() / 2, drag: null};
     if(t.onInspectUse){const use=document.createElement('button');use.type='button';use.textContent=(t.inspectUseLabel||'Use')+' [F]';use.dataset.inspectUse='';use.addEventListener('click',()=>{if(!controlsPaused)t.onInspectUse(t)});panel.insertBefore(use,back)}
     // the close-up eases in from where the thing was (no pop): same curve as the camera, short and quick
     { const ms=motionMs(MOTION.ms.inspect); if(ms){inspection.blend={t0:performance.now(),ms,p:t.obj.position.clone(),q:t.obj.quaternion.clone()};html.classList.add('hs-inspect-arriving');anims.set('inspect-blend',()=>{if(!inspection?.blend||mode!=='inspect'){if(inspection)inspection.blend=null;html.classList.remove('hs-inspect-arriving');return false}poseInspect();return !!inspection?.blend;});} }
@@ -2503,12 +2504,35 @@
   function poseInspect() {
     const s = inspection; if (!s) return;
     const angle = camera.fov * D2R / 2, fit = Math.min(angle, Math.atan(Math.tan(angle) * vw / vh));
-    const d = Math.max(10, s.radius / Math.sin(fit) * 1.24) * s.zoom, f = fwd(), t = s.t;
+    let distance=Math.max(10,s.radius/Math.sin(fit)*1.24),shiftX=0,shiftY=0;
+    if(s.paper){
+      // Fit the printed page in the space left by its compact reading strip.
+      // Distance is based on the actual paper rectangle, not its bounding sphere.
+      const r=s.panel.getBoundingClientRect(),land=vh<500&&vw>vh,tan=Math.tan(angle);
+      const left=16,top=16,right=land?r.left-16:vw-16,bottom=land?vh-16:r.top-14;
+      const width=Math.max(80,right-left),height=Math.max(80,bottom-top);
+      // (6% spare so a slightly turned or curled page still keeps its corners on screen)
+      distance=Math.max(s.paper.width/(2*tan*vw/vh*width/vw),s.paper.height/(2*tan*height/vh))*1.06;
+      shiftX=((left+right)/2-vw/2)*2*tan*vw/vh/vw;
+      shiftY=((top+bottom)/2-vh/2)*2*tan/vh;
+      shiftX+=(s.panX||0)*2*tan*vw/vh/vw;shiftY+=(s.panY||0)*2*tan/vh;
+    }
+    const d=distance*s.zoom,f=fwd(),t=s.t;
     t.obj.rotation.set(s.pitch * D2R, s.yaw * D2R, 0, 'YXZ');
     const offset = s.centre.clone().applyEuler(t.obj.rotation);
     t.obj.position.set(P.x + f.x * d - offset.x, P.y + f.y * d - offset.y, P.z + f.z * d - offset.z);
+    if(s.paper){
+      const right=new T.Vector3(Math.cos(P.ry*D2R),0,Math.sin(P.ry*D2R));
+      const down=new T.Vector3().crossVectors(f,right).negate();
+      t.obj.position.addScaledVector(right,shiftX*d).addScaledVector(down,shiftY*d);
+    }
     if (s.blend) { const b = s.blend, k = clamp((performance.now() - b.t0) / b.ms, 0, 1), e = H5(k); t.obj.position.lerpVectors(b.p, t.obj.position.clone(), e); t.obj.quaternion.copy(b.q).slerp(t.obj.quaternion.clone(), e); if (k >= 1) { s.blend = null; html.classList.remove('hs-inspect-arriving'); } }
     t.obj.updateMatrixWorld(true); dirty();
+  }
+  function inspectView(view){
+    if(!inspection)return null;
+    if(view){let changed=false;for(const k of ['yaw','pitch','zoom','panX','panY'])if(Number.isFinite(view[k])){inspection[k]=view[k];changed=true;}if(changed)inspection.blend=null;poseInspect();}
+    return {yaw:inspection.yaw,pitch:inspection.pitch,zoom:inspection.zoom,panX:inspection.panX||0,panY:inspection.panY||0};
   }
   function endInspect() {
     const s = inspection; if (!s) return;
@@ -2534,14 +2558,14 @@
   document.addEventListener('pointermove', ev => {
     const s = inspection, d = s && s.drag;
     if(s?.points?.has(ev.pointerId))s.points.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-    if(d?.two&&!controlsPaused){ev.preventDefault();ev.stopImmediatePropagation();const p=[...s.points.values()].slice(0,2);if(p.length<2)return;const cx=(p[0].x+p[1].x)/2,cy=(p[0].y+p[1].y)/2,span=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);s.yaw=(s.yaw+(cx-d.x)*.45)%360;s.pitch=(s.pitch-(cy-d.y)*.45)%360;d.x=cx;d.y=cy;if(d.span>20&&span>20)s.zoom=clamp(d.zoom*d.span/span,.78,1.8);poseInspect();return}
+    if(d?.two&&!controlsPaused){ev.preventDefault();ev.stopImmediatePropagation();const p=[...s.points.values()].slice(0,2);if(p.length<2)return;const cx=(p[0].x+p[1].x)/2,cy=(p[0].y+p[1].y)/2,span=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(s.paper){s.panX=(s.panX||0)+cx-d.x;s.panY=(s.panY||0)+cy-d.y;}else{s.yaw=(s.yaw+(cx-d.x)*.45)%360;s.pitch=(s.pitch-(cy-d.y)*.45)%360;}d.x=cx;d.y=cy;if(d.span>20&&span>20)s.zoom=clamp(d.zoom*d.span/span,s.paper ? .3 : .78,1.8);poseInspect();return}
     if(!d||d.id!==ev.pointerId||controlsPaused)return;
     ev.preventDefault(); ev.stopImmediatePropagation();
     const x=ev.clientX,y=ev.clientY,dx=x-d.x,dy=y-d.y;if(Math.hypot(x-d.startX,y-d.startY)>5)d.moved=true;
     if (d.hit) {if (Math.hypot(dx, dy) > 22) {s.t.obj.userData.cube.drag(d.hit, dx, dy); s.drag = null;}}
     else {s.yaw = (s.yaw+dx*.45)%360; s.pitch = (s.pitch-dy*.45)%360; d.x=x;d.y=y;poseInspect();}
   }, true);
-  const inspectUp=ev=>{const s=inspection;s?.points?.delete(ev.pointerId);const d=s?.drag;if(d?.two){if(!s.points.size)s.drag=null;return}if(!d||d.id!==ev.pointerId)return;s.drag=null;
+  const inspectUp=ev=>{const s=inspection;s?.t.onInspectView?.(inspectView());s?.points?.delete(ev.pointerId);const d=s?.drag;if(d?.two){if(!s.points.size)s.drag=null;return}if(!d||d.id!==ev.pointerId)return;s.drag=null;
     if(ev.type!=='pointerup'||controlsPaused||d.moved||d.button!==0||!s.t.onInspectClick)return;
     const ray=new T.Raycaster();ray.layers.enableAll();ray.setFromCamera(new T.Vector2(ev.clientX/vw*2-1,1-ev.clientY/vh*2),camera);
     const hit=ray.intersectObject(s.t.obj,true).find(h=>{for(let o=h.object;o;o=o.parent)if(!o.visible||o.userData.contactShadow)return false;return true});
@@ -2549,7 +2573,7 @@
   };
   document.addEventListener('pointerup',inspectUp);document.addEventListener('pointercancel',inspectUp);
   document.addEventListener('contextmenu', ev => {if (inspection) ev.preventDefault();});
-  document.addEventListener('wheel', ev => {if (!inspection||controlsPaused) return; ev.preventDefault(); ev.stopImmediatePropagation(); inspection.zoom = clamp(inspection.zoom + Math.sign(ev.deltaY) * .08, .78, 1.8); poseInspect();}, {capture:true, passive:false});
+  document.addEventListener('wheel', ev => {if (!inspection||controlsPaused) return; ev.preventDefault(); ev.stopImmediatePropagation(); inspection.zoom = clamp(inspection.zoom + Math.sign(ev.deltaY) * .08, inspection.paper ? .3 : .78, 1.8); poseInspect();inspection.t.onInspectView?.(inspectView());}, {capture:true, passive:false});
   addEventListener('resize', poseInspect);
 
   // ================================================================ sitting down to use something (the telly, the phone, the fridge door)
@@ -3217,7 +3241,7 @@
     if(changed&&live&&monitor&&mode==='monitor'){const ms=motionMs(MOTION.ms.lock),t0=performance.now();if(ms){glass.lockAnim={t0,ms,enter:full};html.classList.add('pc-lock-anim');physicalSound('lockin',{on:full});anims.set('pc-lock',n=>{glass.fitKey=null;dirty();if(n-t0<ms&&glass.lockAnim)return true;glass.lockAnim=null;html.classList.remove('pc-lock-anim');glass.fitKey=null;dirty();return false;});}}
     html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty();if(changed)dispatchEvent(new Event('resize'))}return desktopFull;
   }
-  function pauseControls(on){controlsPaused=!!on;touchSet(0,0);window.Sound?.worldPause?.(on);if(AC&&OUT)OUT.gain.setTargetAtTime(on?0:.5,AC.currentTime,.012);for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
+  function pauseControls(on){controlsPaused=!!on;touchSet(0,0);window.Sound?.worldPause?.(on);if(AC&&OUT)OUT.gain.setTargetAtTime(on?0:.5,AC.currentTime,.012);for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;inspection.points?.clear();}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
   // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
   function monitorPose() {
     const g = window.House && House.pcGL, gl = g && g.userData.glass;
@@ -3536,7 +3560,7 @@
   // ================================================================ the API
   window.House = {
     ok: true, FRONT, REAR, placementVersion:PV, migratePlacement, CAT_TREE, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
-    focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
+    focus, unfocus, surface, faceQuad, inspect, inspectView, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     isAway, restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop: (sx, sy) => drop(sx, sy, 'api'), placeHeld: (sx, sy) => drop(sx, sy, 'user'), letGo, setAside, putBack, interact, releaseGrip, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, get grip() { return held ? { id: held.id, drag: !!held.drag, d: held.d, ry: held.ry } : null; },

@@ -60,3 +60,7 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 html[data-game-touch="true"].pc-desktop-full .st-recovery .appbody{font:16px/1.4 Tahoma,Arial,sans-serif}
 html[data-game-touch="true"].pc-desktop-full .st-recovery .btn{min-width:44px;min-height:44px;padding:8px 14px;font:16px Tahoma,Arial,sans-serif}
 html[data-game-touch="true"].pc-desktop-full .st-recovery .pg-dlgbtns{flex-wrap:wrap}
+
+/* Guidance layout owns the complete arrow/name envelope, including safe areas. */
+.hs-ui .st-marker[data-state="edge"][data-side]{margin-left:0}
+.hs-ui .st-marker[data-state="edge"] .st-marker-label{top:0;bottom:auto;overflow-wrap:anywhere}

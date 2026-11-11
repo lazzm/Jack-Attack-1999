@@ -94,7 +94,7 @@
   const discId=/^pmb\.pm\.mag\./.test(t.id)?'pmd.'+doc.id:null,hasPocket=!!discId;
   const first=hasPocket?2:1,last=first+Math.ceil(doc.pages.length/count);
   const front=C.byId[doc.id]?cover(doc.id):originalCover(t),rear=C.byId[doc.id]?backCover(doc):front;
-  const ink=map=>M({c:'#fff',map,sp:'#000000',sh:1}),paper=M({c:'#ddd3bc',sp:'#000000',sh:1}),blank=ink(null);
+  const ink=map=>{const m=M({c:'#fff',map,pr:true,sp:'#000000',sh:1});m.userData.readingPaper=true;return m},paper=M({c:'#ddd3bc',sp:'#000000',sh:1}),blank=ink(null);
   const texture=i=>i<0||i>=doc.pages.length?blank:doc.pages[i].mesh?.material||ink(pageTexture(doc,i));
   const frontMat=doc.frontMesh?.material||ink(front),backMat=doc.backMesh?.material||ink(rear);
   original.forEach(o=>t.obj.remove(o));t.obj.add(model);
@@ -112,7 +112,7 @@
   };
   const leftMesh=base(left,-10.56),rightMesh=base(right,10.56);
   K.into(spread).cyl(0,-14,-.82,.24,.24,28,12,paper);
-  const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose};
+  const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose,view:t.onInspectView};
   let slot=0,requested=0,flipping=false,controls,leaf=null,pocket=null,disc=null;
   if(resume?.view==='back')slot=last;
   else if(resume?.view==='inside'&&hasPocket)slot=1;
@@ -122,7 +122,7 @@
   const page=s=>s===0?-1:s===last?doc.pages.length:s<first?-2:(s-first)*count;
   const state=reading={id:t.id,docId:doc.id,get phase(){return phase(slot)},get page(){return page(slot)},get flipping(){return flipping}};
   function layers(){t.front=null;H.layerFor(t)}
-  function save(){try{localStorage.setItem('jhp_reading_active',JSON.stringify({id:t.id,docId:doc.id,view:phase(slot),page:page(slot)}));if(phase(slot)==='pages'){const saved=bookmarks();saved[doc.id]=page(slot);localStorage.setItem('jhp_reading_pages',JSON.stringify(saved))}}catch(e){}}
+  function save(){try{localStorage.setItem('jhp_reading_active',JSON.stringify({id:t.id,docId:doc.id,view:phase(slot),page:page(slot),pose:H.inspectView?.()}));if(phase(slot)==='pages'){const saved=bookmarks();saved[doc.id]=page(slot);localStorage.setItem('jhp_reading_pages',JSON.stringify(saved))}}catch(e){}}
   function discPresent(){const d=H.THINGS[discId];return !!d&&d.st==='rest'&&!!d.at.hide&&window.PM?.where(doc.id)!=='D'}
   function status(){
    if(!controls)return;
@@ -192,12 +192,13 @@
    });return true;
   }
   function turn(delta){requested=Math.max(0,Math.min(last,Math.max(slot-2,Math.min(slot+2,requested+delta))));if(!flipping&&requested!==slot)begin(Math.sign(requested-slot));status()}
-  function resize(){if(reading!==state||narrow()===single)return;const saved={view:phase(slot),page:page(slot)};H.endInspect();read(t.id,doc.id,saved)}
-  t.inspectPose={yaw:0,pitch:0,zoom:single?.72:1.18};
+  function resize(){if(reading!==state||narrow()===single)return;const saved={view:phase(slot),page:page(slot),pose:H.inspectView?.()};H.endInspect();read(t.id,doc.id,saved)}
+  t.inspectPose={yaw:0,pitch:-(H.P?.rx||0),zoom:1,paper:{width:single?21:42.3,height:28}};
+  t.onInspectView=()=>save();
   t.onInspectKey=ev=>{if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'||ev.key.toLowerCase()==='f'){if(!ev.repeat)turn(ev.key==='ArrowLeft'?-1:1);return true}};
   t.onInspectEnd=()=>{
    removeEventListener('resize',resize);H.anims.delete('reading.page');removeLeaf();model.traverse(o=>o.geometry?.dispose());t.obj.remove(model);original.forEach(o=>t.obj.add(o));layers();
-   t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty();
+   t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;t.onInspectView=old.view;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty();
   };
   if(!H.inspect(t.id)){t.onInspectEnd();return false}model.add(spread);
   if(hasPocket){
@@ -215,12 +216,14 @@
    for(const x of [-5.2,5.2])K.into(pocket).box(x,0,.22,.7,11,.08,M({c:'#dcc49c',sh:2}));
   }
   const panel=document.querySelector('.hs-inspection');if(panel){
+   panel.classList.add('magazine-reader');
    panel.querySelector('b').textContent=(C.byId[doc.id]?'JACK ATTACK! — ':'')+doc.title;
-   panel.querySelector('span').innerHTML='Drag to inspect · <kbd>F</kbd> / <kbd>→</kbd> open / next · <kbd>←</kbd> previous · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back';
+   panel.querySelector('span').className='magazine-reading-hint';panel.querySelector('span').innerHTML='<span data-input-only=keyboard>Drag: turn · ← →: pages · Wheel: zoom · Q: back</span><span data-input-only=touch>Drag: turn · Two fingers: magnify / move</span>';
+   const back=panel.querySelector('button');if(back){back.className='magazine-back';back.textContent='Back';}
    controls=document.createElement('span');controls.className='magazine-page-controls';for(const n of [-1,1]){const button=document.createElement('button');button.type='button';button.dataset.turn=n;button.addEventListener('click',()=>turn(n));controls.appendChild(button)}controls.appendChild(document.createElement('small'));
    if(hasPocket){const button=document.createElement('button');button.type='button';button.dataset.coverDisc='';button.textContent='Take inside-cover CD';button.addEventListener('click',()=>{if(flipping||phase(slot)!=='inside'||!discPresent())return;H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(button)}panel.appendChild(controls);
   }
-  paint();layers();save();addEventListener('resize',resize);return true;
+  paint();layers();save();H.inspectView?.(resume?.pose||{});addEventListener('resize',resize);return true;
  }
  function pocketTexture(doc,side){
   const key='reading:pocket:'+doc.id+':'+side;

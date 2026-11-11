@@ -26,3 +26,14 @@
 .cpi{padding:1px 4px;cursor:default}
 .cpi.sel{background:#000080;color:#fff}
 .secretpage{min-height:420px}
+
+/* A complete period desktop grid; overflow opens in an ordinary folder. */
+#desktop>.icons{inset:8px 6px;max-height:none;width:auto;display:grid;grid-auto-flow:column;grid-template-columns:repeat(var(--desktop-columns,1),88px);grid-template-rows:repeat(var(--desktop-rows,1),var(--desktop-cell-height,84px));gap:6px 4px;align-content:start;align-items:start}
+#desktop>.icons>.dicon{width:88px;height:auto;min-height:84px;flex-direction:column;overflow-wrap:anywhere}
+#desktop>.icons>.dicon[hidden],#desktop>.icons>.desktop-overflow{display:none!important}
+.desktop-shortcut-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:4px;background:#fff;color:#000;min-height:100%;align-content:start;padding:4px}
+.desktop-shortcut{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-width:0;min-height:76px;padding:6px 4px;border:0;background:transparent;color:inherit;font:12px var(--ui);overflow-wrap:anywhere}
+.desktop-shortcut svg{width:32px;height:32px;flex:none}
+.desktop-shortcut span{padding:2px;line-height:1.3}
+.desktop-shortcut.sel span,.desktop-shortcut:focus-visible span{background:#000080;color:#fff;outline:1px dotted #fff}
+.desktop-shortcut-folder>.appbody{padding:2px;background:#fff}
