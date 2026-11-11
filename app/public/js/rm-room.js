@@ -983,7 +983,9 @@
       p.setY(i,p.getY(i)+Math.sin(u*8+.6)*Math.pow(v,12)*1.2);p.setZ(i,-y);
     }
     dg.computeVertexNormals();
-    const duvet=B.geo(K.thicken(dg,1.5),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
+    // The duvet and sheet take the night window light per vertex on the cheapest rungs too (hs-kit moonLit).
+    const duvetM=M({c:'#ffffff',map:tex('duvet')});duvetM.userData.moonLit=true;M({c:'#fff',map:tex('sheet')}).userData.moonLit=true;
+    const duvet=B.geo(K.thicken(dg,1.5),cx,36,cz+14,duvetM,{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
     // things put on the bed lie on the rumpled duvet (or the mattress at the head end), never sunk into it

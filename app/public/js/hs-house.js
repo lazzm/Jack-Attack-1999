@@ -1204,6 +1204,9 @@
     const WB = B.at(0,0,-REAR.extension);
     // the units along the back wall: base cupboards, the worktop, wall cupboards, the sink, the cooker, the washing machine
     const doorM = M({ c: '#fff', map: unitTex() }), top = M({ c: '#fff', map: worktopTex(), sh: 40, sp: '#555' });
+    // Fitted carcasses (base and wall units) stand in wall corners: no night edge light on their
+    // sides (hs-kit noRim), so the gap by the back door stays a dark gap at night.
+    M('#e8e2d0').userData.noRim=true;
     const unit = (x0, x1, appliance) => { const cx=(x0+x1)/2,w=x1-x0,carcass=M('#e8e2d0');
       // The washer bay's rear corner clears the back-door architrave.
       const rear = appliance ? -53 : -55;
@@ -1569,11 +1572,13 @@
     const batch = K.batch(), B = K.into(batch);
     const {x0,x1,z0,z1} = REAR; // (behind the kitchen; the extension rear wall is z = -176)
     r.wheelie=REAR.wheelie;r.waterButt=REAR.butt;
-    const edgeTurf=mGrass().clone();edgeTurf.vertexColors=true;edgeTurf.userData.nature='turf';
+    // Lawn, side strip and paving receive the night ground pools (groundPool: hs-kit houseGroundLight).
+    const edgeTurf=mGrass().clone();edgeTurf.vertexColors=true;edgeTurf.userData.nature='turf';edgeTurf.userData.groundPool=true;
     B.geo(new T.BoxGeometry(x1-x0,4,z1-z0,26,1,30),(x0+x1)/2,GY+2,(z0+z1)/2,edgeTurf,{uv:110});
-    B.box((205+x1)/2,GY+2,(z1-56)/2,x1-205,4,-56-z1,mGrass(),{uv:110});
+    const sideTurf=mGrass().clone();sideTurf.userData.groundPool=true;
+    B.box((205+x1)/2,GY+2,(z1-56)/2,x1-205,4,-56-z1,sideTurf,{uv:110});
     // Patio, 90 cm path, shed apron and the short turn joining path to patio. Adjacent edges share no faces.
-    const paving=r.gardenPathNight=mSlab().clone();for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
+    const paving=r.gardenPathNight=mSlab().clone();paving.userData.groundPool=true;for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
     // Original upper rear elevation; the kitchen below now projects 1.2 m under a shallow felt roof.
     solidWall(B,60,-62.6,180,[[-360,-196],[360,-196],[360,94],[-360,94]],mBrick(),.8,[...REAR.bedroomWindows.map(w=>[[w.x0-60,w.y0],[w.x1-60,w.y0],[w.x1-60,w.y1],[w.x0-60,w.y1]]),[[210,-137],[320,-137],[320,-14],[210,-14]]]);
@@ -2063,6 +2068,11 @@
       // Night: the moon is over the west fence, behind the patio, so the shed, fences and
       // planting face it; less flat sky fill keeps the same overall exposure.
       amb: () => phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .44} : outdoorAmb('#78855a'),
+      // The same two sources as ground pools on the lawn and patio (hs-kit houseGroundLight), drawn
+      // per pixel on every lighting rung: the lantern's falloff, and the lit kitchen window thrown
+      // out across the patio and lawn from the kitchen bulb (x -60, 248 up, 296 inside the wall).
+      pool: () => phase() === 'day' ? null : { lamp: {c: '#ffd9a0', i: phase() === 'night' ? .34 : .22, at: [120, -190, 230, 980]},
+        glow: lit('kitchen') ? {c: '#ffcf92', i: phase() === 'night' ? .5 : .28} : null, win: [-155, -45, -176, -60], src: [103, 205, 248, 296]},
       sun: () => phase() === 'night' ? { x: -900, y: -800, z: 150, tx: 0, ty: GY, tz: -500, c: '#8496cc', i: 0.27 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G',120,-260,-40,GY-80,-1000,H.STAND) }, { id: 'shed', n: 'The shed', pose: () => look('G',-180,-1120,-230,GY-100,-1330,H.STAND) }, { id: 'house', n: 'The house', pose: () => look('G',20,-900,80,60,-176,H.STAND) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],

@@ -364,6 +364,8 @@
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
       rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
       const rim=typeof r.rim==='function'?r.rim():r.rim;rig.rim=rim&&rim.i>0?new T.Color(rim.c).multiplyScalar(rim.i*Math.PI):null;
+      // Ground pools (hs-kit houseGroundLight): world x/z, GL heights above the ground.
+      const pool=typeof r.pool==='function'?r.pool():r.pool;rig.pool=pool?{lamp:new T.Color(pool.lamp.c).multiplyScalar(pool.lamp.i),glow:new T.Color(pool.glow?.c||'#000').multiplyScalar(pool.glow?.i||0),at:new T.Vector4(...pool.lamp.at),win:new T.Vector4(...pool.win),src:new T.Vector4(...pool.src)}:null;
       const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=r.lightBake?0:sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
     }
     tickLights(0);
@@ -388,7 +390,7 @@
     if(moving)dirty();
   }
   function applyRoomRig(r) {
-    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera,rig.rim);
+    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r,camera,rig.rim,rig.pool);
     hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
@@ -2936,7 +2938,7 @@
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
-    let hiddenVegetation = 0;
+    let hiddenVegetation = 0;K.interiorScreen?.(renderer);
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
       const r=ROOMS[id];let drawn=visSet.has(id);

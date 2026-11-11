@@ -18,11 +18,14 @@ const views=[
  ['lounge',[100,210,520],[-210,260,500],'G'],
  ['kitchen',[100,210,240],[-100,265,-145],'G'],
  ['garden',[120,210,-260],[-40,280,-1000],'G'],
+ // round 2: the patio and near lawn looking back at the kitchen, and the bed under the window
+ ['patio',[60,195,-780],[-30,300,-176],'G'],
+ ['bed',[-40,-60,215],[200,5,-20],'U'],
 ].filter(v=>!arg('views')||arg('views').split(',').includes(v[0]));
 await withTestServer(async base=>{
  const account='Night'+Date.now().toString(36),password='Throwaway-1999';
  await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});
- const ref=arg('base'),files=(arg('files','hs-kit.js,hs-world.js,hs-house.js,rm-room.js')).split(',');
+ const ref=arg('base'),files=(arg('files','hs-kit.js,hs-world.js,hs-house.js,rm-room.js,hs-static.js')).split(',');
  const f=await roomFixture(base,{...(phone?{width:390,height:844,touch:true,contextOptions:{isMobile:true,userAgent:'Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36 Chrome/128.0 Mobile Safari/537.36',deviceScaleFactor:1}}:{}),account,password,signup:false,resume:true,opening:true,
   storageState:await bonfireLogin(base,password,account,{x:-90,y:-85,z:175,rx:0,ry:0,lvl:'U',seat:0}),hour:22,seed:1999,timeoutScale:2,
   onPage:async p=>{if(ref)for(const file of files)await p.route('**/js/'+file+'*',r=>r.fulfill({body:execFileSync('git',['show',ref+':app/public/js/'+file],{encoding:'utf8'}),contentType:'application/javascript'}))}});
