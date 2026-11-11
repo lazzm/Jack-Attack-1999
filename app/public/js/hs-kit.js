@@ -1035,13 +1035,17 @@
     }
   }
 
-  function foliageInstances(parts,material) {
-    const geo=canopy(0,true).clone(),p=geo.attributes.position,n=geo.attributes.normal,colours=[];
-    for(let i=0;i<p.count;i++){
-      const up=Math.max(0,-n.getY(i)),shade=.72+.32*up;
-      colours.push(shade*(1+.035*up),shade,shade*(1-.065*up));
+  // `clump` lets a caller supply its own coloured clump (the street crowns).
+  function foliageInstances(parts,material,detail=true,clump=null) {
+    const geo=clump||canopy(0,detail).clone(),p=geo.attributes.position,n=geo.attributes.normal,colours=[];
+    if(!geo.attributes.color){
+      for(let i=0;i<p.count;i++){
+        const up=Math.max(0,-n.getY(i)),shade=.72+.32*up;
+        colours.push(shade*(1+.035*up),shade,shade*(1-.065*up));
+      }
+      geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));
     }
-    geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));geo.computeBoundingBox();
+    geo.computeBoundingBox();
     const bounds=new T.Box3(),mesh=new T.InstancedMesh(geo,material,parts.length),colour=new T.Color();
     for(let i=0;i<parts.length;i++){
       const part=parts[i],shade=part.shade||1;mesh.setMatrixAt(i,part.matrix);colour.setRGB(shade*(1-(part.seed%3)*.018),shade,shade*(1-(part.seed%3)*.025));mesh.setColorAt(i,colour);

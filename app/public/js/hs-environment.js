@@ -41,6 +41,30 @@
   g.fillStyle='#b6c3a6';g.fillRect(0,0,w,h);const r=K.rnd(114);
   for(let i=0;i<2700;i++){g.fillStyle=['#9cae8c','#d2dbc4','#b5c7a3','#8b9f7a'][i%4];g.fillRect(r()*w,r()*h,1+r()*2,1+r()*1.2)}
  });
+ // One instance batch (one draw) for every street crown. The near gardens use
+ // the same branch/clump kit as Jack's garden; far trees spend just eight
+ // scalloped clumps on a broken silhouette instead of three oversized balls.
+ const treeLeaf=paint('#6c824e');treeLeaf.vertexColors=true;
+ // Leaf clusters painted at street scale: lit sprays, dark gaps between them.
+ treeLeaf.map=K.tex('env.tree.leaves',128,128,(g,w,h)=>{
+  g.fillStyle='#a9b98f';g.fillRect(0,0,w,h);const r=K.rnd(733);
+  for(let i=0;i<900;i++){g.fillStyle=i%5?'rgba(52,66,38,.28)':'rgba(30,40,24,.4)';g.beginPath();g.ellipse(r()*w,r()*h,1.5+r()*2.4,1+r()*1.4,r()*3,0,7);g.fill()}
+  for(let i=0;i<1500;i++){g.fillStyle=['#c7d3a6','#dfe6c0','#9fb383','#b9c896'][i%4];g.beginPath();g.ellipse(r()*w,r()*h,1.2+r()*1.8,.6+r()*.7,r()*3,0,7);g.fill()}
+ });
+ const crownParts=[];
+ // A rounded, lumpy clump: a dodecahedron (36 triangles, fewer than the old
+ // ball) with shared normals, a flatter underside, a lit crown and a dark,
+ // slightly warm belly, kept low in contrast so outlines stay soft. World-ish UVs repeat the leaf paint about every 35 cm.
+ function crownClump(){
+  const src=new T.DodecahedronGeometry(1,0),p=src.attributes.position,seen=new Map(),pos=[],index=[];
+  for(let i=0;i<p.count;i++){const k=Math.round(p.getX(i)*1e4)+','+Math.round(p.getY(i)*1e4)+','+Math.round(p.getZ(i)*1e4);let j=seen.get(k);if(j===undefined){j=pos.length/3;seen.set(k,j);pos.push(p.getX(i),p.getY(i),p.getZ(i))}index.push(j)}
+  src.dispose();const r=K.rnd(907),uv=[];
+  for(let j=0;j<pos.length;j+=3){const s=.92+r()*.16;pos[j]*=s;pos[j+1]*=s*(pos[j+1]>0?.9:1);pos[j+2]*=s;uv.push((pos[j]*.8+pos[j+2]*.6)*2,(pos[j+1]*.9+pos[j]*.25)*2)}
+  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(index);geo.computeVertexNormals();
+  const n=geo.attributes.normal,colours=[];
+  for(let i=0;i<n.count;i++){const up=Math.max(0,-n.getY(i)),down=Math.max(0,n.getY(i)),shade=(.8+.26*up)*(1-.14*down)*(.95+r()*.1);colours.push(shade*(1+.04*up),shade,shade*(1-.07*up+.05*down))}
+  geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));return geo;
+ }
  const fence=paint('#9b876c');
  fence.map=K.tex('env.fence',128,128,(g,w,h)=>{
   g.fillStyle='#dbd1bc';g.fillRect(0,0,w,h);
@@ -190,13 +214,28 @@
   f.box(0,-h/2-6,4,w+14,7,16,paving);
  }
  function tree(b,x,z,h,n,near=false){
-  if(near){const species=Math.floor(n/3)%3;K.branchingTree(b,x,0,z,h,species===1?81:110,species===1?fence:earth,n%2?leaf:hedge,species);return;}
-  b.cyl(x,-h*.33,z,7,13,h*.66,7,earth);
-  for(const side of [-1,1])b.cyl(x+side*22,-h*.61,z,4,7,h*.26,6,earth,{rz:side*28});
-  // Unequal overlapping crowns read as one branching tree, not a stack of balls.
-  b.ball(x,-h*.79,z,100,h*.28,94,n%2?leaf:hedge,7);
-  b.ball(x-64,-h*.67,z+24,83,h*.22,78,hedge,7);
-  b.ball(x+62,-h*.71,z-20,83,h*.24,82,leaf,7);
+  const local=b.at(x,0,z),parts=crownParts;
+  if(near){
+   const species=Math.floor(n/3)%3,sp=species===1?81:110,lean=species===1?h*.045:-h*.025,first=parts.length,grow=new T.Vector3(1.18,1.14,1.18);
+   K.branchingTree(b,x,0,z,h,sp,species===1?fence:earth,treeLeaf,species,false,parts);
+   // Fuller street crowns: the kit's sprays grow to overlap, and a darker
+   // inner layer closes the middle so sky only shows towards the edges.
+   for(let i=first;i<parts.length;i++)parts[i].matrix.scale(grow);
+   for(let k=0;k<8;k++){const a=k*2.4+n,rad=sp*(.22+.2*(k%2));parts.push({matrix:K.xform(local.base,lean+Math.cos(a)*rad,-h*(.66+(k%4)*.055),Math.sin(a)*rad,{sx:sp*.5,sy:h*.105,sz:sp*.45,ry:k*53+n*17}),seed:k+n,shade:.7+(k%2)*.08})}
+   return;
+  }
+  const spread=118+(n%3)*9,lean=n%2?7:-9;
+  local.cyl(lean*.45,-h*.36,0,5,12,h*.72,7,earth,{rz:lean/h*55});
+  const limb=(a,c)=>{const d=new T.Vector3(...c).sub(new T.Vector3(...a)),mid=new T.Vector3(...a).add(new T.Vector3(...c)).multiplyScalar(.5),geo=new T.CylinderGeometry(1.1,4,d.length(),5);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));local.geo(geo,mid.x,mid.y,mid.z,earth);};
+  for(let i=0;i<3;i++){
+   const a=i*2.399+n*.71,reach=spread*(.68+i*.06),end=[lean+Math.cos(a)*reach,-h*(.67+i*.055),Math.sin(a)*reach];
+   limb([lean*.6,-h*(.45+i*.06),0],end);
+   for(let j=0;j<2;j++){
+    const sx=end[0]+Math.cos(a+(j?-.65:.65))*spread*.18,sz=end[2]+Math.sin(a+(j?-.65:.65))*spread*.18;
+    parts.push({matrix:K.xform(local.base,sx,end[1]-j*h*.063,sz,{sx:spread*(j?.58:.63),sy:h*(j?.14:.125),sz:spread*(j?.52:.6),ry:n*37+i*71+j*39}),seed:n+i+j,shade:j?1.08:.82});
+   }
+  }
+  for(let i=0;i<2;i++)parts.push({matrix:K.xform(local.base,lean+(i?26:-22),-h*(.88+i*.055),i?18:-12,{sx:spread*.56,sy:h*.14,sz:spread*.5,ry:n*51+i*77}),seed:n+i,shade:1.04+i*.04});
  }
  function gardenHedge(b,x,z,len,height=78,width=50,distant=false){
   const geo=new T.BoxGeometry(width,height,len,2,distant?2:4,Math.max(2,Math.ceil(len/(distant?150:65)))),p=geo.attributes.position,r=12;
@@ -404,7 +443,8 @@
  const red=paint('#b3261e'),redDark=paint('#7d1a15'),black=paint('#202322');
  function green(b){
   const g=b.at(0,GY+1,0);
-  tree(g,2230,560,430,2);
+  // The green's tree stands beside the road: it gets the full branch kit.
+  tree(g,2230,560,430,2,true);
   const kz=ST.pave[0]-60,k=g.at(2310,0,kz,0);
   k.box(0,-6,0,98,12,98,paving);k.box(0,-130,0,90,236,90,red);k.box(0,-250,0,96,8,96,redDark);k.box(0,-262,0,72,16,72,red);
   for(const [x,z,ry] of [[0,46,0],[0,-46,180],[46,0,90],[-46,0,-90]]){const f=k.at(x,0,z,ry);f.box(0,-120,0,70,180,1.6,shopGlass);for(let i=1;i<3;i++)f.box(-35+i*23.3,-120,.8,3,180,1.6,red);for(let j=1;j<8;j++)f.box(0,-210+j*22.5,.8,70,3,1.6,red);f.box(0,-224,.8,60,10,1.6,paving)}
@@ -429,9 +469,10 @@
   }
   for(const [x,z,h,grade]of [[2250,3200,510,1],[3200,3500,560,6],[-2260,3190,490,1],[-650,-3410,520,1],[820,-3480,480,6],[2140,-3250,540,1],[-2650,-1450,460,1]])tree(b.at(0,GY+grade,0),x,z,h,2);
   cornerShop(b);green(b)});
+ if(crownParts.length){const crowns=K.foliageInstances(crownParts,treeLeaf,false,crownClump());crowns.name='street-layered-crowns';group.add(crowns)}
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
  group.traverse(o=>{
-  o.userData.noPick=true;if(!o.geometry)return;
+  o.userData.noPick=true;if(!o.geometry||o.isInstancedMesh)return;
   const n=o.geometry.attributes.normal,p=o.geometry.attributes.position,colours=new Float32Array(n.count*3),wall=[masonry,paleBrick,render].includes(o.material);
   for(let i=0;i<n.count;i++){
    const x=p.getX(i),y=p.getY(i),z=p.getZ(i),contact=1-.16*Math.max(0,Math.min(1,(y-(GY-70))/70)),shade=(.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light)))*contact;

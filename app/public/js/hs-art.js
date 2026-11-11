@@ -15,6 +15,61 @@
   const text = (g, s, x, y, font, col, align, ls) => { g.font = font; g.fillStyle = col; g.textAlign = align || 'left'; g.textBaseline = 'alphabetic'; if (ls && g.letterSpacing !== undefined) g.letterSpacing = ls; g.fillText(s, x, y); if (g.letterSpacing !== undefined) g.letterSpacing = '0px'; };
 
   const fit = (g, s, maxW, size, font) => { g.font = size + 'px ' + font; const w = g.measureText(s).width; if (w > maxW) g.font = Math.floor(size * maxW / w) + 'px ' + font; };
+  // The photos share the family's painted-face abstraction: soft shoulders,
+  // hair silhouettes and expressive eyes, with a different pose in each print.
+  function photoPerson(g,x,y,scale,kind,pose='stand') {
+    g.save();g.translate(x,y);g.scale(scale,scale);
+    // The player and the friend follow Cast's pronouns, so a girl playing sees
+    // herself in the family prints; the sister keeps her own ponytail and bow.
+    const who=kind==='jack'?'me':kind==='mate'?'mate1':null,her=!!who&&typeof Cast!=='undefined'&&Cast.g?.(who)==='f';
+    const sister=kind==='sister',girl=sister||her,mom=kind==='mom',dad=kind==='dad',skin=dad?'#c79b77':'#dfb497',hair=mom?'#70472f':sister?'#825733':kind==='mate'?'#2f2621':'#513e2f';
+    const oval=(x,y,rx,ry,c)=>{g.fillStyle=c;g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()};
+    const shirt=kind==='school'?'#344c67':mom?'#9c5165':dad?'#5e7385':girl?'#b97187':kind==='mate'?'#586b91':'#7c8c59';
+    // Rounded sleeves/neck and an elbow, rather than a rectangular body glyph.
+    g.lineCap='round';g.lineJoin='round';g.strokeStyle=shirt;g.lineWidth=12;
+    g.beginPath();g.moveTo(-17,34);g.quadraticCurveTo(-27,45,-24,67);g.stroke();
+    g.beginPath();g.moveTo(17,34);if(pose==='wave'){g.quadraticCurveTo(35,29,31,10);g.stroke();oval(31,6,5,7,skin)}else{g.quadraticCurveTo(28,45,23,66);g.stroke();oval(23,69,5,6,skin)}
+    g.fillStyle=shirt;g.beginPath();g.moveTo(-18,30);g.quadraticCurveTo(0,23,18,30);g.quadraticCurveTo(23,44,21,78);g.lineTo(-21,78);g.quadraticCurveTo(-24,45,-18,30);g.fill();
+    oval(0,29,7,9,skin);if(mom||girl)oval(0,5,18,26,hair);
+    oval(-14,10,3,5,skin);oval(14,10,3,5,skin);
+    g.fillStyle=lin(g,-14,0,14,22,[[0,'#edc9ab'],[.5,skin],[1,'#bb8c70']]);
+    g.beginPath();g.ellipse(0,9,14,19,0,0,Math.PI*2);g.fill();
+    g.fillStyle=hair;g.beginPath();g.moveTo(-14,10);g.bezierCurveTo(-21,-18,13,-23,15,2);g.lineTo(13,11);g.lineTo(10,0);g.quadraticCurveTo(-1,4,-12,0);g.closePath();g.fill();
+    if(kind==='school'){g.fillStyle=hair;g.beginPath();g.ellipse(0,-3,15,9,0,Math.PI,Math.PI*2);g.lineTo(15,5);g.quadraticCurveTo(0,9,-15,5);g.closePath();g.fill();}
+    if(sister){oval(16,-2,8,9,hair);g.fillStyle='#e7b3bd';g.fillRect(12,-7,9,3)}
+    g.strokeStyle='#684c3b';g.lineWidth=1.5;for(const sx of [-1,1]){g.beginPath();g.moveTo(sx*7-3,7);g.quadraticCurveTo(sx*7,5,sx*7+2,7);g.stroke();oval(sx*6,11,2.7,2,'#f7eadb');oval(sx*6,11,1.3,1.8,'#3a3936')}
+    g.strokeStyle='#9c5c50';g.lineWidth=1.5;g.beginPath();g.moveTo(-4,21);g.quadraticCurveTo(0,24,5,20);g.stroke();
+    if(kind==='school'){
+      g.fillStyle='#f6ebd4';g.beginPath();g.moveTo(-10,30);g.lineTo(0,47);g.lineTo(10,30);g.closePath();g.fill();
+      g.fillStyle='#9c463b';g.beginPath();g.moveTo(0,35);g.lineTo(4,41);g.lineTo(2,58);g.lineTo(-2,58);g.lineTo(-4,41);g.closePath();g.fill();
+      g.strokeStyle='#748b9c';g.lineWidth=1.5;g.beginPath();g.moveTo(-11,30);g.lineTo(-15,44);g.lineTo(-7,49);g.moveTo(11,30);g.lineTo(15,44);g.lineTo(7,49);g.stroke();
+      g.strokeStyle='#d5c6b3';g.lineWidth=2;g.beginPath();g.moveTo(-4,21);g.lineTo(5,21);g.stroke();g.strokeStyle='#8d9394';g.lineWidth=.8;for(let x=-3;x<5;x+=2){g.beginPath();g.moveTo(x,19.5);g.lineTo(x,22.5);g.stroke()}
+    }
+    if(dad){g.strokeStyle='#b7c7c8';g.lineWidth=1.5;for(const y of [42,53,64]){g.beginPath();g.moveTo(-19,y);g.lineTo(20,y);g.stroke()}}
+    g.restore();
+  }
+  function personalPhoto(g,kind) {
+    g.fillStyle='#f3e8d3';g.fillRect(0,0,256,256);g.save();g.beginPath();g.rect(14,14,228,192);g.clip();
+    const school=kind==='school',sea=kind==='seaside',tomato=kind==='tomatoes';
+    g.fillStyle=lin(g,0,14,0,206,[[0,school?'#658ca9':sea?'#93bac8':'#9fae8d'],[1,school?'#cad1c6':'#e0d0a9']]);g.fillRect(14,14,228,192);
+    if(school){mottle(g,256,206,12,'rgba(238,235,212,.2)',28,431);photoPerson(g,128,72,1.85,'school');}
+    else if(sea){
+      g.fillStyle='#739a9d';g.fillRect(14,96,228,65);g.fillStyle='#d7c39b';g.fillRect(14,157,228,50);g.strokeStyle='#e5e3c7';g.lineWidth=3;for(let y=115;y<155;y+=16){g.beginPath();g.moveTo(14,y);g.bezierCurveTo(74,y-4,150,y+4,242,y);g.stroke()}
+      // Dad and Mom stand behind the children; Crystal waves at the camera.
+      photoPerson(g,73,58,1.7,'dad');photoPerson(g,165,68,1.55,'mom');photoPerson(g,108,120,1.1,'jack');photoPerson(g,199,131,.95,'sister','wave');
+    }else if(tomato){
+      g.fillStyle='#6f8257';g.fillRect(14,14,228,192);g.strokeStyle='#baac82';g.lineWidth=4;for(let x=30;x<242;x+=45){g.beginPath();g.moveTo(x,16);g.lineTo(x,205);g.stroke()}
+      for(let i=0;i<25;i++){const x=21+(i*57)%218,y=40+(i*31)%155;g.strokeStyle='#485b39';g.beginPath();g.moveTo(x,202);g.quadraticCurveTo(x+12,120,x,y);g.stroke();g.fillStyle='#8c9b60';g.beginPath();g.ellipse(x+4,y-5,10,5,-.5,0,7);g.fill();g.fillStyle='#ac5940';g.beginPath();g.arc(x,y+4,5,0,7);g.fill()}
+      photoPerson(g,118,57,1.8,'dad');g.fillStyle='#aa6240';g.beginPath();g.ellipse(144,173,17,13,0,0,7);g.fill();
+    }else{
+      g.fillStyle='#8e9b7b';g.fillRect(14,129,228,77);g.strokeStyle='#ddd7c2';g.lineWidth=5;g.strokeRect(20,25,216,100);g.strokeStyle='#79866d';g.lineWidth=1;for(let x=24;x<235;x+=16){g.beginPath();g.moveTo(x,26);g.lineTo(x,124);g.stroke()}
+      photoPerson(g,91,70,1.7,'school');photoPerson(g,178,116,1.1,'sister','wave');
+    }
+    g.fillStyle='rgba(238,207,151,.09)';g.fillRect(14,14,228,192);grain(g,256,206,1700,.045,517);g.restore();
+    const caption=school?'YEAR 7':sea?'A day at the seaside':tomato?"Dad's prize tomatoes":'First day back, 1998';
+    text(g,caption,128,236,(school?'bold 16px ':'italic 18px ')+ 'Georgia','#685749','center');
+  }
+
   const P = {};
   // ================================================================ walls, floors, ceilings
   P.wallBlue = [256, 256, (g, w, h) => { // Jack's walls: a dusty navy emulsion, roller marks and all
@@ -261,7 +316,18 @@
   P.floppyLabel = [128, 128, (g, w, h) => { g.fillStyle = '#1a1a1e'; g.fillRect(0, 0, w, h); g.fillStyle = '#9aa0a8'; g.fillRect(28, 0, 72, 40); g.fillStyle = '#5a6068'; g.fillRect(70, 6, 16, 28); g.fillStyle = '#f4f0e0'; g.fillRect(12, 56, 104, 66); g.strokeStyle = '#9ab'; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(16, 74 + i * 12); g.lineTo(112, 74 + i * 12); g.stroke(); } }];
   P.lavaGlass = [64, 256, (g, w, h) => { g.fillStyle = lin(g, 0, 0, w, 0, [[0, '#a01a5a'], [0.4, '#ff4a9a'], [0.6, '#ff6aaa'], [1, '#a01a5a']]); g.fillRect(0, 0, w, h); }];
   P.cork = [256, 192, (g, w, h) => { g.fillStyle = '#b5884e'; g.fillRect(0, 0, w, h); const r = rnd(161); for (let i = 0; i < 6000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(90,50,20,.3)' : 'rgba(230,190,130,.25)'; g.fillRect(r() * w, r() * h, 1 + r(), 1 + r()); } }];
-  P.photo = [128, 96, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = lin(g, 0, 8, 0, 80, [[0, '#5a9ad0'], [0.55, '#9ac8f0'], [0.56, '#3a8a5a'], [1, '#2a6a3a']]); g.fillRect(6, 6, w - 12, h - 22); g.fillStyle = '#c8865a'; [[44, 50], [76, 48]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.fillRect(x - 6, y + 6, 12, 18); }); g.font='9px '+HAND;g.fillStyle='#333';g.textAlign='center';g.fillText(Cast.t('me + {mate1}, 1999'),64,90,116); }];
+  P.photo = [128,96,(g,w,h)=>{
+    g.save();g.scale(.5,.5);g.fillStyle='#f5ead1';g.fillRect(0,0,256,192);
+    g.save();g.beginPath();g.rect(12,12,232,149);g.clip();
+    g.fillStyle=lin(g,0,12,0,164,[[0,'#5c7489'],[1,'#a4a18b']]);g.fillRect(12,12,232,149);
+    // A candid snapshot of two friends, distinct from the formal school print.
+    g.fillStyle='#b9c7bd';g.fillRect(157,17,73,71);g.fillStyle='#798e94';g.fillRect(162,22,63,61);g.fillStyle='#c1bfa4';g.fillRect(192,22,4,61);
+    photoPerson(g,83,62,1.35,'jack');photoPerson(g,171,69,1.23,'mate','wave');
+    g.fillStyle='#bab5a1';rr(g,91,136,36,23,4);g.fill();g.fillStyle='#414c4b';g.fillRect(96,140,13,11);g.fillStyle='#57465a';g.fillRect(114,143,8,4);g.restore();
+    grain(g,256,162,800,.045,1999);const caption=typeof Cast!=='undefined'?Cast.t('me + {mate1}, 1999'):'me + my mate, 1999';
+    let size=17;g.font=size+'px '+HAND;while(g.measureText(caption).width>232&&size>8)g.font=(--size)+'px '+HAND;
+    text(g,caption,128,182,g.font,'#605747','center');g.restore();
+  }];
   P.note = [128, 128, (g, w, h) => { g.fillStyle = '#fff38a'; g.fillRect(0, 0, w, h); g.fillStyle = 'rgba(0,0,0,.05)'; g.fillRect(0, 0, w, 14); }];
   P.noteBlue = [128, 128, (g, w, h) => { g.fillStyle = '#9af0ff'; g.fillRect(0, 0, w, h); }];
 
@@ -356,7 +422,7 @@
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
   function printed(key,w,h,draw,o){const tx=K.tex(key,w,h,draw,o);window.PrintArt?.ready.then(()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);draw(g,w,h);g.restore();tx.needsUpdate=true;window.House?.dirty()});return tx}
-  window.HouseArt = { paintMs, P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  window.HouseArt = { paintMs, P, t, printed, postersReady, posterImages, photoPerson, personalPhoto, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
   if(window.PrintArt)PrintArt.ready.then(()=>{for(const n of Object.keys(prints)){const tx=cache[n],p=P[n];if(tx){const g=tx.userData.g;g.clearRect(0,0,p[0],p[1]);p[2](g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // fonts arrive late: repaint the texts once they're in
   try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p || SURF[n]) continue; if (HI.has(n)) { const g = tx.userData.g; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, p[0] * 2, p[1] * 2); g.save(); g.setTransform(2, 0, 0, 2, 0, 0); try { p[2](g, p[0], p[1]); } catch (e) {} g.restore(); tx.needsUpdate = true; continue; } const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}
