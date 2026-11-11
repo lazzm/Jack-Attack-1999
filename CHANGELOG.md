@@ -1,5 +1,16 @@
 # Jack's Home Page - changelog
 
+## 2.92.0 - 2026-11-11
+- At night the kitchen window and back-door light fall across the patio and lawn, and moonlight from the bedroom window lies across the floor and bed.
+- Magazines open upright and readable on phones; one finger moves around the page when you zoom in, and a swipe turns the page.
+- The front and back doors close by themselves when nobody is near (never on you). Mom faces you through your first chat.
+- A new player gets their first job straight away.
+- The family's chat fits the moment better: no night-time welcome mix-ups, Dad only asks about his chair when he isn't in it, no nagging straight after a friendly chat, and fewer lines about the same job or the weather in a row.
+- On phones, prompts say "tap", not keys, and PC notices wait in the tray instead of covering windows.
+- A bucket and suds when Dad washes the car, stone caps on the front wall, no seam under the stairs, and the Zeldo pantry sign is solid.
+- Phones work less hard: the job arrow is far cheaper to draw, the street and garden are only drawn through the windows from indoors, and pictures load when first needed.
+- Twelve new recordings of Mom's reminders.
+
 ## 2.91.0 - 2026-11-11
 - The carriage clock on the lounge mantel has a proper face with hands and numerals, showing the time in the house. The photos on the mantel are all different now: a day at the seaside, a Year 7 school photo, your sister's ballet certificate and cards.
 - The street trees have fuller, leafier tops with real branches.

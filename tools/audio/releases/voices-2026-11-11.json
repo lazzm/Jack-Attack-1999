@@ -1,0 +1,162 @@
+{
+ "created": "2026-11-11",
+ "why": "Eighth batch: the ten reworded Mom lines from 2.89.0 plus two missing reminders, recorded one line per request with up to three attempts. Each clip passed voice-qa, a transcript check (spelling and apostrophe differences only allowed) and an accent check.",
+ "accepted": {
+  "talk.mom.context.room.hall": {
+   "file": "talk.mom.context.room.hall.mp3",
+   "character": "mom",
+   "dur": 4.512,
+   "sha256": "4e4c5280d5d33b18f32ddcfca93c77d9dc0bf64e8245e8957386f54a91549143",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.bed.remind.01": {
+   "file": "talk.mom.job.bed.remind.01.mp3",
+   "character": "mom",
+   "dur": 3.48,
+   "sha256": "49e430191884fd1c3edd9e49fd9e1adfc2c799e34bca2c07b8379f7e192b61b7",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.bins.remind.01": {
+   "file": "talk.mom.job.bins.remind.01.mp3",
+   "character": "mom",
+   "dur": 3.456,
+   "sha256": "9b5ef554191b78595c1e370fbb0cbc15e70fcac776f43533223c02c23dbc941a",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cat.remind.05": {
+   "file": "talk.mom.job.cat.remind.05.mp3",
+   "character": "mom",
+   "dur": 2.88,
+   "sha256": "c2a8c8b57060b7bd00cee049b39aa84f1b6130cf542806f88b5ccea79c986027",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cat.remind.09": {
+   "file": "talk.mom.job.cat.remind.09.mp3",
+   "character": "mom",
+   "dur": 3.888,
+   "sha256": "cd44894caad704b90ef5ac412385376491f927a2829343223842e206bfd34390",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cat.remind.12": {
+   "file": "talk.mom.job.cat.remind.12.mp3",
+   "character": "mom",
+   "dur": 3.624,
+   "sha256": "206cb56cdefa0010012d22884963b001aab1424cc08cabba863db8af6b314eb9",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.cushions.remind.01": {
+   "file": "talk.mom.job.cushions.remind.01.mp3",
+   "character": "mom",
+   "dur": 3.336,
+   "sha256": "3d58b35642057cda476bbf2e6078e79ef9d3b4c5b4e2ec8c946878caa77f59b3",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.lawn.give.02": {
+   "file": "talk.mom.job.lawn.give.02.mp3",
+   "character": "mom",
+   "dur": 7.488,
+   "sha256": "9947f5cbb062eeee6e21b06d21ca0450d2bdbe04af6a205bd2be063f82455856",
+   "heard": "Front lawn please, nice straight stripes with the mower, mind its cable, and leave the gnome standing.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.plant.remind.01": {
+   "file": "talk.mom.job.plant.remind.01.mp3",
+   "character": "mom",
+   "dur": 3.168,
+   "sha256": "e39da69cc9f765fd222cc623d268523d2b27aae7aef248a81f909210809d957c",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.table.remind.01": {
+   "file": "talk.mom.job.table.remind.01.mp3",
+   "character": "mom",
+   "dur": 2.88,
+   "sha256": "01f2152c55418b1ffe78e3d3e0e7d9c0c088ba45777ba686894edbd4b582ae3f",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.job.washup.remind.02": {
+   "file": "talk.mom.job.washup.remind.02.mp3",
+   "character": "mom",
+   "dur": 4.008,
+   "sha256": "e6ca5ce522afc5799fc954bb453cc44852f6c9f7b0d2ee8e3b21a70cdf4338b0",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.weather.warm": {
+   "file": "talk.mom.context.weather.warm.mp3",
+   "character": "mom",
+   "dur": 6.168,
+   "sha256": "78a966072e8e6be93d08378ffa947ca81ffaf03afa73465e8055876263e11de6",
+   "heard": "",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}
