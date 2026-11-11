@@ -7,7 +7,7 @@ assert(data,'generated browser catalogue must export dialogue conditions');
 assert.deepEqual(JSON.parse(JSON.stringify(data)),Object.fromEntries(voice.lines.filter(l=>l.dialogue).map(l=>[l.id,{speaker:l.character,...l.dialogue}])),'generated conditions match the authored data');
 let clk={md:1107,dow:0,t:10},now=1e12;const memory={};
 const c={id:'dad',room:'lounge',goal:{act:'paper'},seated:true};
-const w={mk:()=>({school:true}),window:{NPCDialogue:data,ChoreKit:{avail:()=>true,list:()=>['cat'],done:()=>false},st:{getState:()=>({ch:2,flags:{veteran:true}}),current:()=>({id:'free'})}},L,clock:()=>clk,heardAt:id=>memory[id]||0,hear:id=>memory[id]=now,Date:class extends Date {static now(){return now}},Math,H:{mode:'walk',here:'lounge'},player:()=>({}),speech:{q:[]},C:{},nowMs:()=>0};
+const w={mk:()=>({school:true}),window:{NPCDialogue:data,ChoreKit:{avail:()=>true,list:()=>['cat'],done:()=>false},st:{getState:()=>({ch:2,flags:{veteran:true}}),current:()=>({id:'free'})}},L,clock:()=>clk,heardAt:id=>memory[id]||0,heardMap:()=>memory,hear:id=>memory[id]=now,Date:class extends Date {static now(){return now}},Math,H:{mode:'walk',here:'lounge'},player:()=>({}),speech:{q:[]},C:{},nowMs:()=>0};
 vm.createContext(w);
 const freshest=source.slice(source.indexOf('  function freshest('),source.indexOf('  // ================================================================ the 1999 clock'));
 const helpers=source.slice(source.indexOf('  function pick('),source.indexOf('  const eyes ='));

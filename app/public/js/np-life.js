@@ -766,7 +766,7 @@
     // Let a passing remark finish before starting the conversation.
     if (window.Bonfire?.talk?.(id)) { c.hold = 3; if(!speech.q.some(n=>n.c===c) && speech.cur?.c!==c && !window.st?.voiceBusy) acknowledge(c); return; }
     const lines = talkLines(c);
-    c.hold = 99; conversationHud();
+    c.hold = 99; c.talkedAt = nowMs(); conversationHud();
     const p = player(), d = dist(c, p);
     H.frameConversation?.(() => c.rig.eyeWorld(conversationFace), () => c.present && c.hold > 0, 'np.' + c.id);
     if (!c.seated && d < 82 && sameFloor(c, p) && !/^(washup|cook|wipe|water|carwash)$/.test(c.rig?.st.action||'')) { // (half a pace back if there's room: never into the worktop)
@@ -779,12 +779,12 @@
     }
     const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l?.id; return !!lid && (/^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000) && Date.now() - heardAt(lid) > 90000); });
     if (!fresh.length) { acknowledge(c); return; }
-    fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1) c.hold = 1.5; } }));
+    fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1 && !speech.q.some(n => n.c === c && n.talk)) c.hold = 1.5; } }));
   }
   function talkLines(c) {
     const s = window.st?.getState?.(), cur = window.st?.current?.()?.id, story = s && !s.flags.veteran;
     if (c.id === 'mom') {
-      if (story && cur === 'meetmom') return ['c1.mom.give', { id: 'c1.mom.give2', then: () => { window.st.event('meetmom'); say('mom', 'c1.mom.leave', { force: true }); } }];
+      if (story && cur === 'meetmom') return ['c1.mom.give', { id: 'c1.mom.give2', then: () => { window.st.event('meetmom'); say('mom', 'c1.mom.leave', { force: true, prio: 5, talk: true, again: true, then: () => { C.mom.hold = 1.5; } }); } }]; // (her goodbye is part of the talk: Wait, still facing you, until it ends)
       if (pendingHand.mom) { const p = pendingHand.mom; delete pendingHand.mom; return [p.done].concat(p.rate ? [p.rate] : []); }
       if (story && s.ch === 1 && ['tidy', 'bed', 'bin'].includes(cur)) return jobReply(c,cur);
       const g = momGive(); if (g) { try { window.ChoreKit.chip?.(g); } catch (e) {} return jobReply(c,g); }
@@ -802,7 +802,24 @@
     }
     return [pick(barkPool(c, clock(), true) || ['bark.sis.react.console', 'bark.sis.react.drawing'], c)];
   }
-  function pick(list, c) { const L2 = list.filter(id => L[id] && !recent(id) && !speech.q.some(n=>n.lineId===id)); const id = freshest(L2, x => x, c.lastBarkId); if (id) c.lastBarkId = id; return id; }
+  function pick(list, c) { const L2 = list.filter(id => L[id] && !recent(id) && !speech.q.some(n=>n.lineId===id)), hot = hotTopics(), cool = L2.filter(id => !hot.has(topicOf(id))); const id = freshest(cool.length ? cool : L2, x => x, c.lastBarkId); if (id) c.lastBarkId = id; return id; }
+  // Topics, as well as lines, take turns (R246). The weather, the season and the consoles are family-wide
+  // topics: once anybody has brought one up, nobody else picks it again for a while. Derived from the shared
+  // heard memory (when each line was last heard), so a refresh keeps the same picture.
+  const SHARED_TOPIC_MS = 20 * 60000;
+  function topicOf(id) {
+    const w = dialogue()[id]?.when;
+    if (w?.job) return 'job.' + w.job;
+    const m = /^chore\.([a-z]+)\.(give|remind)/.exec(id); if (m) return 'job.' + m[1];
+    if (w?.weather || /\.weather\b/.test(id)) return 'weather';
+    if (w?.season) return 'season';
+    if (w?.console || /\.console\b/.test(id)) return 'console';
+    return null;
+  }
+  // The family-wide topics somebody raised in the last twenty minutes (one pass over the heard memory).
+  function hotTopics() { const m = heardMap(), out = new Set(), since = Date.now() - SHARED_TOPIC_MS; for (const id in m) if (m[id] > since) { const t = topicOf(id); if (t && !t.startsWith('job.')) out.add(t); } return out; }
+  // The speaker's last n lines this player heard, newest first.
+  function lastHeardFrom(c, n) { const m = heardMap(); return Object.keys(m).filter(id => L[id]?.[0] === c.id).sort((a, b) => m[b] - m[a]).slice(0, n); }
   // Authored conditions are data, never expressions. Re-evaluate before delivery
   // as well as selection: a queued line must still describe the world now.
   const dialogue = () => window.NPCDialogue || {};
@@ -830,8 +847,12 @@
     if (!introduced) return [pick(give,c)];
     // A question about an unfinished job first earns a brief reminder. Once
     // those are familiar, allow ordinary conversation instead of nagging again.
+    // Never more than two lines about the same job in a row: something else comes in between.
+    const last = lastHeardFrom(c, 2);
+    if (last.length === 2 && last.every(id => topicOf(id) === 'job.' + job)) return [pick(barkPool(c,clock(),true) || [],c) || pick(reminders,c)];
     return [pick(reminders,c) || pick(barkPool(c,clock(),true) || [],c)];
   }
+  const momWithPlayer = () => { const m = C.mom, p = player(); return !!m?.present && (m.hold > 0 || nowMs() - (m.talkedAt || 0) < 90000 || sameFloor(m, p) && dist(m, p) < 360); };
   function lineValid(c, id, text, context, requested) {
     // Requested/story/phone speech describes the conversation, not an ambient
     // guess about the room. Only unsolicited lines inherit ambient eligibility.
@@ -844,7 +865,8 @@
     if (context?.kind === 'bonfireStage') return window.Bonfire?._?.stageAt?.() === context.stage;
     if (context?.kind === 'tvQuiet') return !!window.HouseLife?.quiet?.() && !!window.HouseTelly?.on && window.HouseTelly.volume >= 8;
     if (context?.kind === 'moment') return !!window.HouseLife?.momentValid?.(context.text);
-    if (context?.kind === 'choreNag') return !!window.ChoreKit?.list?.().some(k=>!window.ChoreKit.done(k)) && (!context.pc || H.mode === 'monitor');
+    // Never shout a nag across the room at a player standing with her (or straight after a chat): she'd just say it.
+    if (context?.kind === 'choreNag') return !!window.ChoreKit?.list?.().some(k=>!window.ChoreKit.done(k)) && (!context.pc || H.mode === 'monitor') && !momWithPlayer();
     return true;
   }
   function acknowledge(c) {
@@ -881,7 +903,7 @@
       add(clk.dow === 6, ['bark.dad.wknd1', 'bark.dad.wknd3']); add(clk.dow === 0 && room === 'lounge', ['bark.dad.wknd2']);
       add(room === 'lounge' && tv?.on && (act === 'telly' || act === 'remote'), ['bark.dad.tv2']);
       add(room === 'lounge' && tv?.on && tv.st?.text, ['bark.dad.tv3']);
-      add(room === 'lounge' && c.seated, ['bark.dad.mess2']); add(room === 'hall', ['bark.dad.mess1', 'bark.dad.line3']);
+      add(room === 'lounge' && !c.seated && c.goal?.spotKey === 'armchair' && c.cur?.k === 'route', ['bark.dad.mess2']); add(room === 'hall', ['bark.dad.mess1', 'bark.dad.line3']); // (the chair line on his way to sit down, never while he's in it)
       add(room === 'garden', ['bark.dad.react.garden', 'bark.dad.react.gnome']);
       add(t >= 21.5 && t < 22.5, ['bark.dad.bed1']);
       add(H.mode === 'monitor' && t >= 22, ['bark.dad.bed2']);
@@ -993,6 +1015,7 @@
     if (!ready) return false;
     const s = window.st?.getState?.(); if (!s || s.flags.veteran) return false;
     if (stepId === 'meetmom') return true; // Mom's on her way up
+    if (stepId === 'tidy' && (speech.cur?.lineId === 'c1.mom.leave' || speech.q.some(n => n.lineId === 'c1.mom.leave') || Date.now() - heardAt('c1.mom.give') < 10 * 60000)) return true; // (she has just given these jobs in person: no second telling)
     if (stepId === 'bed') { visit = { id: 'mom', until: nowMs() + 90000, d: { key: 'story.momvisit', spot: SPOT.bedDoorMom, spotKey: 'bedDoorMom', onArrive: () => { say('mom', 'c1.tidy.done', { force: true, prio: 4 }); say('mom', 'c1.bed.give', { force: true, prio: 4, then: () => { if (visit) visit.until = nowMs() + 6000; } }); } } }; return true; }
     if (stepId === 'bin') { if (inEarshot(C.mom, 700)) { say('mom', 'c1.bed.done', { force: true, prio: 4 }); say('mom', 'c1.bin.give', { force: true, prio: 4 }); if (visit) visit.until = nowMs() + 8000; } else { say('mom', 'c1.bed.done', { call: true, prio: 4 }); say('mom', 'c1.bin.give', { call: true, prio: 4 }); } return true; }
     if (stepId === 'dad') { say('mom', 'c1.bin.done', inEarshot(C.mom) ? { force: true, prio: 4 } : { call: true, prio: 4 }); say('mom', 'c1.car.engine', inEarshot(C.mom) ? { force: true, prio: 4 } : { call: true, prio: 4 }); ls.set('jhp_np_dadhome', clock().md); return true; }
@@ -1206,12 +1229,35 @@
     }
     window.HouseLife?.syncPhone?.();
     H.ROOMS.drive?.car?.update();
+    H.ROOMS.drive?.washProps?.(C.dad.present && C.dad.room === 'drive' && C.dad.rig?.st?.action === 'carwash');
     outfits();
+    outsideDoors(dt);
     if (simMode) return;
     speechTick(); barks(clk); carryReactions(); gameLadCameo();
     for (const c of chars) looks(c);
     conversationHud();
     if (nowMs() - savedAt > 2000) save();
+  }
+  // The front and back doors never stand open all day and night. One left open (by the player, or by
+  // someone who couldn't shut it behind them because somebody was in the way) swings shut after a while
+  // with nobody in or near it: never on the player, never on someone about to walk through it.
+  // Driven by the family clock, so a fast-forward closes them too; a refresh restarts the wait.
+  const OUTSIDE_DOORS = ['front', 'back'], doorIdle = {};
+  function outsideDoors(dt) {
+    for (const id of OUTSIDE_DOORS) {
+      const D = H.DOORS[id], b = D?.closedBounds;
+      if (!D || !b || D.always || !D.open || D.ang < 0.98 && !simMode) { delete doorIdle[id]; continue; } // (a fast-forward doesn't wait for the swing)
+      const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2, lvl = H.ROOMS[D.rooms[0]]?.lvl || 'G', pl = player();
+      const playerNear = H.live && pl.lvl === lvl && Math.hypot(pl.x - cx, pl.z - cz) < 190;
+      const using = chars.some(o => o.present && (o.lvl === lvl && Math.hypot(o.x - cx, o.z - cz) < 150 || o.opened?.has(id) ||
+        o.cur?.k === 'route' && o.cur.r?.doors?.some(q => q.id === id && (o.cur.s || 0) < q.s1 + 75)));
+      if (playerNear || using) { doorIdle[id] = 0; continue; }
+      doorIdle[id] = (doorIdle[id] || 0) + dt;
+      if (doorIdle[id] < 15) continue;
+      delete doorIdle[id]; H.setDoor(id, false);
+      // The walking pose carries the doors: keep a refresh showing it shut even if it was saved elsewhere.
+      const pose = ls.get('jhp_hs_pose'); if (pose?.d && pose.d[id] === true) { pose.d[id] = false; ls.set('jhp_hs_pose', pose); }
+    }
   }
   // Dad changes after work (and into his weekend jumper) when nobody's watching
   let outfitAt = 0;
@@ -1374,7 +1420,7 @@
   window.HouseFamily = {
     // Other house speech (hs-life moments, chore shouts) picks through the same memory and marks what it chose.
     freshest: (list, key = x => x) => { const x = freshest(list.filter(v=>!recent(key(v))), key); if (x !== undefined) hear(key(x)); return x; }, heardAt,
-    enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
+    enabled: true, momWithPlayer: () => momWithPlayer(), get active() { return ready; }, get ready() { return ready; }, chars: C,
     get speaking() { return !!speech.cur || speech.q.length > 0; },
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
     get carAway() {

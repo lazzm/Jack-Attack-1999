@@ -60,6 +60,7 @@ a{color:#0000ee}
 #tray{flex:none;height:24px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid;border-color:#808080 #fff #fff #808080}
 #tray button{background:none;border:0;padding:0;cursor:pointer;display:flex;align-items:center;gap:3px;font:11px var(--ui);color:#000}
 #tray svg{width:16px;height:16px}
+#tray button[hidden]{display:none}#trayNotices span{font-weight:700;min-width:8px}
 #clock{min-width:44px;text-align:right}
 @media (max-width:600px){ #tray{flex:0 1 auto;min-width:0;overflow:hidden;justify-content:flex-end;gap:5px;padding:0 4px} #tray > *{flex:none} } /* phones: a crowded tray loses its left-most icons, never the clock */
 #startMenu{position:fixed;left:2px;bottom:31px;z-index:3100;display:none;background:var(--face);border:2px solid;border-color:#dfdfdf #000 #000 #dfdfdf;box-shadow:inset -1px -1px #808080,inset 1px 1px #fff;padding:2px 2px 2px 26px;min-width:210px}

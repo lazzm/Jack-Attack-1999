@@ -96,6 +96,27 @@
         const p=carPoint(-(75-20*9/47),-95,30),support=carPoint(-(75-29*9/47),-104,-24);
         return {...p,rx:8*scale,rz:5*scale,slope:9/47,support};
       };
+      // R251: while Dad washes the car there is a bucket of suds by his feet, a little foam on the door,
+      // a wet sheen where he has wiped and a damp patch on the drive. Hidden (no draws) the rest of the time.
+      { const wash = new T.Group(); wash.name = 'carwash-props'; wash.visible = false; (r.car?.group||r.group).add(wash);
+        const at = (mesh, lx, ly, lz) => { const p = carPoint(lx, ly, lz); mesh.position.set(p.x, p.y, p.z); mesh.scale.multiplyScalar(scale); wash.add(mesh); return mesh; };
+        const foam = M({ c: '#f3f6f4', sh: 30, sp: '#ffffff' });
+        at(new T.Mesh(new T.CylinderGeometry(12.5, 10, 25, 14), M({ c: '#c8402e', sh: 40, sp: '#555555' })), -134, -12.5, -24);
+        at(new T.Mesh(new T.SphereGeometry(11.4, 12, 6), foam), -134, -24.2, -24).scale.y *= .2;
+        const handle = at(new T.Mesh(new T.TorusGeometry(12.2, .55, 4, 14, Math.PI), M({ c: '#9a9ea3', sh: 60, sp: '#cccccc' })), -134, -25, -24); handle.rotation.y = Math.PI / 2; handle.rotation.z = Math.PI * .08;
+        // (a soapy smear on the door under the window he's doing: a cluster of small flattened bubbles)
+        let seed = 11; const rr = () => (seed = (Math.imul(seed, 1103515245) + 12345) >>> 0) / 4294967296;
+        for (let k = 0; k < 14; k++) { const a = rr() * Math.PI * 2, d = Math.sqrt(rr()) * 7; at(new T.Mesh(new T.SphereGeometry(.7 + rr() * 1.3, 7, 4), foam), -85.9, -66 + Math.sin(a) * d * .7, 28 + Math.cos(a) * d * 1.3).scale.x *= .35; }
+        // A wet sheen with soft edges and a few runs, a decal on the door like the mud (never a hard rectangle).
+        const wetTex = K.tex('ch.car.wet', 128, 128, (g, w, h) => {
+          g.clearRect(0, 0, w, h); const gr = g.createRadialGradient(64, 54, 4, 64, 54, 58); gr.addColorStop(0, 'rgba(22,30,36,.42)'); gr.addColorStop(.6, 'rgba(22,30,36,.24)'); gr.addColorStop(1, 'rgba(22,30,36,0)');
+          g.fillStyle = gr; g.beginPath(); g.ellipse(64, 54, 60, 46, 0, 0, Math.PI * 2); g.fill();
+          for (const [x, l] of [[38, 54], [57, 66], [80, 48], [96, 40]]) { const run = g.createLinearGradient(0, 70, 0, 70 + l); run.addColorStop(0, 'rgba(22,30,36,.32)'); run.addColorStop(1, 'rgba(22,30,36,0)'); g.fillStyle = run; g.fillRect(x, 70, 3, l); }
+        }, { clamp: true });
+        const sheen = at(new T.Mesh(new T.PlaneGeometry(44, 40), M({ c: '#fff', map: wetTex, tr: true, dw: false, sh: 120, sp: '#ffffff' })), -85.6, -60, 28); sheen.rotation.y = -Math.PI / 2; sheen.renderOrder = 4;
+        at(new T.Mesh(new T.CylinderGeometry(26, 26, .3, 16), M({ c: '#2c2f30', o: .38, sh: 70, sp: '#888888', dw: false })), -104, -.2, 22).scale.x *= .7;
+        r.washProps = on => { if (wash.visible !== !!on) { wash.visible = !!on; H.dirty(); } };
+      }
       MUD.forEach(([lx, ly, lz, f], i) => {
         const {x,y,z}=carPoint(lx,ly,lz);
         const m = M({ c: '#fff', map: mudTex(i, i === 9), tr: true, dw: false, sh: 10 }).clone();

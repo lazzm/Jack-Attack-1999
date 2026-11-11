@@ -666,8 +666,10 @@
     // Independent inner lining: finer painted plaster in this tiny space only.
     // Keep the hall's wallpaper and its texture scale on the outside faces.
     const lining=(x,pts)=>poly(B,pts.map(([z,y])=>[x,y,z]),plaster);
-    solidWall(B,331,0,-90,[[251.2,yU(251.2)],[zF,GY],[CUP.a1,GY],[CUP.a1,yU(CUP.a1)+7],[CUP.a0,yU(CUP.a0)+7],[CUP.a0,GY],[251.2,GY]],plaster,.6);
-    lining(409,[[251.2,GY],[251.2,yU(251.2)],[zF,GY]]);
+    // Both side walls rise 2 cm into the soffit slab (inside its 2.3 cm vertical thickness): an edge-to-edge
+    // junction left a hairline seam along the slope that showed the dark stair structure behind (R249).
+    solidWall(B,331,0,-90,[[251.2,yU(251.2)-2],[zF,GY-2],[zF,GY],[CUP.a1,GY],[CUP.a1,yU(CUP.a1)+7],[CUP.a0,yU(CUP.a0)+7],[CUP.a0,GY],[251.2,GY]],plaster,.6);
+    lining(409,[[251.2,GY],[251.2,yU(251.2)-2],[zF,GY-2],[zF,GY]]);
     B.panel(370,(yU(251.2)+GY)/2,251.2,78,GY-yU(251.2),.6,plaster,{uv:28});
     B.panel(370,GY,(250.5+CUP.end)/2,80,CUP.end-250.5,2,M({c:'#fff',map:tex('carpetBeige')}),{rx:90,uv:90});
     // Close the last 20 cm as a shallow back board, entirely below the slope.
@@ -1785,7 +1787,16 @@
     // Next door is a complete solid model in the shared neighbourhood.
     // a low front wall with a gate, the hedge, a lamp-post on the pavement
     // Openings: the pedestrian gate (x 248..332, on the path's line) and the wide gateway Dad drives through (356..620).
-    const capM = M('#9a9a92');
+    // Weathered cast-stone copings (R250): speckled aggregate, rain-darkened streaks and a few lichen spots,
+    // drawn once at 128 px, so the caps read as stone beside the textured brick instead of flat slabs.
+    const capM = M({ c: '#fff', sh: 4, sp: '#1a1a18', map: K.tex('hs.front.capstone', 128, 128, (g, w, h) => {
+      let a = 4127; const r = () => (a = (Math.imul(a, 1664525) + 1013904223) >>> 0) / 4294967296;
+      g.fillStyle = '#a19f96'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 2600; i++) { const v = 120 + Math.floor(r() * 70); g.fillStyle = `rgba(${v},${v - 2},${v - 8},.55)`; g.fillRect(Math.floor(r() * w), Math.floor(r() * h), 1 + (r() > .85), 1); }
+      for (let i = 0; i < 9; i++) { const x = r() * w, y = r() * h, rr = 6 + r() * 16; const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, 'rgba(70,72,64,.22)'); gr.addColorStop(1, 'rgba(70,72,64,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
+      for (let i = 0; i < 7; i++) { g.fillStyle = r() > .5 ? 'rgba(178,176,120,.55)' : 'rgba(214,212,190,.5)'; const x = r() * w, y = r() * h; g.beginPath(); g.arc(x, y, 1 + r() * 2.2, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = 'rgba(40,40,36,.18)'; g.fillRect(0, h - 6, w, 6); g.fillRect(0, 0, w, 2);
+    }) });
     // A low wall (50 cm of brick under a 5 cm coping, 22 thick) between proper piers: 33 cm square, 114 cm of brick under
     // a 42 cm stone cap and a smaller one on that (PIER_TOP above the ground: the Halloween lantern stands on it).
     for (const [a, b] of [[-360, FRONT_PIERS[0] - 16.5], [FRONT_PIERS[2] + 16.5, 730]]) { B.box((a + b) / 2, GY - 25, FZ - 5, b - a, 50, 22, mBrick(), { uv: 128 }); B.rbox((a + b) / 2, GY - 52.5, FZ - 5, b - a, 5, 26, .8, capM); }

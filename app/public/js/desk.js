@@ -25,18 +25,39 @@
     const wrap = $('toastWrap'); if (!wrap || !toastQ.length) return;
     // nobody can see a balloon under the switch-on screens, the log-on box or the dial-up window: they wait until it's gone
     if ((!document.body.classList.contains('pc-monitor') && document.querySelector('#boot:not(.gone)')) || document.querySelector('.jlogoff:not(.jlbye), .logon, .dialwin')) { deskAt = 0; toastTimer = setTimeout(toastPump, 400); return; }
+    // A short landscape phone has no room for balloons over the desktop: notices wait in the tray (R254).
+    // Quick replies to something you just did (a short balloon) still show; a tap on the tray shows the rest.
+    if (trayHold()) { trayBadge(); return; }
+    trayBadge();
     const now = Date.now(); if (!deskAt) deskAt = now;
     // the first minute on the desktop: one balloon at a time with a breather in between (a new visitor gets a lot of hellos)
     const settling = !bootAt || now - Math.max(bootAt, deskAt) < 60000, gap = settling ? 4000 : 500;
     if (wrap.children.length >= (settling ? 1 : toastMax())) return; // a balloon going away calls toastPump again
     const wait = wrap.children.length ? toastLast + gap - now : settling ? toastGone + 1200 - now : 0;
     if (wait > 0) { toastTimer = setTimeout(toastPump, wait); return; }
-    const { b, ms } = toastQ.shift();
+    const { b, ms } = trayPull || !trayShort() ? toastQ.shift() : toastQ.splice(toastQ.findIndex(q => (q.ms || 4500) <= 2500), 1)[0];
+    trayPull = false; trayBadge();
     toastLast = now;
     wrap.appendChild(b);
     setTimeout(() => b._gone(), ms || 4500);
     if (toastQ.length) toastTimer = setTimeout(toastPump, gap);
   }
+  const trayShort = () => innerHeight <= 430 && innerWidth > innerHeight;
+  let trayPull = false, trayBtn = null;
+  // (nothing short waiting and nobody asked: hold them)
+  const trayHold = () => trayShort() && !trayPull && !toastQ.some(q => (q.ms || 4500) <= 2500);
+  function trayBadge() {
+    const tray = $('tray'); if (!tray) return;
+    const n = trayShort() ? toastQ.filter(q => (q.ms || 4500) > 2500).length : 0;
+    if (!trayBtn && n) {
+      trayBtn = document.createElement('button'); trayBtn.type = 'button'; trayBtn.id = 'trayNotices'; trayBtn.title = 'Notices waiting';
+      trayBtn.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" d="M2 2h12v1H2zM1 3h1v7H1zM14 3h1v7h-1zM2 10h5v1H2zM9 10h5v1H9zM6 11h1v2H6zM5 13h1v1H5z"/><path fill="#ffffe1" d="M2 3h12v7H2zM7 10h2v1H7zM7 11h1v1H7z"/><path fill="#000080" d="M4 5h8v1H4zM4 7h6v1H4z"/></svg><span></span>';
+      trayBtn.addEventListener('click', () => { const wrap = $('toastWrap'); if (wrap) [...wrap.children].forEach(x => x._gone?.()); trayPull = true; toastGone = 0; toastLast = 0; toastPump(); });
+      tray.insertBefore(trayBtn, $('clock') || null); // (beside the clock: a crowded phone tray drops its left-most icons)
+    }
+    if (trayBtn) { trayBtn.hidden = !n; trayBtn.querySelector('span').textContent = n; trayBtn.setAttribute('aria-label', n + ' notice' + (n === 1 ? '' : 's') + ' waiting'); }
+  }
+  addEventListener('resize', () => setTimeout(toastPump, 0));
   function toast(title, text, ms) {
     const b = document.createElement('div'); b.className = 'balloon';
     const t = document.createElement('b'); t.textContent = title; b.appendChild(t);
