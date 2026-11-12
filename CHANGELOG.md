@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.93.0 - 2026-11-12
+- Six more family lines are recorded: Mom's list and her quiet sit in the lounge, and what Mom, Dad and your sister think of the Segue and PlaySpace.
+- The street trees' leaves are softer and less blocky up close.
+- Three lines are reworded so they read and sound more natural, ready for their recordings.
+
 ## 2.92.0 - 2026-11-11
 - At night the kitchen window and back-door light fall across the patio and lawn, and moonlight from the bedroom window lies across the floor and bed.
 - Magazines open upright and readable on phones; one finger moves around the page when you zoom in, and a swipe turns the page.

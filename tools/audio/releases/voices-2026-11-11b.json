@@ -1,0 +1,84 @@
+{
+ "created": "2026-11-11",
+ "why": "Ninth batch: six 11 Nov takes the recorder check had rejected only for spelling (Segway for Segue, practicing, organized, playspace is). Re-cut from the raw recordings with the pipeline cut and loudness steps, then voice-qa, a manual transcript review and an accent check (all Received Pronunciation).",
+ "accepted": {
+  "talk.dad.context.console.md": {
+   "file": "talk.dad.context.console.md.mp3",
+   "character": "dad",
+   "dur": 5.4,
+   "sha256": "664f92e4388358a4b7c4ec475de6820575f41cccef9a51037cad2318cc7540d5",
+   "heard": "Your Segway is a good little machine. I like anything with a proper switch.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.dad.context.console.ps": {
+   "file": "talk.dad.context.console.ps.mp3",
+   "character": "dad",
+   "dur": 5.976,
+   "sha256": "faafaacd6601a9226e8b83b1e2a05f09e6aba79a2dbfa3a782ecfa2d49117224",
+   "heard": "Your playspace is clever. I'll have a go if there's a setting for baffled fathers.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.console.md": {
+   "file": "talk.mom.context.console.md.mp3",
+   "character": "mom",
+   "dur": 4.368,
+   "sha256": "69cffd4670cf2d99d040e94ff055f03c5a874e1f3f03708ce096495750936ac5",
+   "heard": "Your Segway looks very smart there. I hope you're pleased with it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.context.room.lounge": {
+   "file": "talk.mom.context.room.lounge.mp3",
+   "character": "mom",
+   "dur": 4.44,
+   "sha256": "9b2ab7b842a6f4c35750e2ca6e751ffb416107fbb612a909cc5c6ee67b80c92b",
+   "heard": "It's lovely to sit in here without folding anything. I'm practicing.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.mom.morning.07": {
+   "file": "talk.mom.morning.07.mp3",
+   "character": "mom",
+   "dur": 4.416,
+   "sha256": "6b25944b0afbbb507de3dfc31670f91aa632f3342b118a5e3d0b01b0ab693a6b",
+   "heard": "I'm making a list. If I lose it, remind me I was being organized.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "talk.sister.context.console.md": {
+   "file": "talk.sister.context.console.md.mp3",
+   "character": "sister",
+   "dur": 5.784,
+   "sha256": "092a8954f1f7ce1e405ad3ca213f300a45320cb9e8c21f1f0d16b81d0b2fcd46",
+   "heard": "Your Segway's got a very serious name. Will it mind if I laugh when I win?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}
