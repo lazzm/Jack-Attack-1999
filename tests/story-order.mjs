@@ -116,7 +116,20 @@ for(const scenario of scenarios){
     await p.setViewportSize({width:w,height:h});
     await aim([30,-55,195],[30,-20,310]);await p.waitForTimeout(700);await shot('04-edge-'+w+'x'+h);
     const box=await p.locator('.st-marker').boundingBox();
-    if(box){assert(box.x>=0&&box.x+box.width<=w+1);assert(box.y>=80&&box.y+box.height<h-70);assert(!(box.x<w/2&&box.x+box.width>w/2&&box.y<h/2&&box.y+box.height>h/2),'Marker covers the centre')}
+    // The edge compass sits on the true screen border (25px, since ed00ddc) and steers round measured HUD ink
+    // (484faa7, 2.92's same-frame re-measure), not a fixed band. The old y>=80 / h-70 band dated from the 99a6d96
+    // marker's 128-175px margins: a target under your feet (two tidy items 1m away, the nearest one wins) now
+    // correctly points from the bottom edge, and one overhead from the top edge beside the objective note.
+    if(box){
+     const fit=await p.evaluate(()=>{
+      const m=document.querySelector('.st-marker'),r=[m,m.querySelector('.st-marker-label')].filter(Boolean).map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+      const ink=[...document.querySelectorAll('.hs-top,.hs-map,.hs-tin,.ch-jobs,.rm-coin,.rm-tinbtn,.rm-counter,.st-objective:not([hidden]),.hs-toast.on,.hs-tip.on,.hs-note.on,.hs-voice.on,.hs-call.on,.ch-chip:not([hidden]),.ht-acts .ht-b,.ht-top .ht-b,.ht-stick,.ht-look')]
+       .filter(e=>{const c=getComputedStyle(e);return c.display!=='none'&&c.visibility!=='hidden'&&+c.opacity>0}).map(e=>[e.className,e.getBoundingClientRect()]).filter(([,o])=>o.width&&o.height);
+      return {boxes:r.map(b=>[b.left,b.top,b.right,b.bottom]),hits:ink.filter(([,o])=>r.some(b=>b.left<o.right&&b.right>o.left&&b.top<o.bottom&&b.bottom>o.top)).map(([c,o])=>c+' '+[o.left,o.top,o.right,o.bottom].map(Math.round))};
+     });
+     assert(fit.boxes.every(([l,t,r,b])=>l>=0&&r<=w+1&&t>=0&&b<=h+1),'Marker leaves the screen at '+w+'x'+h+': '+JSON.stringify(fit.boxes));
+     assert.deepEqual(fit.hits,[],'Marker covers HUD ink at '+w+'x'+h);
+     assert(!(box.x<w/2&&box.x+box.width>w/2&&box.y<h/2&&box.y+box.height>h/2),'Marker covers the centre')}
    }
    await p.setViewportSize({width:1366,height:860});
    await aim([30,-55,195],[65,38,130]);await p.waitForTimeout(800);await shot('05-tidy-near');

@@ -1165,7 +1165,7 @@
     geo.computeBoundingBox();
     const bounds=new T.Box3(),mesh=new T.InstancedMesh(geo,material,parts.length),colour=new T.Color();
     for(let i=0;i<parts.length;i++){
-      const part=parts[i],shade=part.shade||1;mesh.setMatrixAt(i,part.matrix);colour.setRGB(shade*(1-(part.seed%3)*.018),shade,shade*(1-(part.seed%3)*.025));mesh.setColorAt(i,colour);
+      const part=parts[i],shade=part.shade||1;mesh.setMatrixAt(i,part.matrix);colour.setRGB(shade*(1-(part.seed%3)*.018),shade,shade*(1-(part.seed%3)*.025));if(part.tint)colour.multiply(part.tint);mesh.setColorAt(i,colour);
       bounds.union(geo.boundingBox.clone().applyMatrix4(part.matrix));
     }
     // r128 culls an InstancedMesh against its base geometry's sphere.

@@ -45,6 +45,17 @@
  // the same branch/clump kit as Jack's garden; far trees spend just eight
  // scalloped clumps on a broken silhouette instead of three oversized balls.
  const treeLeaf=paint('#6c824e');treeLeaf.vertexColors=true;
+ // R248: the crowns are shaded per pixel from the clump's interpolated normal (no new varyings beyond one vec3, no
+ // extra draws or triangles). Shading baked into a 20-vertex clump's vertex colours interpolated linearly across each
+ // big triangle and read as facets up close; here a wide wrap carries the lit top round the sides, and a soft belly
+ // shadow (ambient occlusion under the clump) replaces the per-vertex speckle.
+ treeLeaf.onBeforeCompile=s=>{
+  s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 crownN;').replace('#include <begin_vertex>','#include <begin_vertex>\ncrownN=normal;');
+  s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 crownN;').replace('#include <color_fragment>',`#include <color_fragment>
+   {vec3 n=normalize(crownN);float up=smoothstep(-.45,1.,-n.y),belly=smoothstep(-.1,1.,n.y);
+    float shade=(.8+.26*up)*(1.-.16*belly);diffuseColor.rgb*=shade*vec3(1.+.04*up,1.,1.-.07*up+.05*belly);}`);
+ };
+ treeLeaf.customProgramCacheKey=()=>'street-crown-soft';
  // Leaf clusters painted at street scale: lit sprays, dark gaps between them.
  treeLeaf.map=K.tex('env.tree.leaves',128,128,(g,w,h)=>{
   g.fillStyle='#a9b98f';g.fillRect(0,0,w,h);const r=K.rnd(733);
@@ -62,7 +73,8 @@
   for(let j=0;j<pos.length;j+=3){const s=.92+r()*.16;pos[j]*=s;pos[j+1]*=s*(pos[j+1]>0?.9:1);pos[j+2]*=s;uv.push((pos[j]*.8+pos[j+2]*.6)*2,(pos[j+1]*.9+pos[j]*.25)*2)}
   const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(index);geo.computeVertexNormals();
   const n=geo.attributes.normal,colours=[];
-  for(let i=0;i<n.count;i++){const up=Math.max(0,-n.getY(i)),down=Math.max(0,n.getY(i)),shade=(.8+.26*up)*(1-.14*down)*(.95+r()*.1);colours.push(shade*(1+.04*up),shade,shade*(1-.07*up+.05*down))}
+  // (the light and the belly shadow are per pixel, in treeLeaf's shader: the vertices only carry a faint, low-contrast mottle)
+  for(let i=0;i<n.count;i++){const v=.985+r()*.03;colours.push(v,v,v)}
   geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));return geo;
  }
  const fence=paint('#9b876c');
@@ -469,6 +481,8 @@
   }
   for(const [x,z,h,grade]of [[2250,3200,510,1],[3200,3500,560,6],[-2260,3190,490,1],[-650,-3410,520,1],[820,-3480,480,6],[2140,-3250,540,1],[-2650,-1450,460,1]])tree(b.at(0,GY+grade,0),x,z,h,2);
   cornerShop(b);green(b)});
+ // (R248) a slight per-clump colour drift, yellow-green to blue-green, so neighbouring clumps don't read as one moulded lump
+ {const r=K.rnd(4171),tint=new T.Color();for(const part of crownParts){const k=r()*2-1;part.tint=tint.clone().setRGB(1+.045*k,1+.012*(r()-.5),1-.06*k)}}
  if(crownParts.length){const crowns=K.foliageInstances(crownParts,treeLeaf,false,crownClump());crowns.name='street-layered-crowns';group.add(crowns)}
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
  group.traverse(o=>{
