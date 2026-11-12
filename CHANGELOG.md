@@ -4,6 +4,7 @@
 - Six more family lines are recorded: Mom's list and her quiet sit in the lounge, and what Mom, Dad and your sister think of the Segue and PlaySpace.
 - The street trees' leaves are softer and less blocky up close.
 - Three lines are reworded so they read and sound more natural, ready for their recordings.
+- Verified: every unit check, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, phones (same speed as 2.92.0), voices 9/9, characters, zero, Bounce Quest, cupboard, voice recordings, people pass, identity, both phone UI checks, the magazine reader, first job, the PC tray, story order, night switching, seasons, performance, physics, smoke; voice recordings again after naming the new recordings file correctly, and the story-order check twice on its own server.
 
 ## 2.92.0 - 2026-11-11
 - At night the kitchen window and back-door light fall across the patio and lawn, and moonlight from the bedroom window lies across the floor and bed.
